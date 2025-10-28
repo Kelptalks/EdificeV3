@@ -1,5 +1,5 @@
 #[repr(u16)]
-#[derive(Copy, Clone)]  // Add these
+#[derive(Copy, Clone, PartialEq)]
 pub enum BlockTriangle
 {
     TopLeft = 0,
@@ -43,4 +43,3 @@ impl BlockTriangle {
         }
     }
 }
-

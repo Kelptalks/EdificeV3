@@ -41,8 +41,8 @@ impl ShaderTextureManager {
 
     pub fn splice_textures(&self, atlas_image: &mut RgbaImage) {
         // Get the block sprite sheet and masking block
-        let block_sprite_image = image::open("assets/Shaders.png").unwrap().to_rgba8();
-        let block_masks_image = image::open("assets/masking_textures.png").unwrap().to_rgba8();
+        let block_sprite_image = image::open("Assets/Shaders.png").unwrap().to_rgba8();
+        let block_masks_image = image::open("Assets/masking_textures.png").unwrap().to_rgba8();
 
         println!("Block mask width : {}", block_masks_image.width());
 
@@ -126,7 +126,7 @@ impl ShaderTextureManager {
                         atlas_image.put_pixel(x_draw_cor - 32, y + y_mod, *block_sprite_image.get_pixel(x + block_src_x_cor, y + block_src_y_cor));
                     }
                     //TOPBOTRIGHT
-                    else if r == 130 && g == 255 && b == 0 {
+                    else if r == 0 && g == 255 && b == 65 {
                         let y_mod = (0.0 + ShaderTriangle::TopBotRight.get_shader_triangle_id() * triangle_spacing) as u32 + y_draw_cor;
                         atlas_image.put_pixel(x_draw_cor - 32, y + y_mod, *block_sprite_image.get_pixel(x + block_src_x_cor, y + block_src_y_cor));
                     }
@@ -158,7 +158,12 @@ impl ShaderTextureManager {
 
     pub fn get_shader_triangle_src_rect(&self, triangle: ShaderTriangle, shader_type: BlockShaderType) -> [f32; 4] {
         let x_start_cor = self.start_cords[0] + ((self.buffer_space + self.sprite_pixel_scale[0]) * shader_type.id() as f32);
-        let y_start_cor = self.start_cords[1] + ((self.buffer_space + self.sprite_pixel_scale[1]) * triangle.id() as f32);
+        
+        let triangle_spacing = self.buffer_space + self.sprite_pixel_scale[1];
+        let triangle_id = triangle.id();
+        
+        
+        let y_start_cor = self.start_cords[1] + (triangle_id as f32 * triangle_spacing);
 
         let x_end_cor = x_start_cor + self.sprite_pixel_scale[0];
         let y_end_cor = y_start_cor + self.sprite_pixel_scale[1];

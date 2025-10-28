@@ -99,12 +99,13 @@ impl WorldGenManager {
                         if layer.get_if_z_in_lair_bounds(z) {
                             let block_to_gen = layer.get_block_type().id();
                             if (block_to_gen == BlockType::Grass.id()) {
-
-
                                 grass_gen_manager.gen_grass(current_cords, world);
+                                if (x == 0 && y < 0) {
+                                    world.set_world_value(BlockType::Core.id_as_u16(), current_cords);
+                                }
                             }
                             else {
-                                world.set_world_value(layer.get_block_type().id() as u16, current_cords);
+                                world.set_world_value(layer.get_block_type().id_as_u16(), current_cords);
                             }
                         }
                     }

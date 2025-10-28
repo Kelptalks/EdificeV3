@@ -1,4 +1,3 @@
-
 use crate::game_data::{renderer::casted_block_manager::casted_block_manager::CastedChunkManager, TextureManager, World, Types::{BlockTriangle, BlockType}};
 
 #[derive(PartialEq)]
@@ -139,8 +138,8 @@ impl Camera {
     }
 
     pub fn render_camera(&mut self, texture_manager : &mut TextureManager, world : &World) {
-        texture_manager.update_expander_cache(self.camera_data.get_render_scale());
         
+        texture_manager.update_expander_cache(self.camera_data.get_render_scale());
         self.casted_chunk_manager.render_all_chunks(&self.camera_data, texture_manager, world);
 
         

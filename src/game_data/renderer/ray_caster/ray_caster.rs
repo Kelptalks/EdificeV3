@@ -1,6 +1,230 @@
-use crate::game_data::{renderer::{casted_tile::CastedTile, CameraData, Direction}, Types::{BlockShaderType, BlockTriangle, BlockType, ShaderTriangle}, World};
+use crate::game_data::{renderer::{casted_block_manager::casted_triangle::CastedTriangle, casted_tile::CastedTile, CameraData, Direction}, Types::{BlockShaderType, BlockTriangle, BlockType, ShaderTriangle}, World};
 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Combined Raycasting and Shadow Casting
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
 
+pub fn raycast_tile_with_shadows(camera_data: &CameraData, world: &World, casted_tile: &mut CastedTile) {
+    // First, perform the raycasting
+    raycast_tile(camera_data, world, casted_tile);
+    
+    // Then cast shadows for both triangles
+    let triangles = casted_tile.get_mut_triangles();
+    cast_left_shadow(camera_data, world, triangles[0]);
+    cast_right_shadow(camera_data, world, triangles[1]);
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Shadow casting
+ * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+
+pub fn cast_right_shadow(camera_data: &CameraData, world: &World, right_triangle: &mut CastedTriangle) {
+    let solid_struck_cords = right_triangle.get_solid_struck_cords();
+    let mut current_cords = solid_struck_cords.clone();
+    
+    let direction = camera_data.get_direction();
+    
+    let mut block: BlockType;
+    let mut draw_distance = 50;
+    
+    // Get the last texture in the list to determine which face was struck
+    let last_texture = right_triangle.get_last_texture();
+    
+    if last_texture == BlockTriangle::TopRight {
+        while draw_distance > 0 {
+            draw_distance -= 1;
+            
+            // z++
+            current_cords[2] += 1;
+            
+            block = BlockType::from_id(world.get_world_value(current_cords));
+            if !block.is_transparent() && !block.is_translucent() {
+                right_triangle.set_shader(ShaderTriangle::TopRight, BlockShaderType::Grey);
+                break;
+            }
+            
+            // y++ side
+            let temp_y = current_cords[1] + 1;
+            block = BlockType::from_id(world.get_world_value([current_cords[0], temp_y, current_cords[2]]));
+            if !block.is_transparent() && !block.is_translucent() {
+                // South
+                if *direction == Direction::South {
+                    let current_shader = right_triangle.get_shader_triangle();
+                    if current_shader == ShaderTriangle::TopBotRight {
+                        right_triangle.set_shader(ShaderTriangle::TopRight, BlockShaderType::Grey);
+                    } else {
+                        right_triangle.set_shader(ShaderTriangle::TopTopRight, BlockShaderType::Grey);
+                    }
+                }
+                // West
+                else if *direction == Direction::West {
+                    right_triangle.set_shader(ShaderTriangle::TopRight, BlockShaderType::Grey);
+                }
+                // North
+                else {
+                    let current_shader = right_triangle.get_shader_triangle();
+                    if current_shader == ShaderTriangle::TopTopRight {
+                        right_triangle.set_shader(ShaderTriangle::TopRight, BlockShaderType::Grey);
+                    } else {
+                        right_triangle.set_shader(ShaderTriangle::TopBotRight, BlockShaderType::Grey);
+                    }
+                }
+            }
+            
+            // x-- side
+            current_cords[0] -= 1;
+            block = BlockType::from_id(world.get_world_value(current_cords));
+            if !block.is_transparent() && !block.is_translucent() {
+                let current_shader = right_triangle.get_shader_triangle();
+                if current_shader == ShaderTriangle::TopBotRight {
+                    right_triangle.set_shader(ShaderTriangle::TopRight, BlockShaderType::Grey);
+                    break;
+                } else {
+                    if *direction == Direction::South {
+                        right_triangle.set_shader(ShaderTriangle::TopBotRight, BlockShaderType::Grey);
+                    } else if *direction == Direction::West {
+                        // Do nothing (commented out in original C code)
+                    } else {
+                        right_triangle.set_shader(ShaderTriangle::TopTopRight, BlockShaderType::Grey);
+                    }
+                }
+            }
+            
+            // diagonal side
+            current_cords[1] += 1;
+            block = BlockType::from_id(world.get_world_value(current_cords));
+            if !block.is_transparent() && !block.is_translucent() {
+                right_triangle.set_shader(ShaderTriangle::TopRight, BlockShaderType::Grey);
+                break;
+            }
+        }
+    }
+    
+    if last_texture == BlockTriangle::LeftTop {
+        while draw_distance > 0 {
+            draw_distance -= 1;
+            
+            current_cords[0] -= 1;
+            current_cords[1] += 1;
+            
+            block = BlockType::from_id(world.get_world_value(current_cords));
+            
+            if !block.is_transparent() && !block.is_translucent() {
+                right_triangle.set_shader(ShaderTriangle::LeftCenterLeft, BlockShaderType::Grey);
+                current_cords[2] += 1;
+                block = BlockType::from_id(world.get_world_value(current_cords));
+                if !block.is_transparent() && !block.is_translucent() {
+                    right_triangle.set_shader(ShaderTriangle::LeftTop, BlockShaderType::Grey);
+                    break;
+                }
+                current_cords[2] -= 1;
+            }
+            current_cords[2] += 1;
+        }
+    }
+}
+
+pub fn cast_left_shadow(camera_data: &CameraData, world: &World, left_triangle: &mut CastedTriangle) {
+    let solid_struck_cords = left_triangle.get_solid_struck_cords();
+    let mut current_cords = solid_struck_cords.clone();
+    
+    let direction = camera_data.get_direction();
+    let direction_mods = camera_data.get_direction_mods();
+    
+    let mut block: BlockType;
+    let mut draw_distance = 50;
+    
+    // Get the last texture in the list to determine which face was struck
+    let last_texture = left_triangle.get_last_texture();
+    
+    if last_texture == BlockTriangle::TopLeft {
+        while draw_distance > 0 {
+            draw_distance -= 1;
+            
+            // z++
+            current_cords[2] += 1;
+            block = BlockType::from_id(world.get_world_value(current_cords));
+            if !block.is_transparent() && !block.is_translucent() {
+                left_triangle.set_shader(ShaderTriangle::TopLeft, BlockShaderType::Grey);
+                break;
+            }
+            
+            // y++ side
+            let temp_y = current_cords[1] + 1;
+            block = BlockType::from_id(world.get_world_value([current_cords[0], temp_y, current_cords[2]]));
+            if !block.is_transparent() && !block.is_translucent() {
+                if *direction == Direction::South {
+                    let current_shader = left_triangle.get_shader_triangle();
+                    if current_shader == ShaderTriangle::TopBotLeft {
+                        left_triangle.set_shader(ShaderTriangle::TopLeft, BlockShaderType::Grey);
+                    } else {
+                        left_triangle.set_shader(ShaderTriangle::TopTopLeft, BlockShaderType::Grey);
+                    }
+                } else if *direction == Direction::West {
+                    // Do nothing (commented out in original C code)
+                } else {
+                    let current_shader = left_triangle.get_shader_triangle();
+                    if current_shader == ShaderTriangle::TopTopLeft {
+                        left_triangle.set_shader(ShaderTriangle::TopLeft, BlockShaderType::Grey);
+                    } else {
+                        left_triangle.set_shader(ShaderTriangle::TopBotLeft, BlockShaderType::Grey);
+                    }
+                }
+            }
+            
+            // x-- side
+            current_cords[0] -= 1;
+            block = BlockType::from_id(world.get_world_value(current_cords));
+            if !block.is_transparent() && !block.is_translucent() {
+                let current_shader = left_triangle.get_shader_triangle();
+                if current_shader == ShaderTriangle::TopBotLeft {
+                    left_triangle.set_shader(ShaderTriangle::TopLeft, BlockShaderType::Grey);
+                    break;
+                } else {
+                    if direction_mods[0] == -1 && direction_mods[1] == -1 {
+                        left_triangle.set_shader(ShaderTriangle::TopBotLeft, BlockShaderType::Grey);
+                    } else if *direction == Direction::West {
+                        left_triangle.set_shader(ShaderTriangle::TopLeft, BlockShaderType::Grey);
+                    } else {
+                        left_triangle.set_shader(ShaderTriangle::TopTopLeft, BlockShaderType::Grey);
+                    }
+                }
+            }
+            
+            // diagonal side
+            current_cords[1] += 1;
+            block = BlockType::from_id(world.get_world_value(current_cords));
+            if !block.is_transparent() && !block.is_translucent() {
+                left_triangle.set_shader(ShaderTriangle::TopLeft, BlockShaderType::Grey);
+                break;
+            }
+        }
+    }
+    
+    if last_texture == BlockTriangle::LeftBot {
+        while draw_distance > 0 {
+            draw_distance -= 1;
+            current_cords[0] -= 1;
+            current_cords[1] += 1;
+            
+            block = BlockType::from_id(world.get_world_value(current_cords));
+            
+            if !block.is_transparent() && !block.is_translucent() {
+                left_triangle.set_shader(ShaderTriangle::LeftCenterBot, BlockShaderType::Grey);
+                current_cords[2] += 1;
+                block = BlockType::from_id(world.get_world_value(current_cords));
+                if !block.is_transparent() && !block.is_translucent() {
+                    left_triangle.set_shader(ShaderTriangle::LeftBot, BlockShaderType::Grey);
+                    break;
+                }
+                current_cords[2] -= 1;
+            }
+            current_cords[2] += 1;
+        }
+    }
+}
 
 pub fn raycast_tile(camera_data : &CameraData, world : &World, casted_tile : &mut CastedTile)
 {

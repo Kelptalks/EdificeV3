@@ -99,7 +99,7 @@ impl PlantType {
         let max_branch_height = 10;
 
         // Generate branch if tree is tall enough 
-        if tree_height >= min_branch_height {
+        if tree_height - 3 >= min_branch_height {
             let branch_height = rng.random_range(min_branch_height..max_branch_height);
             Self::generate_branch(world, rng, [cords[0], cords[1], cords[2] + branch_height]);
         }
@@ -207,7 +207,7 @@ impl GrassGenManager {
 
         threshold += self.ground_item_weight;
         if roll < threshold{
-            self.gen_ground_item(world, above_grass);
+            //self.gen_ground_item(world, above_grass);
             return;
         }
 

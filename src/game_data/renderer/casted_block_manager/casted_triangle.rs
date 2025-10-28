@@ -63,6 +63,21 @@ impl CastedTriangle {
         self.shader_type = shader_type;
     }
 
+    pub fn get_solid_struck_cords(&self) -> [i32; 3] {
+        return self.solid_block_struck;
+    }
+
+    pub fn get_last_texture(&self) -> BlockTriangle {
+        if self.triangle_types.len() > 0 {
+            return self.triangle_types[self.triangle_types.len() - 1];
+        }
+        return BlockTriangle::TopLeft; // Default fallback
+    }
+
+    pub fn get_shader_triangle(&self) -> ShaderTriangle {
+        return self.shader_triangle;
+    }
+
     pub fn render_casted_triangle(&self, texture_manager : &mut TextureManager, draw_cords : [f32; 2], scale : f32) {
         for i in 0..self.block_types.len() {
             texture_manager.render_block_triangle(

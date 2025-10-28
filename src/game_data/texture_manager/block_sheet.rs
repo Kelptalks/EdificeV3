@@ -44,8 +44,8 @@ impl BlockTextureManager {
     // Splice the textures from block sheet to sprite sheets location
     pub fn splice_textures(&self, atlas_image: &mut RgbaImage) {
         // Get the block sprite sheet and masking block
-        let block_sprite_image = image::open("assets/blocks.png").unwrap().to_rgba8();
-        let block_masks_image = image::open("assets/masking_textures.png").unwrap().to_rgba8();
+        let block_sprite_image = image::open("Assets/Blocks.png").unwrap().to_rgba8();
+        let block_masks_image = image::open("Assets/masking_textures.png").unwrap().to_rgba8();
 
         // Loop through all blocks and splice there textures
         //Loop through all block locations

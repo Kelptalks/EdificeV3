@@ -2,7 +2,7 @@
 pub static TOTAL_SHADERS: u32 = 14;
 
 #[repr(u16)]
-#[derive(Copy, Clone)]  // Add these
+#[derive(Copy, Clone, PartialEq)]
 pub enum ShaderTriangle
 {
     TopLeft = 0,
@@ -34,7 +34,7 @@ impl ShaderTriangle {
     }
 
     pub fn from_id(id: u16) -> ShaderTriangle {
-        if id <= ShaderTriangle::RightBot as u16 {
+        if id <= ShaderTriangle::LeftCenterBot as u16 {
             return unsafe { std::mem::transmute(id) }
         }
         else {

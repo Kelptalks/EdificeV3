@@ -5,13 +5,13 @@ use miniquad::*;
 pub struct TextureAtlas {
     // Atlas Texture
     pub texture_id: TextureId,
-    atlas_dimensions: u32,
+    pub atlas_dimensions: u32,
 
     // Tools for managing sections texture atlas
     block_texture_manager: BlockTextureManager,
     pre_calculated_block_uvs: Vec<[[f32; 4]; 6]>,
 
-    shader_texture_manager: ShaderTextureManager,
+    pub shader_texture_manager: ShaderTextureManager,
     pre_calculated_shader_uvs: Vec<[[f32; 4]; 14]>,
 }
 

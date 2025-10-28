@@ -59,7 +59,7 @@ impl CastedChunk {
         if (!self.ray_casted)
         {
             for tile in &mut self.tiles {
-                ray_caster::raycast_tile(camera_data, world, tile);
+                ray_caster::raycast_tile_with_shadows(camera_data, world, tile);
             }
             self.ray_casted = true;
         }
