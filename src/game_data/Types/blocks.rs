@@ -112,7 +112,7 @@ static TRANSPARENT: [bool; 75] = [
     false, // CrackedEarth
     false, // Debug
     false, // Water
-    true,  // Glass
+    false,  // Glass
     false, // RedBrick
     false, // DroneControler
     false, // IronOre

@@ -142,4 +142,13 @@ impl BlockTextureManager {
 
         return blocks;
     }
+
+    pub fn get_start_cords(&self) -> [f32; 2] {
+        return self.start_cords;
+    }
+
+    pub fn get_end_cords(&self) -> [f32; 2] {
+        return self.end_cords;
+    }
+
 }

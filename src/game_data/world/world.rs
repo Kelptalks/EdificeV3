@@ -191,8 +191,8 @@ impl World {
     }
 
     pub fn generate_terrain(&mut self) {
-        let start_cords = [-50, -50, -25];
-        let end_cords = [50, 50, 25];
+        let start_cords = [-100, -100, -25];
+        let end_cords = [100, 100, 25];
 
         let world_gen_manager = WorldGenManager::new();
         world_gen_manager.generate_area(self, start_cords, end_cords);

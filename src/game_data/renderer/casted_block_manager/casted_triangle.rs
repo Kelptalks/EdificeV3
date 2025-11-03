@@ -69,7 +69,7 @@ impl CastedTriangle {
 
     pub fn get_last_texture(&self) -> BlockTriangle {
         if self.triangle_types.len() > 0 {
-            return self.triangle_types[self.triangle_types.len() - 1];
+            return self.triangle_types[0];
         }
         return BlockTriangle::TopLeft; // Default fallback
     }

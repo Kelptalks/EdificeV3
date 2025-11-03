@@ -36,7 +36,7 @@ impl CameraData {
             window_rez : [1920.0, 1080.0],
 
             // World cords
-            cam_world_cords : [50.0, 50.0, 50.0],
+            cam_world_cords : [100.0, 100.0, 100.0],
             
             // Pixel Drawing Offsets
             draw_offset : [0.0, 0.0],
@@ -168,8 +168,8 @@ impl Camera {
 
     pub fn create_casted_chunks(&mut self)
     {
-        for x in -7..7 {
-            for y in -7..7  {
+        for x in -10..10 {
+            for y in -10..10  {
                 self.casted_chunk_manager.create_chunk_at_cords(&self.camera_data, [x, y]);
             }
         }

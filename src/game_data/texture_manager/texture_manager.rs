@@ -108,24 +108,18 @@ impl TextureManager {
                 //self.render_block_triangle(BlockType::Debug, BlockTriangle::LeftBot, [0.0, 0.0], 0.3);
                 //self.render_shader_triangle(BlockShaderType::Grey, ShaderTriangle::LeftCenterRight, [0.0, 0.0], 0.3);
 
-                /*
+                
                 // Get shader spritesheet coordinates from the atlas
                 let shader_start = texture_atlas.shader_texture_manager.start_cords;
                 let shader_end = texture_atlas.shader_texture_manager.end_cords;
                 let atlas_size = texture_atlas.atlas_dimensions as f32;
                 
-                // Convert to UV coordinates
-                let uv_start_x = shader_start[0] / atlas_size;
-                let uv_start_y = shader_start[1] / atlas_size;
-                let uv_end_x = shader_end[0] / atlas_size;
-                let uv_end_y = shader_end[1] / atlas_size;
-                
                 // Render the entire shader spritesheet for debugging
                 texture_renderer.add_quad(
-                    [0.0, 0.0, -0.7, 0.5],  // Fill the screen
-                    [uv_start_x, uv_start_y, uv_end_x, uv_end_y]
+                    [-0.5, -0.5, 5.0, 5.0],  // Fill the screen
+                    [0.0, 0.0, 1.0, 1.0]
                 );
-                */
+                
                 
             }
         }

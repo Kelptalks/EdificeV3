@@ -24,13 +24,15 @@ impl TextureAtlas {
         let mut atlas_image: RgbaImage = ImageBuffer::new(atlas_dimensions, atlas_dimensions);
 
         // Pass image through atlas section managers
+        
         // Block Textures
         let block_texture_manager = BlockTextureManager::new([0.0, 0.0], atlas_dimensions as f32);
         block_texture_manager.splice_textures(&mut atlas_image);
         let pre_calculated_block_uvs = block_texture_manager.create_pre_calculated_block_uvs(atlas_dimensions as f32);
         
         // Shader Textures
-        let shader_texture_manager = ShaderTextureManager::new([0.0, 500.0]);
+        let start_y_cor = block_texture_manager.get_end_cords()[1] + 50.0;
+        let shader_texture_manager = ShaderTextureManager::new([0.0, start_y_cor]);
         shader_texture_manager.splice_textures(&mut atlas_image);
         let pre_calculated_shader_uvs = shader_texture_manager.create_pre_calculated_shader_uvs(atlas_dimensions as f32);
 

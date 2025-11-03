@@ -107,11 +107,98 @@ impl PlantType {
     }
 
     fn generate_mushroom(rng: &mut ThreadRng, world: &mut World, cords: [i32; 3]) {
+        println!("Generating mushroom");
+        let height = rng.gen_range(10..40);
+        let stem_radius = (height / (rng.gen_range(5..25))) + 3;
 
+        // Build the stem
+        for z in 0..height {
+            for x in -stem_radius..stem_radius {
+                for y in -stem_radius..stem_radius {
+                    let distance = ((x * x + y * y) as f64).sqrt();
+                    if distance < stem_radius as f64 {
+                        world.set_world_value(
+                            BlockType::MushroomStem.id_as_u16(),
+                            [cords[0] + x, cords[1] + y, cords[2] + z]
+                        );
+                    }
+                }
+            }
+        }
+
+        // Choose block type (blue or pink mushroom)
+        let block_type = if rng.gen_range(0..2) == 0 {
+            BlockType::BlueMushroom.id_as_u16()
+        } else {
+            BlockType::PinkMushroomBlock.id_as_u16()
+        };
+
+        let mut top_radius = stem_radius + 8 + rng.gen_range(0..5);
+        let mut z_mod = 0;
+
+        // Build the mushroom cap
+        while top_radius > 2 {
+            for x in -top_radius..top_radius {
+                for y in -top_radius..top_radius {
+                    let distance = ((x * x + y * y) as f64).sqrt();
+                    if distance < top_radius as f64 {
+                        world.set_world_value(
+                            block_type,
+                            [cords[0] + x, cords[1] + y, cords[2] + z_mod + height]
+                        );
+                    }
+                }
+            }
+            z_mod += 1;
+            top_radius -= rng.gen_range(0..2);
+        }
     }
 
     fn generate_dandelion(rng: &mut ThreadRng, world: &mut World, cords: [i32; 3]) {
+        let height = rng.gen_range(12..37);
+        let stem_radius = height / 15;
 
+        // Build the stem
+        for z in 0..height {
+            for x in -stem_radius..stem_radius {
+                for y in -stem_radius..stem_radius {
+                    let distance = ((x * x + y * y) as f64).sqrt();
+                    if distance < stem_radius as f64 {
+                        world.set_world_value(
+                            BlockType::DandiStem.id_as_u16(),
+                            [cords[0] + x, cords[1] + y, cords[2] + z]
+                        );
+                    }
+                }
+            }
+        }
+
+        // Build the dandelion puff ball
+        let puff_top = height - 1;
+        let mut puff_radius = (stem_radius as f64 * 3.2) as i32;
+
+        // Make sure number is odd
+        if puff_radius % 2 == 0 {
+            puff_radius += 1;
+        }
+
+        for x in -puff_radius..puff_radius {
+            for y in -puff_radius..puff_radius {
+                for z in -puff_radius..puff_radius {
+                    // Calculate the distance from the center
+                    let distance_sq = x * x + y * y + z * z;
+                    if distance_sq <= puff_radius * puff_radius {
+                        // 80% chance to place a block (creating a fluffy appearance)
+                        if rng.gen_range(0..5) != 0 {
+                            world.set_world_value(
+                                BlockType::PinkCloud.id_as_u16(),
+                                [cords[0] + x, cords[1] + y, cords[2] + z + puff_top]
+                            );
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }
@@ -152,9 +239,9 @@ impl GrassGenManager {
         ];
         // Setup Plant generation probabilitys
         let plants:Vec<Plant> = vec![
-            Plant {plant_type: PlantType::Tree, weight: 50},
-            Plant {plant_type: PlantType::Mushroom, weight: 0},
-            Plant {plant_type: PlantType::Dandelion, weight: 0},
+            Plant {plant_type: PlantType::Tree, weight: 200},
+            Plant {plant_type: PlantType::Mushroom, weight: 1},
+            Plant {plant_type: PlantType::Dandelion, weight: 10},
         ];
 
 
@@ -165,7 +252,7 @@ impl GrassGenManager {
         }
         let mut total_plant_weight = 0;
         for i in 0..plants.len() {
-            total_plant_weight += ground_items[i].weight;
+            total_plant_weight += plants[i].weight;
         }
         
         Self {
@@ -207,7 +294,7 @@ impl GrassGenManager {
 
         threshold += self.ground_item_weight;
         if roll < threshold{
-            //self.gen_ground_item(world, above_grass);
+            self.gen_ground_item(world, above_grass);
             return;
         }
 
