@@ -1,4 +1,4 @@
-use crate::game_data::{log_init, Types::{BlockTriangle, BlockType, BlockShaderType, ShaderTriangle}, texture_manager::{block_sheet::BlockTextureManager, shader_sheet::ShaderTextureManager}};
+use crate::game_data::{Types::{BlockShaderType, BlockTriangle, BlockType, ShaderTriangle}, log_init, texture_manager::{block_sheet::BlockTextureManager, shader_sheet::ShaderTextureManager, text_sheet::TextTextureManager}};
 use image::{ImageBuffer, RgbaImage};
 use miniquad::*;
 
@@ -8,11 +8,14 @@ pub struct TextureAtlas {
     pub atlas_dimensions: u32,
 
     // Tools for managing sections texture atlas
-    block_texture_manager: BlockTextureManager,
+    pub block_texture_manager: BlockTextureManager,
     pre_calculated_block_uvs: Vec<[[f32; 4]; 6]>,
 
     pub shader_texture_manager: ShaderTextureManager,
     pre_calculated_shader_uvs: Vec<[[f32; 4]; 14]>,
+
+    text_texture_manager: TextTextureManager,
+
 }
 
 impl TextureAtlas {
@@ -31,12 +34,14 @@ impl TextureAtlas {
         let pre_calculated_block_uvs = block_texture_manager.create_pre_calculated_block_uvs(atlas_dimensions as f32);
         
         // Shader Textures
-        let start_y_cor = block_texture_manager.get_end_cords()[1] + 50.0;
-        let shader_texture_manager = ShaderTextureManager::new([0.0, start_y_cor]);
+        let start_shader_y_cor = block_texture_manager.get_end_cords()[1] + 50.0;
+        let shader_texture_manager = ShaderTextureManager::new([0.0, start_shader_y_cor]);
         shader_texture_manager.splice_textures(&mut atlas_image);
         let pre_calculated_shader_uvs = shader_texture_manager.create_pre_calculated_shader_uvs(atlas_dimensions as f32);
 
-        println!("Shader Texture sheet cords ({}, {})", shader_texture_manager.start_cords[0], shader_texture_manager.start_cords[1]);
+        // Text Textures
+        let start_text_y_cor = shader_texture_manager.end_cords[1] + 50.0;
+        let text_texture_manager = TextTextureManager::new([0.0, start_text_y_cor]);
         
         // Convert image to Texture
         // Create miniquad texture
@@ -62,6 +67,8 @@ impl TextureAtlas {
 
             shader_texture_manager: shader_texture_manager,
             pre_calculated_shader_uvs: pre_calculated_shader_uvs,
+
+            text_texture_manager: text_texture_manager,
         }
     }
 
