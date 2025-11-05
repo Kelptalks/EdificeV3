@@ -243,7 +243,7 @@ pub fn raycast_tile(camera_data : &CameraData, world : &World, casted_tile : &mu
 
     // Reset values and get triangles
     casted_tile.reset_casting_values();
-    let mut triangles = casted_tile.get_mut_triangles();
+    let triangles = casted_tile.get_mut_triangles();
 
 
     for d in 0..camera_data.get_draw_distance() {

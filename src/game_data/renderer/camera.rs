@@ -168,8 +168,8 @@ impl Camera {
 
     pub fn create_casted_chunks(&mut self)
     {
-        for x in -10..10 {
-            for y in -10..10  {
+        for x in -3..3 {
+            for y in -3..3  {
                 self.casted_chunk_manager.create_chunk_at_cords(&self.camera_data, [x, y]);
             }
         }

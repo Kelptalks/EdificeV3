@@ -42,7 +42,8 @@ impl TextureAtlas {
         // Text Textures
         let start_text_y_cor = shader_texture_manager.end_cords[1] + 50.0;
         let text_texture_manager = TextTextureManager::new([0.0, start_text_y_cor]);
-        
+        text_texture_manager.splice_fonts_to_atlas(&mut atlas_image);
+
         // Convert image to Texture
         // Create miniquad texture
         let rgba_bytes: Vec<u8> = atlas_image.clone().into_raw();

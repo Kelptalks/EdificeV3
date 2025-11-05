@@ -88,7 +88,6 @@ impl TextureManager {
 
         // Set to initialized 
         self.textures_initialized = true;
-        println!("Created miniquad Texture");
     }
 
     // Testing the rendering of sprites

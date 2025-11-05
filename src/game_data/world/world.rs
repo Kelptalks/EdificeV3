@@ -17,7 +17,6 @@ pub struct WorldChunk {
 impl WorldChunk {
     pub fn new(cords :[i16; 3]) -> Self
     {
-        log_init("Creating World Chunk");
         Self {
             cords : cords,
             block_data : Box::new([0; CHUNK_VOLUME])
@@ -129,7 +128,6 @@ impl World {
         {
             let new_chunk = WorldChunk::new(cords);
             self.loaded_chunks.insert(chunk_key, new_chunk);
-            println!("Cords: ({}, {}, {})", cords[0], cords[1], cords[2])
         }
 
         return self.loaded_chunks.get_mut(&chunk_key).unwrap();
