@@ -1,4 +1,6 @@
-use crate::game_data::{Types::{BlockShaderType, BlockTriangle, BlockType, ShaderTriangle}, log_init, texture_manager::{block_sheet::BlockTextureManager, shader_sheet::ShaderTextureManager, text_sheet::TextTextureManager}};
+use std::{collections::HashMap, ops::Index};
+
+use crate::game_data::{Types::{BlockShaderType, BlockTriangle, BlockType, CharType, ShaderTriangle}, log_init, texture_manager::{block_sheet::BlockTextureManager, shader_sheet::ShaderTextureManager, text_sheet::TextTextureManager}};
 use image::{ImageBuffer, RgbaImage};
 use miniquad::*;
 
@@ -15,6 +17,7 @@ pub struct TextureAtlas {
     pre_calculated_shader_uvs: Vec<[[f32; 4]; 14]>,
 
     text_texture_manager: TextTextureManager,
+    pre_calculated_font_uvs: HashMap<String, Vec<[f32; 4]>>,
 
 }
 
@@ -41,8 +44,9 @@ impl TextureAtlas {
 
         // Text Textures
         let start_text_y_cor = shader_texture_manager.end_cords[1] + 50.0;
-        let text_texture_manager = TextTextureManager::new([0.0, start_text_y_cor]);
+        let mut text_texture_manager = TextTextureManager::new([0.0, start_text_y_cor]);
         text_texture_manager.splice_fonts_to_atlas(&mut atlas_image);
+        let pre_calculated_font_uvs = text_texture_manager.create_pre_calculated_fonts_uvs(atlas_dimensions as f32);
 
         // Convert image to Texture
         // Create miniquad texture
@@ -70,7 +74,12 @@ impl TextureAtlas {
             pre_calculated_shader_uvs: pre_calculated_shader_uvs,
 
             text_texture_manager: text_texture_manager,
+            pre_calculated_font_uvs: pre_calculated_font_uvs,
         }
+    }
+
+    pub fn get_atlas_texture_id(&self) -> TextureId {
+        return self.texture_id;
     }
 
     pub fn get_precalculated_block_triangle_uv(&self, triangle: BlockTriangle, block: BlockType) -> [f32; 4] {
@@ -79,5 +88,17 @@ impl TextureAtlas {
 
     pub fn get_precalculated_shader_triangle_uv(&self, triangle: ShaderTriangle, shader: BlockShaderType) -> [f32; 4] {
         return self.pre_calculated_shader_uvs[shader.id_as_usize()][triangle.id_as_usize()];
+    }
+
+    pub fn get_precalculated_font_uv(&self, font: String, char: CharType) -> [f32; 4] {
+        let char_uvs = self.pre_calculated_font_uvs.get(&font);
+
+        if let Some(char_uvs) = char_uvs {
+            return char_uvs[char.get_id() as usize];
+
+        } else {
+            println!("Failed to index font");
+            return [0.0, 0.0, 0.0, 0.0];
+        }
     }
 }

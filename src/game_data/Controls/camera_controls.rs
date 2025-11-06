@@ -44,23 +44,27 @@ impl CameraControls {
             MouseButton::Left => {
                 let draw_offset = camera_data.get_draw_offset();
                 let ndc_mouse_cords = self.ndc_mouse_cords;
-                let tile_render_scale = camera_data.get_tile_render_scale();
+                let render_scale = camera_data.get_render_scale();
+                let tile_pixel_scale = camera_data.get_tile_render_scale();
 
+                // Apply camera offset to NDC coordinates
                 let ndc_world_mouse_cords = [
-                    (self.ndc_mouse_cords[0] * tile_render_scale) - (draw_offset[0] * tile_render_scale),
-                    (self.ndc_mouse_cords[1] * tile_render_scale) - (draw_offset[1] * tile_render_scale)
+                    self.ndc_mouse_cords[0] - draw_offset[0],
+                    self.ndc_mouse_cords[1] - draw_offset[1]
                 ];
 
-                println!("______________________________________________________________________________________");
-                println!("NDC Mouse world cords : ({}, {})", ndc_world_mouse_cords[0], ndc_world_mouse_cords[1]);
-                println!(" - mouse ndc cords : ({}, {})", ndc_mouse_cords[0], ndc_mouse_cords[1]);
-                println!(" - draw offset : ({}, {})", draw_offset[0], draw_offset[1]);
+                // Calculate the actual scale used for rendering (render_scale * tile_pixel_scale)
+                let actual_scale = render_scale * tile_pixel_scale;
+                let iso_cords = iso_cord_tool::ndi_screen_cords_to_iso_cords(actual_scale, ndc_world_mouse_cords, window_rez);
 
-                let current_tile_scale = 32.0 / 1920.0;
+                let casted_tile = camera.get_mut_casted_chunk_manager().get_tile_at_iso_cords(iso_cords);
 
-                let iso_cords = iso_cord_tool::ndi_screen_cords_to_iso_cords(current_tile_scale, ndc_world_mouse_cords, window_rez);
-                println!("iso cords ({}, {})", iso_cords[0], iso_cords[1]);
-                
+                if let Some(tile) = casted_tile {
+                    println!("Found tile at iso cords");
+                    tile.get_mut_triangles()[0].add_texture(BlockType::CopperOre, crate::game_data::Types::BlockTriangle::LeftTop);
+                } else {
+                    println!("No tile found at iso cords");
+                }
             }
             MouseButton::Right => {
 

@@ -4,6 +4,20 @@ use image::{ImageBuffer, Rgba, RgbaImage};
 static BLOCK_PIXLE_REZ: u32 = 64;
 static BLOCK_TEXTURES_PER_ROW: u32 = 20;
 
+/*
+#################
+## Block Sheet ##
+#################
+This file is responsable for managing the splicing of the block textures. This
+file uses masking textures to create triangles from each block texture and splices
+them to the atlas.
+
+
+Go to "game_data/Types/Triangles" for more information on what bock triangles are
+
+
+*/
+
 pub struct BlockTextureManager {
     start_cords: [f32; 2],
     end_cords: [f32; 2],
@@ -55,6 +69,7 @@ impl BlockTextureManager {
 
             let x_dest_cor = ((self.sprite_pixel_scale[0] + self.buffer_space) * block_id as f32) as u32;
 
+            // Splice block texture useing RGB values of masking texture to identify what triangle the pixel belongs too.
             for y in 0..BLOCK_PIXLE_REZ {
                 for x in 0..BLOCK_PIXLE_REZ {
                     // Get masking textures pixle color
@@ -98,6 +113,7 @@ impl BlockTextureManager {
         }
     }
 
+    // Get the pixel based SRC rect of a specific block triangle
     pub fn get_block_triangle_src_rect(&self, triangle: BlockTriangle, block: BlockType) -> [f32; 4] {
         let x_start_cor = self.start_cords[0] + ((self.buffer_space + self.sprite_pixel_scale[0]) * block.id() as f32);
         let y_start_cor = self.start_cords[1] + ((self.buffer_space + self.sprite_pixel_scale[1]) * triangle.id() as f32);
@@ -108,6 +124,7 @@ impl BlockTextureManager {
         return [x_start_cor, y_start_cor, x_end_cor, y_end_cor];
     }
 
+    // Get the UV based on atlas size of a specific block triangle
     pub fn get_block_triangle_uv(&self, triangle: BlockTriangle, block: BlockType, atlas_dimensions: f32) -> [f32; 4] {
         let src_rect = self.get_block_triangle_src_rect(triangle, block);
         let mut uv = [0.0, 0.0, 0.0, 0.0];
@@ -121,6 +138,7 @@ impl BlockTextureManager {
         return uv;
     }
 
+    // Create a pre calculate UV array of all block triangle UVs
     pub fn create_pre_calculated_block_uvs(&self, atlas_dimensions: f32) -> Vec<[[f32; 4]; 6]> {
         let mut blocks: Vec<[[f32; 4]; 6]> = Vec::new();
 

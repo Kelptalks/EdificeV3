@@ -30,7 +30,14 @@ fn calculate_viewport(screen_width: f32, screen_height: f32) -> (f32, f32, f32, 
 impl GameStage {
     pub fn new() -> GameStage {
         
+        // Create graphics context
         let mut ctx = GlContext::default();
+
+        // Create game data and init data that requires ctx
+        let mut game_data = GameData::new();
+        game_data.init_textures(&mut ctx);
+
+
 
         
         let (viewport_x, viewport_y, viewport_width, viewport_height) = 
@@ -47,7 +54,7 @@ impl GameStage {
 
         GameStage {
             ctx: ctx,
-            game_data: GameData::new(),
+            game_data: game_data,
         }
     }
 }
@@ -59,7 +66,7 @@ impl EventHandler for GameStage {
 
     fn draw(&mut self) {
         self.ctx.clear(Some((0.0, 0.5, 0.8, 1.0)), None, None);
-        self.game_data.test_game_data(&mut self.ctx);
+        self.game_data.render_camera(&mut self.ctx);
     }
 
     // Input event handlers

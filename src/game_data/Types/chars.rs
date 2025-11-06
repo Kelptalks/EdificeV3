@@ -60,7 +60,18 @@ impl CharType {
         return 47;
     }
 
-    /// Convert a character to its corresponding BlockType enum variant
+    /// Convert an ID to its corresponding CharType enum variant
+    /// Returns None if the ID is out of range
+    pub fn from_id(id: u16) -> Option<Self> {
+        if id >= Self::get_total_chars() {
+            return None;
+        }
+        // SAFETY: We've validated that id is within the valid range [0, 46]
+        // and CharType is repr(u16) with sequential values starting from 0
+        unsafe { Some(std::mem::transmute(id)) }
+    }
+
+    /// Convert a character to its corresponding CharType enum variant
     pub fn from_char(c: char) -> Option<Self> {
         match c {
             'A' | 'a' => Some(CharType::CharA),

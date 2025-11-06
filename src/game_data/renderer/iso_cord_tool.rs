@@ -23,26 +23,21 @@ pub fn casted_to_ndc_cords(scale : f32, cords : [i32 ; 2]) -> [f32; 2] {
 
 pub fn ndi_screen_cords_to_iso_cords(scale : f32, ndi_cords : [f32 ; 2], screen_rez: [f32; 2]) -> [f32; 2]
 {
-    let x_normalized = ndi_cords[0] * (screen_rez[0] * 0.5);
-    let y_normalized = ndi_cords[1] * (screen_rez[1] * 0.5);
+    // NDC coordinates are already normalized, work directly with them
+    let screen_x = ndi_cords[0];
+    let screen_y = ndi_cords[1];
     
-    println!("Tile : {}", scale);
-    let x_mouse_cor = x_normalized - (scale);
-    let y_mouse_cor = y_normalized;
+    println!("Scale : {}", scale);
+    println!("Screen cords : ({}, {})", screen_x, screen_y);
     
-    let mut iso_x = (x_mouse_cor + 2.0 * y_mouse_cor) / (2.0 * scale);
-    let mut iso_y = (2.0 * y_mouse_cor - x_mouse_cor) / (2.0 * scale);
+    // Inverse isometric projection formulas
+    // Forward: screen_x = (iso_x - iso_y) * scale, screen_y = (iso_x + iso_y) * (scale / 2.0)
+    // Inverse: iso_x = (screen_x + 2 * screen_y) / (2 * scale), iso_y = (2 * screen_y - screen_x) / (2 * scale)
+    let iso_x = (screen_x + 2.0 * screen_y) / (2.0 * scale);
+    let iso_y = (2.0 * screen_y - screen_x) / (2.0 * scale);
     
-    // Cord correction due to 0, 0 center
-    if (iso_x < 0.0)
-    {
-        iso_x -= 1.0;
-    }
+    println!("Calculated iso cords (unrounded): ({}, {})", iso_x, iso_y);
 
-    if (iso_y < 0.0)
-    {
-        iso_y -= 1.0;
-    }
-
+    // Return unrounded values so caller can determine tile side before flooring
     return [iso_x, iso_y];
 }

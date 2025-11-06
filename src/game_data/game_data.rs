@@ -79,16 +79,20 @@ impl GameData {
         return self.camera.get_mut_camera_data()
     }
 
-    pub fn test_game_data(&mut self, ctx : &mut GlContext)
+    pub fn init_textures(&mut self, ctx : &mut GlContext)
     {
         if (!self.texture_manager.are_textures_initialized()){
             self.texture_manager.init_textures(ctx);
         }
+    }
 
+    pub fn init_camera(&mut self) {
+
+    }
+
+    pub fn render_camera(&mut self, ctx: &mut GlContext) {
         self.camera.render_camera(&mut self.texture_manager, &self.world);
-        
-        self.texture_manager.test_sprites(ctx);
-        
+        //self.texture_manager.test_sprites(ctx);
         self.texture_manager.get_texture_renderer().flush(ctx);
     }
 }

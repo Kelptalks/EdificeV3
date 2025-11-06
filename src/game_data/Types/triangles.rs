@@ -1,5 +1,16 @@
 #[repr(u16)]
 #[derive(Copy, Clone, PartialEq)]
+
+/*
+#####################
+## Block Triangles ##
+#####################
+This file is responsable for creating managing block triangles which are the diffrent splices
+
+
+
+*/
+
 pub enum BlockTriangle
 {
     TopLeft = 0,
@@ -18,6 +29,7 @@ static LEFT_FACING: [bool; 6] = [
     true,
     false,
 ];
+
 
 impl BlockTriangle {
     pub const PIXLE_REZ : u32 = 32;

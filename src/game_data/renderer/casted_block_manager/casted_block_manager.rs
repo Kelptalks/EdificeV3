@@ -101,6 +101,17 @@ impl CastedChunkManager {
         
     }
 
+    /// Get a casted tile at the given isometric coordinates (converts f32 to i32)
+    /// Returns None if the chunk containing the tile doesn't exist
+    pub fn get_tile_at_iso_cords(&mut self, iso_cords: [f32; 2]) -> Option<&mut CastedTile> {
+        // Convert float isometric coordinates to integer tile coordinates
+        let tile_x = iso_cords[0] as i32;
+        let tile_y = iso_cords[1] as i32;
+        
+        // Use the existing function to get the tile
+        self.get_tile_at_casted_tile_cords([tile_x, tile_y])
+    }
+
     pub fn render_all_chunks(&mut self, camera_data : &CameraData, texture_manager : &mut TextureManager, world : &World)
     {
         for chunk_key in &mut self.casted_chunk_key_list {
@@ -110,4 +121,3 @@ impl CastedChunkManager {
     }
 
 }
-

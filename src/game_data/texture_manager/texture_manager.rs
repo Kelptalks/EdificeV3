@@ -1,4 +1,4 @@
-use crate::game_data::{log_init, texture_manager::{texture_renderer::TextureRenderingManager, texture_atlas::TextureAtlas}, Types::{BlockShaderType, BlockTriangle, BlockType, ShaderTriangle}};
+use crate::game_data::{Types::{BlockShaderType, BlockTriangle, BlockType, CharType, ShaderTriangle}, log_init, texture_manager::{texture_atlas::TextureAtlas, texture_renderer::TextureRenderingManager}};
 use miniquad::*;
 
 // Expander tuning constants - adjust these to control gap prevention
@@ -26,6 +26,49 @@ impl TextureManager {
             texture_atlas : None,
             cached_scale: 0.0,
             cached_expander: 0.0,
+        }
+    }
+
+    pub fn init_textures(&mut self, ctx : &mut GlContext) {
+        // Create Texture render manager
+        let texture_render_manager = TextureRenderingManager::new(ctx);
+        self.texture_renderer = Some(texture_render_manager);
+        
+        // Init Texture atlas
+        let new_texture_atlas = TextureAtlas::new(ctx);
+        
+        // Set texture for renderer
+        if let Some(renderer) = self.texture_renderer.as_mut() {
+            renderer.set_texture(new_texture_atlas.texture_id);
+            self.get_texture_renderer().set_texture(new_texture_atlas.get_atlas_texture_id());
+        }
+        
+        self.texture_atlas = Some(new_texture_atlas);
+
+        // Set to initialized 
+        self.textures_initialized = true;
+    }
+
+    // Testing the rendering of sprites
+    pub fn test_sprites(&mut self, ctx : &mut GlContext) {
+        if !self.textures_initialized {
+            println!("Textures not initialized yet!");
+            return;
+        }
+        
+        if let Some(texture_renderer) = self.texture_renderer.as_mut() {
+            if let Some(texture_atlas) = self.texture_atlas.as_mut() {
+                //texture_renderer.set_texture(texture_atlas.texture_id);
+                
+
+                
+                // Render the entire shader spritesheet for debugging
+                texture_renderer.add_quad(
+                    [-0.5, -0.5, 5.0, 5.0],  // Fill the screen
+                    [0.0, 0.0, 1.0, 1.0]
+                );
+                
+            }
         }
     }
 
@@ -70,58 +113,17 @@ impl TextureManager {
         self.get_texture_renderer().add_quad(pos, uv);
     }
 
+    pub fn render_char_triangle(&mut self, font: String, char : CharType, draw_location : [f32; 2], scale : f32) {
+        let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_font_uv(font, char);
 
-    pub fn init_textures(&mut self, ctx : &mut GlContext) {
-        // Create Texture render manager
-        let texture_render_manager = TextureRenderingManager::new(ctx);
-        self.texture_renderer = Some(texture_render_manager);
-        
-        // Init Texture atlas
-        let new_texture_atlas = TextureAtlas::new(ctx);
-        
-        // Set texture for renderer
-        if let Some(renderer) = self.texture_renderer.as_mut() {
-            renderer.set_texture(new_texture_atlas.texture_id);
-        }
-        
-        self.texture_atlas = Some(new_texture_atlas);
+        let mut pos = [
+            draw_location[0],         // x1 (left)
+            draw_location[1],         // y1 (top/bottom) 
+            draw_location[0] + scale, // x2 (right)
+            draw_location[1] + scale, // y2 (bottom/top)
+        ];
 
-        // Set to initialized 
-        self.textures_initialized = true;
-    }
-
-    // Testing the rendering of sprites
-    pub fn test_sprites(&mut self, ctx : &mut GlContext) {
-        if !self.textures_initialized {
-            println!("Textures not initialized yet!");
-            return;
-        }
-        
-        if let Some(texture_renderer) = self.texture_renderer.as_mut() {
-            if let Some(texture_atlas) = self.texture_atlas.as_mut() {
-                texture_renderer.set_texture(texture_atlas.texture_id);
-                
-
-                
-
-                //self.render_block_triangle(BlockType::Debug, BlockTriangle::LeftBot, [0.0, 0.0], 0.3);
-                //self.render_shader_triangle(BlockShaderType::Grey, ShaderTriangle::LeftCenterRight, [0.0, 0.0], 0.3);
-
-                
-                // Get shader spritesheet coordinates from the atlas
-                let shader_start = texture_atlas.shader_texture_manager.start_cords;
-                let shader_end = texture_atlas.shader_texture_manager.end_cords;
-                let atlas_size = texture_atlas.atlas_dimensions as f32;
-                
-                // Render the entire shader spritesheet for debugging
-                texture_renderer.add_quad(
-                    [-0.5, -0.5, 5.0, 5.0],  // Fill the screen
-                    [0.0, 0.0, 1.0, 1.0]
-                );
-                
-                
-            }
-        }
+        self.get_texture_renderer().add_quad(pos, uv);
     }
 
 }
