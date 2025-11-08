@@ -1,6 +1,8 @@
 use image::imageops::FilterType::Triangle;
 
-use crate::game_data::{renderer::{casted_block_manager::{casted_chunk::CastedChunk, casted_triangle::CastedTriangle}, iso_cord_tool, CameraData}, TextureManager, Types::{BlockTriangle, BlockType}};
+use crate::game_data::{TextureManager, Types::{BlockTriangle, BlockType}};
+use super::{casted_chunk::CastedChunk, casted_triangle::CastedTriangle};
+use super::super::{iso_cord_tool, CameraData};
 
 pub struct CastedTile
 {

@@ -11,8 +11,8 @@ pub use world::*;
 mod texture_manager;
 pub use texture_manager::TextureManager;
 
-mod renderer;
-pub use renderer::Camera;
+mod screen;
+
 
 mod Types;
 use Types::BlockType;

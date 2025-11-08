@@ -1,6 +1,6 @@
 use miniquad::{KeyCode, MouseButton};
 
-use crate::game_data::{renderer::{iso_cord_tool, Camera, CameraData}, GameData, Types::BlockType};
+use crate::game_data::{screen::renderer::{iso_cord_tool, Camera, CameraData}, GameData, Types::BlockType};
 
 pub struct CameraControls {
     mouse_cords: [f32; 2],

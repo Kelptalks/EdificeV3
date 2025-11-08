@@ -1,4 +1,6 @@
-use crate::game_data::{renderer::{casted_block_manager::casted_tile::CastedTile, ray_caster, CameraData}, TextureManager, World};
+use crate::game_data::{TextureManager, World};
+use super::casted_tile::CastedTile;
+use super::super::{ray_caster, CameraData};
 
 static CHUNK_TILE_DIMENSIONS : u32 = 16;
 static CHUNK_TILE_AREA : u32 = CHUNK_TILE_DIMENSIONS * CHUNK_TILE_DIMENSIONS;

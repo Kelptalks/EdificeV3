@@ -1,4 +1,5 @@
-use crate::game_data::{renderer::casted_block_manager::casted_block_manager::CastedChunkManager, TextureManager, World, Types::{BlockTriangle, BlockType}};
+use crate::game_data::{TextureManager, World, Types::{BlockTriangle, BlockType}};
+use super::casted_block_manager::casted_block_manager::CastedChunkManager;
 
 #[derive(PartialEq)]
 pub enum Direction {

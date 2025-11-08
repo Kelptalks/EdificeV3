@@ -3,12 +3,12 @@
 use miniquad::{GlContext, KeyCode, MouseButton};
 use rand::{rng, Rng};
 
-use crate::game_data::renderer::{CameraData};
+use crate::game_data::screen::renderer::{CameraData};
 use crate::game_data::Controls::CameraControls;
 use crate::game_data::Types::BlockType;
-use crate::game_data::{self, log_error, log_header, log_indent, log_unindent, logging_tool, Camera};
 use crate::game_data::world::World;
 use crate::game_data::texture_manager::TextureManager;
+use crate::game_data::screen::Camera;
 
 
 pub struct GameData {
@@ -84,10 +84,6 @@ impl GameData {
         if (!self.texture_manager.are_textures_initialized()){
             self.texture_manager.init_textures(ctx);
         }
-    }
-
-    pub fn init_camera(&mut self) {
-
     }
 
     pub fn render_camera(&mut self, ctx: &mut GlContext) {
