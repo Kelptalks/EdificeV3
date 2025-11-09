@@ -36,10 +36,12 @@ impl GameStage {
         // Create game data and init data that requires ctx
         let mut game_data = GameData::new();
         game_data.init_textures(&mut ctx);
+        game_data.init_screen_manager(&mut ctx);
 
 
 
         
+        /*
         let (viewport_x, viewport_y, viewport_width, viewport_height) = 
         calculate_viewport(1920.0, 1080.0);
 
@@ -50,6 +52,7 @@ impl GameStage {
             viewport_width as i32, 
             viewport_height as i32
         );
+        */
 
 
         GameStage {

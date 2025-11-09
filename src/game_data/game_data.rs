@@ -5,7 +5,8 @@ use rand::{rng, Rng};
 
 use crate::game_data::screen::renderer::{CameraData};
 use crate::game_data::Controls::CameraControls;
-use crate::game_data::Types::BlockType;
+use crate::game_data::screen;
+use crate::game_data::screen::screen_mananager::ScreenManager;
 use crate::game_data::world::World;
 use crate::game_data::texture_manager::TextureManager;
 use crate::game_data::screen::Camera;
@@ -15,6 +16,7 @@ pub struct GameData {
     
     world : World,
     texture_manager : TextureManager,
+    screen_manager: ScreenManager,
     camera : Camera,
     camera_controls : CameraControls,
 }
@@ -36,19 +38,24 @@ impl GameData {
         // Set up world
         let mut world = World::new();
         world.generate_terrain();
+
+        // Create screen manager
+        let mut screen_manager = ScreenManager::new();
         
         Self {
             world: world,
             texture_manager: texture_manager,
+            screen_manager: screen_manager,
             camera: camera,
             camera_controls: camera_controls,
+
         }
     }
 
 
-    /*####################################
-        Control Handling
-    ####################################*/
+    //=====================================
+    // Control Handling 
+    //=====================================
     pub fn handle_mouse_motion_input(&mut self, mouse_cords: [f32; 2]) {
         let camera_data = self.camera.get_camera_data();
         self.camera_controls.update_mouse_cords(camera_data, mouse_cords);
@@ -68,6 +75,10 @@ impl GameData {
         self.camera_controls.handle_mouse_inputs(&mut self.camera, button);
     }
 
+    //=====================================
+    // Getters / Setters
+    //=====================================
+
     pub fn get_mut_camera_controls(&mut self) -> &mut CameraControls {
         return &mut self.camera_controls;
     }
@@ -79,12 +90,24 @@ impl GameData {
         return self.camera.get_mut_camera_data()
     }
 
+    //=====================================
+    // Init functions
+    //=====================================
+
     pub fn init_textures(&mut self, ctx : &mut GlContext)
     {
         if (!self.texture_manager.are_textures_initialized()){
             self.texture_manager.init_textures(ctx);
         }
     }
+
+    pub fn init_screen_manager(&mut self, ctx : &mut GlContext){
+        self.screen_manager.init_screen([1920.0, 1080.0], ctx);
+    } 
+
+    //=====================================
+    // Rendering
+    //=====================================
 
     pub fn render_camera(&mut self, ctx: &mut GlContext) {
         self.camera.render_camera(&mut self.texture_manager, &self.world);
