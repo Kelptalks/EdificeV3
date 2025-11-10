@@ -4,7 +4,7 @@ use miniquad::{GlContext, KeyCode, MouseButton};
 use rand::{rng, Rng};
 
 use crate::game_data::screen::renderer::{CameraData};
-use crate::game_data::Controls::CameraControls;
+use crate::game_data::controls::CameraControls;
 use crate::game_data::screen;
 use crate::game_data::screen::screen_mananager::ScreenManager;
 use crate::game_data::world::World;
@@ -17,7 +17,6 @@ pub struct GameData {
     world : World,
     texture_manager : TextureManager,
     screen_manager: ScreenManager,
-    camera : Camera,
     camera_controls : CameraControls,
 }
 
@@ -28,9 +27,6 @@ impl GameData {
         // Set up texture manager
         let mut texture_manager = TextureManager::new();
 
-        // Create camera
-        let mut camera = Camera::new();
-        camera.create_casted_chunks();
 
         // Create camera controls
         let mut camera_controls = CameraControls::new();
@@ -46,7 +42,6 @@ impl GameData {
             world: world,
             texture_manager: texture_manager,
             screen_manager: screen_manager,
-            camera: camera,
             camera_controls: camera_controls,
 
         }
@@ -57,22 +52,22 @@ impl GameData {
     // Control Handling 
     //=====================================
     pub fn handle_mouse_motion_input(&mut self, mouse_cords: [f32; 2]) {
-        let camera_data = self.camera.get_camera_data();
+        let camera_data = self.screen_manager.get_mut_camera_data();
         self.camera_controls.update_mouse_cords(camera_data, mouse_cords);
     }
 
     pub fn handle_key_inputs(&mut self, keycode: KeyCode) {
-        let camera_data = self.camera.get_mut_camera_data();
+        let camera_data = self.screen_manager.get_mut_camera_data();
         self.camera_controls.handle_key_inputs(camera_data, keycode);
 
     }
     pub fn handle_mouse_wheel_inputs(&mut self, x_scroll_distance: f32, y_scroll_distance: f32) {
-        let camera_data = self.camera.get_mut_camera_data();
+        let camera_data = self.screen_manager.get_mut_camera_data();
         self.camera_controls.handle_scroll_input(camera_data, y_scroll_distance);
 
     }
     pub fn handle_mouse_inputs(&mut self, button: MouseButton) {
-        self.camera_controls.handle_mouse_inputs(&mut self.camera, button);
+        self.camera_controls.handle_mouse_inputs(&mut self.screen_manager.get_mut_camera(), button);
     }
 
     //=====================================
@@ -87,7 +82,7 @@ impl GameData {
     }
 
     pub fn get_mut_camera_data(&mut self) -> &mut CameraData {
-        return self.camera.get_mut_camera_data()
+        return self.screen_manager.get_mut_camera_data()
     }
 
     //=====================================
@@ -110,7 +105,11 @@ impl GameData {
     //=====================================
 
     pub fn render_camera(&mut self, ctx: &mut GlContext) {
-        self.camera.render_camera(&mut self.texture_manager, &self.world);
+        
+        self.screen_manager.render_screen(&mut self.texture_manager, &self.world);
+
+
+        //self.camera.render_camera(&mut self.texture_manager, &self.world);
         //self.texture_manager.test_sprites(ctx);
         self.texture_manager.get_texture_renderer().flush(ctx);
     }

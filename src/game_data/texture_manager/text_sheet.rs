@@ -6,7 +6,7 @@ use image::RgbaImage;
 use miniquad::gl::GL_TEXTURE_BASE_LEVEL;
 use rand::distr::Map;
 
-use crate::game_data::Types::CharType;
+use crate::game_data::types::CharType;
 
 /*
 ################

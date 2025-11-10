@@ -14,10 +14,10 @@ pub use texture_manager::TextureManager;
 mod screen;
 
 
-mod Types;
-use Types::BlockType;
-use Types::BlockTriangle;
+mod types;
+use types::BlockType;
+use types::BlockTriangle;
 
 
-mod Controls;
-use Controls::CameraControls;
+mod controls;
+use controls::CameraControls;

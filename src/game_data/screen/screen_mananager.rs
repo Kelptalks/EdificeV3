@@ -1,14 +1,14 @@
 use miniquad::{GlContext, RenderingBackend};
 
-use crate::game_data::screen::Camera;
+use crate::game_data::{TextureManager, World, screen::{Camera, CameraData}};
 
 
 
 
-
+#[derive(Copy, Clone, PartialEq)]
 enum CurrentMenu {
     MainMenu,
-    Renderer,
+    Camera,
 
 }
 
@@ -26,7 +26,8 @@ how those menus are rendered and how those controls are processed.
 pub struct ScreenManager {
     // Menu Structs
 
-    //
+    camera : Camera,
+    current_menu: CurrentMenu,
     
     // Screen Data
     screen_rez: [f32; 2],
@@ -39,8 +40,17 @@ pub struct ScreenManager {
 
 impl ScreenManager {
     pub fn new()->Self {
-        
+
+        let mut camera = Camera::new();
+        camera.create_casted_chunks();
+
+
         let new_screen = ScreenManager{
+            // Menu Structs
+            camera: camera,
+
+            // Screen Data
+            current_menu: CurrentMenu::Camera,
             screen_rez: [0.0, 0.0],
             viewport_rez: [0.0, 0.0],
             viewport_offset: [0.0, 0.0],
@@ -49,13 +59,42 @@ impl ScreenManager {
         return  new_screen;
     }
 
+    //=====================================
+    // Init functions
+    //=====================================
+
     pub fn init_screen(&mut self, screen_rez: [f32; 2], ctx : &mut GlContext) {
         self.set_screen_rez(screen_rez, ctx);
     }
 
+    //=====================================
+    // menu Rendering
+    //=====================================
+
+    pub fn render_screen(&mut self, texture_manager: &mut TextureManager, world: &World){
+        // If current menu is camera
+        if self.current_menu == CurrentMenu::MainMenu {
+            
+        }
+        else if self.current_menu == CurrentMenu::Camera {
+            self.camera.render_camera(texture_manager, world);
+        }
+    }
+
+    //=====================================
+    // Getters / Setters
+    //=====================================
+
+    pub fn get_mut_camera(&mut self) -> &mut Camera {
+        return &mut self.camera;
+    }
+
+    pub fn get_mut_camera_data(&mut self) -> &mut CameraData{
+        return self.camera.get_mut_camera_data();
+    }
+
     pub fn set_screen_rez(&mut self, screen_rez: [f32; 2], ctx : &mut GlContext) {
         // Calculate and setup viewport and set the correct values 
-
         let mut viewport_size: f32;
 
         // Set up square viewport to allow for consistant rendering
