@@ -1,4 +1,4 @@
-use crate::game_data::{Types::{BlockShaderType, BlockTriangle, BlockType, CharType, ShaderTriangle}, log_init, texture_manager::{texture_atlas::TextureAtlas, texture_renderer::TextureRenderingManager}};
+use crate::game_data::{types::{BlockShaderType, BlockTriangle, BlockType, CharType, ShaderTriangle}, log_init, texture_manager::{texture_atlas::TextureAtlas, texture_renderer::TextureRenderingManager}};
 use miniquad::*;
 
 // Expander tuning constants - adjust these to control gap prevention

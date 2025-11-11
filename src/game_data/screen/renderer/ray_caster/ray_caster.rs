@@ -1,4 +1,4 @@
-use crate::game_data::{Types::{BlockShaderType, BlockTriangle, BlockType, ShaderTriangle}, World};
+use crate::game_data::{types::{BlockShaderType, BlockTriangle, BlockType, ShaderTriangle}, World};
 use super::super::{CameraData, Direction};
 use super::super::casted_block_manager::casted_triangle::CastedTriangle;
 use super::super::casted_block_manager::casted_tile::CastedTile;

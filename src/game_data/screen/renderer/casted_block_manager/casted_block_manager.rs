@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use image::imageops::tile;
 
-use crate::game_data::{log_init, texture_manager, screen::Camera, TextureManager, Types::{BlockTriangle, BlockType}, World};
+use crate::game_data::{log_init, texture_manager, screen::Camera, TextureManager, types::{BlockTriangle, BlockType}, World};
 use super::{casted_chunk::CastedChunk, casted_tile::CastedTile};
 use super::super::{iso_cord_tool, ray_caster, CameraData};
 

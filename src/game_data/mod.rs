@@ -13,6 +13,7 @@ pub use texture_manager::TextureManager;
 
 mod screen;
 
+mod tik_manager;
 
 mod types;
 use types::BlockType;

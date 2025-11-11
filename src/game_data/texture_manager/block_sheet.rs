@@ -1,4 +1,4 @@
-use crate::game_data::Types::{BlockTriangle, BlockType};
+use crate::game_data::types::{BlockTriangle, BlockType};
 use image::{ImageBuffer, Rgba, RgbaImage};
 
 static BLOCK_PIXLE_REZ: u32 = 64;

@@ -1,6 +1,6 @@
 use std::{collections::HashMap, ops::Index};
 
-use crate::game_data::{Types::{BlockShaderType, BlockTriangle, BlockType, CharType, ShaderTriangle}, log_init, texture_manager::{block_sheet::BlockTextureManager, shader_sheet::ShaderTextureManager, text_sheet::TextTextureManager}};
+use crate::game_data::{types::{BlockShaderType, BlockTriangle, BlockType, CharType, ShaderTriangle}, log_init, texture_manager::{block_sheet::BlockTextureManager, shader_sheet::ShaderTextureManager, text_sheet::TextTextureManager}};
 use image::{ImageBuffer, RgbaImage};
 use miniquad::*;
 

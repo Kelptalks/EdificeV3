@@ -1,6 +1,6 @@
 use std::{collections::HashMap, hash::Hash, path::absolute, ptr::null};
 
-use crate::game_data::{log_header, log_init, world::world_gen::WorldGenManager, Types::BlockType};
+use crate::game_data::{log_header, log_init, world::world_gen::WorldGenManager, types::BlockType};
 
 
 const CHUNK_SIZE: usize = 64;

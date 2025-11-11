@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, World, Types::{BlockTriangle, BlockType}};
+use crate::game_data::{TextureManager, World, types::{BlockTriangle, BlockType}};
 use super::casted_block_manager::casted_block_manager::CastedChunkManager;
 
 #[derive(PartialEq)]

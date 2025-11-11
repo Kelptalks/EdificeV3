@@ -1,4 +1,4 @@
-use crate::game_data::{world::world_gen::grass_gen::{GrassGenManager}, Types::BlockType, World};
+use crate::game_data::{world::world_gen::grass_gen::{GrassGenManager}, types::BlockType, World};
 
 struct LayerRule {
     main_block_type: BlockType,

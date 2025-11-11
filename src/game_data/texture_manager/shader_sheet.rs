@@ -1,4 +1,4 @@
-use crate::game_data::Types::{BlockShaderType, ShaderTriangle};
+use crate::game_data::types::{BlockShaderType, ShaderTriangle};
 use image::{ImageBuffer, Rgba, RgbaImage};
 
 static BLOCK_PIXLE_REZ: u32 = 64;

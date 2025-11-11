@@ -1,6 +1,6 @@
 use miniquad::{KeyCode, MouseButton};
 
-use crate::game_data::{screen::renderer::{iso_cord_tool, Camera, CameraData}, GameData, Types::BlockType};
+use crate::game_data::{screen::renderer::{iso_cord_tool, Camera, CameraData}, GameData, types::BlockType};
 
 pub struct CameraControls {
     mouse_cords: [f32; 2],
@@ -61,7 +61,7 @@ impl CameraControls {
 
                 if let Some(tile) = casted_tile {
                     println!("Found tile at iso cords");
-                    tile.get_mut_triangles()[0].add_texture(BlockType::CopperOre, crate::game_data::Types::BlockTriangle::LeftTop);
+                    tile.get_mut_triangles()[0].add_texture(BlockType::CopperOre, crate::game_data::types::BlockTriangle::LeftTop);
                 } else {
                     println!("No tile found at iso cords");
                 }

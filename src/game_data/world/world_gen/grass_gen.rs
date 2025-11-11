@@ -1,4 +1,4 @@
-use crate::game_data::{Types::BlockType, World};
+use crate::game_data::{types::BlockType, World};
 use rand::{random_bool, rngs::ThreadRng, Rng};
 
 struct GroundItem {

@@ -84,7 +84,7 @@ impl EventHandler for GameStage {
 
     fn key_down_event(&mut self, keycode: KeyCode, keymods: KeyMods, repeat: bool) {
         // Handle key press
-        self.game_data.handle_key_inputs(keycode);
+        self.game_data.handle_key_inputs(keycode, keymods, repeat);
     }
 
     fn mouse_wheel_event(&mut self, _x: f32, _y: f32) {
