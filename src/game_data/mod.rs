@@ -19,6 +19,3 @@ mod types;
 use types::BlockType;
 use types::BlockTriangle;
 
-
-mod controls;
-use controls::CameraControls;

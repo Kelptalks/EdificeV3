@@ -74,7 +74,7 @@ impl EventHandler for GameStage {
 
     // Input event handlers
     fn mouse_motion_event(&mut self, x: f32, y: f32) {
-        self.game_data.handle_mouse_motion_input([x, y]);
+        self.game_data.handle_mouse_motion_input(x, y);
     }
 
     fn mouse_button_down_event(&mut self, button: MouseButton, x: f32, y: f32) {

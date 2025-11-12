@@ -1,6 +1,6 @@
 use miniquad::{GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, controls::CameraControls, screen::{Camera, CameraData}};
+use crate::game_data::{TextureManager, World, screen::{Camera, CameraData, camera_controls::CameraControls}};
 
 
 
@@ -81,7 +81,7 @@ impl ScreenManager {
     pub fn render_screen(&mut self, texture_manager: &mut TextureManager, world: &World){
         // If current menu is camera
         if self.current_menu == CurrentMenu::MainMenu {
-            
+        
         }
         else if self.current_menu == CurrentMenu::Camera {
             self.camera.render_camera(texture_manager, world);
@@ -93,7 +93,7 @@ impl ScreenManager {
     //=====================================
 
     // handle mouse movment
-    pub fn mouse_motion_event(&mut self, mouse_cords: [f32; 2]) {
+    pub fn mouse_motion_event(&mut self, x_cor: f32, y_cor: f32) {
         // If current menu is camera
         if self.current_menu == CurrentMenu::MainMenu {
             
@@ -104,7 +104,7 @@ impl ScreenManager {
     }
 
     // Handle mouse button press
-    pub fn mouse_button_down_event(&mut self, button: MouseButton, x: f32, y: f32) {
+    pub fn mouse_button_down_event(&mut self, button: MouseButton) {
         if self.current_menu == CurrentMenu::MainMenu {
             
         }
@@ -116,10 +116,12 @@ impl ScreenManager {
     // Handle key press
     pub fn key_down_event(&mut self, keycode: KeyCode, keymods: KeyMods, repeat: bool) {
         if self.current_menu == CurrentMenu::MainMenu {
-            
+
+            let camera = self.get_mut_camera();
+            self.camera_controls.key_down_event(camera, keycode, keymods, repeat);
         }
         else if self.current_menu == CurrentMenu::Camera {
-            
+
         }
     }
 

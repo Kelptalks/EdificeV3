@@ -4,7 +4,6 @@ use miniquad::{GlContext, KeyCode, KeyMods, MouseButton};
 use rand::{rng, Rng};
 
 use crate::game_data::screen::renderer::{CameraData};
-use crate::game_data::controls::CameraControls;
 use crate::game_data::screen;
 use crate::game_data::screen::screen_mananager::ScreenManager;
 use crate::game_data::tik_manager::tik_manager::TikManager;
@@ -18,7 +17,6 @@ pub struct GameData {
     world : World,
     texture_manager : TextureManager,
     screen_manager: ScreenManager,
-    camera_controls : CameraControls,
     tik_manager: TikManager,
 }
 
@@ -28,9 +26,6 @@ impl GameData {
         
         // Set up texture manager
         let mut texture_manager = TextureManager::new();
-
-        // Create camera controls
-        let mut camera_controls = CameraControls::new();
 
         // Set up world
         let mut world = World::new();
@@ -47,7 +42,6 @@ impl GameData {
             world: world,
             texture_manager: texture_manager,
             screen_manager: screen_manager,
-            camera_controls: camera_controls,
             tik_manager: tik_manager,
 
         }
@@ -57,52 +51,34 @@ impl GameData {
     //=====================================
     // Control Handling 
     //=====================================
-    pub fn handle_mouse_motion_input(&mut self, mouse_cords: [f32; 2]) {
-        
-        // To Remove
-        let camera_data = self.screen_manager.get_mut_camera_data();
-        self.camera_controls.update_mouse_cords(camera_data, mouse_cords);
-
+    pub fn handle_mouse_motion_input(&mut self, x_cor: f32, y_cor: f32) {
         // New
         let screen = &mut self.screen_manager;
-        screen.mouse_motion_event(mouse_cords);
+        screen.mouse_motion_event(x_cor, y_cor);
         
     }
 
     pub fn handle_key_inputs(&mut self, keycode: KeyCode, keymods: KeyMods, repeat: bool) {
-        // To remove
-        let camera_data = self.screen_manager.get_mut_camera_data();
-        self.camera_controls.handle_key_inputs(camera_data, keycode);
-
         // New
         let screen = &mut self.screen_manager;
         screen.key_down_event(keycode, keymods, repeat);
     }
 
     pub fn handle_mouse_wheel_inputs(&mut self, x_scroll_distance: f32, y_scroll_distance: f32) {
-        // To remove
-        let camera_data = self.screen_manager.get_mut_camera_data();
-        self.camera_controls.handle_scroll_input(camera_data, y_scroll_distance);
-
         // New
         let screen = &mut self.screen_manager;
         screen.mouse_wheel_event(x_scroll_distance, y_scroll_distance);
 
     }
     pub fn handle_mouse_inputs(&mut self, button: MouseButton) {
-        self.camera_controls.handle_mouse_inputs(&mut self.screen_manager.get_mut_camera(), button);
+        // New
+        let screen = &mut self.screen_manager;
+        screen.mouse_button_down_event(button);
     }
 
     //=====================================
     // Getters / Setters
     //=====================================
-
-    pub fn get_mut_camera_controls(&mut self) -> &mut CameraControls {
-        return &mut self.camera_controls;
-    }
-    pub fn get_camera_controls(&self) -> &CameraControls {
-        return &self.camera_controls;
-    }
 
     pub fn get_mut_camera_data(&mut self) -> &mut CameraData {
         return self.screen_manager.get_mut_camera_data()
