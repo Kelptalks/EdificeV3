@@ -113,7 +113,7 @@ impl TextureManager {
         self.get_texture_renderer().add_quad(pos, uv);
     }
 
-    pub fn render_char_triangle(&mut self, font: String, char : CharType, draw_location : [f32; 2], scale : f32) {
+    pub fn render_char(&mut self, font: String, char : CharType, draw_location : [f32; 2], scale : f32) {
         let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_font_uv(font, char);
 
         let mut pos = [

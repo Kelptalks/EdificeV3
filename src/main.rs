@@ -100,7 +100,7 @@ fn main() {
             window_title: "My Game".to_owned(),
             window_width: 1920,
             window_height: 1080,
-            window_resizable: true,
+            window_resizable: false,
             ..Default::default()
         },
         || Box::new(GameStage::new()), // No parameters

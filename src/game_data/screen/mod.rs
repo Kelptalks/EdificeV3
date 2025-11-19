@@ -16,3 +16,4 @@ pub use renderer::iso_cord_tool;
 
 
 pub mod text;
+pub use text::render_string;

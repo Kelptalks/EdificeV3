@@ -17,9 +17,10 @@ pub struct CameraData {
     //Camera offset by controls
     render_cords : [f32; 2],
     //Camera offset for centering
-    draw_offset : [f32 ; 2],
+    ndc_draw_offset : [f32 ; 2],
 
 
+    zoom : f32,
     render_scale : f32,
     tile_pixel_scale : f32,
 
@@ -40,10 +41,11 @@ impl CameraData {
             cam_world_cords : [100.0, 100.0, 100.0],
             
             // Pixel Drawing Offsets
-            draw_offset : [0.0, 0.0],
+            ndc_draw_offset : [0.0, 0.0],
             render_cords : [0.0, 0.0],
             
             // Render scaling
+            zoom : 1.0,
             render_scale : 0.0005,
             tile_pixel_scale : 32.0,
 
@@ -83,13 +85,16 @@ impl CameraData {
     }
 
     pub fn mod_scale(&mut self, zoom_mod: f32) {
-        self.render_scale *= zoom_mod;
+        self.zoom *= zoom_mod;
+
+        //self.render_scale *= zoom_mod;
+
     }
 
-    pub fn get_draw_offset(&self) -> [f32 ; 2]{
 
-        let x_draw_offset = self.render_cords[0] + self.draw_offset[0];
-        let y_draw_offset = self.render_cords[1] + self.draw_offset[1];
+    pub fn get_ndc_draw_offset(&self) -> [f32 ; 2]{
+        let x_draw_offset = self.render_cords[0] + self.ndc_draw_offset[0];
+        let y_draw_offset = self.render_cords[1] + self.ndc_draw_offset[1];
 
         return [x_draw_offset, y_draw_offset];
     }
@@ -99,7 +104,11 @@ impl CameraData {
     }
 
     pub fn get_render_scale(&self) -> f32 {
-        return self.render_scale;
+        return self.render_scale * self.zoom;
+    }
+
+    pub fn get_zoom(&self) -> f32 {
+        return self.zoom;
     }
 
     pub fn get_tile_render_scale(&self) -> f32 {

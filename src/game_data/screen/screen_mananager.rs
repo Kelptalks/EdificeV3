@@ -1,6 +1,6 @@
 use miniquad::{GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, screen::{Camera, CameraData, camera_controls::CameraControls}};
+use crate::game_data::{TextureManager, World, screen::{Camera, CameraData, camera_controls, iso_cord_tool}};
 
 
 
@@ -23,11 +23,52 @@ how those menus are rendered and how those controls are processed.
 
 */
 
+pub struct ControlManager {
+    mouse_pixel_cords: [i32; 2],
+    mouse_ndc_cords: [f32; 2],
+    mouse_renderer_pixel_cords: [i32; 2],
+    mouse_renderer_ndc_cords: [f32; 2],
+    mouse_iso_world_cords: [i32; 2],
+}
+
+impl ControlManager {
+    pub fn new() -> Self {
+        Self {
+            mouse_pixel_cords: [0, 0],
+            mouse_ndc_cords: [0.0, 0.0],
+            mouse_renderer_pixel_cords: [0, 0],
+            mouse_renderer_ndc_cords: [0.0, 0.0],
+            mouse_iso_world_cords: [0, 0],
+        }
+    }
+
+    pub fn get_mouse_pixel_cords(&self) -> [i32; 2] {
+        return self.mouse_pixel_cords;
+    }
+
+    pub fn get_mouse_ndc_cords(&self) -> [f32; 2] {
+        return self.mouse_ndc_cords;
+    }
+
+    pub fn get_renderer_mouse_pixel_cords(&self) -> [i32; 2] {
+        return self.mouse_renderer_pixel_cords;
+    }
+
+    pub fn get_renderer_mouse_ndc_cords(&self) -> [f32; 2] {
+        return self.mouse_renderer_ndc_cords;
+    }
+
+    pub fn get_iso_world_mouse_cords(&self) -> [i32; 2] {
+        return self.mouse_iso_world_cords;
+    }
+
+    
+}
+
 pub struct ScreenManager {
     // Menu Structs
 
     camera : Camera,
-    camera_controls : CameraControls,
 
 
 
@@ -37,6 +78,9 @@ pub struct ScreenManager {
     screen_rez: [f32; 2],
     viewport_rez: [f32; 2],
     viewport_offset: [f32; 2],
+    
+    control_manager: ControlManager,
+
 
 }
 
@@ -44,24 +88,24 @@ pub struct ScreenManager {
 
 impl ScreenManager {
     pub fn new()->Self {
-
         let mut camera = Camera::new();
         camera.create_casted_chunks();
-
-        let camera_controls = CameraControls::new();
 
 
         let new_screen = ScreenManager{
             // Menu Structs
             camera: camera,
-            camera_controls: camera_controls,
 
             // Screen Data
             current_menu: CurrentMenu::Camera,
             screen_rez: [0.0, 0.0],
             viewport_rez: [0.0, 0.0],
             viewport_offset: [0.0, 0.0],
+
+            // Control
+            control_manager: ControlManager::new(),
         };
+        
         
         return  new_screen;
     }
@@ -89,11 +133,12 @@ impl ScreenManager {
     }
 
     //=====================================
-    // Getters / Setters
+    // Input Handling
     //=====================================
 
     // handle mouse movment
     pub fn mouse_motion_event(&mut self, x_cor: f32, y_cor: f32) {
+        self.update_mouse_cords(x_cor, y_cor);
         // If current menu is camera
         if self.current_menu == CurrentMenu::MainMenu {
             
@@ -105,11 +150,12 @@ impl ScreenManager {
 
     // Handle mouse button press
     pub fn mouse_button_down_event(&mut self, button: MouseButton) {
+
         if self.current_menu == CurrentMenu::MainMenu {
             
         }
         else if self.current_menu == CurrentMenu::Camera {
-            
+            camera_controls::mouse_button_down_event(self);
         }
     }
 
@@ -117,11 +163,9 @@ impl ScreenManager {
     pub fn key_down_event(&mut self, keycode: KeyCode, keymods: KeyMods, repeat: bool) {
         if self.current_menu == CurrentMenu::MainMenu {
 
-            let camera = self.get_mut_camera();
-            self.camera_controls.key_down_event(camera, keycode, keymods, repeat);
         }
         else if self.current_menu == CurrentMenu::Camera {
-
+            camera_controls::key_down_event(self, keycode, keymods, repeat);
         }
     }
 
@@ -131,7 +175,7 @@ impl ScreenManager {
             
         }
         else if self.current_menu == CurrentMenu::Camera {
-            
+            camera_controls::mouse_wheel_event(self, _x, _y);
         }
     }
 
@@ -145,6 +189,10 @@ impl ScreenManager {
 
     pub fn get_mut_camera_data(&mut self) -> &mut CameraData{
         return self.camera.get_mut_camera_data();
+    }
+
+    pub fn get_camera_data (&self) -> &CameraData{
+        return self.camera.get_camera_data();
     }
 
     pub fn set_screen_rez(&mut self, screen_rez: [f32; 2], ctx : &mut GlContext) {
@@ -172,27 +220,46 @@ impl ScreenManager {
         );
     }
 
-    //=====================================
-    // Conversion
-    //=====================================
-
-    pub fn ndi_cords_to_pixel_cords(&self, ndi_cords: [f32; 2]) -> [i32; 2] {
-        // Convert NDI coordinates (-1.0 to 1.0) to screen pixel coordinates
-        // First convert NDI to normalized viewport space (0.0 to 1.0)
-        let norm_x = (ndi_cords[0] + 1.0) / 2.0;
-        let norm_y = (ndi_cords[1] + 1.0) / 2.0;
-        
-        // Convert to viewport pixel coordinates (0 to viewport_rez)
-        let viewport_x = norm_x * self.viewport_rez[0];
-        let viewport_y = norm_y * self.viewport_rez[1];
-        
-        // Convert viewport pixels to screen pixels by adding the viewport offset
-        // The offset is negative when the viewport extends off-screen, shifting visible pixels
-        // For example: viewport pixel 100 with offset -50 = screen pixel 50
-        let screen_x = (viewport_x + self.viewport_offset[0]) as i32;
-        let screen_y = (viewport_y - self.viewport_offset[1].abs()) as i32;
-        
-        return [screen_x, screen_y];
+    pub fn get_control_manager(&self) -> &ControlManager {
+        return &self.control_manager;
     }
 
+    //=====================================
+    // Mouse / Control handling
+    //=====================================
+
+    pub fn update_mouse_cords(&mut self, x_cor: f32, y_cor: f32) {
+        // Set up basic on screen cords
+        // I need to center the mouse cords based on viewport
+        // so I need to calculat the NDC starting cord of the top left of the screen
+        let y_pixel_offset = (self.viewport_rez[1] - self.screen_rez[1]) / 2.0;
+
+        let mouse_ndc_cords = [
+            (x_cor / self.viewport_rez[0]) * 2.0 - 1.0,
+            ((y_cor + y_pixel_offset) / self.viewport_rez[1]) * 2.0 - 1.0,
+        ];
+
+        // Calculate renderer mouse cords
+        let camera_data = self.get_camera_data();
+        let draw_offset = camera_data.get_ndc_draw_offset();
+        //println!("Draw offset: ({}, {})", draw_offset[0], draw_offset[1]);
+        let mouse_renderer_ndc_cords = [
+            (mouse_ndc_cords[0] - draw_offset[0]) / camera_data.get_zoom(),
+            (mouse_ndc_cords[1] - draw_offset[1]) / camera_data.get_zoom(),
+        ];
+
+        let mouse_renderer_pixel_cords = [
+            mouse_renderer_ndc_cords[0] * (self.viewport_rez[0] / 2.0),
+            mouse_renderer_ndc_cords[1] * (self.viewport_rez[1] / 2.0),
+        ];
+
+        let iso_world_cords = iso_cord_tool::ndi_screen_cords_to_iso_cords(camera_data.get_render_scale(), mouse_renderer_ndc_cords);
+
+        // Set all values
+        self.control_manager.mouse_pixel_cords = [x_cor as i32, y_cor as i32];
+        self.control_manager.mouse_ndc_cords = mouse_ndc_cords;
+        self.control_manager.mouse_renderer_ndc_cords = mouse_renderer_ndc_cords;
+        self.control_manager.mouse_renderer_pixel_cords = [mouse_renderer_pixel_cords[0] as i32, mouse_renderer_pixel_cords[1] as i32];
+
+    }
 }

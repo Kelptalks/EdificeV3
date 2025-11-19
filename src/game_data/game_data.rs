@@ -4,7 +4,7 @@ use miniquad::{GlContext, KeyCode, KeyMods, MouseButton};
 use rand::{rng, Rng};
 
 use crate::game_data::screen::renderer::{CameraData};
-use crate::game_data::screen;
+use crate::game_data::screen::{self, render_string, screen_mananager};
 use crate::game_data::screen::screen_mananager::ScreenManager;
 use crate::game_data::tik_manager::tik_manager::TikManager;
 use crate::game_data::world::World;
@@ -106,8 +106,19 @@ impl GameData {
     pub fn render_camera(&mut self, ctx: &mut GlContext) {
         
         self.screen_manager.render_screen(&mut self.texture_manager, &self.world);
-
         self.tik_manager.update_tik_manager();
+
+
+        let screen_mananager = &self.screen_manager;
+
+        render_string(
+            screen_mananager,
+            &mut self.texture_manager,
+            "Test".to_string(),
+            "Basic".to_string(),
+            0.05,
+            [-0.9, 0.8],
+        );
 
         //self.camera.render_camera(&mut self.texture_manager, &self.world);
         //self.texture_manager.test_sprites(ctx);

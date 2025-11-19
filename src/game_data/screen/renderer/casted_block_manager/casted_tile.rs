@@ -61,7 +61,7 @@ impl CastedTile {
         let scale = camera_data.get_render_scale() * (BlockTriangle::PIXLE_REZ as f32);
 
         let draw_cords = iso_cord_tool::casted_to_ndc_cords(scale, self.casted_cor);
-        let draw_cam_offset = camera_data.get_draw_offset();
+        let draw_cam_offset = camera_data.get_ndc_draw_offset();
 
         let final_left_draw_cords = [draw_cords[0] + draw_cam_offset[0], draw_cords[1] + draw_cam_offset[1]];
         let final_right_draw_cords = [(draw_cords[0] + draw_cam_offset[0]) + (scale), draw_cords[1] + draw_cam_offset[1]];
