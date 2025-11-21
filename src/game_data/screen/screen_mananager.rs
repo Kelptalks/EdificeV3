@@ -1,6 +1,7 @@
+use image::imageops::FilterType::Triangle;
 use miniquad::{GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, screen::{Camera, CameraData, camera_controls, iso_cord_tool}};
+use crate::game_data::{TextureManager, World, screen::{Camera, CameraData, camera_controls, iso_cord_tool, renderer::casted_block_manager::casted_tile::{self, CastedTile}}};
 
 
 
@@ -58,10 +59,9 @@ impl ControlManager {
         return self.mouse_renderer_ndc_cords;
     }
 
-    pub fn get_iso_world_mouse_cords(&self) -> [i32; 2] {
+    pub fn get_mouse_iso_world_cords(&self) -> [i32; 2] {
         return self.mouse_iso_world_cords;
     }
-
     
 }
 
@@ -89,7 +89,6 @@ pub struct ScreenManager {
 impl ScreenManager {
     pub fn new()->Self {
         let mut camera = Camera::new();
-        camera.create_casted_chunks();
 
 
         let new_screen = ScreenManager{
@@ -139,6 +138,7 @@ impl ScreenManager {
     // handle mouse movment
     pub fn mouse_motion_event(&mut self, x_cor: f32, y_cor: f32) {
         self.update_mouse_cords(x_cor, y_cor);
+        self.re_calculate_mouse_cords();
         // If current menu is camera
         if self.current_menu == CurrentMenu::MainMenu {
             
@@ -150,7 +150,7 @@ impl ScreenManager {
 
     // Handle mouse button press
     pub fn mouse_button_down_event(&mut self, button: MouseButton) {
-
+        self.re_calculate_mouse_cords();
         if self.current_menu == CurrentMenu::MainMenu {
             
         }
@@ -161,6 +161,7 @@ impl ScreenManager {
 
     // Handle key press
     pub fn key_down_event(&mut self, keycode: KeyCode, keymods: KeyMods, repeat: bool) {
+        self.re_calculate_mouse_cords();
         if self.current_menu == CurrentMenu::MainMenu {
 
         }
@@ -171,6 +172,7 @@ impl ScreenManager {
 
     // Handle mouse wheel 
     pub fn mouse_wheel_event(&mut self, _x: f32, _y: f32) {
+        self.re_calculate_mouse_cords();
         if self.current_menu == CurrentMenu::MainMenu {
             
         }
@@ -228,38 +230,60 @@ impl ScreenManager {
     // Mouse / Control handling
     //=====================================
 
-    pub fn update_mouse_cords(&mut self, x_cor: f32, y_cor: f32) {
-        // Set up basic on screen cords
-        // I need to center the mouse cords based on viewport
-        // so I need to calculat the NDC starting cord of the top left of the screen
-        let y_pixel_offset = (self.viewport_rez[1] - self.screen_rez[1]) / 2.0;
+    pub fn update_mouse_cords(&mut self, x_cor: f32, y_cor: f32){
+        self.control_manager.mouse_pixel_cords = [x_cor as i32, y_cor as i32];
+    }
 
+    pub fn re_calculate_mouse_cords(&mut self) {
+        let x_cor = self.control_manager.mouse_pixel_cords[0] as f32;
+        let y_cor = self.control_manager.mouse_pixel_cords[1] as f32;
+
+        // MOUSE SCREEN NDC CORDS
+        let y_pixel_offset = (self.viewport_rez[1] - self.screen_rez[1]) / 2.0; // Offset due to viewport centering
         let mouse_ndc_cords = [
             (x_cor / self.viewport_rez[0]) * 2.0 - 1.0,
             ((y_cor + y_pixel_offset) / self.viewport_rez[1]) * 2.0 - 1.0,
         ];
 
-        // Calculate renderer mouse cords
+        // RERENDERER NDC CORDS
         let camera_data = self.get_camera_data();
         let draw_offset = camera_data.get_ndc_draw_offset();
-        //println!("Draw offset: ({}, {})", draw_offset[0], draw_offset[1]);
         let mouse_renderer_ndc_cords = [
-            (mouse_ndc_cords[0] - draw_offset[0]) / camera_data.get_zoom(),
-            (mouse_ndc_cords[1] - draw_offset[1]) / camera_data.get_zoom(),
+            (mouse_ndc_cords[0] - draw_offset[0]),
+            (mouse_ndc_cords[1] - draw_offset[1]),
         ];
 
+        // RENDERE PIXEL CORDS
         let mouse_renderer_pixel_cords = [
             mouse_renderer_ndc_cords[0] * (self.viewport_rez[0] / 2.0),
             mouse_renderer_ndc_cords[1] * (self.viewport_rez[1] / 2.0),
         ];
 
-        let iso_world_cords = iso_cord_tool::ndi_screen_cords_to_iso_cords(camera_data.get_render_scale(), mouse_renderer_ndc_cords);
+        // ISO CORDS
+        // offset mouse cords slightly to get accurate iso cords
+        let offset_mouse_ndc_cords = [
+            mouse_renderer_ndc_cords[0] - camera_data.get_tile_ndi_scale(),
+            mouse_renderer_ndc_cords[1],
+        ];
+        let iso_world_cords = iso_cord_tool::ndi_screen_cords_to_iso_cords(camera_data.get_tile_ndi_scale(), offset_mouse_ndc_cords);
 
         // Set all values
         self.control_manager.mouse_pixel_cords = [x_cor as i32, y_cor as i32];
         self.control_manager.mouse_ndc_cords = mouse_ndc_cords;
         self.control_manager.mouse_renderer_ndc_cords = mouse_renderer_ndc_cords;
         self.control_manager.mouse_renderer_pixel_cords = [mouse_renderer_pixel_cords[0] as i32, mouse_renderer_pixel_cords[1] as i32];
+        self.control_manager.mouse_iso_world_cords = [iso_world_cords[0] as i32, iso_world_cords[1] as i32];
 
+    }
+
+    pub fn get_mouse_debug_casted_tile(&self) -> CastedTile {
+        let control_manager = self.get_control_manager();
+        let iso_cords = control_manager.get_mouse_iso_world_cords();
+        let mut casted_tile = CastedTile::new(iso_cords);
+        
+        let triangles = casted_tile.get_mut_triangles();
+        triangles[0].add_texture(crate::game_data::types::BlockType::Debug, crate::game_data::types::BlockTriangle::TopLeft);
+        triangles[1].add_texture(crate::game_data::types::BlockType::Debug, crate::game_data::types::BlockTriangle::TopRight);
+        return casted_tile;
     }
 }

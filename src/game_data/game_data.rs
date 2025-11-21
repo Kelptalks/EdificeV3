@@ -2,6 +2,7 @@
 
 use miniquad::{GlContext, KeyCode, KeyMods, MouseButton};
 use rand::{rng, Rng};
+use std::sync::{Arc, Mutex};
 
 use crate::game_data::screen::renderer::{CameraData};
 use crate::game_data::screen::{self, render_string, screen_mananager};
@@ -14,7 +15,7 @@ use crate::game_data::screen::Camera;
 
 pub struct GameData {
     
-    world : World,
+    world : Arc<Mutex<World>>,
     texture_manager : TextureManager,
     screen_manager: ScreenManager,
     tik_manager: TikManager,
@@ -30,8 +31,11 @@ impl GameData {
         // Set up world
         let mut world = World::new();
         world.generate_terrain();
+        
+        // Wrap world in Arc<Mutex> for thread-safe access
+        let world_arc = Arc::new(Mutex::new(world));
 
-        // Create screen manager
+        // Create screen manager and configure it with the thread pool
         let mut screen_manager = ScreenManager::new();
 
         // set up tik manager
@@ -39,7 +43,7 @@ impl GameData {
 
 
         Self {
-            world: world,
+            world: world_arc,
             texture_manager: texture_manager,
             screen_manager: screen_manager,
             tik_manager: tik_manager,
@@ -105,7 +109,11 @@ impl GameData {
 
     pub fn render_camera(&mut self, ctx: &mut GlContext) {
         
-        self.screen_manager.render_screen(&mut self.texture_manager, &self.world);
+        // Lock the world for rendering
+        let world = self.world.lock().unwrap();
+        self.screen_manager.render_screen(&mut self.texture_manager, &world);
+        drop(world); // Release the lock
+        
         self.tik_manager.update_tik_manager();
 
 
@@ -119,6 +127,9 @@ impl GameData {
             0.05,
             [-0.9, 0.8],
         );
+
+        let casted_tile = screen_mananager.get_mouse_debug_casted_tile();
+        casted_tile.render_tile(screen_mananager.get_camera_data(), &mut self.texture_manager);
 
         //self.camera.render_camera(&mut self.texture_manager, &self.world);
         //self.texture_manager.test_sprites(ctx);

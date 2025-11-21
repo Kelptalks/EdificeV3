@@ -37,6 +37,8 @@ pub fn mouse_button_down_event(screen_manager: &mut ScreenManager) {
     let ndc_world_cords = control_manager.get_renderer_mouse_ndc_cords();
     println!("Renderer NDC Cords: ({}, {})", ndc_world_cords[0], ndc_world_cords[1]);
 
+    let iso_world_cords = control_manager.get_mouse_iso_world_cords();
+    println!("Iso World Cords: ({}, {})", iso_world_cords[0], iso_world_cords[1]);
 
 }
 
@@ -57,15 +59,28 @@ pub fn key_down_event(screen_manager: &mut ScreenManager, keycode: KeyCode, keym
             }
             _ => {}
     }
+
 }
 
 pub fn mouse_wheel_event(screen_mananager: &mut ScreenManager, x_scroll_distance: f32, y_scroll_distance: f32) {
     let zoom_speed = 0.06;
-    let camera_data = screen_mananager.get_mut_camera_data();
+    let starting_iso_cam_center = screen_mananager.get_mut_camera_data().get_iso_cam_center();
     if (y_scroll_distance > 0.0) {
-        camera_data.mod_scale(1.0 + zoom_speed);
+        screen_mananager.get_mut_camera_data().mod_scale(1.0 + zoom_speed);
     }
     else if (y_scroll_distance < 0.0) {
-        camera_data.mod_scale(1.0 - zoom_speed);
+        screen_mananager.get_mut_camera_data().mod_scale(1.0 - zoom_speed);
     }
+    
+
+    // Update camera values after zoom to get new iso center
+    screen_mananager.get_mut_camera().update_camera_values();
+
+    let new_iso_cam_center = screen_mananager.get_mut_camera_data().get_iso_cam_center();
+    let x_iso_change = new_iso_cam_center[0] - starting_iso_cam_center[0];
+    let y_iso_change = new_iso_cam_center[1] - starting_iso_cam_center[1];
+
+    let screen_cord_shift = iso_cord_tool::float_iso_to_ndc_cords(screen_mananager.get_mut_camera_data().get_tile_ndi_scale(), [x_iso_change, y_iso_change]);
+    screen_mananager.get_mut_camera_data().mod_x_cam_cor(screen_cord_shift[0]);
+    screen_mananager.get_mut_camera_data().mod_y_cam_cor(screen_cord_shift[1]);
 }

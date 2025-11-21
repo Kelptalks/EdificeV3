@@ -66,6 +66,13 @@ impl CastedChunkManager {
         return self.get_mut_chunk_at_chunk_cords([chunk_x_cor, chunk_y_cor])
     }
 
+    pub fn get_chunk_cords_from_tile_cords(cords : [i32; 2]) -> [i32; 2] {
+        let chunk_x_cor = cords[0] / CHUNK_TILE_DIMENSIONS as i32;
+        let chunk_y_cor = cords[1] / CHUNK_TILE_DIMENSIONS as i32;
+
+        return [chunk_x_cor, chunk_y_cor];
+    }
+
 
     pub fn get_tile_at_casted_tile_cords(&mut self, cords : [i32; 2]) -> Option<&mut CastedTile> {
         

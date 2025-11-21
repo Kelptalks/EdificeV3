@@ -4,6 +4,7 @@ use crate::game_data::{TextureManager, types::{BlockTriangle, BlockType}};
 use super::{casted_chunk::CastedChunk, casted_triangle::CastedTriangle};
 use super::super::{iso_cord_tool, CameraData};
 
+#[derive(Clone)]
 pub struct CastedTile
 {
     //Cords
@@ -58,7 +59,7 @@ impl CastedTile {
 
     pub fn render_tile(&self, camera_data : &CameraData, texture_manager : &mut TextureManager)
     {
-        let scale = camera_data.get_render_scale() * (BlockTriangle::PIXLE_REZ as f32);
+        let scale = camera_data.get_tile_ndi_scale();
 
         let draw_cords = iso_cord_tool::casted_to_ndc_cords(scale, self.casted_cor);
         let draw_cam_offset = camera_data.get_ndc_draw_offset();

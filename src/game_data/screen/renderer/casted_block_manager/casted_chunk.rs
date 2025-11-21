@@ -56,14 +56,19 @@ impl CastedChunk {
         return &mut self.tiles[index];
     }
 
+    pub fn raycast_chunk(&mut self, camera_data : &CameraData, world : &World) {
+        for tile in &mut self.tiles {
+            ray_caster::raycast_tile_with_shadows(camera_data, world, tile);
+        }
+        self.ray_casted = true;
+    }
+
+
     pub fn render_chunk(&mut self, camera_data : &CameraData, texture_manager : &mut TextureManager, world : &World)
     {
         if (!self.ray_casted)
         {
-            for tile in &mut self.tiles {
-                ray_caster::raycast_tile_with_shadows(camera_data, world, tile);
-            }
-            self.ray_casted = true;
+            self.raycast_chunk(camera_data, world);
         }
         
         for i in 0..CHUNK_TILE_AREA {
