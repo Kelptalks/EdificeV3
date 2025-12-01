@@ -1,11 +1,11 @@
 
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::{Arc, RwLock}};
 
 use image::imageops::tile;
 
-use crate::game_data::{log_init, texture_manager, screen::Camera, TextureManager, types::{BlockTriangle, BlockType}, World};
+use crate::game_data::{TextureManager, World, log_init, screen::{Camera, renderer::camera_data::CameraData}, texture_manager, types::{BlockTriangle, BlockType}};
 use super::{casted_chunk::CastedChunk, casted_tile::CastedTile};
-use super::super::{iso_cord_tool, ray_caster, CameraData};
+use super::super::{iso_cord_tool, ray_caster};
 
 
 
@@ -14,7 +14,7 @@ static CHUNK_TILE_AREA : u32 = CHUNK_TILE_DIMENSIONS * CHUNK_TILE_DIMENSIONS;
 
 pub struct CastedChunkManager
 {
-    casted_chunk_map : HashMap<u32, CastedChunk>,
+    casted_chunk_map : HashMap<u32, Arc<RwLock<CastedChunk>>>,
     casted_chunk_key_list : Vec<u32>,
 }
 
@@ -36,35 +36,24 @@ impl CastedChunkManager {
     pub fn create_chunk_at_cords(&mut self, camera_data : &CameraData, cords : [i32; 2])
     {
         let chunk_map_key = Self::chunk_cords_to_key(cords);
-        self.casted_chunk_map.insert(chunk_map_key, CastedChunk::new(cords, camera_data));
+        let new_chunk = Arc::new(RwLock::new(CastedChunk::new(cords, camera_data)));
+        self.casted_chunk_map.insert(chunk_map_key, new_chunk);
         self.casted_chunk_key_list.push(chunk_map_key);
     }
 
-    pub fn get_chunk_at_chunk_cords(&self, cords : [i32; 2]) -> Option<&CastedChunk>
+    pub fn get_chunk_at_chunk_cords(&self, cords : [i32; 2]) -> Option<Arc<RwLock<CastedChunk>>>
     {
-        return self.casted_chunk_map.get(&Self::chunk_cords_to_key(cords));
+        return self.casted_chunk_map.get(&Self::chunk_cords_to_key(cords)).map(Arc::clone);
     }
 
-    pub fn get_mut_chunk_at_chunk_cords(&mut self, cords : [i32; 2]) -> Option<&mut CastedChunk>
-    {
-        return self.casted_chunk_map.get_mut(&Self::chunk_cords_to_key(cords));
-    }
-
-    pub fn get_chunk_at_tile_cords(&self, cords : [i32; 2]) -> Option<&CastedChunk>
+    pub fn get_chunk_at_tile_cords(&self, cords : [i32; 2]) -> Option<Arc<RwLock<CastedChunk>>>
     {
         let chunk_x_cor = cords[0] / CHUNK_TILE_DIMENSIONS as i32;
         let chunk_y_cor = cords[1] / CHUNK_TILE_DIMENSIONS as i32;
 
-        return self.get_chunk_at_chunk_cords([chunk_x_cor, chunk_y_cor]);
+        self.get_chunk_at_chunk_cords([chunk_x_cor, chunk_y_cor])
     }
 
-    pub fn get_mut_chunk_at_tile_cords(&mut self, cords : [i32; 2]) -> Option<&mut CastedChunk>
-    {
-        let chunk_x_cor = cords[0] / CHUNK_TILE_DIMENSIONS as i32;
-        let chunk_y_cor = cords[1] / CHUNK_TILE_DIMENSIONS as i32;
-
-        return self.get_mut_chunk_at_chunk_cords([chunk_x_cor, chunk_y_cor])
-    }
 
     pub fn get_chunk_cords_from_tile_cords(cords : [i32; 2]) -> [i32; 2] {
         let chunk_x_cor = cords[0] / CHUNK_TILE_DIMENSIONS as i32;
@@ -96,12 +85,12 @@ impl CastedChunkManager {
         println!("Chunk Internal Tile cords : ({}, {})", x_tile_internal_cor, y_tile_internal_cor);
 
 
-        let casted_chunk = self.get_mut_chunk_at_chunk_cords([x_chunk_casted_cor, y_chunk_casted_cor]);
+        let casted_chunk = self.get_chunk_at_chunk_cords([x_chunk_casted_cor, y_chunk_casted_cor]);
         let tile_index = (x_tile_internal_cor + (y_tile_internal_cor * CHUNK_TILE_DIMENSIONS as i32)) as usize;
 
 
         if let Some(casted_chunk) = casted_chunk {
-            return Some(casted_chunk.get_mut_tile_at_index(tile_index));
+            return Some(casted_chunk.write().unwrap().get_mut_tile_at_index(tile_index).clone());
         }
         else {
             return None;

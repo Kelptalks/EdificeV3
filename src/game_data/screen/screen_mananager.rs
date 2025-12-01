@@ -1,7 +1,9 @@
+use std::sync::RwLock;
+
 use image::imageops::FilterType::Triangle;
 use miniquad::{GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, screen::{Camera, CameraData, camera_controls, iso_cord_tool, renderer::casted_block_manager::casted_tile::{self, CastedTile}}};
+use crate::game_data::{TextureManager, World, screen::{Camera, camera_controls, camera_data::CameraData, iso_cord_tool, renderer::casted_block_manager::casted_tile::{self, CastedTile}}};
 
 
 
@@ -67,10 +69,7 @@ impl ControlManager {
 
 pub struct ScreenManager {
     // Menu Structs
-
     camera : Camera,
-
-
 
     current_menu: CurrentMenu,
     
@@ -121,7 +120,7 @@ impl ScreenManager {
     // menu Rendering
     //=====================================
 
-    pub fn render_screen(&mut self, texture_manager: &mut TextureManager, world: &World){
+    pub fn render_screen(&mut self, texture_manager: &mut TextureManager, world: &RwLock<World>){
         // If current menu is camera
         if self.current_menu == CurrentMenu::MainMenu {
         
@@ -224,6 +223,20 @@ impl ScreenManager {
 
     pub fn get_control_manager(&self) -> &ControlManager {
         return &self.control_manager;
+    }
+
+    pub fn pixel_cords_to_ndc_cords(&self, pixel_cords: [f32; 2]) -> [f32; 2] {
+        let centered_pixel_cords = [
+            pixel_cords[0] - (self.screen_rez[0] / 2.0),
+            pixel_cords[1] - (self.screen_rez[1] / 2.0),
+        ];
+
+        let ndc_cords = [
+            (centered_pixel_cords[0]) / (self.viewport_rez[0] / 2.0),
+            (centered_pixel_cords[1]) / (self.viewport_rez[1] / 2.0)
+        ];
+
+        return ndc_cords;
     }
 
     //=====================================

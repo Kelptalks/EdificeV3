@@ -1,8 +1,8 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, RwLock};
 use std::thread;
 use crossbeam_channel::{Receiver, Sender, bounded, unbounded};
 
-use crate::game_data::screen::CameraData;
+use crate::game_data::screen::camera_data::CameraData;
 use crate::game_data::screen::renderer::casted_block_manager::casted_chunk::CastedChunk;
 use crate::game_data::screen::renderer::ray_caster;
 use crate::game_data::{World, world};
@@ -11,6 +11,9 @@ use crate::game_data::{World, world};
 
 struct RaycastTask {
     chunk: Arc<Mutex<CastedChunk>>,
+    camera_data: Arc<CameraData>,
+    world : Arc<RwLock<World>>,
+
     // any other task-specific data
     frame_number: u64,
 }
@@ -22,15 +25,13 @@ pub struct RaycastThreadPool {
 }
 
 impl RaycastThreadPool {
-    pub fn new(num_threads: usize, world: Arc<World>, camera_data: Arc<CameraData>, ) -> Self {
+    pub fn new(num_threads: usize) -> Self {
         let (task_sender, task_receiver) = bounded::<RaycastTask>(100);
         
         let mut worker_handles = Vec::new();
         
         for thread_id in 0..num_threads {
             let receiver = task_receiver.clone();
-            let world = Arc::clone(&world);
-            let camera_data = Arc::clone(&camera_data);
             
             let handle = thread::spawn(move || {
                 println!("Worker thread {} started", thread_id);
@@ -43,7 +44,9 @@ impl RaycastThreadPool {
 
                     
                     // Lock the chunk that was passed in the task
-                    let mut chunk = task.chunk.lock().unwrap();
+                    let world = task.world.read().unwrap(); //Lock as read
+                    let mut chunk = task.chunk.lock().unwrap(); 
+                    let camera_data = Arc::clone(&task.camera_data);
                     
                     // Perform raycast
                     

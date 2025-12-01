@@ -1,7 +1,9 @@
-use crate::game_data::{TextureManager, screen::screen_mananager::{self, ScreenManager}, types::CharType};
+use crate::game_data::{TextureManager, screen::screen_mananager::{ScreenManager}, types::CharType};
 
-pub fn render_string(screen_mananager: &ScreenManager, texture_manager: &mut TextureManager, string : String, font : String, scale: f32, ndi_cords: [f32; 2]){
-    let mut ndi_cords = screen_mananager.get_control_manager().get_mouse_ndc_cords();
+pub fn render_string(screen_mananager: &ScreenManager, texture_manager: &mut TextureManager, string : String, font : String, scale: f32, pixel_cords: [f32; 2]){
+    let mut ndi_cords = screen_mananager.pixel_cords_to_ndc_cords(pixel_cords);
+
+
 
     let chars = string.chars().collect::<Vec<char>>();
     for c in chars.iter() {

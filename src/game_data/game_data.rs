@@ -2,9 +2,9 @@
 
 use miniquad::{GlContext, KeyCode, KeyMods, MouseButton};
 use rand::{rng, Rng};
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, RwLock};
 
-use crate::game_data::screen::renderer::{CameraData};
+use crate::game_data::screen::camera_data::CameraData;
 use crate::game_data::screen::{self, render_string, screen_mananager};
 use crate::game_data::screen::screen_mananager::ScreenManager;
 use crate::game_data::tik_manager::tik_manager::TikManager;
@@ -15,7 +15,7 @@ use crate::game_data::screen::Camera;
 
 pub struct GameData {
     
-    world : Arc<Mutex<World>>,
+    world : Arc<RwLock<World>>,
     texture_manager : TextureManager,
     screen_manager: ScreenManager,
     tik_manager: TikManager,
@@ -32,8 +32,8 @@ impl GameData {
         let mut world = World::new();
         world.generate_terrain();
         
-        // Wrap world in Arc<Mutex> for thread-safe access
-        let world_arc = Arc::new(Mutex::new(world));
+        // Wrap world in Arc<RwLock> for thread-safe access
+        let world = Arc::new(RwLock::new(world));
 
         // Create screen manager and configure it with the thread pool
         let mut screen_manager = ScreenManager::new();
@@ -43,7 +43,7 @@ impl GameData {
 
 
         Self {
-            world: world_arc,
+            world: world,
             texture_manager: texture_manager,
             screen_manager: screen_manager,
             tik_manager: tik_manager,
@@ -103,6 +103,11 @@ impl GameData {
         self.screen_manager.init_screen([1920.0, 1080.0], ctx);
     } 
 
+    pub fn init_camera(mut self) {
+
+        //self.screen_manager.get_mut_camera().init(self.world);
+    }
+
     //=====================================
     // Rendering
     //=====================================
@@ -110,10 +115,7 @@ impl GameData {
     pub fn render_camera(&mut self, ctx: &mut GlContext) {
         
         // Lock the world for rendering
-        let world = self.world.lock().unwrap();
-        self.screen_manager.render_screen(&mut self.texture_manager, &world);
-        drop(world); // Release the lock
-        
+        self.screen_manager.render_screen(&mut self.texture_manager, &self.world);
         self.tik_manager.update_tik_manager();
 
 
@@ -125,7 +127,7 @@ impl GameData {
             "Test".to_string(),
             "Basic".to_string(),
             0.05,
-            [-0.9, 0.8],
+            [10.0, 10.0],
         );
 
         let casted_tile = screen_mananager.get_mouse_debug_casted_tile();

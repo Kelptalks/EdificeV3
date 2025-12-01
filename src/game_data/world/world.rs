@@ -1,4 +1,4 @@
-use std::{collections::HashMap, hash::Hash, path::absolute, ptr::null};
+use std::{collections::HashMap, hash::Hash, path::absolute, ptr::null, sync::Arc};
 
 use crate::game_data::{log_header, log_init, world::world_gen::WorldGenManager, types::BlockType};
 
@@ -96,6 +96,11 @@ impl World {
         }
     }
 
+
+    //=====================================
+    // Conversion Funcions
+    //=====================================
+
     pub fn chunk_cords_to_key(cords : [i16 ; 3]) -> u64
     {
         // Cast through u16 to preserve bit pattern without sign extension
@@ -117,6 +122,11 @@ impl World {
         
         [chunk_x, chunk_y, chunk_z]
     }
+
+
+    //=====================================
+    // Getters / Setters
+    //=====================================
 
     // Get a chunk at chunk cords or create it if it doesn't exist
     // Optimization Note : Could use Entry API to elimanate one hashmap lookup.
@@ -188,6 +198,15 @@ impl World {
         }
     }
 
+    pub fn get_arc_ref(self) -> Arc<World> {
+        return Arc::new(self);
+    }
+
+
+    //=====================================
+    // Terrain Gen
+    //=====================================
+
     pub fn generate_terrain(&mut self) {
         let start_cords = [-100, -100, -25];
         let end_cords = [100, 100, 25];
@@ -196,6 +215,8 @@ impl World {
         world_gen_manager.generate_area(self, start_cords, end_cords);
 
     }
+
+
 
     pub fn test_world()
     {
