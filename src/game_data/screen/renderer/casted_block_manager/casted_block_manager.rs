@@ -14,7 +14,8 @@ static CHUNK_TILE_AREA : u32 = CHUNK_TILE_DIMENSIONS * CHUNK_TILE_DIMENSIONS;
 
 pub struct CastedChunkManager
 {
-    casted_chunk_map : HashMap<u32, Arc<RwLock<CastedChunk>>>,
+    casted_chunk_map: HashMap<u32, Arc<RwLock<CastedChunk>>>,
+    casted_chunk_raycasted_map: HashMap<u32, bool>,
     casted_chunk_key_list : Vec<u32>,
 }
 
@@ -24,6 +25,9 @@ impl CastedChunkManager {
         Self {
             casted_chunk_map: HashMap::new(),
             casted_chunk_key_list: Vec::new(),
+            
+            // Data for managing threads
+            casted_chunk_raycasted_map: HashMap::new(),
         }
     }
 
@@ -39,6 +43,26 @@ impl CastedChunkManager {
         let new_chunk = Arc::new(RwLock::new(CastedChunk::new(cords, camera_data)));
         self.casted_chunk_map.insert(chunk_map_key, new_chunk);
         self.casted_chunk_key_list.push(chunk_map_key);
+
+        // Create raycasted map entry
+        self.casted_chunk_raycasted_map.insert(chunk_map_key, false);
+    }
+
+    pub fn set_chunk_ray_casted_status(&mut self, cords : [i32; 2], status : bool)
+    {
+        let chunk_map_key = Self::chunk_cords_to_key(cords);
+        if let Some(entry) = self.casted_chunk_raycasted_map.get_mut(&chunk_map_key) {
+            *entry = status;
+        }
+    }
+
+    pub fn get_chunk_ray_casted_status(&self, cords : [i32; 2]) -> bool
+    {
+        let chunk_map_key = Self::chunk_cords_to_key(cords);
+        if let Some(status) = self.casted_chunk_raycasted_map.get(&chunk_map_key) {
+            return *status;
+        }
+        return false;
     }
 
     pub fn get_chunk_at_chunk_cords(&self, cords : [i32; 2]) -> Option<Arc<RwLock<CastedChunk>>>
@@ -63,6 +87,9 @@ impl CastedChunkManager {
     }
 
 
+    // Need to fix for arc_rwlock
+
+    /*
     pub fn get_tile_at_casted_tile_cords(&mut self, cords : [i32; 2]) -> Option<&mut CastedTile> {
         
         let mut x_chunk_casted_cor = cords[0] / CHUNK_TILE_DIMENSIONS as i32;
@@ -99,6 +126,7 @@ impl CastedChunkManager {
         
     }
 
+    
     /// Get a casted tile at the given isometric coordinates (converts f32 to i32)
     /// Returns None if the chunk containing the tile doesn't exist
     pub fn get_tile_at_iso_cords(&mut self, iso_cords: [f32; 2]) -> Option<&mut CastedTile> {
@@ -110,12 +138,6 @@ impl CastedChunkManager {
         self.get_tile_at_casted_tile_cords([tile_x, tile_y])
     }
 
-    pub fn render_all_chunks(&mut self, camera_data : &CameraData, texture_manager : &mut TextureManager, world : &World)
-    {
-        for chunk_key in &mut self.casted_chunk_key_list {
-            let casted_chunk = self.casted_chunk_map.get_mut(chunk_key).unwrap();
-            casted_chunk.render_chunk(camera_data, texture_manager, world);
-        }
-    }
+    */
 
 }

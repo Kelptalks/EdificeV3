@@ -65,16 +65,23 @@ impl CastedChunk {
     }
 
 
-    pub fn render_chunk(&mut self, camera_data : &CameraData, texture_manager : &mut TextureManager, world : &World)
-    {
-        if (!self.ray_casted)
-        {
-            self.raycast_chunk(camera_data, world);
-        }
-        
+    pub fn render_chunk(&self, camera_data : &CameraData, texture_manager : &mut TextureManager)
+    {   
         for i in 0..CHUNK_TILE_AREA {
             self.tiles[i as usize].render_tile(camera_data, texture_manager);
         }
+    }
+
+    pub fn is_ray_casted(&self) -> bool {
+        return self.ray_casted;
+    }
+
+    pub fn set_ray_casted(&mut self, ray_casted: bool) {
+        self.ray_casted = ray_casted;
+    }
+    
+    pub fn get_chunk_cords(&self) -> [i32; 2] {
+        return self.chunk_casted_cords;
     }
 
 }

@@ -1,21 +1,17 @@
-use std::sync::{Arc, Mutex, RwLock};
+use std::sync::{Arc, RwLock};
 use std::thread;
-use crossbeam_channel::{Receiver, Sender, bounded, unbounded};
+use crossbeam_channel::{Sender, bounded};
 
 use crate::game_data::screen::camera_data::CameraData;
 use crate::game_data::screen::renderer::casted_block_manager::casted_chunk::CastedChunk;
-use crate::game_data::screen::renderer::ray_caster;
-use crate::game_data::{World, world};
+use crate::game_data::{World};
 
 
 
 struct RaycastTask {
-    chunk: Arc<Mutex<CastedChunk>>,
+    chunk: Arc<RwLock<CastedChunk>>,
     camera_data: Arc<CameraData>,
     world : Arc<RwLock<World>>,
-
-    // any other task-specific data
-    frame_number: u64,
 }
 
 // Main thread pool structure
@@ -34,28 +30,24 @@ impl RaycastThreadPool {
             let receiver = task_receiver.clone();
             
             let handle = thread::spawn(move || {
-                println!("Worker thread {} started", thread_id);
+                println!("Raycasting Thread {} started", thread_id);
                 
                 // Each task now contains its own chunk reference
-                while let Ok(task) = receiver.recv() {
-                    println!("Thread {} received task for frame {}", 
-                             thread_id, task.frame_number);
-                    
-
-                    
+                while let Ok(task) = receiver.recv() {                    
                     // Lock the chunk that was passed in the task
                     let world = task.world.read().unwrap(); //Lock as read
-                    let mut chunk = task.chunk.lock().unwrap(); 
+
+
+                    let mut chunk = task.chunk.write().unwrap(); 
                     let camera_data = Arc::clone(&task.camera_data);
                     
-                    // Perform raycast
-                    
+                    // Perform raycasting on the chunk
+                    chunk.set_ray_casted(true);                
                     chunk.raycast_chunk(&camera_data, &world);
-                    
-                    println!("Thread {} finished raycasting", thread_id);
+    
                 }
                 
-                println!("Worker thread {} shutting down", thread_id);
+
             });
             
             worker_handles.push(handle);
@@ -67,5 +59,26 @@ impl RaycastThreadPool {
             task_sender,
             _worker_handles: worker_handles,
         }
+    }
+
+    /// Submit a task to the thread pool
+    pub fn submit_task(
+        &self,
+        chunk: Arc<RwLock<CastedChunk>>,
+        camera_data: Arc<CameraData>,
+        world: Arc<RwLock<World>>,
+    ) -> Result<(), String> {
+        
+        let task = RaycastTask {
+            chunk,
+            camera_data,
+            world,
+        };
+        
+        self.task_sender.send(task)
+            .map_err(|_| {
+                // If send fails, decrement the counter back
+                "Failed to send task to worker threads".to_string()
+            })
     }
 }

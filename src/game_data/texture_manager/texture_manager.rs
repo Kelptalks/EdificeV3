@@ -114,6 +114,9 @@ impl TextureManager {
     }
 
     pub fn render_char(&mut self, font: String, char : CharType, draw_location : [f32; 2], scale : f32) {
+        if char == CharType::CharSpace {
+            return; // Don't render spaces
+        }
         let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_font_uv(font, char);
 
         let mut pos = [

@@ -25,6 +25,7 @@ pub struct CameraData {
 
     // Render Location
     iso_cam_center_cords : [f32; 2],
+    view_distance : usize,
 
     // Render Scaling
     zoom : f32,
@@ -56,6 +57,7 @@ impl CameraData {
             
             // Renderer location
             iso_cam_center_cords : [0.0, 0.0],
+            view_distance : 5,
 
             // Render scaling
             zoom : 1.0,
@@ -68,7 +70,7 @@ impl CameraData {
             direction_mods : [1, 1, 1],
             draw_distance : 200,
 
-            // Frame number
+            // Frame data
             frame_number: 0,
         }
     }
@@ -141,6 +143,10 @@ impl CameraData {
         self.frame_number += 1;
     }
 
+    pub fn get_frame_number(&self) -> u64 {
+        return self.frame_number;
+    }
+
     pub fn get_ndc_draw_offset(&self) -> [f32 ; 2]{
         let x_draw_offset = self.render_cords[0] + self.ndc_draw_offset[0];
         let y_draw_offset = self.render_cords[1] + self.ndc_draw_offset[1];
@@ -174,6 +180,10 @@ impl CameraData {
 
     pub fn get_iso_cam_center(&self) -> [f32; 2] {
         return self.iso_cam_center_cords;
+    }
+
+    pub fn get_view_distance(&self) -> usize {
+        return self.view_distance;
     }
 
 }

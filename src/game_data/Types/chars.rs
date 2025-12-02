@@ -1,5 +1,5 @@
 #[repr(u16)]
-#[derive(Copy, Clone)]  // Add these
+#[derive(Copy, Clone, PartialEq)]  // Add these
 pub enum CharType {
     CharA = 0,
     CharB = 1,
@@ -122,7 +122,7 @@ impl CharType {
             '[' => CharType::CharOpenBracket,
             '/' => CharType::CharForwardSlash,
             '-' => CharType::CharMinus,
-            _ => CharType::CharSpace,  // Default to 'A' if no match found
+            _ => CharType::CharSpace,  // Default to 'Space' if no match found
         }
     }
 }

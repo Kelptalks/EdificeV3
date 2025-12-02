@@ -107,7 +107,6 @@ impl PlantType {
     }
 
     fn generate_mushroom(rng: &mut ThreadRng, world: &mut World, cords: [i32; 3]) {
-        println!("Generating mushroom");
         let height = rng.gen_range(10..40);
         let stem_radius = (height / (rng.gen_range(5..25))) + 3;
 

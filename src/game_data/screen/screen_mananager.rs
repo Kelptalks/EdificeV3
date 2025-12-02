@@ -1,4 +1,4 @@
-use std::sync::RwLock;
+use std::sync::{Arc, RwLock};
 
 use image::imageops::FilterType::Triangle;
 use miniquad::{GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
@@ -120,7 +120,7 @@ impl ScreenManager {
     // menu Rendering
     //=====================================
 
-    pub fn render_screen(&mut self, texture_manager: &mut TextureManager, world: &RwLock<World>){
+    pub fn render_screen(&mut self, texture_manager: &mut TextureManager, world: Arc<RwLock<World>>){
         // If current menu is camera
         if self.current_menu == CurrentMenu::MainMenu {
         
