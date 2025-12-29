@@ -44,6 +44,11 @@ impl CastedTile {
         return self.world_camera_cords;
     }
 
+    pub fn get_triangles(&self) -> [&CastedTriangle; 2] {
+        return [&self.left_triangle, &self.right_triangle];
+    }
+
+
     pub fn get_mut_triangles(&mut self) -> [&mut CastedTriangle; 2] {
         return [&mut self.left_triangle, &mut self.right_triangle];
     }
@@ -59,7 +64,7 @@ impl CastedTile {
 
     pub fn render_tile(&self, camera_data : &CameraData, texture_manager : &mut TextureManager)
     {
-        let scale = camera_data.get_tile_ndi_scale();
+        let scale = camera_data.get_tile_ndc_scale();
 
         let draw_cords = iso_cord_tool::casted_to_ndc_cords(scale, self.casted_cor);
         let draw_cam_offset = camera_data.get_ndc_draw_offset();
@@ -71,5 +76,6 @@ impl CastedTile {
         self.left_triangle.render_casted_triangle(texture_manager, final_left_draw_cords, scale);
         self.right_triangle.render_casted_triangle(texture_manager, final_right_draw_cords, scale);
     }
+
     
 }

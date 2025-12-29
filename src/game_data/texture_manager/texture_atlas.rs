@@ -1,6 +1,6 @@
 use std::{collections::HashMap, ops::Index};
 
-use crate::game_data::{types::{BlockShaderType, BlockTriangle, BlockType, CharType, ShaderTriangle}, log_init, texture_manager::{block_sheet::BlockTextureManager, shader_sheet::ShaderTextureManager, text_sheet::TextTextureManager}};
+use crate::game_data::{log_init, texture_manager::{block_sheet::BlockTextureManager, shader_sheet::ShaderTextureManager, text_sheet::TextTextureManager, ui_sheet::UITextureManager}, types::{BlockShaderType, BlockTriangle, BlockType, CharType, ShaderTriangle, UITextures}};
 use image::{ImageBuffer, RgbaImage};
 use miniquad::*;
 
@@ -18,6 +18,9 @@ pub struct TextureAtlas {
 
     text_texture_manager: TextTextureManager,
     pre_calculated_font_uvs: HashMap<String, Vec<[f32; 4]>>,
+
+    ui_texture_manager: UITextureManager,
+    pre_calculated_ui_uvs: Vec<[f32; 4]>,
 
 }
 
@@ -48,6 +51,13 @@ impl TextureAtlas {
         text_texture_manager.splice_fonts_to_atlas(&mut atlas_image);
         let pre_calculated_font_uvs = text_texture_manager.create_pre_calculated_fonts_uvs(atlas_dimensions as f32);
 
+        // UI Textures
+        let start_ui_y_cor = text_texture_manager.get_end_cords()[1] + 50.0;
+        let ui_texture_manager = UITextureManager::new([0.0, start_ui_y_cor]);
+        ui_texture_manager.splice_textures(&mut atlas_image);
+        let pre_calculated_ui_uvs = ui_texture_manager.create_pre_calculated_ui_uvs(atlas_dimensions as f32);
+
+
         // Convert image to Texture
         // Create miniquad texture
         let rgba_bytes: Vec<u8> = atlas_image.clone().into_raw();
@@ -75,6 +85,9 @@ impl TextureAtlas {
 
             text_texture_manager: text_texture_manager,
             pre_calculated_font_uvs: pre_calculated_font_uvs,
+
+            ui_texture_manager: ui_texture_manager,
+            pre_calculated_ui_uvs: pre_calculated_ui_uvs,
         }
     }
 
@@ -88,6 +101,10 @@ impl TextureAtlas {
 
     pub fn get_precalculated_shader_triangle_uv(&self, triangle: ShaderTriangle, shader: BlockShaderType) -> [f32; 4] {
         return self.pre_calculated_shader_uvs[shader.id_as_usize()][triangle.id_as_usize()];
+    }
+
+    pub fn get_precalculated_ui_uv(&self, ui_texture: UITextures) -> [f32; 4] {
+        return self.pre_calculated_ui_uvs[ui_texture.get_id() as usize];
     }
 
     pub fn get_precalculated_font_uv(&self, font: String, char: CharType) -> [f32; 4] {

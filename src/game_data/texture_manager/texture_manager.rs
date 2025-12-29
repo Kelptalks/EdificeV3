@@ -1,4 +1,4 @@
-use crate::game_data::{types::{BlockShaderType, BlockTriangle, BlockType, CharType, ShaderTriangle}, log_init, texture_manager::{texture_atlas::TextureAtlas, texture_renderer::TextureRenderingManager}};
+use crate::game_data::{log_init, texture_manager::{texture_atlas::TextureAtlas, texture_renderer::TextureRenderingManager}, types::{BlockShaderType, BlockTriangle, BlockType, CharType, ShaderTriangle, UITextures}};
 use miniquad::*;
 
 // Expander tuning constants - adjust these to control gap prevention
@@ -18,6 +18,11 @@ pub struct TextureManager {
 }
 
 impl TextureManager {
+
+    //======================
+    // Initialization
+    //======================
+
     pub fn new() -> Self {
         log_init("Creating Texture Manager");
         Self {
@@ -49,29 +54,6 @@ impl TextureManager {
         self.textures_initialized = true;
     }
 
-    // Testing the rendering of sprites
-    pub fn test_sprites(&mut self, ctx : &mut GlContext) {
-        if !self.textures_initialized {
-            println!("Textures not initialized yet!");
-            return;
-        }
-        
-        if let Some(texture_renderer) = self.texture_renderer.as_mut() {
-            if let Some(texture_atlas) = self.texture_atlas.as_mut() {
-                //texture_renderer.set_texture(texture_atlas.texture_id);
-                
-
-                
-                // Render the entire shader spritesheet for debugging
-                texture_renderer.add_quad(
-                    [-0.5, -0.5, 5.0, 5.0],  // Fill the screen
-                    [0.0, 0.0, 1.0, 1.0]
-                );
-                
-            }
-        }
-    }
-
     pub fn are_textures_initialized(&self) -> bool {
         return self.textures_initialized;
     }
@@ -80,12 +62,20 @@ impl TextureManager {
         return self.texture_renderer.as_mut().unwrap();
     }
 
+    pub fn set_texture_renderer_to_atlas(&mut self) {
+        let texture_id = self.texture_atlas.as_ref().unwrap().get_atlas_texture_id();
+        self.get_texture_renderer().set_texture(texture_id);
+    }
     /// Update the expander cache for the current frame's scale. Call this once per frame before rendering triangles.
     pub fn update_expander_cache(&mut self, scale: f32) {
         self.cached_scale = scale;
         self.cached_expander = (scale * EXPANDER_BASE_MULTIPLIER) 
                              + (EXPANDER_OFFSET_STRENGTH / scale.max(EXPANDER_SCALE_THRESHOLD));
     }
+
+    //=================================================
+    // Render Specific Sprites from Main Texture Atlas
+    //=================================================
 
     pub fn render_block_triangle(&mut self, block : BlockType, triangle : BlockTriangle, draw_location : [f32; 2], scale : f32) {
         let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_block_triangle_uv(triangle, block);
@@ -128,5 +118,50 @@ impl TextureManager {
 
         self.get_texture_renderer().add_quad(pos, uv);
     }
+
+    pub fn render_ui_element(&mut self, ui_texture: UITextures, draw_location: [f32; 2], scale: f32) {
+        let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_ui_uv(ui_texture);
+
+        let mut pos = [
+            draw_location[0],         // x1 (left)
+            draw_location[1],         // y1 (top/bottom) 
+            draw_location[0] + scale, // x2 (right)
+            draw_location[1] + scale, // y2 (bottom/top)
+        ];
+
+        self.get_texture_renderer().add_quad(pos, uv);
+    }
+
+    //==========
+    // Testing
+    //==========
+
+    pub fn test_sprites(&mut self, ctx : &mut GlContext) {
+        if !self.textures_initialized {
+            println!("Textures not initialized yet!");
+            return;
+        }
+        
+        if let Some(texture_renderer) = self.texture_renderer.as_mut() {
+            if let Some(texture_atlas) = self.texture_atlas.as_mut() {
+                //texture_renderer.set_texture(texture_atlas.texture_id);
+                
+
+                
+                // Render the entire shader spritesheet for debugging
+                texture_renderer.add_quad(
+                    [-0.5, -0.5, 5.0, 5.0],  // Fill the screen
+                    [0.0, 0.0, 1.0, 1.0]
+                );
+
+                self.render_ui_element(UITextures::ButtonCheck, [0.0, 0.0], 0.1);
+                self.render_ui_element(UITextures::ButtonCheck_Down, [0.2, 0.0], 0.1);
+                //self.render_ui_element(UITextures::ButtonLeftArrow, [0.2, 0.0], 0.1);
+
+                }
+        }
+    }
+
+    
 
 }

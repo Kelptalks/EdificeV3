@@ -31,7 +31,6 @@ impl GameData {
 
         // Set up world
         let mut world = World::new();
-        world.generate_terrain();
         
         // Wrap world in Arc<RwLock> for thread-safe access
         let world = Arc::new(RwLock::new(world));
@@ -81,6 +80,12 @@ impl GameData {
         screen.mouse_button_down_event(button);
     }
 
+    pub fn handle_mouse_button_up(&mut self, button: MouseButton) {
+        // New
+        let screen = &mut self.screen_manager;
+        screen.mouse_button_up_event(button);
+    }
+
     //=====================================
     // Getters / Setters
     //=====================================
@@ -116,19 +121,15 @@ impl GameData {
     pub fn render_camera(&mut self, ctx: &mut GlContext) {
         let frame_start_time = SystemTime::now();
 
-        self.screen_manager.render_screen(&mut self.texture_manager, self.world.clone());
+        self.screen_manager.render_screen(&mut self.texture_manager, self.world.clone(), ctx);
         self.tik_manager.update_tik_manager();
-
 
         let screen_mananager = &self.screen_manager;
 
-
         let casted_tile = screen_mananager.get_mouse_debug_casted_tile();
         casted_tile.render_tile(screen_mananager.get_camera_data(), &mut self.texture_manager);
-
         //self.camera.render_camera(&mut self.texture_manager, &self.world);
         //self.texture_manager.test_sprites(ctx);
-        self.texture_manager.get_texture_renderer().flush(ctx);
 
 
         // Render frame time | Eventualy create a debug window under screen for this
@@ -136,7 +137,8 @@ impl GameData {
         let frame_duration = system_time_end.duration_since(frame_start_time).unwrap();
         let frame_duration_ms = frame_duration.as_millis();
         let formated_frame_time = format!("Frame Time: {} ms", frame_duration_ms);
-        render_string(screen_mananager, &mut self.texture_manager, formated_frame_time, "Basic".to_string(), 0.02, [0.0, 0.0]);
+        render_string(&screen_mananager.get_screen_data(), &mut self.texture_manager, formated_frame_time, "Basic".to_string(), 0.02, [0.0, 0.0]);
+        self.texture_manager.get_texture_renderer().flush(ctx);
 
     }
 }

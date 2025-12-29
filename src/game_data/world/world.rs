@@ -207,9 +207,10 @@ impl World {
     // Terrain Gen
     //=====================================
 
-    pub fn generate_terrain(&mut self) {
-        let start_cords = [-300, -300, -25];
-        let end_cords = [300, 300, 25];
+    pub fn generate_terrain(&mut self, size: u32) {
+        let size = size as i32 / 2;
+        let start_cords = [-size, -size, -25];
+        let end_cords = [size, size, 25];
 
         let world_gen_manager = WorldGenManager::new();
         world_gen_manager.generate_area(self, start_cords, end_cords);

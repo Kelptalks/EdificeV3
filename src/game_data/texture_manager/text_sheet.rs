@@ -205,4 +205,8 @@ impl TextTextureManager {
         
         fonts_uvs
     }
+
+    pub fn get_end_cords(&self) -> [f32; 2] {
+        return self.end_cords;
+    }
 }

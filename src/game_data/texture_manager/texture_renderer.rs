@@ -93,7 +93,6 @@ pub struct TextureRenderingManager {
 }
 
 impl TextureRenderingManager {
-
     pub fn new(ctx : &mut GlContext) -> Self {
         let shader = Self::create_shader(ctx);
         let pipeline = Self::create_pipeline(ctx, shader);
@@ -128,9 +127,17 @@ impl TextureRenderingManager {
         }
     }
 
+//=========
+// Setters
+//=========
+
     pub fn set_texture(&mut self, texture : TextureId) {
         self.current_texture = Some(texture);
     }
+
+//=============================
+//Rendering pipeline functions
+//=============================
 
     fn create_shader(ctx: &mut GlContext) -> ShaderId {
         // Create simple vertex shader

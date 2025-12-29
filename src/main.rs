@@ -89,7 +89,11 @@ impl EventHandler for GameStage {
 
     fn mouse_wheel_event(&mut self, _x: f32, _y: f32) {
         self.game_data.handle_mouse_wheel_inputs(_x, _y);
+    }
 
+    fn mouse_button_up_event(&mut self, button: MouseButton, x: f32, y: f32) {
+        // Called when a mouse button is released
+        self.game_data.handle_mouse_button_up(button);
     }
 
 }

@@ -1,27 +1,28 @@
 use miniquad::{GlContext, RenderingBackend, TextureId, TextureParams};
 use std::collections::HashMap;
 
-use crate::game_data::screen::renderer::render_cache_manager::canvas_tile::CanvasTile;
+use crate::game_data::{TextureManager, screen::{render_string, renderer::render_cache_manager::{canvas_data::CanvasData, canvas_chunk::CanvasChunk}}};
 
-pub struct canvas {
+pub struct Canvas {
     texture_id: TextureId,
 
     // Tile management 
-    canvas_map: HashMap<u64, CanvasTile>,  // Bitpacked 2D coords -> CanvasTile
+    canvas_map: HashMap<u64, CanvasChunk>,  // Bitpacked 2D coords -> CanvasChunk
     id_availability: Vec<bool>,             // Tracks which IDs are in use
-    canvas_tile_scale: u32,
-    tiles_per_row: u32,
+    
+    // Canvas properties
+    canvas_data: CanvasData,
+
     max_tiles: u32,                         // tiles_per_row * tiles_per_row
+    total_tiles: u32,
 }
 
-impl canvas {
-    fn new(ctx: &mut GlContext) -> canvas {
-        let canvas_tile_scale = 1024;
-        let tiles_per_row = 8;
-        let max_tiles = tiles_per_row * tiles_per_row;
+impl Canvas {
+    pub fn new(ctx: &mut GlContext) -> Canvas {
 
-        let canvas_rez = canvas_tile_scale * tiles_per_row;
-        
+        let canvas_data = CanvasData::new();
+        let canvas_rez = canvas_data.canvas_rez as u32;
+
         let canvas_texture = ctx.new_render_texture(
             TextureParams {
                 width: canvas_rez,
@@ -29,23 +30,36 @@ impl canvas {
                 ..TextureParams::default()
         }
         );
-        
-        canvas{ 
+
+        Canvas{ 
             texture_id: canvas_texture,
+            
+            // Tile management 
             canvas_map: HashMap::new(),
-            id_availability: vec![false; max_tiles as usize],
-            canvas_tile_scale,
-            tiles_per_row,
-            max_tiles,
+            id_availability: vec![false; canvas_data.max_tiles as usize],
+            
+            // Canvas properties
+            canvas_data: canvas_data,
+
+            max_tiles: canvas_data.max_tiles,
+            total_tiles: 0,
         }
     }
 
+
+
+    // ===================
+    //  Tile management
+    // ===================
+
     /// Generate a bitpacked key from 2D isometric coordinates
+    /// 
     /// Packs x and y into a single u64 (32 bits each)
+    /// Properly handles negative coordinates by reinterpreting i32 as u32
     fn generate_key(iso_cords: [i32; 2]) -> u64 {
-        let x = iso_cords[0] as u64;
-        let y = iso_cords[1] as u64;
-        (x << 32) | (y & 0xFFFFFFFF)
+        let x = (iso_cords[0] as u32) as u64;
+        let y = (iso_cords[1] as u32) as u64;
+        (x << 32) | y
     }
 
     /// Find the next available ID
@@ -58,6 +72,11 @@ impl canvas {
     /// Create a new tile at the given isometric coordinates
     /// Returns the canvas_id if successful, or None if no IDs are available
     pub fn create_tile_at(&mut self, iso_cords: [i32; 2]) -> Option<u32> {
+        if self.total_tiles >= self.max_tiles {
+            println!("Canvas: Maximum tile limit reached.");
+            return None;
+        }
+
         // Check if tile already exists at these coordinates
         let key = Self::generate_key(iso_cords);
         if self.canvas_map.contains_key(&key) {
@@ -71,32 +90,11 @@ impl canvas {
         self.id_availability[canvas_id as usize] = true;
 
         // Create and store the tile
-        let tile = CanvasTile::new(iso_cords, canvas_id);
+        let tile = CanvasChunk::new(iso_cords, canvas_id, self.canvas_data);
         self.canvas_map.insert(key, tile);
 
+        self.total_tiles += 1;
         Some(canvas_id)
-    }
-
-    /// Calculate UV coordinates for a tile based on its ID
-    /// Returns [u_min, v_min, u_max, v_max]
-    pub fn calculate_uv_for_id(&self, canvas_id: u32) -> [f32; 4] {
-        if canvas_id >= self.max_tiles {
-            // Return default if ID is out of bounds
-            return [0.0, 0.0, 0.0, 0.0];
-        }
-
-        // Calculate tile position in grid
-        let tile_x = canvas_id % self.tiles_per_row;
-        let tile_y = canvas_id / self.tiles_per_row;
-
-        // Calculate normalized UV coordinates
-        let tile_size = 1.0 / self.tiles_per_row as f32;
-        let u_min = tile_x as f32 * tile_size;
-        let v_min = tile_y as f32 * tile_size;
-        let u_max = u_min + tile_size;
-        let v_max = v_min + tile_size;
-
-        [u_min, v_min, u_max, v_max]
     }
 
     /// Free an ID and remove the tile at given coordinates
@@ -136,11 +134,38 @@ impl canvas {
         }
     }
 
+    // ===================
+    //  Getters
+    // ===================
+
     /// Get a tile by its isometric coordinates
-    pub fn get_tile_at(&self, iso_cords: [i32; 2]) -> Option<&CanvasTile> {
+    pub fn get_tile_at(&self, iso_cords: [i32; 2]) -> Option<&CanvasChunk> {
         let key = Self::generate_key(iso_cords);
         self.canvas_map.get(&key)
     }
 
+     /// Get a tile by its isometric coordinates
+    pub fn get_mut_tile_at(&mut self, iso_cords: [i32; 2]) -> Option<&mut CanvasChunk> {
+        let key = Self::generate_key(iso_cords);
+        self.canvas_map.get_mut(&key)
+    }
 
+    pub fn get_texture_id(&self) -> TextureId {
+        self.texture_id
+    }
+
+    pub fn get_canvas_data(&self) -> &CanvasData {
+        return &self.canvas_data;
+    }
+
+    // ===================
+    // Rendering
+    // ===================
+    pub fn render_chunk_tiles(&mut self, texture_manager: &mut TextureManager, ctx: &mut GlContext) {
+        for (_key, tile) in self.canvas_map.iter() {
+            
+            let mut canvas_ndc_cords = tile.canvas_ndc_cords;
+
+        }
+    }
 }

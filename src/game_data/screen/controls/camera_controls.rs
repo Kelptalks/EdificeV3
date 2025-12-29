@@ -1,6 +1,6 @@
-use miniquad::{KeyCode, KeyMods};
+use miniquad::{KeyCode, KeyMods, MouseButton};
 
-use crate::game_data::screen::{Camera, camera_controls, iso_cord_tool, renderer::camera, screen_mananager::{ControlManager, ScreenManager}};
+use crate::game_data::screen::{Camera, camera_controls, iso_cord_tool, renderer::camera, screen_mananager::{ScreenManager}};
 /*
 ####################
 ## CameraControls ##
@@ -16,31 +16,58 @@ use crate::game_data::screen::{Camera, camera_controls, iso_cord_tool, renderer:
 // Key input
 //=====================================
 
-pub fn mouse_motion_event(screen_manager: &mut ScreenManager, mouse_cords: [f32; 2]) {
-
-}
-
-pub fn mouse_button_down_event(screen_manager: &mut ScreenManager) {
-    let control_manager = screen_manager.get_control_manager();
+pub fn mouse_motion_event(screen_manager: &mut ScreenManager, x_cor: f32, y_cor: f32) {
     
-    //println!("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    // Save needed pre movement data
+    let starting_mouse_ndc_cords = screen_manager.get_screen_data().get_renderer_mouse_ndc_cords();
+    let mut camera_data_clone = screen_manager.get_camera_data().clone();
 
-    let pixel_cords = control_manager.get_mouse_pixel_cords();
-    //println!("Pixel Cords: ({}, {})", pixel_cords[0], pixel_cords[1]);
+    // Update mouse cords for new position
+    screen_manager.update_mouse_cords(x_cor, y_cor);
+    screen_manager.get_mut_screen_data().re_calculate_mouse_cords(&camera_data_clone);
+    
+    // Save ending mouse data
+    let ending_mouse_ndc_cords = screen_manager.get_screen_data().get_renderer_mouse_ndc_cords();
 
-    let ndc_cords = control_manager.get_mouse_ndc_cords();
-    //println!("NDC Cords: ({}, {})", ndc_cords[0], ndc_cords[1]);
+    // Handle camera movment due to mouse
+    let is_middle_mouse_held = screen_manager.get_screen_data().is_middle_mouse_held();
+    
+    if is_middle_mouse_held {
+        let x_ndc_change = ending_mouse_ndc_cords[0] - starting_mouse_ndc_cords[0];
+        let y_ndc_change = ending_mouse_ndc_cords[1] - starting_mouse_ndc_cords[1];
 
-    let pixel_world_cords = control_manager.get_renderer_mouse_pixel_cords();
-    //println!("Renderer Pixel Cords: ({}, {})", pixel_world_cords[0], pixel_world_cords[1]);
+        let camera_data = screen_manager.get_mut_camera_data();
 
-    let ndc_world_cords = control_manager.get_renderer_mouse_ndc_cords();
-    //println!("Renderer NDC Cords: ({}, {})", ndc_world_cords[0], ndc_world_cords[1]);
+        camera_data.mod_x_cam_cor(x_ndc_change);
+        camera_data.mod_y_cam_cor(y_ndc_change);
 
-    let iso_world_cords = control_manager.get_mouse_iso_world_cords();
-    //println!("Iso World Cords: ({}, {})", iso_world_cords[0], iso_world_cords[1]);
+        // Also modify the clone to update mouse_cords
+        camera_data_clone.mod_x_cam_cor(x_ndc_change);
+        camera_data_clone.mod_y_cam_cor(y_ndc_change);
+
+        // Update mouse cords again after movement
+        screen_manager.update_mouse_cords(x_cor, y_cor);
+        screen_manager.get_mut_screen_data().re_calculate_mouse_cords(&camera_data_clone);
+    }
+}
+
+pub fn mouse_button_down_event(screen_manager: &mut ScreenManager, button: MouseButton) {
+    let screen_data = screen_manager.get_mut_screen_data();
+    
+    if button == MouseButton::Middle {
+        screen_data.set_middle_mouse_held(true);
+    }
+
 
 }
+
+pub fn mouse_button_up_event(screen_manager: &mut ScreenManager, button: MouseButton) {
+    let screen_data = screen_manager.get_mut_screen_data();
+    if button == MouseButton::Middle {
+        screen_data.set_middle_mouse_held(false);
+    }
+}
+
 
 pub fn key_down_event(screen_manager: &mut ScreenManager, keycode: KeyCode, keymods: KeyMods, repeat: bool) {
     let camera_data = screen_manager.get_mut_camera_data();
@@ -62,25 +89,43 @@ pub fn key_down_event(screen_manager: &mut ScreenManager, keycode: KeyCode, keym
 
 }
 
+//=====================================
+// Mouse inputs
+//=====================================
+
+
 pub fn mouse_wheel_event(screen_mananager: &mut ScreenManager, x_scroll_distance: f32, y_scroll_distance: f32) {
     let zoom_speed = 0.06;
     let starting_iso_cam_center = screen_mananager.get_mut_camera_data().get_iso_cam_center();
+
+
+    // Use cloned camera data to prevent race conditions due to camera rendering updates
+    let mut cloned_camera_data = screen_mananager.get_camera_data().clone();
     if (y_scroll_distance > 0.0) {
-        screen_mananager.get_mut_camera_data().mod_scale(1.0 + zoom_speed);
+        cloned_camera_data.mod_scale(1.0 + zoom_speed);
     }
     else if (y_scroll_distance < 0.0) {
-        screen_mananager.get_mut_camera_data().mod_scale(1.0 - zoom_speed);
+        cloned_camera_data.mod_scale(1.0 - zoom_speed);
     }
-    
 
     // Update camera values after zoom to get new iso center
-    screen_mananager.get_mut_camera_data().update_camera_values();
+    cloned_camera_data.update_camera_values();
 
-    let new_iso_cam_center = screen_mananager.get_mut_camera_data().get_iso_cam_center();
+    let new_iso_cam_center = cloned_camera_data.get_iso_cam_center();
     let x_iso_change = new_iso_cam_center[0] - starting_iso_cam_center[0];
     let y_iso_change = new_iso_cam_center[1] - starting_iso_cam_center[1];
 
-    let screen_cord_shift = iso_cord_tool::float_iso_to_ndc_cords(screen_mananager.get_mut_camera_data().get_tile_ndi_scale(), [x_iso_change, y_iso_change]);
+    let screen_cord_shift = iso_cord_tool::float_iso_to_ndc_cords(cloned_camera_data.get_tile_ndc_scale(), [x_iso_change, y_iso_change]);
+    
+    // Update the real camera data
+    if y_scroll_distance > 0.0 {
+        screen_mananager.get_mut_camera_data().mod_scale(1.0 + zoom_speed);
+    }
+    else if y_scroll_distance < 0.0 {
+        screen_mananager.get_mut_camera_data().mod_scale(1.0 - zoom_speed);
+    }
     screen_mananager.get_mut_camera_data().mod_x_cam_cor(screen_cord_shift[0]);
     screen_mananager.get_mut_camera_data().mod_y_cam_cor(screen_cord_shift[1]);
+
+
 }

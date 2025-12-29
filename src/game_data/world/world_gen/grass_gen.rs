@@ -310,7 +310,9 @@ impl GrassGenManager {
     
         for item in &self.ground_items {
             if roll < item.weight {
-                world.set_world_value(item.block_type.id() as u16, cords);
+                if world.get_world_value(cords) == BlockType::Air.id_as_u16() {
+                    world.set_world_value(item.block_type.id() as u16, cords);
+                }
                 return;
             }
             roll -= item.weight;

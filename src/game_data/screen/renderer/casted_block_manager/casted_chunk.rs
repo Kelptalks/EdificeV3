@@ -3,8 +3,8 @@ use crate::game_data::{TextureManager, World};
 use super::casted_tile::CastedTile;
 use super::super::{ray_caster};
 
-static CHUNK_TILE_DIMENSIONS : u32 = 16;
-static CHUNK_TILE_AREA : u32 = CHUNK_TILE_DIMENSIONS * CHUNK_TILE_DIMENSIONS;
+pub static CHUNK_TILE_DIMENSIONS : u32 = 16;
+pub static CHUNK_TILE_AREA : u32 = CHUNK_TILE_DIMENSIONS * CHUNK_TILE_DIMENSIONS;
 
 pub struct CastedChunk
 {
@@ -55,6 +55,18 @@ impl CastedChunk {
 
     pub fn get_mut_tile_at_index(&mut self, index : usize) -> &mut CastedTile {
         return &mut self.tiles[index];
+    }
+
+    pub fn get_tile_at_index(&self, index : usize) -> &CastedTile {
+        return &self.tiles[index];
+    }
+
+    pub fn get_chunk_tile_area() -> u32 {
+        return CHUNK_TILE_AREA;
+    }
+
+    pub fn get_chunk_tile_dimensions() -> u32 {
+        return CHUNK_TILE_DIMENSIONS;
     }
 
     pub fn raycast_chunk(&mut self, camera_data : &CameraData, world : &World) {

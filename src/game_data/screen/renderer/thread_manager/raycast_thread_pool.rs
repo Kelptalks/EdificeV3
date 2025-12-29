@@ -30,7 +30,6 @@ impl RaycastThreadPool {
             let receiver = task_receiver.clone();
             
             let handle = thread::spawn(move || {
-                println!("Raycasting Thread {} started", thread_id);
                 
                 // Each task now contains its own chunk reference
                 while let Ok(task) = receiver.recv() {                    

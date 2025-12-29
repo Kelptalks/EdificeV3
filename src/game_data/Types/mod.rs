@@ -10,3 +10,6 @@ pub use chars::CharType;
 mod shaders;
 pub use shaders::BlockShaderType;
 pub use shaders::ShaderTriangle;
+
+mod ui;
+pub use ui::UITextures;

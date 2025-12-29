@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::game_data::screen::iso_cord_tool;
+use crate::game_data::screen::{iso_cord_tool, renderer::casted_block_manager::casted_chunk::CastedChunk};
 
 
 
@@ -14,7 +14,10 @@ pub enum Direction {
 
 #[derive(Clone)]
 pub struct CameraData {
+    // window info
     window_rez : [f32; 2],
+    viewport_rez : [f32; 2],
+    viewport_offset : [f32; 2],
 
     cam_world_cords : [f32 ; 3],
 
@@ -26,12 +29,16 @@ pub struct CameraData {
     // Render Location
     iso_cam_center_cords : [f32; 2],
     view_distance : usize,
+    cashed_view_distance : usize,
 
     // Render Scaling
     zoom : f32,
     render_scale : f32,
     tile_pixel_scale : f32,
-    tile_ndi_scale : f32,
+    tile_ndc_scale : f32,
+
+    chunk_pixel_scale : f32,
+    chunk_ndc_scale : f32,
 
     // Ray Casting
     direction : Direction,
@@ -47,6 +54,8 @@ impl CameraData {
         Self {
             // Window info
             window_rez : [1920.0, 1080.0],
+            viewport_rez : [0.0, 0.0],
+            viewport_offset : [0.0, 0.0],
 
             // World cords
             cam_world_cords : [100.0, 100.0, 100.0],
@@ -57,13 +66,18 @@ impl CameraData {
             
             // Renderer location
             iso_cam_center_cords : [0.0, 0.0],
-            view_distance : 5,
+            view_distance : 4,
+            cashed_view_distance : 30,
 
             // Render scaling
             zoom : 1.0,
-            tile_ndi_scale : 0.0,
+            tile_ndc_scale : 0.0,
             render_scale : 0.0005,
             tile_pixel_scale : 32.0,
+
+            chunk_pixel_scale : 32.0 * (CastedChunk::get_chunk_tile_dimensions() as f32),
+            chunk_ndc_scale : 0.0,
+
 
             // Ray casting
             direction : Direction::North,
@@ -76,8 +90,8 @@ impl CameraData {
     }
 
     pub fn update_camera_values(&mut self) {
-        self.tile_ndi_scale = self.get_render_scale() * (self.get_tile_pixel_scale() as f32);
-
+        self.tile_ndc_scale = self.get_render_scale() * (self.get_tile_pixel_scale() as f32);
+        self.chunk_ndc_scale = self.get_render_scale() * (self.get_chunk_pixel_scale() as f32);
 
         // Get iso world cords of center of stream
         let screen_ndi_center = [
@@ -86,7 +100,7 @@ impl CameraData {
         ];
 
         let screen_center_iso_cords = iso_cord_tool::ndi_screen_cords_to_iso_cords(
-            self.tile_ndi_scale,
+            self.tile_ndc_scale,
             screen_ndi_center,
         );
 
@@ -95,6 +109,63 @@ impl CameraData {
             screen_center_iso_cords[1],
         ];
 
+    }
+
+    //=====================================
+    // Viewport Data
+    //=====================================
+
+    pub fn set_viewport_rez(&mut self, rez: [f32; 2]) {
+        self.viewport_rez = rez;
+    }
+
+    pub fn set_viewport_offset(&mut self, offset: [f32; 2]) {
+        self.viewport_offset = offset;
+    }
+
+    pub fn get_viewport_rez(&self) -> [f32; 2] {
+        return self.viewport_rez;
+    }
+
+    pub fn get_viewport_offset(&self) -> [f32; 2] {
+        return self.viewport_offset;
+    }
+
+    //=====================================
+    // ViewDistance 
+    //=====================================
+
+    pub fn get_view_distance(&self) -> usize {
+        return self.view_distance;
+    }
+
+    pub fn get_cashed_view_distance(&self) -> usize {
+        return self.cashed_view_distance;
+    }
+
+
+    //=====================================
+    // Scaling
+    //=====================================
+
+    pub fn get_tile_render_scale(&self) -> f32 {
+        return self.tile_pixel_scale;
+    }
+
+    pub fn get_tile_ndc_scale(&self) -> f32 {
+        return self.tile_ndc_scale;
+    }
+
+    pub fn get_tile_pixel_scale(&self) -> f32 {
+        return self.tile_pixel_scale;
+    }
+
+    pub fn get_chunk_pixel_scale(&self) -> f32 {
+        return self.chunk_pixel_scale;
+    }
+
+    pub fn get_chunk_ndc_scale(&self) -> f32 {
+        return self.chunk_ndc_scale;
     }
 
     //=====================================
@@ -166,24 +237,8 @@ impl CameraData {
         return self.zoom;
     }
 
-    pub fn get_tile_render_scale(&self) -> f32 {
-        return self.tile_pixel_scale;
-    }
-
-    pub fn get_tile_ndi_scale(&self) -> f32 {
-        return self.tile_ndi_scale;
-    }
-
-    pub fn get_tile_pixel_scale(&self) -> f32 {
-        return self.tile_pixel_scale;
-    }
-
     pub fn get_iso_cam_center(&self) -> [f32; 2] {
         return self.iso_cam_center_cords;
-    }
-
-    pub fn get_view_distance(&self) -> usize {
-        return self.view_distance;
     }
 
 }

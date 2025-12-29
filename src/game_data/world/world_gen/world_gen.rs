@@ -1,4 +1,4 @@
-use crate::game_data::{world::world_gen::grass_gen::{GrassGenManager}, types::BlockType, World};
+use crate::game_data::{World, types::BlockType, world::world_gen::{grass_gen::GrassGenManager, perlin_noise::TerrainNoise}};
 
 struct LayerRule {
     main_block_type: BlockType,
@@ -82,6 +82,8 @@ impl WorldGenManager {
     pub fn generate_area(&self, world: &mut World, start_cords: [i32; 3], end_cords: [i32; 3]) {
         let lair_rules_in_range = self.layer_manager.get_layer_rules_in_range(start_cords[2], end_cords[2]);
 
+        let terrain_noise = TerrainNoise::new(152452, 3, 500.0);
+
         println!("Generating Terrain");
         println!(" - Total Lair rules in area = {}", lair_rules_in_range.len());
         
@@ -94,15 +96,21 @@ impl WorldGenManager {
             for y in start_cords[1]..end_cords[1] {
                 for z in start_cords[2]..end_cords[2] {
                     let current_cords = [x, y, z];
+
+                    // Apply terrain noise modification
+                    let z_mod = terrain_noise.get_normalized(x as f32, y as f32) * 100.0;
+                    let modded_cords = [x, y, (z as f32 - z_mod) as i32];
                         
                     for layer in &lair_rules_in_range {
                         if layer.get_if_z_in_lair_bounds(z) {
+                            
+                    
                             let block_to_gen = layer.get_block_type().id();
                             if (block_to_gen == BlockType::Grass.id()) {
-                                grass_gen_manager.gen_grass(current_cords, world);
+                                grass_gen_manager.gen_grass(modded_cords, world);
                             }
                             else {
-                                world.set_world_value(layer.get_block_type().id_as_u16(), current_cords);
+                                world.set_world_value(layer.get_block_type().id_as_u16(), modded_cords);
                             }
                         }
                     }
