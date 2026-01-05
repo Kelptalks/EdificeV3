@@ -69,10 +69,10 @@ impl ScreenManager {
         
         // If current menu is camera
         if self.screen_data.get_current_menu() == CurrentMenu::MainMenu {
-            self.main_menu.render_main_menu(texture_manager);
+            self.main_menu.render_main_menu(texture_manager, &self.screen_data);
         }
         if self.screen_data.get_current_menu() == CurrentMenu::MainMenuWorldCreation {
-            self.main_menu_world_creation.render(texture_manager);
+            self.main_menu_world_creation.render(texture_manager, &self.screen_data);
         }
         else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
             // Generate the world if not yet initilized

@@ -1,6 +1,6 @@
 use miniquad::MouseButton;
 
-use crate::game_data::{screen::{Button, ScreenData, render_centered_string_at_ndi_cords, render_string, ui_manager::BarButton, world_config::WorldConfig}, types::UITextures};
+use crate::game_data::{TextureManager, screen::{Button, ScreenData, render_centered_string_at_ndi_cords, render_string, ui_manager::BarButton, world_config::WorldConfig}, types::UITextures};
 
 pub struct WorldCreationMenu {
     
@@ -40,7 +40,10 @@ impl WorldCreationMenu {
         }
     }
 
-    pub fn render(&mut self, texture_manager: &mut crate::game_data::TextureManager) {
+    pub fn render(&mut self, texture_manager: &mut TextureManager, screen_data: &ScreenData) {
+        // Render background
+        texture_manager.render_ui_element_with_pos(UITextures::MirrorBackground, screen_data.get_viewport_uv());
+        
         // Render create world button
         self.create_world_button.render_button(texture_manager);
 

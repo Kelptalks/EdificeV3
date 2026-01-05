@@ -141,7 +141,7 @@ impl TextureManager {
         self.get_texture_renderer().add_quad(pos, uv);
     }
 
-    pub fn ender_ui_element_with_pos(&mut self, ui_texture: UITextures, pos: [f32; 4]) {
+    pub fn render_ui_element_with_pos(&mut self, ui_texture: UITextures, pos: [f32; 4]) {
         let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_ui_uv(ui_texture);
 
         self.get_texture_renderer().add_quad(pos, uv);

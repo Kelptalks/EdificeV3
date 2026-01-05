@@ -3,7 +3,9 @@ mod game_data;
 use std::task::Context;
 
 use game_data::GameData;
-use miniquad::*;
+use image::EncodableLayout;
+use image::imageops::FilterType;
+use miniquad::{conf::Icon, *};
 
 
 struct GameStage {
@@ -13,19 +15,6 @@ struct GameStage {
 
 const VIRTUAL_SIZE: f32 = 1080.0;
 
-fn calculate_viewport(screen_width: f32, screen_height: f32) -> (f32, f32, f32, f32) {
-    if screen_width > screen_height {
-        // Wider screen - make viewport taller to fill width, crop top/bottom
-        let viewport_size = screen_width;
-        let offset_y = -(viewport_size - screen_height) / 2.0;
-        (0.0, offset_y, viewport_size, viewport_size)
-    } else {
-        // Taller screen - make viewport wider to fill height, crop left/right
-        let viewport_size = screen_height;
-        let offset_x = -(viewport_size - screen_width) / 2.0;
-        (offset_x, 0.0, viewport_size, viewport_size)
-    }
-}
 
 impl GameStage {
     pub fn new() -> GameStage {
@@ -37,23 +26,6 @@ impl GameStage {
         let mut game_data = GameData::new();
         game_data.init_textures(&mut ctx);
         game_data.init_screen_manager(&mut ctx);
-
-
-
-        
-        /*
-        let (viewport_x, viewport_y, viewport_width, viewport_height) = 
-        calculate_viewport(1920.0, 1080.0);
-
-        // Set the viewport (tells GPU where to render)
-        ctx.apply_viewport(
-            viewport_x as i32, 
-            viewport_y as i32, 
-            viewport_width as i32, 
-            viewport_height as i32
-        );
-        */
-
 
         GameStage {
             ctx: ctx,
@@ -98,13 +70,40 @@ impl EventHandler for GameStage {
 
 }
 
+pub fn get_icon() -> Option<Icon> {
+    let icon_bytes = include_bytes!("../Assets/game_icon.png");
+    let img = image::load_from_memory(icon_bytes).unwrap().to_rgba8();
+    
+    // Create correctly-sized icons by resizing the source image to 16x16, 32x32 and 64x64
+    let small_img = image::imageops::resize(&img, 16, 16, FilterType::Lanczos3);
+    let medium_img = image::imageops::resize(&img, 32, 32, FilterType::Lanczos3);
+    let big_img = image::imageops::resize(&img, 64, 64, FilterType::Lanczos3);
+
+    let small_bytes = small_img.as_bytes();
+    let medium_bytes = medium_img.as_bytes();
+    let big_bytes = big_img.as_bytes();
+
+    // Fixed-size arrays: 16*16*4 = 1024, 32*32*4 = 4096, 64*64*4 = 16384
+    let mut small = [0u8; 16 * 16 * 4];
+    let mut medium = [0u8; 32 * 32 * 4];
+    let mut big = [0u8; 64 * 64 * 4];
+
+    small.copy_from_slice(small_bytes);
+    medium.copy_from_slice(medium_bytes);
+    big.copy_from_slice(big_bytes);
+
+    return Some(Icon { small, medium, big });
+}
+
 fn main() {
+    
     miniquad::start(
         conf::Conf {
-            window_title: "My Game".to_owned(),
+            window_title: "Edifice V3".to_owned(),
             window_width: 1920,
             window_height: 1080,
             window_resizable: false,
+            icon: get_icon(),
             ..Default::default()
         },
         || Box::new(GameStage::new()), // No parameters

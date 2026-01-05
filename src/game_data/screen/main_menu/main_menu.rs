@@ -2,7 +2,7 @@ use std::process::id;
 
 use miniquad::MouseButton;
 
-use crate::game_data::{World, screen::{Button, ScreenData, screen_data::CurrentMenu, ui_manager::BarButton}};
+use crate::game_data::{World, screen::{Button, ScreenData, screen_data::CurrentMenu, ui_manager::BarButton}, types::UITextures};
 
 
 pub struct MainMenu {
@@ -54,7 +54,11 @@ impl MainMenu {
         }
     }
 
-    pub fn render_main_menu(&mut self, texture_manager: &mut crate::game_data::TextureManager) {
+    pub fn render_main_menu(&mut self, texture_manager: &mut crate::game_data::TextureManager, screen_data: &ScreenData) {
+        // Render background
+        texture_manager.render_ui_element_with_pos(UITextures::FaceBackground, screen_data.get_viewport_uv());
+        
+
         // Render all buttons
         self.start_button.render_button(texture_manager);
         self.options_button.render_button(texture_manager);

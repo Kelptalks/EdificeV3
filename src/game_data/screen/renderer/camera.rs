@@ -237,7 +237,7 @@ impl Camera {
 
     pub fn render_camera(&mut self, texture_manager : &mut TextureManager, world : Arc<RwLock<World>>, ctx: &mut GlContext) {
         // Render background
-        texture_manager.ender_ui_element_with_pos(UITextures::VoidBackground, [-1.0, -1.0, 1.0, 1.0]);
+        texture_manager.render_ui_element_with_pos(UITextures::VoidBackground, [-1.0, -1.0, 1.0, 1.0]);
         texture_manager.get_texture_renderer().flush(ctx);
 
         // Update values

@@ -38,6 +38,9 @@ pub enum UITextures {
 
     // Backgrounds
     VoidBackground = 20,
+    FaceBackground = 21,
+    MirrorBackground = 22,
+
 }
 
 impl UITextures {
@@ -48,7 +51,7 @@ impl UITextures {
 
     /// Get the total number of UI elements
     pub fn get_total_UI_elements() -> u32 {
-        UITextures::VoidBackground.get_id() + 1 // ButtonCircle_Down is the last element at index 19, so total is 20
+        UITextures::MirrorBackground.get_id() + 1 // ButtonCircle_Down is the last element at index 19, so total is 20
     }
 
     /// Get the pressed (down) variant of this button
@@ -94,6 +97,8 @@ impl UITextures {
             18 => Some(UITextures::ButtonCircle),
             19 => Some(UITextures::ButtonCircle_Down),
             20 => Some(UITextures::VoidBackground),
+            21 => Some(UITextures::FaceBackground),
+            22 => Some(UITextures::MirrorBackground),
             _ => None,
         }
     }
@@ -129,7 +134,9 @@ impl UITextures {
             UITextures::ButtonCircle => [96, 0, 32, 32],
             UITextures::ButtonCircle_Down => [96, 32, 32, 32],
 
-            UITextures::VoidBackground => [96, 0, 64, 64]
+            UITextures::VoidBackground => [96, 0, 64, 64],
+            UITextures::FaceBackground => [160, 0, 320, 176],
+            UITextures::MirrorBackground => [480, 0, 240, 128],
         }
     }
 
