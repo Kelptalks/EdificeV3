@@ -1,40 +1,78 @@
 
-use std::{time::{SystemTime, UNIX_EPOCH}, u128};
+use std::{sync::{Arc, RwLock}, time::{SystemTime, UNIX_EPOCH}, u128};
+
+use crate::game_data::{World, debuging::debug_data::{DebugData}, screen::{Camera, screen_task_manager::{screen_task_manager::ScreenTaskManager}}, tik_manager::drones::drone_manager::{DroneManager}, world_task_manager::{ world_task_manager::WorldTaskManager}};
 
 pub struct TikManager {
+    paused: bool,
     current_tik: u32,
     tik_rate: u128,
-
     last_tik_millis: u128,
 
 
+    // Drones
+    drone_manager: DroneManager,
+    world: Arc<RwLock<World>>
 }
 
 impl TikManager {
-    pub fn new() -> Self {
+    pub fn new(world: Arc<RwLock<World>>) -> Self {
         Self {
+            paused: true,
             current_tik: 0,
             tik_rate: 200,
-
             last_tik_millis: 0,
+
+            drone_manager: DroneManager::new(),
+            world: world
         }
+    }
+
+    pub fn unpause(&mut self){
+        self.paused = false;
     }
 
     pub fn set_tik_rate(&mut self, new_tik_rate: u128) {
         self.tik_rate = new_tik_rate;
-    } 
+    }
 
     // Called every frame to update the tik
-    pub fn update_tik_manager(&mut self) {
+    pub fn update_tik_manager(&mut self, world_task_manager: &mut WorldTaskManager, screen_task_manager: &mut ScreenTaskManager, camera: &mut Camera) {
+        if self.paused {
+            return
+        }
+        
         let current_millis = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_millis();
 
-        if (current_millis > (self.last_tik_millis + self.tik_rate)) {
+
+        if current_millis > (self.last_tik_millis + self.tik_rate) {
+            // Update tik time
             self.current_tik += 1;
             self.last_tik_millis = current_millis;
+
+            
+            // Temp Drone Creation
+            if self.current_tik == 5 {
+                self.drone_manager.create_drone_at_cords([0, 0, 10]);
+            }
+
+            // Tik all the drones in the world
+            self.drone_manager.tik_drones(self.world.clone(), world_task_manager, screen_task_manager);
+
+            // Execute the tasks to update the events that happend this tik
+            world_task_manager.execute_tasks(self.world.clone());
+            screen_task_manager.execute_tasks(self.world.clone(), camera);
         }
+        
+
+
+    }
+
+    pub fn update_debug_data(&self, debug_data: &mut DebugData) {
+        debug_data.set_current_tik(self.current_tik);
     }
 
 

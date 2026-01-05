@@ -1,6 +1,6 @@
 use std::{collections::HashMap, hash::Hash, path::absolute, ptr::null, sync::Arc};
 
-use crate::game_data::{log_header, log_init, world::world_gen::WorldGenManager, types::BlockType};
+use crate::game_data::{log_header, log_init, tik_manager::drones::drone_manager::DroneManager, types::BlockType, world::world_gen::WorldGenManager};
 
 
 const CHUNK_SIZE: usize = 64;
@@ -217,7 +217,21 @@ impl World {
 
     }
 
+    //=====================================
+    // Drones
+    //=====================================
 
+    pub fn get_drone_data() {
+
+    }
+
+    //=====================================
+    // Tiking
+    //=====================================
+
+    pub fn tik_world(&mut self){
+        
+    }
 
     pub fn test_world()
     {

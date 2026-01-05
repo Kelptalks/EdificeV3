@@ -35,6 +35,9 @@ pub enum UITextures {
     // circle button
     ButtonCircle = 18,
     ButtonCircle_Down = 19,
+
+    // Backgrounds
+    VoidBackground = 20,
 }
 
 impl UITextures {
@@ -45,7 +48,7 @@ impl UITextures {
 
     /// Get the total number of UI elements
     pub fn get_total_UI_elements() -> u32 {
-        20 // ButtonCircle_Down is the last element at index 19, so total is 20
+        UITextures::VoidBackground.get_id() + 1 // ButtonCircle_Down is the last element at index 19, so total is 20
     }
 
     /// Get the pressed (down) variant of this button
@@ -90,6 +93,7 @@ impl UITextures {
             17 => Some(UITextures::DropdownArrow_Down),
             18 => Some(UITextures::ButtonCircle),
             19 => Some(UITextures::ButtonCircle_Down),
+            20 => Some(UITextures::VoidBackground),
             _ => None,
         }
     }
@@ -125,7 +129,7 @@ impl UITextures {
             UITextures::ButtonCircle => [96, 0, 32, 32],
             UITextures::ButtonCircle_Down => [96, 32, 32, 32],
 
-
+            UITextures::VoidBackground => [96, 0, 64, 64]
         }
     }
 

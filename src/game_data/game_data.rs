@@ -5,20 +5,28 @@ use rand::{rng, Rng};
 use std::sync::{Arc, Mutex, RwLock};
 use std::time::SystemTime;
 
+use crate::game_data::debuging::debug_data::DebugData;
 use crate::game_data::screen::camera_data::CameraData;
-use crate::game_data::screen::{self, render_string, screen_mananager};
+use crate::game_data::screen::screen_task_manager::screen_task_manager::ScreenTaskManager;
+use crate::game_data::screen::{self, render_string, screen_mananager, screen_task_manager};
 use crate::game_data::screen::screen_mananager::ScreenManager;
 use crate::game_data::tik_manager::tik_manager::TikManager;
 use crate::game_data::world::World;
 use crate::game_data::texture_manager::TextureManager;
 use crate::game_data::screen::Camera;
+use crate::game_data::world_task_manager::world_task_manager::WorldTaskManager;
 
 
 pub struct GameData {
-    
+    debug_data: DebugData,
     world : Arc<RwLock<World>>,
+    world_task_manager: WorldTaskManager,
+
     texture_manager : TextureManager,
+
     screen_manager: ScreenManager,
+    screen_task_manager: ScreenTaskManager,
+
     tik_manager: TikManager,
 }
 
@@ -31,21 +39,29 @@ impl GameData {
 
         // Set up world
         let mut world = World::new();
+        let world_task_manager = WorldTaskManager::new();
         
         // Wrap world in Arc<RwLock> for thread-safe access
         let world = Arc::new(RwLock::new(world));
 
         // Create screen manager and configure it with the thread pool
         let mut screen_manager = ScreenManager::new();
+        let screen_task_manager = ScreenTaskManager::new();
 
-        // set up tik manager
-        let mut tik_manager = TikManager::new();
+        // set up tik managers
+        let mut tik_manager = TikManager::new(world.clone());
 
 
         Self {
+            debug_data: DebugData::new(),
             world: world,
+            world_task_manager: world_task_manager,
+
             texture_manager: texture_manager,
+
             screen_manager: screen_manager,
+            screen_task_manager: screen_task_manager,
+            
             tik_manager: tik_manager,
 
         }
@@ -121,14 +137,19 @@ impl GameData {
     pub fn render_camera(&mut self, ctx: &mut GlContext) {
         let frame_start_time = SystemTime::now();
 
-        self.screen_manager.render_screen(&mut self.texture_manager, self.world.clone(), ctx);
-        self.tik_manager.update_tik_manager();
+        self.screen_manager.render_screen(&mut self.texture_manager, self.world.clone(), &self.tik_manager, ctx);
+        
+        // Tik managing
+        self.tik_manager.update_tik_manager(&mut self.world_task_manager, &mut self.screen_task_manager, self.screen_manager.get_mut_camera());
+        if self.screen_manager.get_screen_data().is_world_initialized() {
+            self.tik_manager.unpause();
+        }
+
 
         let screen_mananager = &self.screen_manager;
-
-        let casted_tile = screen_mananager.get_mouse_debug_casted_tile();
-        casted_tile.render_tile(screen_mananager.get_camera_data(), &mut self.texture_manager);
-        //self.camera.render_camera(&mut self.texture_manager, &self.world);
+        screen_mananager.collect_debug_data(&mut self.debug_data);
+        
+        // Test sprite sheet
         //self.texture_manager.test_sprites(ctx);
 
 
@@ -136,9 +157,15 @@ impl GameData {
         let system_time_end = SystemTime::now();
         let frame_duration = system_time_end.duration_since(frame_start_time).unwrap();
         let frame_duration_ms = frame_duration.as_millis();
-        let formated_frame_time = format!("Frame Time: {} ms", frame_duration_ms);
-        render_string(&screen_mananager.get_screen_data(), &mut self.texture_manager, formated_frame_time, "Basic".to_string(), 0.02, [0.0, 0.0]);
+        
+        // Update debug data
+        self.debug_data.set_frame_time(frame_duration_ms as u32);
+        self.debug_data.render_debug_data(&mut self.texture_manager, screen_mananager.get_screen_data());
+        self.tik_manager.update_debug_data(&mut self.debug_data);
+
         self.texture_manager.get_texture_renderer().flush(ctx);
+
+
 
     }
 }

@@ -39,6 +39,7 @@ impl CastedTriangle {
         self.block_types.clear();
         self.triangle_types.clear();
         self.translucent_struck = false;
+        self.shader_type = BlockShaderType::None;
     }
 
     pub fn add_texture(&mut self, block : BlockType, triangle : BlockTriangle) {

@@ -4,7 +4,6 @@ use miniquad::{GlContext, RenderingBackend, TextureId, TextureParams};
 
 use crate::game_data::{TextureManager, screen::{camera_data, iso_cord_tool, renderer::{casted_block_manager::casted_chunk::CastedChunk, render_cache_manager::canvas_data::{self, CanvasData}}, text}, types::BlockTriangle};
 
-
 pub struct CanvasChunk {
     pub iso_cords: [i32; 2],
     pub canvas_id: u32,
@@ -39,16 +38,15 @@ impl CanvasChunk {
 
     pub fn render_chunk_texture_to_canvas(&self, canvas_data: &CanvasData, texture_manager: &mut TextureManager, casted_chunk: &Arc<RwLock<CastedChunk>>) {
         let unpacked_chunk = casted_chunk.write().unwrap();
-        
+        let casted_tile_ndc_scale = canvas_data.casted_tile_ndc_scale;
+
         // Get render offset coordinates (includes X centering offset)
         let render_offset = self.canvas_ndc_cords;
-        let canvas_tile_x_offset = render_offset[0] - (canvas_data.tile_ndc_scale[0] / (CastedChunk::get_chunk_tile_dimensions() as f32));
+        let canvas_tile_x_offset = render_offset[0] - casted_tile_ndc_scale;
         let canvas_tile_y_offset = render_offset[1];
         
         for index in 0..CastedChunk::get_chunk_tile_area() {
             let casted_tile = unpacked_chunk.get_tile_at_index(index as usize);
-
-            let casted_tile_ndc_scale = (canvas_data.tile_ndc_scale[0] / (CastedChunk::get_chunk_tile_dimensions() as f32));
 
             // Calculate draw cords
             let x_iso_cor = index as i32 % CastedChunk::get_chunk_tile_dimensions() as i32;
@@ -76,14 +74,18 @@ impl CanvasChunk {
          */
     }
     
-    pub fn render_tile(&self, texture_manager: &mut TextureManager, ndc_cords: [f32; 2], scale: f32) {
+    pub fn render_tile(&self, canvas_data: CanvasData, texture_manager: &mut TextureManager, ndc_cords: [f32; 2], scale: f32) {
+        let expanded_scale = scale * canvas_data.expander;
+
+        let pos = [
+            ndc_cords[0] - scale,
+            ndc_cords[1],
+            ndc_cords[0] + expanded_scale,
+            ndc_cords[1] + expanded_scale
+        ];
+        
         texture_manager.get_texture_renderer().add_quad(
-            [
-                ndc_cords[0] - scale,
-                ndc_cords[1],
-                ndc_cords[0] + scale,
-                ndc_cords[1] + scale
-            ],
+            pos,
             self.tile_uv
         );
     }

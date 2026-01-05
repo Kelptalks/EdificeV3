@@ -1,9 +1,9 @@
 use std::sync::{Arc, RwLock};
 
 use image::imageops::FilterType::Triangle;
-use miniquad::{GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
+use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, iso_cord_tool, renderer::casted_block_manager::casted_tile::{self, CastedTile}, screen_data::CurrentMenu}};
+use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, renderer::casted_block_manager::casted_tile::{self, CastedTile}, screen_data::CurrentMenu}, tik_manager::tik_manager::TikManager};
 
 
 
@@ -19,7 +19,8 @@ how those menus are rendered and how those controls are processed.
 pub struct ScreenManager {
     // Menu Structs
     camera : Camera,
-    main_menu : crate::game_data::screen::main_menu::main_menu::MainMenu,
+    main_menu : MainMenu,
+    main_menu_world_creation: WorldCreationMenu,
 
     
     // Screen Data
@@ -37,6 +38,7 @@ impl ScreenManager {
             // Menu Structs
             camera: camera,
             main_menu: MainMenu::new(),
+            main_menu_world_creation: WorldCreationMenu::new(),
 
             // Screen Data
             screen_data: ScreenData::new(), 
@@ -59,10 +61,18 @@ impl ScreenManager {
     // menu Rendering
     //=====================================
 
-    pub fn render_screen(&mut self, texture_manager: &mut TextureManager, world: Arc<RwLock<World>>, ctx : &mut GlContext){
+    pub fn render_screen(&mut self, texture_manager: &mut TextureManager, world: Arc<RwLock<World>>, tik_manager: &TikManager, ctx : &mut GlContext){
+        // If quit
+        if self.screen_data.should_quit() {
+            window::order_quit();
+        }
+        
         // If current menu is camera
         if self.screen_data.get_current_menu() == CurrentMenu::MainMenu {
             self.main_menu.render_main_menu(texture_manager);
+        }
+        if self.screen_data.get_current_menu() == CurrentMenu::MainMenuWorldCreation {
+            self.main_menu_world_creation.render(texture_manager);
         }
         else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
             // Generate the world if not yet initilized
@@ -78,11 +88,12 @@ impl ScreenManager {
                 
                 // Explicitly drop the lock to release it
                 drop(world_guard);
-                
+
                 self.screen_data.set_world_initialized(true);
             }
-            
-            self.camera.render_camera(texture_manager, world, ctx);
+            else {
+                self.camera.render_camera(texture_manager, world, ctx);
+            }
         }
     }
 
@@ -99,6 +110,11 @@ impl ScreenManager {
             self.screen_data.re_calculate_mouse_cords(camera_data);
             self.main_menu.handle_mouse_motion_input(&self.screen_data);
         }
+        else if self.screen_data.get_current_menu() == CurrentMenu::MainMenuWorldCreation {
+            let camera_data = &self.get_camera_data().clone();
+            self.screen_data.re_calculate_mouse_cords(camera_data);
+            self.main_menu_world_creation.handle_mouse_motion_input(&self.screen_data);
+        }
         else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
             camera_controls::mouse_motion_event(self, x_cor, y_cor);
         }
@@ -109,8 +125,13 @@ impl ScreenManager {
         let camera_data = &self.get_camera_data().clone();
         self.screen_data.re_calculate_mouse_cords(camera_data);
 
-        if self.screen_data.get_current_menu() == CurrentMenu::MainMenu {
-            
+
+        let current_menu = self.screen_data.get_current_menu();
+        if current_menu == CurrentMenu::MainMenu {
+            self.main_menu.handle_mouse_button_down(&mut self.screen_data, button);
+        }
+        if current_menu == CurrentMenu::MainMenuWorldCreation {
+            self.main_menu_world_creation.handle_mouse_button_down(&mut self.screen_data, button);
         }
         else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
             camera_controls::mouse_button_down_event(self, button);
@@ -122,7 +143,7 @@ impl ScreenManager {
         let camera_data = &self.get_camera_data().clone();
         self.screen_data.re_calculate_mouse_cords(camera_data);
         if self.screen_data.get_current_menu() == CurrentMenu::MainMenu {
-            self.main_menu.handle_mouse_button_down(&mut self.screen_data, button);
+            
         }
         else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
             camera_controls::mouse_button_up_event(self, button);
@@ -205,4 +226,15 @@ impl ScreenManager {
         triangles[1].add_texture(crate::game_data::types::BlockType::Debug, crate::game_data::types::BlockTriangle::TopRight);
         return casted_tile;
     }
+
+    //=====================================
+    // Debugging
+    //=====================================
+
+    pub fn collect_debug_data(&self, debug_data: &mut DebugData) { 
+        self.camera.collect_debug_data(debug_data);
+
+        debug_data.set_mouse_tile_cords(self.screen_data.get_mouse_iso_world_cords());
+    }
+
 }

@@ -1,6 +1,6 @@
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, screen::{ScreenData, ui_manager::button}, types::UITextures};
+use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndi_cords, ui_manager::button}, types::UITextures};
 
 pub struct BarButton {
     cords: [f32; 2],
@@ -23,7 +23,19 @@ impl BarButton {
         }
     }
 
+    pub fn new_with_text(cords: [f32; 2], scale: f32, length: u32, text: String) -> BarButton { 
+        BarButton {
+            cords: cords,
+            scale,
+            length,
+            is_pressed: false,
+            text: text,
+        }
+    }
+
     pub fn render_button(&self, texture_manager: &mut TextureManager) {
+
+        // Render the button itself
         for i in 0..self.length {
             let draw_x = self.cords[0] + (i as f32 * self.scale);
             let draw_location = [draw_x, self.cords[1]];
@@ -44,6 +56,19 @@ impl BarButton {
 
             texture_manager.render_ui_element(button_texture, draw_location, self.scale);
         }
+
+
+        // calculate string center cords
+        let x_button_center_cor = self.cords[0] + (self.get_x_scale() / 2.0);
+        let y_button_center_cor = self.cords[1] + (self.scale) / 3.0;
+        let button_text_scale = self.scale * 0.3;
+        render_centered_string_at_ndi_cords(texture_manager,
+            self.text.to_string(),
+            "Basic".to_string(),
+            button_text_scale,
+            [x_button_center_cor, y_button_center_cor],
+        );
+
     }
 
     pub fn handle_mouse_button_down(&mut self, screen_data: &mut ScreenData, button: MouseButton) { 
@@ -72,5 +97,13 @@ impl BarButton {
 
     pub fn get_pos(&self) -> [f32; 2] {
         self.cords
+    }
+
+    pub fn get_x_scale(&self) -> f32 {
+        return self.scale * self.length as f32;
+    }
+
+    pub fn set_text(&mut self, text: String) {
+        self.text = text;
     }
 }

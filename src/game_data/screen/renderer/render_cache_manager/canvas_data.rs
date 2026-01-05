@@ -1,4 +1,4 @@
-use crate::game_data::screen::renderer::render_cache_manager::canvas;
+use crate::game_data::screen::renderer::{casted_block_manager::casted_chunk::CastedChunk, render_cache_manager::canvas};
 
 #[derive(Clone, Copy)]
 pub struct CanvasData {
@@ -7,11 +7,15 @@ pub struct CanvasData {
     pub canvas_rez: f32,
     pub max_tiles: u32,
 
-
     // tile properties
     pub tile_ndc_scale: [f32; 2],
     pub pixel_tile_scale: [f32; 2],
     pub tile_uv_scale: [f32; 2],
+    pub casted_tile_ndc_scale: f32,
+
+    // Rendering data
+    pub expander: f32,
+
 }
 
 impl CanvasData {
@@ -32,6 +36,7 @@ impl CanvasData {
         let tile_x_ndc_scale = tile_x_uv_scale;
         let tile_y_ndc_scale = tile_y_uv_scale;
         
+        let casted_tile_ndc_scale = tile_x_ndc_scale / CastedChunk::get_chunk_tile_dimensions() as f32;
 
 
         CanvasData {
@@ -46,7 +51,15 @@ impl CanvasData {
             tile_ndc_scale: [tile_x_ndc_scale, tile_y_ndc_scale],
             pixel_tile_scale: [canvas_x_tile_scale as f32, canvas_y_tile_scale as f32],
             tile_uv_scale: [tile_x_uv_scale, tile_y_uv_scale],
-        }
+            casted_tile_ndc_scale: casted_tile_ndc_scale,
+
+            // Rendering Daa
+            expander: 1.015,
+        }   
+    }
+
+    pub fn get_render_scale(&self) -> f32 {
+        return self.casted_tile_ndc_scale;
     }
 
     pub fn id_to_canvas_cords(&self, canvas_id: u32) -> [u32; 2] {

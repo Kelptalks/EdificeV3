@@ -35,11 +35,7 @@ impl Button {
             self.scale,
         );
     }
-
-    pub fn handle_mouse_button_down(&mut self, screen_data: &mut ScreenData, button: MouseButton) { 
     
-    }
-
     pub fn handle_mouse_motion_input(&mut self, screen_data: &ScreenData) { 
         // if mouse is over button
         let mouse_cords = screen_data.get_mouse_ndc_cords();

@@ -2,7 +2,7 @@ use std::{alloc::System, clone, sync::{Arc, RwLock}, time::SystemTime};
 
 use miniquad::{GlContext, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, screen::{self, camera_data::CameraData, iso_cord_tool, render_string, renderer::{camera, casted_block_manager::{self, casted_chunk::{self, CastedChunk}}, render_cache_manager::{self, canvas_data, render_cashe_manager::RenderCacheManager}, thread_manager::raycast_thread_pool::RaycastThreadPool}}, types::{BlockTriangle, BlockType}};
+use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, screen::{self, camera_data::CameraData, iso_cord_tool, render_string, renderer::{camera, casted_block_manager::{self, casted_chunk::{self, CastedChunk}}, render_cache_manager::{self, canvas_data, render_cashe_manager::RenderCacheManager}, thread_manager::raycast_thread_pool::RaycastThreadPool}, text}, types::{BlockTriangle, BlockType, UITextures}};
 use super::casted_block_manager::casted_block_manager::CastedChunkManager;
 
 pub struct Camera
@@ -65,54 +65,17 @@ impl Camera {
         return &mut self.camera_data;
     }
 
+    //=====================================
+    // Render Updating
+    //=====================================
 
+    pub fn ray_cast_tile_at_cords(&mut self, world: &Arc<RwLock<World>>, casted_tile_cords: [i32; 2]) {
+        self.casted_chunk_manager.ray_cast_tile_at_casted_cords(world, &self.camera_data, casted_tile_cords);
+    }
+    
     //=====================================
     // Rendering
     //=====================================
-
-    pub fn init_chunk_area(&mut self, texture_manager: &mut TextureManager, world: Arc<RwLock<World>>, init_area: [i32; 2]) {
-        let casted_chunk_manager = &mut self.casted_chunk_manager;
-        let arc_camera_data = self.camera_data.clone().get_arc_ref();
-
-        // loop through area and raycast chunks
-        for x in 0..init_area[0] {
-            for y in 0..init_area[1] {
-                // Initialize chunks here
-                let relative_chunk_cords = [x, y];
-                if let Some(_chunk) = casted_chunk_manager.get_chunk_at_chunk_cords(relative_chunk_cords) {
-                    match _chunk.try_read() {
-                        Ok(guard) => {
-                            // Chunk is not locked, safe to render
-                            if !casted_chunk_manager.get_chunk_ray_casted_status(relative_chunk_cords) {
-                                casted_chunk_manager.set_chunk_ray_casted_status(relative_chunk_cords, true);
-    
-                                // submit raycast task
-                                self.thread_manager.submit_task(_chunk.clone(), arc_camera_data.clone(), world.clone());
-                            }
-                            else {
-                                guard.render_chunk(&self.camera_data, texture_manager);
-                                
-                            }
-                        },
-                        Err(_) => {
-                            // Chunk is locked, skip rendering this frame
-
-                        }
-                    }
-                }
-                else {   
-                    // Create the missing chunk
-                    casted_chunk_manager.create_chunk_at_cords(&self.camera_data, relative_chunk_cords);
-                    if let Some(_chunk) = casted_chunk_manager.get_chunk_at_chunk_cords(relative_chunk_cords) {
-                        self.render_cache_manager.as_mut().unwrap().add_chunk_to_canvas(texture_manager, _chunk.clone());
-                    }
-                }
-            }
-        }
-
-
-
-    }
 
     pub fn render_chunks_around_camera(&mut self, texture_manager: &mut TextureManager, world: Arc<RwLock<World>>, camera_data: &CameraData, arc_camera_data: Arc<CameraData>) {
         let iso_sceen_center = [
@@ -247,7 +210,7 @@ impl Camera {
                     let draw_offset = camera_data.get_ndc_draw_offset();
 
                     let final_draw_cords = [
-                        draw_cords[0] + draw_offset[0],
+                        draw_cords[0] + draw_offset[0] + camera_data.get_tile_ndc_scale(),
                         draw_cords[1] + draw_offset[1]
                 ];
 
@@ -255,7 +218,7 @@ impl Camera {
                     //println!("NDC Cords: {:?}, Chunk NDC Scale: {}", ndc_cords, chunk_ndc_scale);
 
                     if _tile.is_rendered_to_sprite_sheet() {
-                        _tile.render_tile(texture_manager, final_draw_cords, scale);
+                        _tile.render_tile(canvas_data, texture_manager, final_draw_cords, scale);
                     }
 
                 }
@@ -273,18 +236,24 @@ impl Camera {
     }
 
     pub fn render_camera(&mut self, texture_manager : &mut TextureManager, world : Arc<RwLock<World>>, ctx: &mut GlContext) {
+        // Render background
+        texture_manager.ender_ui_element_with_pos(UITextures::VoidBackground, [-1.0, -1.0, 1.0, 1.0]);
+        texture_manager.get_texture_renderer().flush(ctx);
+
+        // Update values
         self.get_mut_camera_data().update_camera_values();
         self.get_mut_camera_data().increment_frame_number();
-        texture_manager.update_expander_cache(self.camera_data.get_render_scale());
 
         // Create clones of camera data for threading frame
         let camera_data = self.get_mut_camera_data().clone();
         let arc_camera_data = camera_data.clone().get_arc_ref();
 
         // Render cashed chunks around camera
+        texture_manager.set_cached_expander(0.0); // Clear expander for cashing renderings
         self.render_cashed_chunks_around_camera(texture_manager, &camera_data, ctx);
 
         // Render chunks around camera
+        texture_manager.update_expander_cache(self.camera_data.get_render_scale()); // Update for main rendering
         self.render_chunks_around_camera(texture_manager, world.clone(), &camera_data, arc_camera_data);
         texture_manager.get_texture_renderer().flush(ctx); // Flush chunk renderings
     }
@@ -309,5 +278,13 @@ impl Camera {
         }
     }
 
+
+    //=====================================
+    // Debugging
+    //=====================================
+
+    pub fn collect_debug_data(&self, debug_data: &mut DebugData) { 
+        
+    }
     
 }

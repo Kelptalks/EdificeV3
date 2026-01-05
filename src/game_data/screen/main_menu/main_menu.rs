@@ -1,64 +1,86 @@
+use std::process::id;
+
 use miniquad::MouseButton;
 
-use crate::game_data::{World, screen::{Button, ScreenData, main_menu::world_creation::WorldCreationMenu, ui_manager::BarButton}};
+use crate::game_data::{World, screen::{Button, ScreenData, screen_data::CurrentMenu, ui_manager::BarButton}};
 
-#[derive(PartialEq)]
-enum MainMenuMenu {
-    Main,
-    WorldCreationMenu,
-}
 
 pub struct MainMenu {
-    current_main_menu: MainMenuMenu,
-
     // Main Menu Data
-    create_world_button: BarButton,
-    world_creation_menu: WorldCreationMenu,
+    start_button: BarButton,
+    options_button: BarButton,
+    exit_button: BarButton,
 
 }
 
 impl MainMenu {
     pub fn new() -> Self {
-        let world_creation_menu = WorldCreationMenu::new();
+        // Caclulate Centered Menu Button Cords
+        let total_buttons = 3.0;
+        let button_scale = 0.1;
+        let button_length = 5;
+        let button_y_spacing = button_scale * 1.5;
+
+        let start_x_centering_offset = -(button_length as f32 * button_scale / 2.0);
+        let mut button_y_start_offset = -(total_buttons * button_y_spacing) / 2.0;
+
+        let start_button = BarButton::new_with_text(
+            [start_x_centering_offset, button_y_start_offset],
+            button_scale,
+            button_length,
+            "Start".to_string()
+        );
+
+        button_y_start_offset += button_y_spacing;
+        let option_button = BarButton::new_with_text(
+            [start_x_centering_offset, button_y_start_offset],
+            button_scale,
+            button_length,
+            "Options".to_string()
+        );
+
+        button_y_start_offset += button_y_spacing;
+        let exit_button = BarButton::new_with_text(
+            [start_x_centering_offset, button_y_start_offset],
+            button_scale,
+            button_length,
+            "Exit".to_string()
+        );
 
         Self {
-            current_main_menu: MainMenuMenu::Main,
-            create_world_button: BarButton::new([0.0, 0.0], 0.1, 5),
-            world_creation_menu,
+            start_button: start_button,
+            options_button: option_button,
+            exit_button: exit_button,
         }
     }
 
     pub fn render_main_menu(&mut self, texture_manager: &mut crate::game_data::TextureManager) {
         // Render all buttons
-        if self.current_main_menu == MainMenuMenu::Main {
-            self.create_world_button.render_button(texture_manager);
-        }
-        else if self.current_main_menu == MainMenuMenu::WorldCreationMenu {
-            self.world_creation_menu.render(texture_manager);
-        }
+        self.start_button.render_button(texture_manager);
+        self.options_button.render_button(texture_manager);
+        self.exit_button.render_button(texture_manager);
+        
     }
 
     pub fn handle_mouse_motion_input(&mut self, screen_data: &ScreenData) {
         // Handle mouse motion for all buttons
-        if self.current_main_menu == MainMenuMenu::Main {
-            self.create_world_button.handle_mouse_motion_input(screen_data);
-        }
-        else if self.current_main_menu == MainMenuMenu::WorldCreationMenu {
-            self.world_creation_menu.handle_mouse_motion_input(screen_data);
-        }
+        
+        self.start_button.handle_mouse_motion_input(screen_data);
+        self.options_button.handle_mouse_motion_input(screen_data);
+        self.exit_button.handle_mouse_motion_input(screen_data);
+        
     }
 
     pub fn handle_mouse_button_down(&mut self, screen_data: &mut ScreenData, mouse_button: MouseButton) {
         
-        if self.current_main_menu == MainMenuMenu::Main {
-            if mouse_button == MouseButton::Left {
-                if self.create_world_button.is_mouse_on_button() {
-                    self.current_main_menu = MainMenuMenu::WorldCreationMenu;
-                }
+        if mouse_button == MouseButton::Left {
+            if self.start_button.is_mouse_on_button() {
+                screen_data.set_current_menu(CurrentMenu::MainMenuWorldCreation);
             }
-        }
-        else if self.current_main_menu == MainMenuMenu::WorldCreationMenu {
-            self.world_creation_menu.handle_mouse_button_down(screen_data, mouse_button);
+
+            if self.exit_button.is_mouse_on_button() {
+                screen_data.quit();
+            }
         }
 
     }

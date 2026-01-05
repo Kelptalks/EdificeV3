@@ -66,7 +66,7 @@ impl CameraData {
             
             // Renderer location
             iso_cam_center_cords : [0.0, 0.0],
-            view_distance : 4,
+            view_distance : 2,
             cashed_view_distance : 30,
 
             // Render scaling
@@ -89,6 +89,10 @@ impl CameraData {
         }
     }
 
+    //=====================================
+    // Updates
+    //=====================================
+
     pub fn update_camera_values(&mut self) {
         self.tile_ndc_scale = self.get_render_scale() * (self.get_tile_pixel_scale() as f32);
         self.chunk_ndc_scale = self.get_render_scale() * (self.get_chunk_pixel_scale() as f32);
@@ -109,6 +113,19 @@ impl CameraData {
             screen_center_iso_cords[1],
         ];
 
+    }
+
+    //=====================================
+    // Converters
+    //=====================================
+
+    pub fn world_to_casted_tile_cords(&self, world_cords: [i32; 3]) -> [i32; 2]{
+        let z_mod = world_cords[2] - self.cam_world_cords[2] as i32;
+        let x_cor = world_cords[0] - self.cam_world_cords[0] as i32 - z_mod;
+        let y_cor = world_cords[1] - self.cam_world_cords[1] as i32 - z_mod;
+        let casted_tile_cords = [x_cor, y_cor];
+
+        return casted_tile_cords;
     }
 
     //=====================================
@@ -148,10 +165,6 @@ impl CameraData {
     // Scaling
     //=====================================
 
-    pub fn get_tile_render_scale(&self) -> f32 {
-        return self.tile_pixel_scale;
-    }
-
     pub fn get_tile_ndc_scale(&self) -> f32 {
         return self.tile_ndc_scale;
     }
@@ -166,6 +179,10 @@ impl CameraData {
 
     pub fn get_chunk_ndc_scale(&self) -> f32 {
         return self.chunk_ndc_scale;
+    }
+
+    pub fn get_render_scale(&self) -> f32 {
+        return self.render_scale * self.zoom;
     }
 
     //=====================================
@@ -227,10 +244,6 @@ impl CameraData {
 
     pub fn get_cam_world_cords(&self) -> [f32 ; 3] {
         return self.cam_world_cords;
-    }
-
-    pub fn get_render_scale(&self) -> f32 {
-        return self.render_scale * self.zoom;
     }
 
     pub fn get_zoom(&self) -> f32 {

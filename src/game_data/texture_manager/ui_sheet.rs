@@ -39,10 +39,10 @@ impl UITextureManager {
             // Calculate UVs
             let texture_src_rect = UITextures::from_id(current_ui_texture).unwrap().ui_texture_to_sprite_sheet_src_rect();
 
-            let uv_x_start = (texture_src_rect[0] as f32 + self.start_cords[0] - 1.0) / atlas_dimensions;
+            let uv_x_start = (texture_src_rect[0] as f32 + self.start_cords[0]) / atlas_dimensions;
             let uv_y_start = (texture_src_rect[1] as f32 + self.start_cords[1]) / atlas_dimensions;
 
-            let uv_x_end = ((texture_src_rect[0] + texture_src_rect[2] - 1) as f32 + self.start_cords[0]) / atlas_dimensions;
+            let uv_x_end = ((texture_src_rect[0] + texture_src_rect[2]) as f32 + self.start_cords[0]) / atlas_dimensions;
             let uv_y_end = ((texture_src_rect[1] + texture_src_rect[3]) as f32 + self.start_cords[1]) / atlas_dimensions;
 
             pre_calculated_ui_uvs.push([uv_x_start, uv_y_start, uv_x_end, uv_y_end]);

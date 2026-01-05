@@ -1,10 +1,11 @@
 use miniquad::{GlContext, RenderingBackend};
 
-use crate::game_data::{World, screen::{camera_data::CameraData, iso_cord_tool, main_menu::world_config::WorldConfig}};
+use crate::game_data::{World, screen::{camera_data::CameraData, iso_cord_tool, world_config::WorldConfig}};
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum CurrentMenu {
     MainMenu,
+    MainMenuWorldCreation,
     Camera,
 
 }
@@ -31,6 +32,9 @@ pub struct ScreenData {
     // Init
     world_config: Option<WorldConfig>,
     is_world_initialized: bool,
+
+    // Quit
+    quit_game : bool,
 }
 
 impl ScreenData {
@@ -57,6 +61,9 @@ impl ScreenData {
             // Init
             is_world_initialized: false,
             world_config: None,
+
+            // Quit
+            quit_game: false,
         }
     }
 
@@ -218,6 +225,18 @@ impl ScreenData {
 
     pub fn get_world_config(&self) -> &WorldConfig {
         self.world_config.as_ref().unwrap()
+    }
+
+    //=====================================
+    // Quitting
+    //=====================================
+
+    pub fn quit(&mut self) {
+        self.quit_game = true;
+    }
+
+    pub fn should_quit(&self) -> bool {
+        return self.quit_game;
     }
 
 }

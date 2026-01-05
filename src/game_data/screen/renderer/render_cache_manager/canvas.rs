@@ -1,4 +1,4 @@
-use miniquad::{GlContext, RenderingBackend, TextureId, TextureParams};
+use miniquad::{GlContext, RenderingBackend, TextureFormat, TextureId, TextureParams};
 use std::collections::HashMap;
 
 use crate::game_data::{TextureManager, screen::{render_string, renderer::render_cache_manager::{canvas_data::CanvasData, canvas_chunk::CanvasChunk}}};
@@ -27,6 +27,7 @@ impl Canvas {
             TextureParams {
                 width: canvas_rez,
                 height: canvas_rez,
+                format: TextureFormat::RGBA8,
                 ..TextureParams::default()
         }
         );

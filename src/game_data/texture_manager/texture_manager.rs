@@ -66,11 +66,20 @@ impl TextureManager {
         let texture_id = self.texture_atlas.as_ref().unwrap().get_atlas_texture_id();
         self.get_texture_renderer().set_texture(texture_id);
     }
+
+    //======================
+    // Expander managment
+    //======================
+
     /// Update the expander cache for the current frame's scale. Call this once per frame before rendering triangles.
     pub fn update_expander_cache(&mut self, scale: f32) {
         self.cached_scale = scale;
         self.cached_expander = (scale * EXPANDER_BASE_MULTIPLIER) 
                              + (EXPANDER_OFFSET_STRENGTH / scale.max(EXPANDER_SCALE_THRESHOLD));
+    }
+
+    pub fn set_cached_expander(&mut self, cashed_expander: f32){
+        self.cached_expander = cashed_expander;
     }
 
     //=================================================
@@ -122,12 +131,18 @@ impl TextureManager {
     pub fn render_ui_element(&mut self, ui_texture: UITextures, draw_location: [f32; 2], scale: f32) {
         let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_ui_uv(ui_texture);
 
-        let mut pos = [
+        let pos = [
             draw_location[0],         // x1 (left)
             draw_location[1],         // y1 (top/bottom) 
             draw_location[0] + scale, // x2 (right)
             draw_location[1] + scale, // y2 (bottom/top)
         ];
+
+        self.get_texture_renderer().add_quad(pos, uv);
+    }
+
+    pub fn ender_ui_element_with_pos(&mut self, ui_texture: UITextures, pos: [f32; 4]) {
+        let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_ui_uv(ui_texture);
 
         self.get_texture_renderer().add_quad(pos, uv);
     }

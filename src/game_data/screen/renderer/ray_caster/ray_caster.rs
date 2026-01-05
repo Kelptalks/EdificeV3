@@ -8,7 +8,10 @@ use super::super::casted_block_manager::casted_tile::CastedTile;
  */
 
 pub fn raycast_tile_with_shadows(camera_data: &CameraData, world: &World, casted_tile: &mut CastedTile) {
-    // First, perform the raycasting
+    // Clear tile data
+    casted_tile.reset_casting_values();
+    
+    // Perform the raycasting
     raycast_tile(camera_data, world, casted_tile);
     
     // Then cast shadows for both triangles
@@ -244,7 +247,6 @@ pub fn raycast_tile(camera_data : &CameraData, world : &World, casted_tile : &mu
     let direction = camera_data.get_direction();
 
     // Reset values and get triangles
-    casted_tile.reset_casting_values();
     let triangles = casted_tile.get_mut_triangles();
 
 
