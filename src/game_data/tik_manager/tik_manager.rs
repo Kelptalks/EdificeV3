@@ -1,7 +1,7 @@
 
 use std::{sync::{Arc, RwLock}, time::{SystemTime, UNIX_EPOCH}, u128};
 
-use crate::game_data::{World, debuging::debug_data::{DebugData}, screen::{Camera, screen_task_manager::{screen_task_manager::ScreenTaskManager}}, tik_manager::drones::drone_manager::{DroneManager}, world_task_manager::{ world_task_manager::WorldTaskManager}};
+use crate::game_data::{World, debuging::debug_data::DebugData, screen::{Camera, screen_task_manager::screen_task_manager::ScreenTaskManager}, tik_manager::drones::{drone_manager::DroneManager, lua_manager::LuaManager}, world_task_manager::world_task_manager::WorldTaskManager};
 
 pub struct TikManager {
     paused: bool,
@@ -12,19 +12,26 @@ pub struct TikManager {
 
     // Drones
     drone_manager: DroneManager,
-    world: Arc<RwLock<World>>
+    world: Arc<RwLock<World>>,
+    lua_manager: LuaManager,
+    
 }
 
 impl TikManager {
     pub fn new(world: Arc<RwLock<World>>) -> Self {
+        let mut lua_manager = LuaManager::new();
+        lua_manager.rebuild_drone_script();
+        lua_manager.register_functions();
+        
         Self {
             paused: true,
             current_tik: 0,
-            tik_rate: 200,
+            tik_rate: 50,
             last_tik_millis: 0,
 
             drone_manager: DroneManager::new(),
-            world: world
+            world: world,
+            lua_manager: lua_manager,
         }
     }
 
@@ -56,10 +63,17 @@ impl TikManager {
             
             // Temp Drone Creation
             if self.current_tik == 5 {
-                self.drone_manager.create_drone_at_cords([0, 0, 10]);
+                self.drone_manager.create_drone_at_cords([0, 0, 30], "Drone 1".to_string());
+                self.drone_manager.create_drone_at_cords([5, 0, 30], "Drone 2".to_string());
+                self.drone_manager.create_drone_at_cords([0, 5, 30], "Drone 3".to_string());
             }
 
-            // Tik all the drones in the world
+            // Run lua tik function
+            let world_gaurd = self.world.read().unwrap(); // get world lock for lua execution
+            self.lua_manager.tik_script(&world_gaurd, &mut self.drone_manager, world_task_manager);
+            drop(world_gaurd); // Drop gaurd after done running script
+
+            // Tik drones
             self.drone_manager.tik_drones(self.world.clone(), world_task_manager, screen_task_manager);
 
             // Execute the tasks to update the events that happend this tik

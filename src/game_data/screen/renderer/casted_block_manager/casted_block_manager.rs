@@ -31,6 +31,25 @@ impl CastedChunkManager {
         }
     }
 
+    pub fn tile_cords_to_chunk_cords(tile_cords: [i32; 2]) -> [i32; 2] {
+        let mut x_chunk_casted_cor = tile_cords[0] / CHUNK_TILE_DIMENSIONS as i32;
+        let mut y_chunk_casted_cor = tile_cords[1] / CHUNK_TILE_DIMENSIONS as i32;
+
+        let x_tile_internal_cor = tile_cords[0] % CHUNK_TILE_DIMENSIONS as i32;
+        let y_tile_internal_cor = tile_cords[1] % CHUNK_TILE_DIMENSIONS as i32;
+
+        if x_tile_internal_cor < 0
+        {
+            x_chunk_casted_cor -= 1;
+        }
+        if y_tile_internal_cor <  0
+        {
+            y_chunk_casted_cor -= 1;
+        }
+
+        return [x_chunk_casted_cor, y_chunk_casted_cor];
+    }
+
     pub fn chunk_cords_to_key(cords : [i32; 2]) -> u32 {
         let x_bits = (cords[0] as u16) as u32;
         let y_bits = (cords[1] as u16) as u32;

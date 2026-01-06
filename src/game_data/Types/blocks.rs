@@ -81,160 +81,91 @@ pub enum BlockType {
     conveyor5 = 74,
 }
 
-static TRANSPARENT: [bool; 75] = [
-    true,  // Air
-    false, // Stone
-    false, // Grass
-    false, // Dirt
-    false, // BrownTrunk
-    false, // Leaves
-    false, // PurpleTrunk
-    false, // Iron
-    false, // Granite
-    false, // Sand
-    false, // CopperOre
-    false, // PinkFungus
-    false, // BlueGrass
-    false, // MushroomStem
-    false, // PinkMushroomBlock
-    false, // MudBricks
-    false, // OrangeFungus
-    false, // StoneBrick
-    false, // FlowerStoneBrick
-    false, // Scaffolding
-    false, // PinkCloud
-    false, // DandiStem
-    false, // Hive
-    false, // CobbleStone
-    false, // Magma
-    false, // Core
-    false, // LBM
-    false, // CrackedEarth
-    false, // Debug
-    false, // Water
-    false,  // Glass
-    false, // RedBrick
-    false, // DroneControler
-    false, // IronOre
-    false, // BlueMushroom
-    false, // StorageReceptacle1
-    false, // StorageReceptacle2
-    false, // StorageReceptacle3
-    false, // StorageReceptacle4
-    false, // StorageReceptacle5
-    false, // SmokeStack
-    false, // BrownPlanks
-    false, // CloudBlock
-    false, // PurplePlanks
-    false, // FurnaceOff
-    false, // FurnaceOn
-    false, // TitaniumOre
-    false, // WormBody
-    false, // WormEyesFlat
-    false, // WormEyesUp
-    false, // WormMouth
-    false, // DroneBotLeft
-    false, // DroneBotRight
-    false, // DroneUpLeft
-    false, // DroneUpRight
-    false, // DroneDead
-    false, // Battery1
-    false, // Battery2
-    false, // Battery3
-    false, // Battery4
-    false, // yellow_flowers
-    false, // white_flowers
-    false, // mushroom
-    false, // flungle
-    false, // blulbo
-    false, // rock
-    false, // log
-    false, // factory1
-    false, // factory2
-    false, // factory3
-    false, // conveyor1
-    false, // conveyor2
-    false, // conveyor3
-    false, // conveyor4
-    false, // conveyor5
-];
+#[derive(Copy, Clone)]
+pub struct BlockProperties {
+    pub transparent: bool,
+    pub translucent: bool,
+    pub solid: bool,
+    pub hardness: u16,
+    pub friction: u16,
+}
 
-static TRANSLUCENT: [bool; 75] = [
-    true,  // Air
-    false, // Stone
-    false, // Grass
-    false, // Dirt
-    false, // BrownTrunk
-    false, // Leaves
-    false, // PurpleTrunk
-    false, // Iron
-    false, // Granite
-    false, // Sand
-    false, // CopperOre
-    false, // PinkFungus
-    false, // BlueGrass
-    false, // MushroomStem
-    false, // PinkMushroomBlock
-    false, // MudBricks
-    false, // OrangeFungus
-    false, // StoneBrick
-    false, // FlowerStoneBrick
-    false, // Scaffolding
-    false, // PinkCloud
-    false, // DandiStem
-    false, // Hive
-    false, // CobbleStone
-    false, // Magma
-    false, // Core
-    false, // LBM
-    false, // CrackedEarth
-    false, // Debug
-    true,  // Water
-    true,  // Glass
-    false, // RedBrick
-    false, // DroneControler
-    false, // IronOre
-    false, // BlueMushroom
-    false, // StorageReceptacle1
-    false, // StorageReceptacle2
-    false, // StorageReceptacle3
-    false, // StorageReceptacle4
-    false, // StorageReceptacle5
-    true, // SmokeStack
-    false, // BrownPlanks
-    false, // CloudBlock
-    false, // PurplePlanks
-    false, // FurnaceOff
-    false, // FurnaceOn
-    false, // TitaniumOre
-    false, // WormBody
-    false, // WormEyesFlat
-    false, // WormEyesUp
-    false, // WormMouth
-    false, // DroneBotLeft
-    false, // DroneBotRight
-    false, // DroneUpLeft
-    false, // DroneUpRight
-    false, // DroneDead
-    false, // Battery1
-    false, // Battery2
-    false, // Battery3
-    false, // Battery4
-    true, // yellow_flowers
-    true, // white_flowers
-    true, // mushroom
-    true, // flungle
-    true, // blulbo
-    true, // rock
-    true, // log
-    false, // factory1
-    false, // factory2
-    false, // factory3
-    false, // conveyor1
-    false, // conveyor2
-    false, // conveyor3
-    false, // conveyor4
-    false, // conveyor5
+static BLOCK_PROPERTIES: [BlockProperties; 75] = [
+    BlockProperties { transparent: true,  translucent: true,  solid: false,   hardness: 0,   friction: 0 },      // Air
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 5 },    // Stone
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 30 },     // Grass
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 40,  friction: 20 },     // Dirt
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 60,  friction: 15 },     // BrownTrunk
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 20,  friction: 60 },     // Leaves
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 60,  friction: 15 },     // PurpleTrunk
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 300, friction: 5 },     // Iron
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 120, friction: 4 },    // Granite
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 30,  friction: 40 },     // Sand
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 5 },    // CopperOre
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 10,  friction: 50 },     // PinkFungus
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 80 },     // BlueGrass
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 40,  friction: 30 },     // MushroomStem
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 40,  friction: 30 },     // PinkMushroomBlock
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 90,  friction: 10 },     // MudBricks
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 10,  friction: 50 },     // OrangeFungus
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 110, friction: 100 },    // StoneBrick
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 110, friction: 100 },    // FlowerStoneBrick
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 1,  friction: 80 },     // Scaffolding
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 20,  friction: 30 },     // PinkCloud
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 40,  friction: 70 },     // DandiStem
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 80,  friction: 85 },     // Hive
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 90,  friction: 7 },    // CobbleStone
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 20 },     // Magma
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 500, friction: 120 },    // Core
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 90 },     // LBM
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 70,  friction: 85 },     // CrackedEarth
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 1,   friction: 50 },     // Debug
+    BlockProperties { transparent: false, translucent: true,  solid: true,  hardness: 0,   friction: 10 },     // Water
+    BlockProperties { transparent: false, translucent: true,  solid: true,  hardness: 50,  friction: 20 },     // Glass
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 95 },     // RedBrick
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 80 },     // DroneControler
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 5  },    // IronOre
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 30,  friction: 60 },     // BlueMushroom
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 80 },     // StorageReceptacle1
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 80 },     // StorageReceptacle2
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 80 },     // StorageReceptacle3
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 80 },     // StorageReceptacle4
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 80 },     // StorageReceptacle5
+    BlockProperties { transparent: false, translucent: true,  solid: true,  hardness: 200, friction: 50 },     // SmokeStack
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 85 },     // BrownPlanks
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 20,  friction: 30 },     // CloudBlock
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 85 },     // PurplePlanks
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 70 },     // FurnaceOff
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 70 },     // FurnaceOn
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 180, friction: 90 },     // TitaniumOre
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 75 },     // WormBody
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 75 },     // WormEyesFlat
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 75 },     // WormEyesUp
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 75 },     // WormMouth
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 60 },     // DroneBotLeft
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 60 },     // DroneBotRight
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 60 },     // DroneUpLeft
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 60 },     // DroneUpRight
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 60 },     // DroneDead
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 70 },     // Battery1
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 70 },     // Battery2
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 70 },     // Battery3
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 70 },     // Battery4
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 40 },     // yellow_flowers
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 40 },     // white_flowers
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 50 },     // mushroom
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 45 },     // flungle
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 45 },     // blulbo
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 80,  friction: 120 },    // rock
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 60,  friction: 90 },     // log
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 70 },     // factory1
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 70 },     // factory2
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 70 },     // factory3
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 30 },     // conveyor1
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 30 },     // conveyor2
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 30 },     // conveyor3
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 30 },     // conveyor4
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 30 },     // conveyor5
 ];
 
 impl BlockType {
@@ -250,27 +181,35 @@ impl BlockType {
         *self as u16
     }
 
-    pub fn is_transparent(&self) -> bool
-    {
-        return TRANSPARENT[*self as usize]
+    pub fn is_transparent(&self) -> bool {
+        BLOCK_PROPERTIES[*self as usize].transparent
     }
 
-    pub fn is_translucent(&self) -> bool
-    {
-        return TRANSLUCENT[*self as usize]
+    pub fn is_translucent(&self) -> bool {
+        BLOCK_PROPERTIES[*self as usize].translucent
+    }
+
+    pub fn is_solid(&self) -> bool {
+        BLOCK_PROPERTIES[*self as usize].solid
+    }
+
+    pub fn hardness(&self) -> u16 {
+        BLOCK_PROPERTIES[*self as usize].hardness
+    }
+
+    pub fn friction(&self) -> u16 {
+        BLOCK_PROPERTIES[*self as usize].friction
     }
 
     pub fn get_total_blocks() -> u32 {
-        return TOTAL_BLOCKS;
+        75
     }
 
     pub fn from_id(id: u16) -> BlockType {
         if id < BlockType::conveyor5 as u16 {
-            return unsafe { std::mem::transmute(id) }
+            unsafe { std::mem::transmute(id) }
+        } else {
+            BlockType::Debug
         }
-        else {
-            return BlockType::Debug;
-        }
-
     }
 }

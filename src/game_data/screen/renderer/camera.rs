@@ -1,8 +1,8 @@
-use std::{alloc::System, clone, sync::{Arc, RwLock}, time::SystemTime};
+use std::{alloc::System, clone, sync::{Arc, RwLock, TryLockError}, time::SystemTime};
 
 use miniquad::{GlContext, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, screen::{self, camera_data::CameraData, iso_cord_tool, render_string, renderer::{camera, casted_block_manager::{self, casted_chunk::{self, CastedChunk}}, render_cache_manager::{self, canvas_data, render_cashe_manager::RenderCacheManager}, thread_manager::raycast_thread_pool::RaycastThreadPool}, text}, types::{BlockTriangle, BlockType, UITextures}};
+use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, screen::{self, camera_data::{self, CameraData}, iso_cord_tool, render_string, renderer::{camera, casted_block_manager::{self, casted_chunk::{self, CastedChunk}}, render_cache_manager::{self, canvas_data, render_cashe_manager::RenderCacheManager}, thread_manager::raycast_thread_pool::RaycastThreadPool}, text}, types::{BlockTriangle, BlockType, UITextures}};
 use super::casted_block_manager::casted_block_manager::CastedChunkManager;
 
 pub struct Camera
@@ -70,7 +70,15 @@ impl Camera {
     //=====================================
 
     pub fn ray_cast_tile_at_cords(&mut self, world: &Arc<RwLock<World>>, casted_tile_cords: [i32; 2]) {
+        // Re raycast the tile
         self.casted_chunk_manager.ray_cast_tile_at_casted_cords(world, &self.camera_data, casted_tile_cords);
+
+        // 
+        let chunk_cords = CastedChunkManager::tile_cords_to_chunk_cords(casted_tile_cords);
+        let cashed_chunk_option = self.render_cache_manager.as_mut().unwrap().get_mut_canvas_tile(chunk_cords);
+        if let Some(cashed_chunk) = cashed_chunk_option {
+            //cashed_chunk.set_rendered_to_sprite_sheet(false);
+        }
     }
     
     //=====================================
@@ -167,11 +175,20 @@ impl Camera {
                         
 
 
-                        if casted_chunk.is_some() {
-                            let casted_chunk = casted_chunk.unwrap();
-                            _tile.render_chunk_texture_to_canvas(&canvas_data, texture_manager, &casted_chunk);
+                        if let Some(casted_chunk) = casted_chunk {
+                            
+                            match casted_chunk.try_read() {
+                                Ok(data) => {
+                                    _tile.render_chunk_texture_to_canvas(&canvas_data, texture_manager, &data);
+                                }
+                                Err(TryLockError::WouldBlock) => {
+                                    
+                                }
+                                Err(TryLockError::Poisoned(err)) => {
+
+                                }
+                            }
                         }
-                        _tile.set_rendered_to_sprite_sheet(true);
     
                     }
 
@@ -219,6 +236,9 @@ impl Camera {
 
                     if _tile.is_rendered_to_sprite_sheet() {
                         _tile.render_tile(canvas_data, texture_manager, final_draw_cords, scale);
+                    }
+                    else {
+                        println!("Cords: {:?}", [x_rel_cor, y_rel_cor])
                     }
 
                 }
