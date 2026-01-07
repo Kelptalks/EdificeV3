@@ -60,6 +60,10 @@ impl CastedChunkManager {
         self.casted_chunk_key_list.push(chunk_map_key);
     }
 
+    pub fn get_chunk_tile_scale() -> u32 {
+        return CHUNK_TILE_DIMENSIONS;
+    }
+
     pub fn get_chunk_at_chunk_cords(&self, cords : [i32; 2]) -> Option<Arc<RwLock<CastedChunk>>>
     {
         return self.casted_chunk_map.get(&Self::chunk_cords_to_key(cords)).map(Arc::clone);

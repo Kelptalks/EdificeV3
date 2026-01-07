@@ -1,7 +1,7 @@
 use miniquad::{GlContext, RenderingBackend, TextureFormat, TextureId, TextureParams};
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, screen::{render_string, renderer::render_cache_manager::{canvas_data::CanvasData, canvas_chunk::CanvasChunk}}};
+use crate::game_data::{TextureManager, debuging::debug_data::DebugData, screen::{render_string, renderer::render_cache_manager::{canvas_chunk::CanvasChunk, canvas_data::CanvasData}}};
 
 pub struct Canvas {
     texture_id: TextureId,
@@ -46,7 +46,6 @@ impl Canvas {
             total_tiles: 0,
         }
     }
-
 
 
     // ===================
@@ -169,4 +168,13 @@ impl Canvas {
 
         }
     }
+
+    // ===================
+    // Debug Data
+    // ===================
+    pub fn collect_debug_data(&self, debug_data: &mut DebugData) {
+        debug_data.set_total_cached_chunks(self.canvas_map.len() as u32);
+        debug_data.set_max_cached_chunks(self.max_tiles);
+    }
+
 }

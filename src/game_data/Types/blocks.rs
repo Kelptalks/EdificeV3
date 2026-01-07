@@ -2,7 +2,7 @@
 pub static TOTAL_BLOCKS: u32 = 100;
 
 #[repr(u16)]
-#[derive(Copy, Clone)]  // Add these
+#[derive(Copy, Clone, PartialEq)]  // Add these
 pub enum BlockType {
     Air = 0,
     Stone = 1,

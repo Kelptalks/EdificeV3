@@ -31,7 +31,8 @@ pub fn render_centered_string_at_ndi_cords(texture_manager: &mut TextureManager,
     
     // Calculate the starting position to center the string
     let start_x = ndi_cords[0] - (total_width / 2.0);
-    let mut current_ndi_cords = [start_x, ndi_cords[1]];
+    let start_y = ndi_cords[1] - scale / 2.0; // Center vertically
+    let mut current_ndi_cords = [start_x, start_y];
 
     let chars = string.chars().collect::<Vec<char>>();
     for c in chars.iter() {

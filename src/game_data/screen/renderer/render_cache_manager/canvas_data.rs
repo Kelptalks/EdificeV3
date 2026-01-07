@@ -23,7 +23,7 @@ impl CanvasData {
         let canvas_x_tile_scale = 256;
         let canvas_y_tile_scale = 256 / 2;
         
-        let tiles_per_row = 32;
+        let tiles_per_row = 64;
         let tiles_per_collumn = tiles_per_row * 2;
 
         let max_tiles = tiles_per_row * tiles_per_collumn;

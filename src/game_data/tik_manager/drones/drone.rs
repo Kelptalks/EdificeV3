@@ -59,7 +59,7 @@ impl Drone {
 
             // Stats
             busy_time: 0,
-            fuel: 1000,
+            fuel: 10000,
             vision_range: 2,
             modify_range: 1,
             mine_power: 1,
@@ -70,22 +70,6 @@ impl Drone {
     //=====================================
     // Getters
     //=====================================
-
-    pub fn get_cords(&self) -> [i32; 3] {
-        return self.cords;
-    }
-
-    pub fn get_id(&self) -> u32 {
-        return self.id;
-    }
-
-    pub fn get_name(&self) -> String {
-        return self.name.clone();
-    }
-
-    pub fn is_busy(&self) -> bool {
-        return self.busy_time != 0;
-    }
 
     fn get_relative_world_cords(&self, relative_cords: [i32; 3]) -> [i32; 3] {
         // Calculate the world cords based of drone position 
@@ -108,29 +92,23 @@ impl Drone {
     }
 
     //=====================================
-    // Actions
+    // Drone Getters
     //=====================================
 
+    pub fn get_cords(&self) -> [i32; 3] {
+        return self.cords;
+    }
 
-    pub fn move_drone(&mut self, world: &World, relative_cords: [i32; 3]){
-        if Drone::if_cords_within_range(relative_cords, 1){
-            let world_cords = self.get_relative_world_cords(relative_cords);
-            let block_type_of_new_location = BlockType::from_id(world.get_world_value(world_cords));
+    pub fn get_id(&self) -> u32 {
+        return self.id;
+    }
 
-            // If block is not solid allow movment
-            if !block_type_of_new_location.is_solid() {
-                // Get block bellow to calculate move speed
-                let cords_below_drone = self.get_relative_world_cords([0, 0, -1]);
-                let block_below_drone = BlockType::from_id(world.get_world_value(cords_below_drone));
+    pub fn get_name(&self) -> String {
+        return self.name.clone();
+    }
 
-                // Update drones cords
-                for i in 0..3{
-                    self.cords[i] += relative_cords[i];
-                }
-                // Set drone busy time
-                self.busy_time += block_below_drone.friction();
-            }
-        }
+    pub fn is_busy(&self) -> bool {
+        return self.busy_time != 0;
     }
 
     // Get a block based of cords relative to the drone
@@ -149,8 +127,51 @@ impl Drone {
         }
     }
 
+    //=====================================
+    // Actions
+    //=====================================
+
+
+    pub fn move_drone(&mut self, world: &World, relative_cords: [i32; 3], world_task_manager: &mut WorldTaskManager){
+        if self.is_busy() {
+            println!("Drone {} cannot move because busy", self.id);
+            return;
+        }
+        
+        if Drone::if_cords_within_range(relative_cords, 1){
+            let world_cords = self.get_relative_world_cords(relative_cords);
+            let block_type_of_new_location = BlockType::from_id(world.get_world_value(world_cords));
+
+            // If block is not solid allow movment
+            if !block_type_of_new_location.is_solid() {
+                // Get block bellow to calculate move speed
+                let cords_below_drone = self.get_relative_world_cords([0, 0, -1]);
+                let block_below_drone = BlockType::from_id(world.get_world_value(cords_below_drone));
+
+                // Don't allow movement if falling
+                if block_below_drone == BlockType::Air {
+                    return;
+                }
+
+                // Update drones cords
+                for i in 0..3{
+                    world_task_manager.mod_block(self.cords, 0); // Clear drone in old location
+                    self.cords[i] += relative_cords[i];
+                    world_task_manager.mod_block(self.cords, self.direction.to_block_id()); // Add drone back in new location 
+                }
+                // Set drone busy time
+                self.busy_time += block_below_drone.friction();
+            }
+        }
+    }
+
     // Mine a block relative to the drone
     pub fn mine_block(&mut self, relative_cords: [i32; 3], world: &World, world_task_manager: &mut WorldTaskManager) {
+        if self.is_busy() {
+            println!("Drone {} cannot mine because busy", self.id);
+            return;
+        }
+        
         // check if scan is in mine range
         if Drone::if_cords_within_range(relative_cords, self.modify_range) {
             // Get world cords
@@ -167,6 +188,11 @@ impl Drone {
 
     // Place a block relative to the drone
     pub fn place_block(&mut self, relative_cords: [i32; 3], world_task_manager: &mut WorldTaskManager, block: BlockType) {
+        if self.is_busy() {
+            println!("Drone {} cannot mine because busy", self.id);
+            return;
+        }
+        
         if Drone::if_cords_within_range(relative_cords, self.modify_range) {
             // Get world cords
             let world_cords = self.get_relative_world_cords(relative_cords);

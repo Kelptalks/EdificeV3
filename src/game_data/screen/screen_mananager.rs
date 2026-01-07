@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use image::imageops::FilterType::Triangle;
 use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, renderer::casted_block_manager::casted_tile::{self, CastedTile}, screen_data::{self, CurrentMenu}}, tik_manager::tik_manager::TikManager};
+use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, render_centered_string_at_ndi_cords, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}}, tik_manager::tik_manager::TikManager, types::UITextures};
 
 
 
@@ -26,8 +26,6 @@ pub struct ScreenManager {
     // Screen Data
     screen_data: ScreenData,
 }
-
-
 
 impl ScreenManager {
     pub fn new()->Self {
@@ -77,19 +75,12 @@ impl ScreenManager {
         else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
             // Generate the world if not yet initilized
             if !self.screen_data.is_world_initialized() {
-                let world_config = self.screen_data.get_world_config().clone();
-                
-                // Unpack the Arc<RwLock<World>> to get mutable access to the world
-                let world_rwlock = world.as_ref();
-                let mut world_guard = world_rwlock.write().unwrap();
-                
-                // Generate terrain with the configured scale
-                world_guard.generate_terrain(world_config.get_scale());
-                
-                // Explicitly drop the lock to release it
-                drop(world_guard);
+                let world_config = self.screen_data.get_mut_world_config();
+                world_config.init_world(texture_manager, &world, &mut self.camera, ctx);
 
-                self.screen_data.set_world_initialized(true);
+                if world_config.done_initializing() {
+                    self.screen_data.set_world_initialized(true);
+                }
             }
             else {
                 self.camera.render_camera(texture_manager, world, ctx);

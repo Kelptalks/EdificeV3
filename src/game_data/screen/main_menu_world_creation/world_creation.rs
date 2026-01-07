@@ -70,6 +70,7 @@ impl WorldCreationMenu {
             if self.create_world_button.is_mouse_on_button() {
                 screen_data.set_world_config(self.create_world_config());
                 screen_data.set_current_menu(crate::game_data::screen::screen_data::CurrentMenu::Camera);
+                
             }
             else if self.increase_world_size_button.is_mouse_on_button() {
                 self.world_size += 25;

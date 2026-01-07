@@ -50,8 +50,8 @@ impl ScreenTaskManager {
         for task in &mut self.drone_render_tasks {
             // Loop through area around drone
             let drone_casted_tile_cords = camera_data.world_to_casted_tile_cords(task.drone_cords);
-            for x_offset in -1..2 {
-                for y_offset in -1..2 {
+            for x_offset in -3..3 {
+                for y_offset in -3..3 {
                     let casted_cords_to_rerender = [
                         drone_casted_tile_cords[0] + x_offset,
                         drone_casted_tile_cords[1] + y_offset

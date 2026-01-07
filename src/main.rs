@@ -18,7 +18,8 @@ const VIRTUAL_SIZE: f32 = 1080.0;
 
 impl GameStage {
     pub fn new() -> GameStage {
-        
+
+
         // Create graphics context
         let mut ctx = GlContext::default();
 

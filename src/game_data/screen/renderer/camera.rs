@@ -73,17 +73,70 @@ impl Camera {
         // Re raycast the tile
         self.casted_chunk_manager.ray_cast_tile_at_casted_cords(world, &self.camera_data, casted_tile_cords);
 
-        // 
+        // Re render the chunk to the canvas cache
         let chunk_cords = CastedChunkManager::tile_cords_to_chunk_cords(casted_tile_cords);
         let cashed_chunk_option = self.render_cache_manager.as_mut().unwrap().get_mut_canvas_tile(chunk_cords);
         if let Some(cashed_chunk) = cashed_chunk_option {
-            //cashed_chunk.set_rendered_to_sprite_sheet(false);
+            cashed_chunk.set_rendered_to_sprite_sheet(false);
         }
     }
-    
+
     //=====================================
     // Rendering
     //=====================================
+
+    pub fn init_chunks_in_area(&mut self, 
+        texture_manager: &mut TextureManager, 
+        world: Arc<RwLock<World>>, 
+        camera_data: &CameraData, 
+        arc_camera_data: Arc<CameraData>, 
+        range: i32
+    ) {
+        let casted_chunk_manager = &mut self.casted_chunk_manager;
+        
+        // Center around world center
+        let cam_z_offset = camera_data.get_cam_world_cords()[2] as i32;
+        let world_center_chunk_shift = (cam_z_offset / CastedChunkManager::get_chunk_tile_scale() as i32) / 2;
+
+        for x_rel_cor in -range..range {
+            for y_rel_cor in -range..range {
+                let relative_chunk_cords = [
+                    x_rel_cor + world_center_chunk_shift,
+                    y_rel_cor + world_center_chunk_shift
+                ];
+
+                // If chunk exists
+                if let Some(_chunk) = casted_chunk_manager.get_chunk_at_chunk_cords(relative_chunk_cords) {
+                    match _chunk.read() {
+                        Ok(guard) => {
+                            // Chunk is not locked, safe to render
+                            if !guard.is_ray_casted() {
+                                // submit raycast task
+                                self.thread_manager.submit_task(_chunk.clone(), arc_camera_data.clone(), world.clone());
+                            }
+                            else {
+                            }
+                        },
+                        Err(_) => {
+                            // Chunk is locked, skip rendering this frame
+
+                        }
+                    }
+                }
+                else {   
+                    // Create the missing chunk
+                    casted_chunk_manager.create_chunk_at_cords(&self.camera_data, relative_chunk_cords);
+
+                    if let Some(_chunk) = casted_chunk_manager.get_chunk_at_chunk_cords(relative_chunk_cords) {
+                        self.render_cache_manager.as_mut().unwrap().add_chunk_to_canvas(_chunk.clone());
+                        self.thread_manager.submit_task(_chunk.clone(), arc_camera_data.clone(), world.clone());
+                        
+                    }
+
+                }
+            }
+        }
+    }
 
     pub fn render_chunks_around_camera(&mut self, texture_manager: &mut TextureManager, world: Arc<RwLock<World>>, camera_data: &CameraData, arc_camera_data: Arc<CameraData>) {
         let iso_sceen_center = [
@@ -128,7 +181,7 @@ impl Camera {
                     casted_chunk_manager.create_chunk_at_cords(&self.camera_data, relative_chunk_cords);
 
                     if let Some(_chunk) = casted_chunk_manager.get_chunk_at_chunk_cords(relative_chunk_cords) {
-                        self.render_cache_manager.as_mut().unwrap().add_chunk_to_canvas(texture_manager, _chunk.clone());
+                        self.render_cache_manager.as_mut().unwrap().add_chunk_to_canvas(_chunk.clone());
                     }
 
                 }
@@ -180,6 +233,7 @@ impl Camera {
                                 Ok(casted_chunk_guard) => {
                                     if casted_chunk_guard.is_ray_casted() {
                                         _tile.render_chunk_texture_to_canvas(&canvas_data, texture_manager, &casted_chunk_guard);
+                                        texture_manager.get_texture_renderer().flush(ctx); // Flush every tile to avoid texture overload
                                     }
                                 }
                                 Err(TryLockError::WouldBlock) => {
@@ -231,10 +285,6 @@ impl Camera {
                         draw_cords[0] + draw_offset[0] + camera_data.get_tile_ndc_scale(),
                         draw_cords[1] + draw_offset[1]
                 ];
-
-
-                    //println!("NDC Cords: {:?}, Chunk NDC Scale: {}", ndc_cords, chunk_ndc_scale);
-
                     if _tile.is_rendered_to_sprite_sheet() {
                         _tile.render_tile(canvas_data, texture_manager, final_draw_cords, scale);
                     }
@@ -313,6 +363,8 @@ impl Camera {
     pub fn collect_debug_data(&self, debug_data: &mut DebugData) { 
         debug_data.set_frame_time(self.camera_data.get_frame_time());
         debug_data.set_frame_count(self.camera_data.get_frame_count());
+
+        self.render_cache_manager.as_ref().unwrap().collect_debug_data(debug_data);
     }
     
 }

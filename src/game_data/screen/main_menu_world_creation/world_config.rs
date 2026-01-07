@@ -1,6 +1,23 @@
+use std::sync::{Arc, RwLock};
+
+use miniquad::GlContext;
+
+use crate::game_data::{TextureManager, World, screen::{ScreenData, render_centered_string_at_ndi_cords, renderer::{camera, casted_block_manager::casted_block_manager::CastedChunkManager}}, types::UITextures};
+
+
+#[derive(PartialEq)]
+enum LoadingState {
+    ShowLoading,
+    GenerateTerrain,
+    InitRendering,
+    Done
+}
+
+
 pub struct WorldConfig {
     scale: u32,
     height_variation: u32,
+    loading_state: LoadingState,
 }
 
 impl WorldConfig {
@@ -8,6 +25,7 @@ impl WorldConfig {
         WorldConfig {
             scale: 200,
             height_variation: 100,
+            loading_state: LoadingState::ShowLoading,
         }
     }
 
@@ -20,5 +38,61 @@ impl WorldConfig {
 
     pub fn get_height_variation(&self) -> u32 {
         self.height_variation
+    }
+
+    pub fn done_initializing(&self) -> bool {
+        if self.loading_state == LoadingState::Done {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    pub fn render_loading_screen(&self, texture_manager: &mut TextureManager, ctx: &mut GlContext) {
+        let screen_uv = [-1.0, -1.0, 1.0, 1.0];
+        texture_manager.render_ui_element_with_pos(UITextures::VoidBackground, screen_uv);
+        render_centered_string_at_ndi_cords(texture_manager, 
+            "Loading".to_string(), 
+            "Basic".to_string(), 
+            0.2, 
+            [0.0, 0.0]
+        );
+        texture_manager.get_texture_renderer().flush(ctx);
+    }
+
+    pub fn init_world(&mut self, texture_manager: &mut TextureManager, 
+        world: &Arc<RwLock<World>>,
+        camera: &mut camera::Camera, 
+        ctx : &mut GlContext
+    ) {
+        match self.loading_state {
+            LoadingState::ShowLoading => {
+                self.render_loading_screen(texture_manager, ctx);
+                self.loading_state = LoadingState::GenerateTerrain;
+            }
+            LoadingState::GenerateTerrain => {
+                let world_rwlock = world.as_ref();
+                let mut world_guard = world_rwlock.write().unwrap();
+                world_guard.generate_terrain(self.get_scale());
+                self.loading_state = LoadingState::InitRendering;
+            }
+            LoadingState::InitRendering => {
+                // Pre raycast chunks around camera
+                let range = (self.get_scale() / CastedChunkManager::get_chunk_tile_scale() / 2) + 4;
+                println!("Initializing World Rendering with range: {}", range);
+                camera.init_chunks_in_area(
+                    texture_manager, 
+                    world.clone(), 
+                    &camera.get_camera_data().clone(), 
+                    Arc::new(camera.get_camera_data().clone()), 
+                    range as i32
+                );
+                self.loading_state = LoadingState::Done;
+            }
+            LoadingState::Done => {
+                // Normal game rendering
+            }
+        }
     }
 }

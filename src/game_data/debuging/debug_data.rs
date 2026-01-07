@@ -13,6 +13,10 @@ pub struct DebugData {
 
     // Mouse data
     mouse_tile_cords: [i32; 2],
+
+    // Rendering
+    total_cached_chunks: u32,
+    max_cached_chunks: u32, 
 }
 /*
 ################
@@ -38,6 +42,10 @@ impl DebugData {
 
             // Mouse data
             mouse_tile_cords: [0, 0],
+            
+            // Rendering
+            total_cached_chunks: 0,
+            max_cached_chunks: 0, 
         }
     }
 
@@ -66,6 +74,15 @@ impl DebugData {
     // Mouse Data
     pub fn set_mouse_tile_cords(&mut self, mouse_tile_cords: [i32; 2]) {
         self.mouse_tile_cords = mouse_tile_cords;
+    }
+
+
+    // Rendering
+    pub fn set_total_cached_chunks(&mut self, total_cached_chunks: u32) {
+        self.total_cached_chunks = total_cached_chunks;
+    }
+    pub fn set_max_cached_chunks(&mut self, max_cached_chunks: u32) {
+        self.max_cached_chunks = max_cached_chunks;
     }
 
 
@@ -128,6 +145,16 @@ impl DebugData {
             self.mouse_tile_cords
         );
         render_string_at_ndi_cords(texture_manager, mouse_tile_cords, font.clone(), scale, current_text_render_ndi_cords);
+        current_text_render_ndi_cords[1] += spacing;
+
+
+        // Render rendering data
+        let render_data = format!(
+            "Cached Chunks: {}/{}", 
+            self.total_cached_chunks,
+            self.max_cached_chunks
+        );
+        render_string_at_ndi_cords(texture_manager, render_data, font.clone(), scale, current_text_render_ndi_cords);
         current_text_render_ndi_cords[1] += spacing;
 
     }

@@ -87,7 +87,7 @@ impl ScreenData {
     pub fn get_debug_visiblity(&self) -> bool {
         return self.debug_visible;
     }
-    
+
     //=====================================
     // Screen 
     //=====================================
@@ -241,6 +241,10 @@ impl ScreenData {
 
     pub fn get_world_config(&self) -> &WorldConfig {
         self.world_config.as_ref().unwrap()
+    }
+
+    pub fn get_mut_world_config(&mut self) -> &mut WorldConfig {
+        self.world_config.as_mut().unwrap()
     }
 
     //=====================================

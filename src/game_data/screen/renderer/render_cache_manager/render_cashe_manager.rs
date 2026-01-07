@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use miniquad::{GlContext, PassAction, RenderPass, RenderingBackend};
 
-use crate::game_data::{TextureManager, screen::renderer::{casted_block_manager::casted_chunk::CastedChunk, render_cache_manager::{canvas::Canvas, canvas_data::CanvasData, canvas_chunk::CanvasChunk}}, texture_manager};
+use crate::game_data::{TextureManager, debuging::debug_data::DebugData, screen::renderer::{casted_block_manager::casted_chunk::CastedChunk, render_cache_manager::{canvas::Canvas, canvas_chunk::CanvasChunk, canvas_data::CanvasData}}, texture_manager};
 
 pub struct RenderCacheManager {
     canvas: Canvas,
@@ -19,7 +19,7 @@ impl RenderCacheManager {
         }
     }
 
-    pub fn add_chunk_to_canvas(&mut self, texture_manager: &mut TextureManager, casted_chunk: Arc<RwLock<CastedChunk>>) {
+    pub fn add_chunk_to_canvas(&mut self, casted_chunk: Arc<RwLock<CastedChunk>>) {
         let iso_cords = casted_chunk.read().unwrap().get_chunk_cords();
 
         self.canvas.create_tile_at(iso_cords);
@@ -74,6 +74,10 @@ impl RenderCacheManager {
         texture_manager.get_texture_renderer().flush(ctx);
         texture_manager.set_texture_renderer_to_atlas();
             
+    }
+
+    pub fn collect_debug_data(&self, debug_data: &mut DebugData) {
+        self.canvas.collect_debug_data(debug_data);
     }
 
 

@@ -60,7 +60,7 @@ impl BarButton {
 
         // calculate string center cords
         let x_button_center_cor = self.cords[0] + (self.get_x_scale() / 2.0);
-        let y_button_center_cor = self.cords[1] + (self.scale) / 3.0;
+        let y_button_center_cor = self.cords[1] + (self.scale) / 2.0;
         let button_text_scale = self.scale * 0.3;
         render_centered_string_at_ndi_cords(texture_manager,
             self.text.to_string(),

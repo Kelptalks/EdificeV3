@@ -1,0 +1,6 @@
+{
+    "Lua.diagnostics.globals": [
+        "rust_scan_block",
+        "rust_get_all_drone_ids"
+    ]
+}
