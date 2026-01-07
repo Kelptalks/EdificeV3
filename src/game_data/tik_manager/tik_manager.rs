@@ -5,9 +5,12 @@ use crate::game_data::{World, debuging::debug_data::DebugData, screen::{Camera, 
 
 pub struct TikManager {
     paused: bool,
+
+    // Tik Data
     current_tik: u32,
     tik_rate: u128,
     last_tik_millis: u128,
+    tik_exectuion_time: u32,
 
 
     // Drones
@@ -25,10 +28,14 @@ impl TikManager {
         
         Self {
             paused: true,
+
+            // Tik Data
             current_tik: 0,
             tik_rate: 50,
             last_tik_millis: 0,
+            tik_exectuion_time: 0,
 
+            // Drones
             drone_manager: DroneManager::new(),
             world: world,
             lua_manager: lua_manager,
@@ -45,6 +52,8 @@ impl TikManager {
 
     // Called every frame to update the tik
     pub fn update_tik_manager(&mut self, world_task_manager: &mut WorldTaskManager, screen_task_manager: &mut ScreenTaskManager, camera: &mut Camera) {
+        
+        
         if self.paused {
             return
         }
@@ -54,8 +63,11 @@ impl TikManager {
         .unwrap()
         .as_millis();
 
-
+        // Execute a tik
         if current_millis > (self.last_tik_millis + self.tik_rate) {
+            // Start tik execution time
+            let tik_start_time = SystemTime::now();
+            
             // Update tik time
             self.current_tik += 1;
             self.last_tik_millis = current_millis;
@@ -79,14 +91,19 @@ impl TikManager {
             // Execute the tasks to update the events that happend this tik
             world_task_manager.execute_tasks(self.world.clone());
             screen_task_manager.execute_tasks(self.world.clone(), camera);
+
+            // End tik execution time
+            let system_time_end = SystemTime::now();
+            let tik_duration = system_time_end.duration_since(tik_start_time).unwrap();
+            self.tik_exectuion_time = tik_duration.as_millis() as u32;
         }
         
-
 
     }
 
     pub fn update_debug_data(&self, debug_data: &mut DebugData) {
         debug_data.set_current_tik(self.current_tik);
+        debug_data.set_tik_execution_time(self.tik_exectuion_time);
     }
 
 

@@ -17,7 +17,6 @@ use crate::game_data::screen::{Camera, screen_data::CurrentMenu , MainMenu, came
 //=====================================
 
 pub fn mouse_motion_event(screen_manager: &mut ScreenManager, x_cor: f32, y_cor: f32) {
-    
     // Save needed pre movement data
     let starting_mouse_ndc_cords = screen_manager.get_screen_data().get_renderer_mouse_ndc_cords();
     let mut camera_data_clone = screen_manager.get_camera_data().clone();

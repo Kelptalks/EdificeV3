@@ -15,7 +15,6 @@ static CHUNK_TILE_AREA : u32 = CHUNK_TILE_DIMENSIONS * CHUNK_TILE_DIMENSIONS;
 pub struct CastedChunkManager
 {
     casted_chunk_map: HashMap<u32, Arc<RwLock<CastedChunk>>>,
-    casted_chunk_raycasted_map: HashMap<u32, bool>,
     casted_chunk_key_list : Vec<u32>,
 }
 
@@ -25,9 +24,6 @@ impl CastedChunkManager {
         Self {
             casted_chunk_map: HashMap::new(),
             casted_chunk_key_list: Vec::new(),
-            
-            // Data for managing threads
-            casted_chunk_raycasted_map: HashMap::new(),
         }
     }
 
@@ -62,26 +58,6 @@ impl CastedChunkManager {
         let new_chunk = Arc::new(RwLock::new(CastedChunk::new(cords, camera_data)));
         self.casted_chunk_map.insert(chunk_map_key, new_chunk);
         self.casted_chunk_key_list.push(chunk_map_key);
-
-        // Create raycasted map entry
-        self.casted_chunk_raycasted_map.insert(chunk_map_key, false);
-    }
-
-    pub fn set_chunk_ray_casted_status(&mut self, cords : [i32; 2], status : bool)
-    {
-        let chunk_map_key = Self::chunk_cords_to_key(cords);
-        if let Some(entry) = self.casted_chunk_raycasted_map.get_mut(&chunk_map_key) {
-            *entry = status;
-        }
-    }
-
-    pub fn get_chunk_ray_casted_status(&self, cords : [i32; 2]) -> bool
-    {
-        let chunk_map_key = Self::chunk_cords_to_key(cords);
-        if let Some(status) = self.casted_chunk_raycasted_map.get(&chunk_map_key) {
-            return *status;
-        }
-        return false;
     }
 
     pub fn get_chunk_at_chunk_cords(&self, cords : [i32; 2]) -> Option<Arc<RwLock<CastedChunk>>>

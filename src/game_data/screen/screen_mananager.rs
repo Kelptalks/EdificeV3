@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use image::imageops::FilterType::Triangle;
 use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, renderer::casted_block_manager::casted_tile::{self, CastedTile}, screen_data::CurrentMenu}, tik_manager::tik_manager::TikManager};
+use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, renderer::casted_block_manager::casted_tile::{self, CastedTile}, screen_data::{self, CurrentMenu}}, tik_manager::tik_manager::TikManager};
 
 
 
@@ -154,6 +154,15 @@ impl ScreenManager {
     pub fn key_down_event(&mut self, keycode: KeyCode, keymods: KeyMods, repeat: bool) {
         let camera_data = &self.get_camera_data().clone();
         self.screen_data.re_calculate_mouse_cords(camera_data);
+
+        // Handle debug menu
+        match keycode {
+            KeyCode::F3 => {
+            self.screen_data.set_debug_visibility(!self.screen_data.get_debug_visiblity());
+            }
+            _ => {}
+        }
+
         if self.screen_data.get_current_menu() == CurrentMenu::MainMenu {
 
         }

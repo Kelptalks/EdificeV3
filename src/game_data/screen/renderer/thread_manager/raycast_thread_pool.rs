@@ -40,10 +40,9 @@ impl RaycastThreadPool {
                     let mut chunk = task.chunk.write().unwrap(); 
                     let camera_data = Arc::clone(&task.camera_data);
                     
-                    // Perform raycasting on the chunk
-                    chunk.set_ray_casted(true);                
+                    // Perform raycasting on the chunk          
                     chunk.raycast_chunk(&camera_data, &world);
-    
+                    chunk.set_ray_casted(true);      
                 }
                 
 

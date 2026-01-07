@@ -23,6 +23,7 @@ pub struct CameraData {
 
     //Camera offset by controls
     render_cords : [f32; 2],
+
     //Camera offset for centering
     ndc_draw_offset : [f32 ; 2],
 
@@ -46,7 +47,8 @@ pub struct CameraData {
     draw_distance : usize,
 
     // Frame number
-    frame_number: u64,
+    frame_count: u32,
+    frame_time: u32,
 }
 
 impl CameraData {
@@ -85,7 +87,8 @@ impl CameraData {
             draw_distance : 200,
 
             // Frame data
-            frame_number: 0,
+            frame_count: 0,
+            frame_time: 0,
         }
     }
 
@@ -186,6 +189,25 @@ impl CameraData {
     }
 
     //=====================================
+    // Frame Data
+    //=====================================
+
+    pub fn increment_frame_number(&mut self) {
+        self.frame_count += 1;
+    }
+
+    pub fn get_frame_count(&self) -> u32 {
+        return self.frame_count;
+    }
+
+    pub fn set_frame_time(&mut self, frame_time: u32) {
+        self.frame_time = frame_time;
+    }
+    pub fn get_frame_time(&self) -> u32 {
+        return self.frame_time;
+    }
+
+    //=====================================
     // Getters / Setters
     //=====================================
 
@@ -225,14 +247,6 @@ impl CameraData {
         self.zoom *= zoom_mod;
 
         //self.render_scale *= zoom_mod;
-    }
-
-    pub fn increment_frame_number(&mut self) {
-        self.frame_number += 1;
-    }
-
-    pub fn get_frame_number(&self) -> u64 {
-        return self.frame_number;
     }
 
     pub fn get_ndc_draw_offset(&self) -> [f32 ; 2]{

@@ -13,6 +13,7 @@ pub enum CurrentMenu {
 pub struct ScreenData {
     // Menu
     current_menu: CurrentMenu,
+    debug_visible: bool,
 
     // Screen Data
     screen_rez: [f32; 2],
@@ -42,6 +43,7 @@ impl ScreenData {
         ScreenData {
             // Menu
             current_menu: CurrentMenu::MainMenu,
+            debug_visible: true,
 
             // Screen Data
             screen_rez: [0.0, 0.0],
@@ -79,6 +81,13 @@ impl ScreenData {
         return self.current_menu;
     }
 
+    pub fn set_debug_visibility(&mut self, visibility: bool) {
+        self.debug_visible = visibility;
+    }
+    pub fn get_debug_visiblity(&self) -> bool {
+        return self.debug_visible;
+    }
+    
     //=====================================
     // Screen 
     //=====================================

@@ -92,7 +92,7 @@ impl Camera {
         ];
 
         let iso_chunk_center = CastedChunkManager::get_chunk_cords_from_tile_cords(iso_sceen_center);
-        let mut casted_chunk_manager = &mut self.casted_chunk_manager;
+        let casted_chunk_manager = &mut self.casted_chunk_manager;
         let view_distance = camera_data.get_view_distance() as i32;
         
         for x_rel_cor in -view_distance..view_distance {
@@ -107,8 +107,7 @@ impl Camera {
                     match _chunk.try_read() {
                         Ok(guard) => {
                             // Chunk is not locked, safe to render
-                            if !casted_chunk_manager.get_chunk_ray_casted_status(relative_chunk_cords) {
-                                casted_chunk_manager.set_chunk_ray_casted_status(relative_chunk_cords, true);
+                            if !guard.is_ray_casted() {
     
                                 // submit raycast task
                                 self.thread_manager.submit_task(_chunk.clone(), arc_camera_data.clone(), world.clone());
@@ -169,7 +168,7 @@ impl Camera {
                     let _tile = canvas_tile.unwrap();
 
                     // If tile needs to be rendered to sprite sheet
-                    if !_tile.is_rendered_to_sprite_sheet() && self.casted_chunk_manager.get_chunk_ray_casted_status(relative_chunk_cords) {
+                    if !_tile.is_rendered_to_sprite_sheet() {
                         
                         let casted_chunk = self.casted_chunk_manager.get_chunk_at_chunk_cords(relative_chunk_cords);
                         
@@ -178,8 +177,10 @@ impl Camera {
                         if let Some(casted_chunk) = casted_chunk {
                             
                             match casted_chunk.try_read() {
-                                Ok(data) => {
-                                    _tile.render_chunk_texture_to_canvas(&canvas_data, texture_manager, &data);
+                                Ok(casted_chunk_guard) => {
+                                    if casted_chunk_guard.is_ray_casted() {
+                                        _tile.render_chunk_texture_to_canvas(&canvas_data, texture_manager, &casted_chunk_guard);
+                                    }
                                 }
                                 Err(TryLockError::WouldBlock) => {
                                     
@@ -237,9 +238,6 @@ impl Camera {
                     if _tile.is_rendered_to_sprite_sheet() {
                         _tile.render_tile(canvas_data, texture_manager, final_draw_cords, scale);
                     }
-                    else {
-                        println!("Cords: {:?}", [x_rel_cor, y_rel_cor])
-                    }
 
                 }
 
@@ -256,6 +254,9 @@ impl Camera {
     }
 
     pub fn render_camera(&mut self, texture_manager : &mut TextureManager, world : Arc<RwLock<World>>, ctx: &mut GlContext) {
+        // Start frame time
+        let frame_start_time = SystemTime::now();
+        
         // Render background
         texture_manager.render_ui_element_with_pos(UITextures::VoidBackground, [-1.0, -1.0, 1.0, 1.0]);
         texture_manager.get_texture_renderer().flush(ctx);
@@ -276,6 +277,12 @@ impl Camera {
         texture_manager.update_expander_cache(self.camera_data.get_render_scale()); // Update for main rendering
         self.render_chunks_around_camera(texture_manager, world.clone(), &camera_data, arc_camera_data);
         texture_manager.get_texture_renderer().flush(ctx); // Flush chunk renderings
+
+        // End Frame time
+        let system_time_end = SystemTime::now();
+        let frame_duration = system_time_end.duration_since(frame_start_time).unwrap();
+        let frame_duration_ms = frame_duration.as_millis();
+        self.camera_data.set_frame_time(frame_duration_ms as u32);
     }
 
     pub fn get_quadrent_of_cords(cords : [i32; 2]) -> usize {
@@ -304,7 +311,8 @@ impl Camera {
     //=====================================
 
     pub fn collect_debug_data(&self, debug_data: &mut DebugData) { 
-        
+        debug_data.set_frame_time(self.camera_data.get_frame_time());
+        debug_data.set_frame_count(self.camera_data.get_frame_count());
     }
     
 }
