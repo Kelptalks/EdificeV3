@@ -75,9 +75,9 @@ impl TikManager {
             
             // Temp Drone Creation
             if self.current_tik == 5 {
-                self.drone_manager.create_drone_at_cords(screen_task_manager, [0, 0, 10], "Drone 1".to_string());
-                self.drone_manager.create_drone_at_cords(screen_task_manager, [30, 0, 10], "Drone 2".to_string());
-                self.drone_manager.create_drone_at_cords(screen_task_manager, [0, 30, 10], "Drone 3".to_string());
+                self.drone_manager.create_drone_at_cords(screen_task_manager, [0, 0, 0], "Drone 1".to_string());
+                self.drone_manager.create_drone_at_cords(screen_task_manager, [30, 0, 0], "Drone 2".to_string());
+                self.drone_manager.create_drone_at_cords(screen_task_manager, [0, 30, 0], "Drone 3".to_string());
             }
 
             // Tik drones

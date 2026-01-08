@@ -132,7 +132,7 @@ impl DebugData {
 
         // Render tik time
         let formated_tik_time = format!(
-            "Current Time: {} | Tik Execution Time: {}", 
+            "Current Time: {} | Tik Execution Time: {} ms", 
             self.current_tik,
             self.tik_execution_time
         );
