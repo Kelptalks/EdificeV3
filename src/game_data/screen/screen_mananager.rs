@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use image::imageops::FilterType::Triangle;
 use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, render_centered_string_at_ndi_cords, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}}, tik_manager::tik_manager::TikManager, types::UITextures};
+use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, render_centered_string_at_ndi_cords, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::screen_task_manager::ScreenTaskManager}, tik_manager::tik_manager::TikManager, types::UITextures};
 
 
 
@@ -59,7 +59,12 @@ impl ScreenManager {
     // menu Rendering
     //=====================================
 
-    pub fn render_screen(&mut self, texture_manager: &mut TextureManager, world: Arc<RwLock<World>>, tik_manager: &TikManager, ctx : &mut GlContext){
+    pub fn render_screen(&mut self, 
+        texture_manager: &mut TextureManager, 
+        world: Arc<RwLock<World>>, 
+        screen_task_manager: &mut ScreenTaskManager, 
+        ctx : &mut GlContext
+    ){
         // If quit
         if self.screen_data.should_quit() {
             window::order_quit();
@@ -83,9 +88,11 @@ impl ScreenManager {
                 }
             }
             else {
-                self.camera.render_camera(texture_manager, world, ctx);
+                self.camera.render_camera(texture_manager, world.clone(), ctx);
+                screen_task_manager.execute_render_updates_drone(world, &mut self.camera, texture_manager);
             }
         }
+        
     }
 
     //=====================================

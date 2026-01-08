@@ -91,7 +91,7 @@ pub struct BlockProperties {
 }
 
 static BLOCK_PROPERTIES: [BlockProperties; 75] = [
-    BlockProperties { transparent: true,  translucent: true,  solid: false,   hardness: 0,   friction: 0 },      // Air
+    BlockProperties { transparent: true,  translucent: true,  solid: false,   hardness: 0,   friction: 1 },      // Air
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 5 },    // Stone
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 30 },     // Grass
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 40,  friction: 20 },     // Dirt
@@ -151,13 +151,13 @@ static BLOCK_PROPERTIES: [BlockProperties; 75] = [
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 70 },     // Battery2
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 70 },     // Battery3
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 70 },     // Battery4
-    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 40 },     // yellow_flowers
-    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 40 },     // white_flowers
-    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 50 },     // mushroom
-    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 45 },     // flungle
-    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 45 },     // blulbo
-    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 80,  friction: 120 },    // rock
-    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 60,  friction: 90 },     // log
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 1 },     // yellow_flowers
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 1 },     // white_flowers
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 1 },     // mushroom
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 1 },     // flungle
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 1 },     // blulbo
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 80,  friction: 1 },    // rock
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 60,  friction: 1 },     // log
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 70 },     // factory1
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 70 },     // factory2
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 70 },     // factory3

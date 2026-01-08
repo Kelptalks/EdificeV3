@@ -24,14 +24,14 @@ pub fn render_string_at_ndi_cords(texture_manager: &mut TextureManager, string: 
     }
 }
 
-pub fn render_centered_string_at_ndi_cords(texture_manager: &mut TextureManager, string: String, font: String, scale: f32, ndi_cords: [f32; 2]) {
+pub fn render_centered_string_at_ndi_cords(texture_manager: &mut TextureManager, string: String, font: String, scale: f32, ndc_cords: [f32; 2]) {
     // Calculate the total width of the string
     let char_count = string.chars().count();
     let total_width = (char_count as f32) * (scale + (scale * 0.05)) - (scale * 0.05); // Subtract the last spacing
     
     // Calculate the starting position to center the string
-    let start_x = ndi_cords[0] - (total_width / 2.0);
-    let start_y = ndi_cords[1] - scale / 2.0; // Center vertically
+    let start_x = ndc_cords[0] - (total_width / 2.0);
+    let start_y = ndc_cords[1] - scale / 2.0; // Center vertically
     let mut current_ndi_cords = [start_x, start_y];
 
     let chars = string.chars().collect::<Vec<char>>();

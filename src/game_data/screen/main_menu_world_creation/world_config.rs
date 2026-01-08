@@ -10,9 +10,30 @@ enum LoadingState {
     ShowLoading,
     GenerateTerrain,
     InitRendering,
+    Finilize,
     Done
 }
-
+impl LoadingState {
+    fn to_string(&self) -> String {
+        match self {
+            LoadingState::ShowLoading => {
+                return "Loading...".to_string();
+            }
+            LoadingState::GenerateTerrain => {
+                return "Generating World".to_string();
+            }
+            LoadingState::InitRendering => {
+                return "Rendering World".to_string();
+            }
+            LoadingState::Finilize => {
+                return "Finilizing".to_string();
+            }
+            LoadingState::Done => {
+                return "Done".to_string();
+            }
+        }
+    }
+}
 
 pub struct WorldConfig {
     scale: u32,
@@ -53,9 +74,9 @@ impl WorldConfig {
         let screen_uv = [-1.0, -1.0, 1.0, 1.0];
         texture_manager.render_ui_element_with_pos(UITextures::VoidBackground, screen_uv);
         render_centered_string_at_ndi_cords(texture_manager, 
-            "Loading".to_string(), 
+            self.loading_state.to_string(), 
             "Basic".to_string(), 
-            0.2, 
+            0.1, 
             [0.0, 0.0]
         );
         texture_manager.get_texture_renderer().flush(ctx);
@@ -68,7 +89,6 @@ impl WorldConfig {
     ) {
         match self.loading_state {
             LoadingState::ShowLoading => {
-                self.render_loading_screen(texture_manager, ctx);
                 self.loading_state = LoadingState::GenerateTerrain;
             }
             LoadingState::GenerateTerrain => {
@@ -88,11 +108,15 @@ impl WorldConfig {
                     Arc::new(camera.get_camera_data().clone()), 
                     range as i32
                 );
+                self.loading_state = LoadingState::Finilize;
+            }
+            LoadingState::Finilize => {
                 self.loading_state = LoadingState::Done;
             }
             LoadingState::Done => {
                 // Normal game rendering
             }
         }
+        self.render_loading_screen(texture_manager, ctx);
     }
 }

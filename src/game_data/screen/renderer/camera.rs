@@ -97,7 +97,7 @@ impl Camera {
         // Center around world center
         let cam_z_offset = camera_data.get_cam_world_cords()[2] as i32;
         let world_center_chunk_shift = (cam_z_offset / CastedChunkManager::get_chunk_tile_scale() as i32) / 2;
-
+        
         for x_rel_cor in -range..range {
             for y_rel_cor in -range..range {
                 let relative_chunk_cords = [
@@ -136,6 +136,7 @@ impl Camera {
                 }
             }
         }
+        self.thread_manager.wait_for_completion();
     }
 
     pub fn render_chunks_around_camera(&mut self, texture_manager: &mut TextureManager, world: Arc<RwLock<World>>, camera_data: &CameraData, arc_camera_data: Arc<CameraData>) {
@@ -207,9 +208,14 @@ impl Camera {
         let render_cache_manager = self.render_cache_manager.as_mut().unwrap();
 
         // Render cashed chunks to spritesheet
+        let mut chunks_left_to_cache_this_frame = camera_data.get_max_chunk_cache_per_frame();
         render_cache_manager.start_canvas_render_pass(ctx);
         for x_rel_cor in -view_distance..view_distance {
             for y_rel_cor in -view_distance..view_distance {
+                if chunks_left_to_cache_this_frame <= 0 {
+                    break;
+                }
+                
                 let relative_chunk_cords = [
                     iso_chunk_center[0] + x_rel_cor,
                     iso_chunk_center[1] + y_rel_cor
@@ -233,7 +239,7 @@ impl Camera {
                                 Ok(casted_chunk_guard) => {
                                     if casted_chunk_guard.is_ray_casted() {
                                         _tile.render_chunk_texture_to_canvas(&canvas_data, texture_manager, &casted_chunk_guard);
-                                        texture_manager.get_texture_renderer().flush(ctx); // Flush every tile to avoid texture overload
+                                        chunks_left_to_cache_this_frame-=1;
                                     }
                                 }
                                 Err(TryLockError::WouldBlock) => {
@@ -280,7 +286,6 @@ impl Camera {
                     let draw_cords = iso_cord_tool::casted_to_ndc_cords(scale, relative_chunk_cords);
 
                     let draw_offset = camera_data.get_ndc_draw_offset();
-
                     let final_draw_cords = [
                         draw_cords[0] + draw_offset[0] + camera_data.get_tile_ndc_scale(),
                         draw_cords[1] + draw_offset[1]

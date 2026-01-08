@@ -42,14 +42,16 @@ impl DroneManager {
         let world_gaurd = world.read().unwrap();
         
         for (key, drone) in &mut self.drone_map {
+            if drone.moved() {
+                screen_task_manager.update_drone_location(drone.get_id(), drone.get_cords());
+            }
             drone.tik_drone(&world_gaurd, world_task_manager);
-            screen_task_manager.add_drone_render_task(drone.get_cords());
         }
     
     }
 
     // Function for creating a drone
-    pub fn create_drone_at_cords(&mut self, cords:[i32; 3], name: String){
+    pub fn create_drone_at_cords(&mut self, screen_task_manager: &mut ScreenTaskManager, cords:[i32; 3], name: String){
         // Create drone
         let new_id = self.current_id;
         self.current_id += 1; // Update Current Id
@@ -57,9 +59,13 @@ impl DroneManager {
         // Create the drone
         let drone = Drone::new(cords, name.clone(), new_id);
 
+        screen_task_manager.add_drone_render_data(new_id, cords);
+
         // Add drone to hashmap
         self.drone_map.insert(new_id, drone);
 
+
+        
         // Debug
         println!("Created New Drone | Cords: ({:?}) | Id: {} | Name: {}", cords, new_id, name);
 

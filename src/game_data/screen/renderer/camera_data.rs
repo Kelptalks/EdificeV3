@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::game_data::screen::{iso_cord_tool, renderer::casted_block_manager::casted_chunk::CastedChunk};
+use crate::game_data::screen::{camera_data, iso_cord_tool, renderer::casted_block_manager::casted_chunk::CastedChunk};
 
 
 
@@ -22,10 +22,7 @@ pub struct CameraData {
     cam_world_cords : [f32 ; 3],
 
     //Camera offset by controls
-    render_cords : [f32; 2],
-
-    //Camera offset for centering
-    ndc_draw_offset : [f32 ; 2],
+    ndc_render_offset : [f32; 2],
 
     // Render Location
     iso_cam_center_cords : [f32; 2],
@@ -46,9 +43,10 @@ pub struct CameraData {
     direction_mods : [i32; 3],
     draw_distance : usize,
 
-    // Frame number
+    // Frame Data
     frame_count: u32,
     frame_time: u32,
+    max_chunk_cache_per_frame: u32,
 }
 
 impl CameraData {
@@ -62,9 +60,8 @@ impl CameraData {
             // World cords
             cam_world_cords : [100.0, 100.0, 100.0],
             
-            // Pixel Drawing Offsets
-            ndc_draw_offset : [0.0, 0.0],
-            render_cords : [0.0, 0.0],
+            // Drawing Offsets
+            ndc_render_offset : [0.0, 0.0],
             
             // Renderer location
             iso_cam_center_cords : [0.0, 0.0],
@@ -89,6 +86,7 @@ impl CameraData {
             // Frame data
             frame_count: 0,
             frame_time: 0,
+            max_chunk_cache_per_frame: 20,
         }
     }
 
@@ -122,13 +120,26 @@ impl CameraData {
     // Converters
     //=====================================
 
-    pub fn world_to_casted_tile_cords(&self, world_cords: [i32; 3]) -> [i32; 2]{
+    pub fn world_to_casted_tile_cords(&self, world_cords: [i32; 3]) -> [i32; 2] {
         let z_mod = world_cords[2] - self.cam_world_cords[2] as i32;
-        let x_cor = world_cords[0] - self.cam_world_cords[0] as i32 - z_mod;
+        let x_cor = world_cords[0] - self.cam_world_cords[0] as i32 - z_mod + 1; // Wierd offset Don't know why it's needed
         let y_cor = world_cords[1] - self.cam_world_cords[1] as i32 - z_mod;
         let casted_tile_cords = [x_cor, y_cor];
 
         return casted_tile_cords;
+    }
+
+    pub fn casted_tile_cords_to_ndc_cords(&self, casted_tile_cords: [i32; 2]) -> [f32; 2] {
+        let mut ndc_cords = iso_cord_tool::casted_to_ndc_cords(self.get_tile_ndc_scale(), casted_tile_cords);
+        ndc_cords[0] += self.ndc_render_offset[0];
+        ndc_cords[1] += self.ndc_render_offset[1];
+        return ndc_cords;
+    }
+
+    pub fn world_to_ndc_cords(&self, world_cords: [i32; 3]) -> [f32; 2] {
+        let casted_tile_cords = self.world_to_casted_tile_cords(world_cords);
+        let ndc_cords = self.casted_tile_cords_to_ndc_cords(casted_tile_cords);
+        return ndc_cords;
     }
 
     //=====================================
@@ -207,6 +218,10 @@ impl CameraData {
         return self.frame_time;
     }
 
+    pub fn get_max_chunk_cache_per_frame(&self) -> u32 {
+        return self.max_chunk_cache_per_frame;
+    }
+
     //=====================================
     // Getters / Setters
     //=====================================
@@ -237,10 +252,10 @@ impl CameraData {
     }
 
     pub fn mod_x_cam_cor(&mut self, x_mod : f32) {
-        self.render_cords[0] += x_mod;
+        self.ndc_render_offset[0] += x_mod;
     }
     pub fn mod_y_cam_cor(&mut self, y_mod : f32) {
-        self.render_cords[1] += y_mod;
+        self.ndc_render_offset[1] += y_mod;
     }
 
     pub fn mod_scale(&mut self, zoom_mod: f32) {
@@ -250,8 +265,8 @@ impl CameraData {
     }
 
     pub fn get_ndc_draw_offset(&self) -> [f32 ; 2]{
-        let x_draw_offset = self.render_cords[0] + self.ndc_draw_offset[0];
-        let y_draw_offset = self.render_cords[1] + self.ndc_draw_offset[1];
+        let x_draw_offset = self.ndc_render_offset[0];
+        let y_draw_offset = self.ndc_render_offset[1];
 
         return [x_draw_offset, y_draw_offset];
     }

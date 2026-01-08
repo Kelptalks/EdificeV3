@@ -51,7 +51,7 @@ impl TikManager {
     }
 
     // Called every frame to update the tik
-    pub fn update_tik_manager(&mut self, world_task_manager: &mut WorldTaskManager, screen_task_manager: &mut ScreenTaskManager, camera: &mut Camera) {
+    pub fn update_tik_manager(&mut self, world_task_manager: &mut WorldTaskManager, screen_task_manager: &mut ScreenTaskManager) {
         
         
         if self.paused {
@@ -75,22 +75,21 @@ impl TikManager {
             
             // Temp Drone Creation
             if self.current_tik == 5 {
-                self.drone_manager.create_drone_at_cords([0, 0, 30], "Drone 1".to_string());
-                self.drone_manager.create_drone_at_cords([5, 0, 30], "Drone 2".to_string());
-                self.drone_manager.create_drone_at_cords([0, 5, 30], "Drone 3".to_string());
+                self.drone_manager.create_drone_at_cords(screen_task_manager, [0, 0, 10], "Drone 1".to_string());
+                self.drone_manager.create_drone_at_cords(screen_task_manager, [30, 0, 10], "Drone 2".to_string());
+                self.drone_manager.create_drone_at_cords(screen_task_manager, [0, 30, 10], "Drone 3".to_string());
             }
+
+            // Tik drones
+            self.drone_manager.tik_drones(self.world.clone(), world_task_manager, screen_task_manager);
 
             // Run lua tik function
             let world_gaurd = self.world.read().unwrap(); // get world lock for lua execution
             self.lua_manager.tik_script(&world_gaurd, &mut self.drone_manager, world_task_manager);
             drop(world_gaurd); // Drop gaurd after done running script
 
-            // Tik drones
-            self.drone_manager.tik_drones(self.world.clone(), world_task_manager, screen_task_manager);
-
             // Execute the tasks to update the events that happend this tik
             world_task_manager.execute_tasks(self.world.clone());
-            screen_task_manager.execute_tasks(self.world.clone(), camera);
 
             // End tik execution time
             let system_time_end = SystemTime::now();

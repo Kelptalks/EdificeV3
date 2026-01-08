@@ -2,9 +2,10 @@ use std::sync::{Arc, RwLock};
 
 use rand::rand_core::block;
 
-use crate::game_data::{world_task_manager::{world_task_manager::WorldTaskManager}};
+use crate::game_data::{screen::screen_task_manager, world_task_manager::world_task_manager::WorldTaskManager};
 use crate::game_data::{types::BlockType, World};
 
+#[derive(Clone)]
 pub enum DroneDirection {
     ForwardLeft,
     ForwardRight,
@@ -24,6 +25,7 @@ impl DroneDirection {
 
 }
 
+#[derive(Clone)]
 pub struct Drone{
     // identity
     name: String,
@@ -41,9 +43,8 @@ pub struct Drone{
     mine_power: u16,
     chop_power: u16,
 
-
-
-    
+    // Changes
+    moved: bool,
 }
 
 impl Drone {
@@ -64,12 +65,30 @@ impl Drone {
             modify_range: 1,
             mine_power: 1,
             chop_power: 1,
+
+            // Changes
+            moved: false,
         }
     }
 
     //=====================================
-    // Getters
+    // Helpers
     //=====================================
+
+    fn relative_move_cords_to_direction(relative_cords: [i32; 3]) -> DroneDirection {
+        if relative_cords[0] > 0 {
+            return DroneDirection::ForwardRight;
+        }
+        else if relative_cords[0] < 0 {
+            return DroneDirection::BackLeft;
+        }
+        else if relative_cords[1] > 0 {
+            return DroneDirection::ForwardLeft;
+        }
+        else {
+            return DroneDirection::BackRight;
+        }
+    }
 
     fn get_relative_world_cords(&self, relative_cords: [i32; 3]) -> [i32; 3] {
         // Calculate the world cords based of drone position 
@@ -94,6 +113,9 @@ impl Drone {
     //=====================================
     // Drone Getters
     //=====================================
+    pub fn moved(&self) -> bool {
+        return self.moved;
+    }
 
     pub fn get_cords(&self) -> [i32; 3] {
         return self.cords;
@@ -132,7 +154,7 @@ impl Drone {
     //=====================================
 
 
-    pub fn move_drone(&mut self, world: &World, relative_cords: [i32; 3], world_task_manager: &mut WorldTaskManager){
+    pub fn move_drone(&mut self, world: &World, relative_cords: [i32; 3], world_task_manager: &mut WorldTaskManager) {
         if self.is_busy() {
             println!("Drone {} cannot move because busy", self.id);
             return;
@@ -149,18 +171,23 @@ impl Drone {
                 let block_below_drone = BlockType::from_id(world.get_world_value(cords_below_drone));
 
                 // Don't allow movement if falling
-                if block_below_drone == BlockType::Air {
+                if !BlockType::is_solid(&block_below_drone) {
                     return;
                 }
 
                 // Update drones cords
+                world_task_manager.mod_block(self.cords, 0); // Clear drone in old location
                 for i in 0..3{
-                    world_task_manager.mod_block(self.cords, 0); // Clear drone in old location
                     self.cords[i] += relative_cords[i];
-                    world_task_manager.mod_block(self.cords, self.direction.to_block_id()); // Add drone back in new location 
                 }
-                // Set drone busy time
+                world_task_manager.mod_block(self.cords, self.direction.to_block_id()); // Add drone back in new location 
+
+                // Set drone busy time based off new block below drone
+                let cords_below_drone = self.get_relative_world_cords([0, 0, -1]);
+                let block_below_drone = BlockType::from_id(world.get_world_value(cords_below_drone));
                 self.busy_time += block_below_drone.friction();
+                self.moved = true;
+                self.direction = Drone::relative_move_cords_to_direction(relative_cords);
             }
         }
     }
@@ -171,7 +198,7 @@ impl Drone {
             println!("Drone {} cannot mine because busy", self.id);
             return;
         }
-        
+
         // check if scan is in mine range
         if Drone::if_cords_within_range(relative_cords, self.modify_range) {
             // Get world cords
@@ -208,6 +235,12 @@ impl Drone {
     //=====================================
 
     pub fn tik_drone(&mut self, world: &World, world_task_manager: &mut WorldTaskManager) {
+        
+        
+        if self.moved {
+            self.moved = false;
+            return;
+        }
         if self.is_busy() {
             self.busy_time -= 1;
             self.fuel -= 1;
@@ -218,18 +251,17 @@ impl Drone {
         }
         // Ready for next action
         else {
-            // Get world read lock
-            world_task_manager.mod_block(self.cords, 0); // Clear drone before movement
-
             // Make drone fall of no solid blocks below
             let mut block_below_drone = self.cords;
             block_below_drone[2] -= 1;
             let block_bellow_drone = BlockType::from_id(world.get_world_value(block_below_drone));
             if !block_bellow_drone.is_solid() {
+                world_task_manager.mod_block(self.cords, 0); // Clear drone before movement
                 self.cords[2] -= 1; // Move drone down one
+                self.busy_time += 1;
+                self.moved = true;
+                world_task_manager.mod_block(self.cords, self.direction.to_block_id()); // Add drone back
             }
-
-            world_task_manager.mod_block(self.cords, self.direction.to_block_id()); // Add drone back
         }
     }
 }

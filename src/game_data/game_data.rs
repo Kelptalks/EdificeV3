@@ -137,10 +137,10 @@ impl GameData {
     pub fn render_camera(&mut self, ctx: &mut GlContext) {
         let frame_start_time = SystemTime::now();
 
-        self.screen_manager.render_screen(&mut self.texture_manager, self.world.clone(), &self.tik_manager, ctx);
+        self.screen_manager.render_screen(&mut self.texture_manager, self.world.clone(), &mut self.screen_task_manager, ctx);
         
         // Tik managing
-        self.tik_manager.update_tik_manager(&mut self.world_task_manager, &mut self.screen_task_manager, self.screen_manager.get_mut_camera());
+        self.tik_manager.update_tik_manager(&mut self.world_task_manager, &mut self.screen_task_manager);
         if self.screen_manager.get_screen_data().is_world_initialized() {
             self.tik_manager.unpause();
         }
