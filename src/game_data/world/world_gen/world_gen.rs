@@ -82,7 +82,7 @@ impl WorldGenManager {
     pub fn generate_area(&self, world: &mut World, start_cords: [i32; 3], end_cords: [i32; 3]) {
         let lair_rules_in_range = self.layer_manager.get_layer_rules_in_range(start_cords[2], end_cords[2]);
 
-        let terrain_noise = TerrainNoise::new(152452, 3, 500.0);
+        let terrain_noise = TerrainNoise::new(152452, 3, 1000.0);
 
         println!("Generating Terrain");
         println!(" - Total Lair rules in area = {}", lair_rules_in_range.len());
