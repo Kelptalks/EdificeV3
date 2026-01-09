@@ -175,6 +175,7 @@ impl Drone {
                     return;
                 }
 
+                self.direction = Drone::relative_move_cords_to_direction(relative_cords);
                 // Update drones cords
                 world_task_manager.mod_block(self.cords, 0); // Clear drone in old location
                 for i in 0..3{
@@ -187,7 +188,6 @@ impl Drone {
                 let block_below_drone = BlockType::from_id(world.get_world_value(cords_below_drone));
                 self.busy_time += block_below_drone.friction();
                 self.moved = true;
-                self.direction = Drone::relative_move_cords_to_direction(relative_cords);
             }
         }
     }
