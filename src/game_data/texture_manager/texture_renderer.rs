@@ -75,6 +75,11 @@ struct Vertex {
     uv: [f32; 2],
 }
 
+#[repr(C)]
+struct Uniforms {
+    alpha: f32,  // Field name should match shader uniform name (minus "u_")
+}
+
 pub struct TextureRenderingManager {
     //SpriteSheet UV manager
     uv_manager : UVManager,
@@ -89,6 +94,9 @@ pub struct TextureRenderingManager {
     vertices: Vec<Vertex>,
     indices: Vec<u32>,
     current_texture: Option<TextureId>,
+    
+    // Uniforms
+    alpha: f32,
     
 }
 
@@ -124,6 +132,9 @@ impl TextureRenderingManager {
             vertices: Vec::new(),
             indices: Vec::new(),
             current_texture: None,
+
+            // Uniforms
+            alpha: 1.0,
         }
     }
 
@@ -156,11 +167,15 @@ impl TextureRenderingManager {
         // Create simple fragment shader
         let fragment_shader = r#"
             #version 100
+            precision mediump float;
             varying lowp vec2 uv;
             uniform sampler2D tex;
+            uniform lowp float u_alpha;
             
             void main() {
-                gl_FragColor = texture2D(tex, uv);
+                vec4 color = texture2D(tex, uv);  // Sample texture
+                color.a *= u_alpha;               // Multiply alpha channel by uniform
+                gl_FragColor = color;             // Output final color
             }
         "#;
 
@@ -172,7 +187,11 @@ impl TextureRenderingManager {
             },
             ShaderMeta {
                 images: vec!["tex".to_string()],
-                uniforms: UniformBlockLayout { uniforms: vec![] },
+                uniforms: UniformBlockLayout {
+                    uniforms: vec![
+                        UniformDesc::new("u_alpha", UniformType::Float1),
+                    ]
+                },
             },
         ).unwrap();
 
@@ -248,7 +267,7 @@ impl TextureRenderingManager {
 
         // Bind recorces to gpu
         ctx.apply_bindings(&bindings);
-
+        ctx.apply_uniforms(UniformsSource::table(&Uniforms { alpha: self.alpha }));
         ctx.draw(0, self.indices.len() as i32, 1);
 
         // Clear for next frame
