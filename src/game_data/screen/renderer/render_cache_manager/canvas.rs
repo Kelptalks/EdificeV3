@@ -1,3 +1,4 @@
+use image::{ImageBuffer, RgbaImage};
 use miniquad::{GlContext, RenderingBackend, TextureFormat, TextureId, TextureParams};
 use std::collections::HashMap;
 
@@ -23,14 +24,15 @@ impl Canvas {
         let canvas_data = CanvasData::new();
         let canvas_rez = canvas_data.canvas_rez as u32;
 
-        let canvas_texture = ctx.new_render_texture(
-            TextureParams {
-                width: canvas_rez,
-                height: canvas_rez,
-                format: TextureFormat::RGBA8,
-                ..TextureParams::default()
-        }
+
+        let mut canvas_image: RgbaImage = ImageBuffer::new(canvas_rez, canvas_rez);
+        let rgba_bytes: Vec<u8> = canvas_image.clone().into_raw();
+        let canvas_texture: TextureId = ctx.new_texture_from_rgba8(
+            canvas_rez as u16,
+            canvas_rez as u16,
+            &rgba_bytes,
         );
+        
 
         Canvas{ 
             texture_id: canvas_texture,

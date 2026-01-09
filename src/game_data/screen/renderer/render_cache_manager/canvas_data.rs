@@ -21,7 +21,7 @@ pub struct CanvasData {
 impl CanvasData {
     pub fn new() -> CanvasData {
         let canvas_x_tile_scale = 256;
-        let canvas_y_tile_scale = 256 / 2;
+        let canvas_y_tile_scale = canvas_x_tile_scale / 2;
         
         let tiles_per_row = 64;
         let tiles_per_collumn = tiles_per_row * 2;
