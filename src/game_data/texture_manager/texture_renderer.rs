@@ -84,9 +84,15 @@ pub struct TextureRenderingManager {
     //SpriteSheet UV manager
     uv_manager : UVManager,
     
-    // Rendering config
-    shader: ShaderId,
-    pipeline: Pipeline,
+    // Shaders
+    opaque_shader: ShaderId,
+    translucent_shader: ShaderId,
+
+    // Piplines
+    opaque_pipeline: Pipeline,
+    translucent_pipeline: Pipeline,
+    
+    // Buffers
     vertex_buffer: BufferId,
     index_buffer: BufferId,
 
@@ -102,8 +108,12 @@ pub struct TextureRenderingManager {
 
 impl TextureRenderingManager {
     pub fn new(ctx : &mut GlContext) -> Self {
-        let shader = Self::create_shader(ctx);
-        let pipeline = Self::create_pipeline(ctx, shader);
+        let alpha = 1.0;
+        let opaque_shader = Self::create_opaque_shader(ctx);
+        let opaque_pipeline = Self::create_pipeline(ctx, opaque_shader);
+
+        let translucent_shader = Self::create_translucent_shader(ctx);
+        let translucent_pipeline = Self::create_pipeline(ctx, translucent_shader);
 
         // Create buffers
         // Create empty vertex buffer
@@ -122,9 +132,16 @@ impl TextureRenderingManager {
         Self {
             uv_manager: UVManager::new(), 
             
-            // Rendering config
-            shader: shader,
-            pipeline: pipeline,
+            // Renderer
+            opaque_shader: opaque_shader,
+            translucent_shader: translucent_shader,
+
+            
+            // Pipelines
+            opaque_pipeline: opaque_pipeline,
+            translucent_pipeline: translucent_pipeline,
+
+            // Buffers
             vertex_buffer: vertex_buffer,
             index_buffer: index_buffer,
 
@@ -134,13 +151,17 @@ impl TextureRenderingManager {
             current_texture: None,
 
             // Uniforms
-            alpha: 1.0,
+            alpha: alpha,
         }
     }
 
 //=========
 // Setters
 //=========
+
+    pub fn set_translucent(&mut self, alpha: f32) {
+        self.alpha = alpha;
+    }
 
     pub fn set_texture(&mut self, texture : TextureId) {
         self.current_texture = Some(texture);
@@ -150,7 +171,7 @@ impl TextureRenderingManager {
 //Rendering pipeline functions
 //=============================
 
-    fn create_shader(ctx: &mut GlContext) -> ShaderId {
+    fn create_opaque_shader(ctx: &mut GlContext) -> ShaderId {
         // Create simple vertex shader
         let vertex_shader = r#"
             #version 100
@@ -164,7 +185,47 @@ impl TextureRenderingManager {
             }
         "#;
 
-        // Create simple fragment shader
+
+       let fragment_shader = r#"
+            #version 100
+            precision mediump float;
+            varying lowp vec2 uv;
+            uniform sampler2D tex;
+
+            void main() {
+                gl_FragColor = texture2D(tex, uv);  // No alpha multiply
+            }
+        "#;
+
+        // Create shader
+        let shader = ctx.new_shader(
+            ShaderSource::Glsl {
+                vertex: vertex_shader,
+                fragment: fragment_shader,
+            },
+            ShaderMeta {
+                images: vec!["tex".to_string()],
+                uniforms: UniformBlockLayout { uniforms: vec![] },
+            },
+        ).unwrap();
+
+        return shader;
+    }
+
+    fn create_translucent_shader(ctx: &mut GlContext) -> ShaderId {
+        // Create simple vertex shader
+        let vertex_shader = r#"
+            #version 100
+            attribute vec2 position;
+            attribute vec2 texcoord;
+            varying lowp vec2 uv;
+            
+            void main() {
+                gl_Position = vec4(position, 0, 1);
+                uv = texcoord;
+            }
+        "#;
+
         let fragment_shader = r#"
             #version 100
             precision mediump float;
@@ -263,11 +324,17 @@ impl TextureRenderingManager {
         };
 
         // Give gpu rendering config
-        ctx.apply_pipeline(&self.pipeline);
+        if self.alpha == 1.0 {
+            ctx.apply_pipeline(&self.opaque_pipeline);
+            ctx.apply_bindings(&bindings);
+        }
+        else {
+            ctx.apply_pipeline(&self.translucent_pipeline);
+            ctx.apply_bindings(&bindings);
+            ctx.apply_uniforms(UniformsSource::table(&Uniforms { alpha: self.alpha }));
+        }
 
         // Bind recorces to gpu
-        ctx.apply_bindings(&bindings);
-        ctx.apply_uniforms(UniformsSource::table(&Uniforms { alpha: self.alpha }));
         ctx.draw(0, self.indices.len() as i32, 1);
 
         // Clear for next frame
