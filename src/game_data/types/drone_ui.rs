@@ -28,6 +28,13 @@ impl DroneUITexture {
             DroneUITexture::DroneSpectateWindow => [720, 0, 263, 196],            
         }
     }
+
+    pub fn get_y_to_x_ratio(&self) -> f32 {
+        // Modify the y value based off texture src rect | Could cache this
+        let texture_src_rect = self.ui_texture_to_sprite_sheet_src_rect();
+        let y_to_x_scale = texture_src_rect [3] as f32 / texture_src_rect[2] as f32;
+        return y_to_x_scale;
+    }
 }
 
 

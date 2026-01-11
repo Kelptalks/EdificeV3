@@ -107,6 +107,26 @@ impl TextureManager {
         self.get_texture_renderer().add_quad(pos, uv);
     }
 
+    pub fn render_block(&mut self, block : BlockType, draw_location : [f32; 2], scale : f32) { 
+        let mut current_draw_location = draw_location;
+        let half_scale = scale / 2.0;
+        // Right side
+        self.render_block_triangle(block, BlockTriangle::TopLeft, current_draw_location, scale);
+        current_draw_location[1] += half_scale;
+        self.render_block_triangle(block, BlockTriangle::LeftTop, current_draw_location, scale);
+        current_draw_location[1] += half_scale;
+        self.render_block_triangle(block, BlockTriangle::LeftBot, current_draw_location, scale);
+
+        // Left side
+        current_draw_location[1] = draw_location[1];
+        current_draw_location[0] += scale;
+        self.render_block_triangle(block, BlockTriangle::TopRight, current_draw_location, scale);
+        current_draw_location[1] += half_scale;
+        self.render_block_triangle(block, BlockTriangle::RightTop, current_draw_location, scale);
+        current_draw_location[1] += half_scale;
+        self.render_block_triangle(block, BlockTriangle::RightBot, current_draw_location, scale);
+    }
+
     //=====================================
     // Shader Rendering
     //=====================================

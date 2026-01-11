@@ -2,7 +2,7 @@ use std::{collections::HashMap, process::id, sync::{Arc, RwLock}};
 
 use rand::distr::Map;
 
-use crate::game_data::{World, screen::screen_task_manager::{self, screen_task_manager::ScreenTaskManager}, tik_manager::drones::{drone::Drone, lua_manager::LuaManager}, world_task_manager::world_task_manager::WorldTaskManager};
+use crate::game_data::{World, screen::screen_task_manager::{self, drone_rendering_task_manager::DroneRenderingTaskManager}, tik_manager::drones::{drone::Drone, lua_manager::LuaManager}, world_task_manager::world_task_manager::WorldTaskManager};
 
 pub struct DroneManager{
     current_id: u32,
@@ -38,7 +38,7 @@ impl DroneManager {
     }
 
     // Tik all the drones in the world
-    pub fn tik_drones(&mut self, world: Arc<RwLock<World>>, world_task_manager: &mut WorldTaskManager, screen_task_manager: &mut ScreenTaskManager) {
+    pub fn tik_drones(&mut self, world: Arc<RwLock<World>>, world_task_manager: &mut WorldTaskManager, screen_task_manager: &mut DroneRenderingTaskManager) {
         let world_gaurd = world.read().unwrap();
         
         for (key, drone) in &mut self.drone_map {
@@ -51,7 +51,7 @@ impl DroneManager {
     }
 
     // Function for creating a drone
-    pub fn create_drone_at_cords(&mut self, screen_task_manager: &mut ScreenTaskManager, cords:[i32; 3], name: String){
+    pub fn create_drone_at_cords(&mut self, screen_task_manager: &mut DroneRenderingTaskManager, cords:[i32; 3], name: String){
         // Create drone
         let new_id = self.current_id;
         self.current_id += 1; // Update Current Id

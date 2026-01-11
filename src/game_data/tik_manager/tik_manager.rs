@@ -1,7 +1,7 @@
 
 use std::{sync::{Arc, RwLock}, time::{SystemTime, UNIX_EPOCH}, u128};
 
-use crate::game_data::{World, debuging::debug_data::DebugData, screen::{Camera, screen_task_manager::screen_task_manager::ScreenTaskManager}, tik_manager::drones::{drone_manager::DroneManager, lua_manager::LuaManager}, world_task_manager::world_task_manager::WorldTaskManager};
+use crate::game_data::{World, debuging::debug_data::DebugData, screen::{Camera, screen_task_manager::drone_rendering_task_manager::DroneRenderingTaskManager}, tik_manager::drones::{drone_manager::DroneManager, lua_manager::LuaManager}, world_task_manager::world_task_manager::WorldTaskManager};
 
 pub struct TikManager {
     paused: bool,
@@ -51,7 +51,7 @@ impl TikManager {
     }
 
     // Called every frame to update the tik
-    pub fn update_tik_manager(&mut self, world_task_manager: &mut WorldTaskManager, screen_task_manager: &mut ScreenTaskManager) {
+    pub fn update_tik_manager(&mut self, world_task_manager: &mut WorldTaskManager, screen_task_manager: &mut DroneRenderingTaskManager) {
         
         
         if self.paused {
@@ -76,8 +76,8 @@ impl TikManager {
             // Temp Drone Creation
             if self.current_tik == 5 {
                 self.drone_manager.create_drone_at_cords(screen_task_manager, [0, 0, 0], "Drone 1".to_string());
-                self.drone_manager.create_drone_at_cords(screen_task_manager, [30, 0, 0], "Drone 2".to_string());
-                self.drone_manager.create_drone_at_cords(screen_task_manager, [0, 30, 0], "Drone 3".to_string());
+                //self.drone_manager.create_drone_at_cords(screen_task_manager, [30, 0, 0], "Drone 2".to_string());
+                //self.drone_manager.create_drone_at_cords(screen_task_manager, [0, 30, 0], "Drone 3".to_string());
             }
 
             // Tik drones

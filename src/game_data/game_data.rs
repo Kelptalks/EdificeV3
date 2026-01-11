@@ -7,7 +7,7 @@ use std::time::SystemTime;
 
 use crate::game_data::debuging::debug_data::DebugData;
 use crate::game_data::screen::camera_data::CameraData;
-use crate::game_data::screen::screen_task_manager::screen_task_manager::ScreenTaskManager;
+use crate::game_data::screen::screen_task_manager::drone_rendering_task_manager::DroneRenderingTaskManager;
 use crate::game_data::screen::{self, render_string, screen_mananager, screen_task_manager};
 use crate::game_data::screen::screen_mananager::ScreenManager;
 use crate::game_data::tik_manager::tik_manager::TikManager;
@@ -25,7 +25,7 @@ pub struct GameData {
     texture_manager : TextureManager,
 
     screen_manager: ScreenManager,
-    screen_task_manager: ScreenTaskManager,
+    drone_rendering_task_manager: DroneRenderingTaskManager,
 
     tik_manager: TikManager,
 }
@@ -46,7 +46,7 @@ impl GameData {
 
         // Create screen manager and configure it with the thread pool
         let mut screen_manager = ScreenManager::new();
-        let screen_task_manager = ScreenTaskManager::new();
+        let drone_rendering_task_manager = DroneRenderingTaskManager::new();
 
         // set up tik managers
         let mut tik_manager = TikManager::new(world.clone());
@@ -60,7 +60,7 @@ impl GameData {
             texture_manager: texture_manager,
 
             screen_manager: screen_manager,
-            screen_task_manager: screen_task_manager,
+            drone_rendering_task_manager: drone_rendering_task_manager,
             
             tik_manager: tik_manager,
 
@@ -74,7 +74,7 @@ impl GameData {
     pub fn handle_mouse_motion_input(&mut self, x_cor: f32, y_cor: f32) {
         // New
         let screen = &mut self.screen_manager;
-        screen.mouse_motion_event(x_cor, y_cor);
+        screen.mouse_motion_event(&mut self.drone_rendering_task_manager, x_cor, y_cor);
         
     }
 
@@ -93,7 +93,7 @@ impl GameData {
     pub fn handle_mouse_inputs(&mut self, button: MouseButton) {
         // New
         let screen = &mut self.screen_manager;
-        screen.mouse_button_down_event(button);
+        screen.mouse_button_down_event(&mut self.drone_rendering_task_manager, button);
     }
 
     pub fn handle_mouse_button_up(&mut self, button: MouseButton) {
@@ -137,10 +137,10 @@ impl GameData {
     pub fn render_camera(&mut self, ctx: &mut GlContext) {
         let frame_start_time = SystemTime::now();
 
-        self.screen_manager.render_screen(&mut self.texture_manager, self.world.clone(), &mut self.screen_task_manager, ctx);
+        self.screen_manager.render_screen(&mut self.texture_manager, self.world.clone(), &mut self.drone_rendering_task_manager, ctx);
         
         // Tik managing
-        self.tik_manager.update_tik_manager(&mut self.world_task_manager, &mut self.screen_task_manager);
+        self.tik_manager.update_tik_manager(&mut self.world_task_manager, &mut self.drone_rendering_task_manager);
         if self.screen_manager.get_screen_data().is_world_initialized() {
             self.tik_manager.unpause();
         }
