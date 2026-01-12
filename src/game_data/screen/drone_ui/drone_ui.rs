@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, World, screen::{ScreenData, camera_data::{self, CameraData}, drone_ui::{drone_mini_window::MiniWindow, drone_spectate_window::SpectateWindow}, screen_data}, types::DroneUITexture};
+use crate::game_data::{TextureManager, World, screen::{ScreenData, camera_data::{self, CameraData}, drone_ui::{drone_mini_window::MiniWindow, drone_spectate_window::SpectateWindow}, screen_data}, tik_manager::drones::drone::Drone, types::DroneUITexture};
 
 
 /*
@@ -25,28 +25,16 @@ impl DroneUI {
             spectate_window: SpectateWindow::new()
         }
     }
-
-    //=====================================
-    // Setters
-    //=====================================
-
-    pub fn set_drone_world_cords(&mut self, world_cords: [i32; 3]) {
-        self.spectate_window.set_drone_world_cords(world_cords);
-    }
-
-    pub fn set_drone_ndc_cords(&mut self, drone_ndc_cords: [f32; 2]) {
-        self.mini_window.set_drone_ndc_cords(drone_ndc_cords);
-    }
     
     //=====================================
     // Ui Rendering
     //=====================================
 
-    pub fn render_drone_ui(&mut self, texture_manager: &mut TextureManager, camera_data: &CameraData, world: &World) {
+    pub fn render_drone_ui(&mut self, texture_manager: &mut TextureManager, camera_data: &CameraData, world: &World, drone: &Drone) {
         self.mini_window.set_scale(camera_data.get_render_scale() * 150.0);
-        self.mini_window.render(texture_manager);
+        self.mini_window.render(texture_manager, camera_data, drone);
         if self.spectate_window.is_visible() {
-            self.spectate_window.render(texture_manager, world);
+            self.spectate_window.render(texture_manager, world, drone);
         }
     }
 
@@ -56,6 +44,9 @@ impl DroneUI {
 
     pub fn handle_motion_event(&mut self, screen_data: &ScreenData) {
         self.mini_window.handle_motion_event(screen_data);
+        if self.spectate_window.is_visible() {
+            self.spectate_window.handle_motion_event(screen_data);
+        }
     }
 
     pub fn mouse_button_down_event(&mut self, button: MouseButton, screen_data: &ScreenData) {
@@ -78,6 +69,13 @@ impl DroneUI {
             self.spectate_window.set_ndc_cords(spec_window_cords);
 
             self.mini_window.set_pressed(false);
+        }
+    }
+
+
+    pub fn handle_mouse_button_up(&mut self, mouse_button_up: MouseButton, screen_data: &ScreenData) {
+        if self.spectate_window.is_visible() {
+            self.spectate_window.handle_mouse_button_up(mouse_button_up, screen_data);
         }
     }
 }

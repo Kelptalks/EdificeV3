@@ -74,7 +74,7 @@ impl GameData {
     pub fn handle_mouse_motion_input(&mut self, x_cor: f32, y_cor: f32) {
         // New
         let screen = &mut self.screen_manager;
-        screen.mouse_motion_event(&mut self.drone_rendering_task_manager, x_cor, y_cor);
+        screen.mouse_motion_event(x_cor, y_cor);
         
     }
 
@@ -93,7 +93,7 @@ impl GameData {
     pub fn handle_mouse_inputs(&mut self, button: MouseButton) {
         // New
         let screen = &mut self.screen_manager;
-        screen.mouse_button_down_event(&mut self.drone_rendering_task_manager, button);
+        screen.mouse_button_down_event(button);
     }
 
     pub fn handle_mouse_button_up(&mut self, button: MouseButton) {
@@ -137,7 +137,12 @@ impl GameData {
     pub fn render_camera(&mut self, ctx: &mut GlContext) {
         let frame_start_time = SystemTime::now();
 
-        self.screen_manager.render_screen(&mut self.texture_manager, self.world.clone(), &mut self.drone_rendering_task_manager, ctx);
+        self.screen_manager.render_screen(
+            &mut self.texture_manager, 
+            self.world.clone(), 
+            &mut self.drone_rendering_task_manager, 
+            &self.tik_manager,
+            ctx);
         
         // Tik managing
         self.tik_manager.update_tik_manager(&mut self.world_task_manager, &mut self.drone_rendering_task_manager);

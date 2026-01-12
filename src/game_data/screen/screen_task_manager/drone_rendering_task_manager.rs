@@ -4,6 +4,10 @@ use miniquad::MouseButton;
 
 use crate::game_data::{TextureManager, World, screen::{Camera, ScreenData, camera_data::{self, CameraData}, drone_ui::drone_ui::{self, DroneUI}, screen_data, text::{self, render_string_at_ndi_cords}}, texture_manager, tik_manager::drones::drone::{self, Drone}, types::DroneUITexture};
 
+struct BlockUpdateTask {
+    cords: [i32; 3],
+}
+
 /*
 #####################
 ## DroneRenderData ##
@@ -15,7 +19,6 @@ struct DroneRenderData {
     id: u32,
     drone_cords: [i32; 3],
     needs_rendering: bool,
-    drone_ui: DroneUI,
 
 }
 
@@ -25,7 +28,6 @@ impl DroneRenderData {
             id: id,
             drone_cords: drone_cords,
             needs_rendering: false,
-            drone_ui: DroneUI::new(),
         }
     }
 
@@ -53,6 +55,7 @@ This file is resposible for managing rendering updates that occer every tik
 
 pub struct DroneRenderingTaskManager {
     drones_render_data: HashMap<u32, DroneRenderData>,
+    block_update_task: Vec<BlockUpdateTask>
 
 }
 
@@ -60,6 +63,7 @@ impl DroneRenderingTaskManager {
     pub fn new() -> DroneRenderingTaskManager {
         DroneRenderingTaskManager {
             drones_render_data: HashMap::new(),
+            block_update_task: Vec::new(),
         }
     }
 
@@ -90,37 +94,9 @@ impl DroneRenderingTaskManager {
                 drone_data.re_render_drone(&world, camera, &camera_data);
                 drone_data.needs_rendering = false;
             }
-
-            // Set window drone NDC cords
-            let drone_ndc_cords = camera_data.world_to_ndc_cords(drone_data.drone_cords);
-            drone_data.drone_ui.set_drone_world_cords(drone_data.drone_cords);
-            drone_data.drone_ui.set_drone_ndc_cords(drone_ndc_cords);
         }
     }
 
-    pub fn render_drone_ui(&mut self, texture_manager: &mut TextureManager, camera_data: &CameraData, world: Arc<RwLock<World>>) {
-        let world_gaurd = world.read().unwrap();
-        for (id, drone_data) in &mut self.drones_render_data.iter_mut() {
-            drone_data.drone_ui.render_drone_ui(texture_manager, camera_data, &world_gaurd);
-        }
-    }
-
-    //=====================================
-    // Controls
-    //=====================================
-    
-    pub fn handle_motion_event(&mut self, screen_data: &ScreenData) {
-        for (id, drone_data) in &mut self.drones_render_data.iter_mut() {
-            drone_data.drone_ui.handle_motion_event(screen_data);
-        }
-    }
-
-    pub fn handle_mouse_button_down(&mut self, mouse_button: MouseButton, screen_data: &ScreenData) {
-        for (id, drone_data) in &mut self.drones_render_data.iter_mut() {
-            drone_data.drone_ui.mouse_button_down_event(mouse_button, screen_data);
-        }
-    }
-    
     //=====================================
     // Execution
     //=====================================
@@ -130,7 +106,6 @@ impl DroneRenderingTaskManager {
 
         // Loop through drones
         self.render_drone_movement_to_camera(camera, &camera_data, world.clone(), texture_manager);
-        self.render_drone_ui(texture_manager, &camera_data, world);
 
     }
 }

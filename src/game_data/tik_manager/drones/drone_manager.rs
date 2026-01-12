@@ -25,15 +25,22 @@ impl DroneManager {
         }
     }
 
-    pub fn get_all_drone_ids(&mut self) -> Vec<u32> {
+    // I should add this as a cashed array 
+    pub fn get_all_drone_ids(&self) -> Vec<u32> {
         let mut drone_ids: Vec<u32> = Vec::new();
-        for (key, drone) in &mut self.drone_map {
+        for (key, drone) in &self.drone_map {
             drone_ids.push(drone.get_id());
         }
         return drone_ids;
     }
 
-    pub fn get_drone_with_id(&mut self, id: u32) -> Option<&mut Drone> {
+
+
+    pub fn get_drone_with_id(&self, id: u32) -> Option<&Drone> {
+        return self.drone_map.get(&id);
+    }
+
+    pub fn get_drone_with_id_mut(&mut self, id: u32) -> Option<&mut Drone> {
         return self.drone_map.get_mut(&id);
     }
 

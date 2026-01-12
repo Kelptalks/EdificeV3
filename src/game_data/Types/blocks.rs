@@ -1,3 +1,5 @@
+use crate::game_data::{tik_manager::drones::drone::Drone, types::drone_item::DroneItem};
+
 
 pub static TOTAL_BLOCKS: u32 = 100;
 
@@ -88,84 +90,87 @@ pub struct BlockProperties {
     pub solid: bool,
     pub hardness: u16,
     pub friction: u16,
+    
+    pub item: DroneItem,
+    pub item_quantity: u32,
 }
 
 static BLOCK_PROPERTIES: [BlockProperties; 75] = [
-    BlockProperties { transparent: true,  translucent: true,  solid: false,   hardness: 0,   friction: 1 },      // Air
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 5 },    // Stone
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 30 },     // Grass
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 40,  friction: 20 },     // Dirt
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 60,  friction: 15 },     // BrownTrunk
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 20,  friction: 60 },     // Leaves
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 60,  friction: 15 },     // PurpleTrunk
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 300, friction: 5 },     // Iron
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 120, friction: 4 },    // Granite
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 30,  friction: 40 },     // Sand
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 5 },    // CopperOre
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 10,  friction: 50 },     // PinkFungus
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 80 },     // BlueGrass
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 40,  friction: 30 },     // MushroomStem
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 40,  friction: 30 },     // PinkMushroomBlock
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 90,  friction: 10 },     // MudBricks
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 10,  friction: 50 },     // OrangeFungus
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 110, friction: 100 },    // StoneBrick
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 110, friction: 100 },    // FlowerStoneBrick
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 1,  friction: 80 },     // Scaffolding
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 20,  friction: 30 },     // PinkCloud
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 40,  friction: 70 },     // DandiStem
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 80,  friction: 85 },     // Hive
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 90,  friction: 7 },    // CobbleStone
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 20 },     // Magma
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 500, friction: 120 },    // Core
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 90 },     // LBM
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 70,  friction: 85 },     // CrackedEarth
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 1,   friction: 50 },     // Debug
-    BlockProperties { transparent: false, translucent: true,  solid: true,  hardness: 0,   friction: 10 },     // Water
-    BlockProperties { transparent: false, translucent: true,  solid: true,  hardness: 50,  friction: 20 },     // Glass
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 95 },     // RedBrick
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 80 },     // DroneControler
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 5  },    // IronOre
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 30,  friction: 60 },     // BlueMushroom
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 80 },     // StorageReceptacle1
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 80 },     // StorageReceptacle2
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 80 },     // StorageReceptacle3
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 80 },     // StorageReceptacle4
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 80 },     // StorageReceptacle5
-    BlockProperties { transparent: false, translucent: true,  solid: true,  hardness: 200, friction: 50 },     // SmokeStack
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 85 },     // BrownPlanks
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 20,  friction: 30 },     // CloudBlock
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 85 },     // PurplePlanks
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 70 },     // FurnaceOff
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 70 },     // FurnaceOn
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 180, friction: 90 },     // TitaniumOre
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 75 },     // WormBody
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 75 },     // WormEyesFlat
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 75 },     // WormEyesUp
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 75 },     // WormMouth
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 60 },     // DroneBotLeft
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 60 },     // DroneBotRight
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 60 },     // DroneUpLeft
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 60 },     // DroneUpRight
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 60 },     // DroneDead
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 70 },     // Battery1
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 70 },     // Battery2
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 70 },     // Battery3
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 70 },     // Battery4
-    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 1 },     // yellow_flowers
-    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 1 },     // white_flowers
-    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 1 },     // mushroom
-    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 1 },     // flungle
-    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 1 },     // blulbo
-    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 80,  friction: 1 },    // rock
-    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 60,  friction: 1 },     // log
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 70 },     // factory1
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 70 },     // factory2
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 70 },     // factory3
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 30 },     // conveyor1
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 30 },     // conveyor2
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 30 },     // conveyor3
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 30 },     // conveyor4
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 30 },     // conveyor5
+    BlockProperties { transparent: true,  translucent: true,  solid: false, hardness: 0,   friction: 1,   item: DroneItem::Ash,          item_quantity: 1},      // Air
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 5,   item: DroneItem::Stone,        item_quantity: 1},    // Stone
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 30,  item: DroneItem::PlantMatter,  item_quantity: 2},     // Grass
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 40,  friction: 20,  item: DroneItem::Dirt,         item_quantity: 1 },     // Dirt
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 60,  friction: 15,  item: DroneItem::BrownLog,     item_quantity: 5 },     // BrownTrunk
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 20,  friction: 60,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // Leaves
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 60,  friction: 15,  item: DroneItem::PurpleLog,    item_quantity: 5  },     // PurpleTrunk
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 300, friction: 5,   item: DroneItem::IronOar,      item_quantity: 3},     // Iron
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 120, friction: 4,   item: DroneItem::Stone,        item_quantity: 10},    // Granite
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 30,  friction: 40,  item: DroneItem::Sand,         item_quantity: 3},     // Sand
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 5,   item: DroneItem::CopperOar,    item_quantity: 3},    // CopperOre
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 10,  friction: 50,  item: DroneItem::PlantMatter,  item_quantity: 1},     // PinkFungus
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 80,  item: DroneItem::PlantMatter,  item_quantity: 5},     // BlueGrass
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 40,  friction: 30,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // MushroomStem
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 40,  friction: 30,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // PinkMushroomBlock
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 90,  friction: 10,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // MudBricks
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 10,  friction: 50,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // OrangeFungus
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 110, friction: 100, item: DroneItem::PlantMatter,  item_quantity: 1 },    // StoneBrick
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 110, friction: 100, item: DroneItem::PlantMatter,  item_quantity: 1 },    // FlowerStoneBrick
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 1,  friction: 80,   item: DroneItem::BrownLog,     item_quantity: 1 },     // Scaffolding
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 20,  friction: 30,  item: DroneItem::PlantMatter,  item_quantity: 1},     // PinkCloud
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 40,  friction: 70,  item: DroneItem::PlantMatter,  item_quantity: 1},     // DandiStem
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 80,  friction: 85,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // Hive
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 90,  friction: 7,   item: DroneItem::PlantMatter,  item_quantity: 1},    // CobbleStone
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 20,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // Magma
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 500, friction: 120, item: DroneItem::PlantMatter,  item_quantity: 1 },    // Core
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 90,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // LBM
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 70,  friction: 85,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // CrackedEarth
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 1,   friction: 50,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // Debug
+    BlockProperties { transparent: false, translucent: true,  solid: true,  hardness: 0,   friction: 10,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // Water
+    BlockProperties { transparent: false, translucent: true,  solid: true,  hardness: 50,  friction: 20,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // Glass
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 95,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // RedBrick
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 80,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // DroneControler
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 5,   item: DroneItem::IronOar,      item_quantity: 1  },    // IronOre
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 30,  friction: 60,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // BlueMushroom
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 80,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // StorageReceptacle1
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 80,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // StorageReceptacle2
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 80,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // StorageReceptacle3
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 80,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // StorageReceptacle4
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 80,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // StorageReceptacle5
+    BlockProperties { transparent: false, translucent: true,  solid: true,  hardness: 200, friction: 50,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // SmokeStack
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 85,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // BrownPlanks
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 20,  friction: 30,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // CloudBlock
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 85,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // PurplePlanks
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 70,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // FurnaceOff
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 70,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // FurnaceOn
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 180, friction: 90,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // TitaniumOre
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 75,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // WormBody
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 75,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // WormEyesFlat
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 75,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // WormEyesUp
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 75,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // WormMouth
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 60,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // DroneBotLeft
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 60,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // DroneBotRight
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 60,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // DroneUpLeft
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 60,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // DroneUpRight
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 60,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // DroneDead
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 70,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // Battery1
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 70,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // Battery2
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 70,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // Battery3
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 70,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // Battery4
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 1, item: DroneItem::PlantMatter,  item_quantity: 5 },     // yellow_flowers
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 1, item: DroneItem::PlantMatter,  item_quantity: 5 },     // white_flowers
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 1, item: DroneItem::PlantMatter,  item_quantity: 7 },     // mushroom
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 1, item: DroneItem::PlantMatter,  item_quantity: 10 },     // flungle
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 5,   friction: 1, item: DroneItem::PlantMatter,  item_quantity: 5 },     // blulbo
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 80,  friction: 1, item: DroneItem::Stone,       item_quantity: 1},    // rock
+    BlockProperties { transparent: false, translucent: true,  solid: false,   hardness: 60,  friction: 1, item: DroneItem::BrownLog,    item_quantity: 1 },     // log
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 70,  item: DroneItem::IronIngot,   item_quantity: 1 },     // factory1
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 70,  item: DroneItem::IronIngot,   item_quantity: 1 },     // factory2
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 200, friction: 70,  item: DroneItem::IronIngot,   item_quantity: 1},     // factory3
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 30,  item: DroneItem::IronIngot,   item_quantity: 1},     // conveyor1
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 30,  item: DroneItem::IronIngot,   item_quantity: 1 },     // conveyor2
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 30,  item: DroneItem::IronIngot,   item_quantity: 1 },     // conveyor3
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 30,  item: DroneItem::IronIngot,   item_quantity: 1 },     // conveyor4
+    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 30,  item: DroneItem::IronIngot,   item_quantity: 1 },     // conveyor5
 ];
 
 impl BlockType {
@@ -199,6 +204,14 @@ impl BlockType {
 
     pub fn friction(&self) -> u16 {
         BLOCK_PROPERTIES[*self as usize].friction
+    }
+
+    pub fn item(&self) -> DroneItem {
+        BLOCK_PROPERTIES[*self as usize].item
+    }
+
+    pub fn item_quantity(&self) -> u32 {
+        BLOCK_PROPERTIES[*self as usize].item_quantity
     }
 
     pub fn get_total_blocks() -> u32 {

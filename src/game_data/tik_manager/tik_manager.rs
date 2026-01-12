@@ -42,6 +42,10 @@ impl TikManager {
         }
     }
 
+    pub fn get_drone_manager(&self) -> &DroneManager {
+        return &self.drone_manager;
+    }
+
     pub fn unpause(&mut self){
         self.paused = false;
     }

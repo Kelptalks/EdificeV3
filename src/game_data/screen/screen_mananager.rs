@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use image::imageops::FilterType::Triangle;
 use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, render_centered_string_at_ndi_cords, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::drone_rendering_task_manager::DroneRenderingTaskManager}, tik_manager::tik_manager::TikManager, types::UITextures};
+use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, drone_ui::drone_ui_manager::DroneUIManager, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, render_centered_string_at_ndi_cords, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::drone_rendering_task_manager::DroneRenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures};
 
 
 
@@ -21,8 +21,8 @@ pub struct ScreenManager {
     camera : Camera,
     main_menu : MainMenu,
     main_menu_world_creation: WorldCreationMenu,
+    drone_ui_manager: DroneUIManager,
 
-    
     // Screen Data
     screen_data: ScreenData,
 }
@@ -37,6 +37,7 @@ impl ScreenManager {
             camera: camera,
             main_menu: MainMenu::new(),
             main_menu_world_creation: WorldCreationMenu::new(),
+            drone_ui_manager: DroneUIManager::new(),
 
             // Screen Data
             screen_data: ScreenData::new(), 
@@ -62,7 +63,8 @@ impl ScreenManager {
     pub fn render_screen(&mut self, 
         texture_manager: &mut TextureManager, 
         world: Arc<RwLock<World>>, 
-        screen_task_manager: &mut DroneRenderingTaskManager, 
+        drone_rendering_task_manager: &mut DroneRenderingTaskManager,
+        tik_manager: &TikManager,
         ctx : &mut GlContext
     ){
         // If quit
@@ -89,7 +91,9 @@ impl ScreenManager {
             }
             else {
                 self.camera.render_camera(texture_manager, world.clone(), ctx);
-                screen_task_manager.execute_render_updates_drone(world, &mut self.camera, texture_manager);
+                self.drone_ui_manager.render_ui(texture_manager, self.camera.get_camera_data(), &world.clone(), tik_manager);
+                drone_rendering_task_manager.execute_render_updates_drone(world, &mut self.camera, texture_manager);
+                
             }
         }
         
@@ -100,7 +104,7 @@ impl ScreenManager {
     //=====================================
 
     // handle mouse movment
-    pub fn mouse_motion_event(&mut self, drone_rendering_task_manager: &mut DroneRenderingTaskManager, x_cor: f32, y_cor: f32) {
+    pub fn mouse_motion_event(&mut self, x_cor: f32, y_cor: f32) {
         self.screen_data.set_mouse_pixel_cords([x_cor as i32, y_cor as i32]);
         // If current menu is camera
         if self.screen_data.get_current_menu() == CurrentMenu::MainMenu {
@@ -115,12 +119,12 @@ impl ScreenManager {
         }
         else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
             camera_controls::mouse_motion_event(self, x_cor, y_cor);
-            drone_rendering_task_manager.handle_motion_event(&self.screen_data);
+            self.drone_ui_manager.handle_motion_event(&self.screen_data);
         }
     }
 
     // Handle mouse button press
-    pub fn mouse_button_down_event(&mut self, drone_rendering_task_manager: &mut DroneRenderingTaskManager, button: MouseButton) {
+    pub fn mouse_button_down_event(&mut self, button: MouseButton) {
         let camera_data = &self.get_camera_data().clone();
         self.screen_data.re_calculate_mouse_cords(camera_data);
 
@@ -134,7 +138,7 @@ impl ScreenManager {
         }
         else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
             camera_controls::mouse_button_down_event(self, button);
-            drone_rendering_task_manager.handle_mouse_button_down(button, &self.screen_data);
+            self.drone_ui_manager.handle_mouse_button_down(button, &self.screen_data);
         }
     }
 
@@ -147,6 +151,7 @@ impl ScreenManager {
         }
         else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
             camera_controls::mouse_button_up_event(self, button);
+            self.drone_ui_manager.handle_mouse_button_up(button, &self.screen_data);
         }
     }
 

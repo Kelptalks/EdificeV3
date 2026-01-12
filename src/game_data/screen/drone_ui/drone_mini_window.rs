@@ -1,6 +1,6 @@
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, screen::ScreenData, types::DroneUITexture};
+use crate::game_data::{TextureManager, screen::{ScreenData, camera_data::{self, CameraData}}, tik_manager::drones::drone::Drone, types::DroneUITexture};
 
 pub struct MiniWindow {
     // Drone Data
@@ -25,7 +25,6 @@ impl MiniWindow {
     pub fn is_pressed(&self) -> bool {
         return self.pressed;
     }
-
     pub fn set_pressed(&mut self, pressed: bool) {
         self.pressed = pressed;
     }
@@ -38,11 +37,12 @@ impl MiniWindow {
         self.scale = scale;
     }
 
-
     pub fn get_ndc_cords(&self) -> [f32; 2] {
         return self.ndc_cords;
     }
-    pub fn set_drone_ndc_cords(&mut self, drone_ndc_cords: [f32; 2]) {
+    
+    pub fn update_drone_ndc_cords(&mut self, drone_world_cords: [i32; 3], camera_data: &CameraData) {
+        let drone_ndc_cords = camera_data.world_to_ndc_cords(drone_world_cords);
         let centered_ndc_draw_cords = [drone_ndc_cords[0] - self.scale /2.0, drone_ndc_cords[1] - self.scale / 3.0];
         self.ndc_cords = centered_ndc_draw_cords;
     }
@@ -51,7 +51,8 @@ impl MiniWindow {
     // Rendering
     //=====================================
 
-    pub fn render(&self, texture_manager: &mut TextureManager) {
+    pub fn render(&mut self, texture_manager: &mut TextureManager, camera_data: &CameraData, drone: &Drone) {
+        self.update_drone_ndc_cords(drone.get_cords(), camera_data);
         texture_manager.render_drone_ui_element(DroneUITexture::DroneMiniWindow, self.ndc_cords, self.scale);
     }
 

@@ -17,3 +17,5 @@ pub use ui::UITextures;
 mod drone_ui;
 pub use drone_ui::DroneUITexture;
 pub use drone_ui::DroneItemTexture;
+
+pub mod drone_item;

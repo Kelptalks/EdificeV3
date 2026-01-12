@@ -2,7 +2,7 @@ use std::{fs};
 
 use mlua::{Function as LuaFunction, Lua, Result};
 
-use crate::game_data::{World, tik_manager::drones::drone_manager::{DroneManager}, types::BlockType, world_task_manager::{world_task_manager::WorldTaskManager}};
+use crate::game_data::{World, tik_manager::drones::drone_manager::DroneManager, types::{BlockType, drone_item::DroneItem}, world_task_manager::world_task_manager::WorldTaskManager};
 
 pub struct LuaManager {
     lua: Lua,
@@ -116,6 +116,20 @@ impl LuaManager {
         })?;
         globals.set("rust_scan_block", scan_block)?;
         
+        // Has item amount
+        let get_item_amount = self.lua.create_function(|lua, (drone_id, item_id): (u32, u32)|{
+            let drone_manager = Self::get_drone_manager(lua)?;
+            let mut amount = 0;
+            if let Some(drone) = drone_manager.get_drone_with_id_mut(drone_id) {
+                if let Some(item) = DroneItem::from_id(item_id) {
+                    amount = drone.get_inventory().has_item_amount(item);
+                }
+            }
+
+            Ok(amount)
+        })?;
+        globals.set("rust_get_item_amount", get_item_amount)?;
+
         Ok(())
     }
     
@@ -128,7 +142,7 @@ impl LuaManager {
             let drone_manager = Self::get_drone_manager(lua)?;
             let world_task_manager = Self::get_world_task_manager(lua)?;
             
-            if let Some(drone) = drone_manager.get_drone_with_id(drone_id) {
+            if let Some(drone) = drone_manager.get_drone_with_id_mut(drone_id) {
                 drone.move_drone(world, [x, y, z], world_task_manager);
             } else {
                 println!("Move Drone Failed | Cannot find drone of id {}", drone_id);
@@ -144,7 +158,7 @@ impl LuaManager {
             let drone_manager = Self::get_drone_manager(lua)?;
             let world_task_manager = Self::get_world_task_manager(lua)?;
             
-            if let Some(drone) = drone_manager.get_drone_with_id(drone_id) {
+            if let Some(drone) = drone_manager.get_drone_with_id_mut(drone_id) {
                 drone.mine_block([x, y, z], world, world_task_manager);
             } else {
                 println!("Mine Block Failed | Cannot find drone of id {}", drone_id);
@@ -159,7 +173,7 @@ impl LuaManager {
             let drone_manager = Self::get_drone_manager(lua)?;
             let world_task_manager = Self::get_world_task_manager(lua)?;
             
-            if let Some(drone) = drone_manager.get_drone_with_id(drone_id) {
+            if let Some(drone) = drone_manager.get_drone_with_id_mut(drone_id) {
                 drone.place_block([x, y, z], world_task_manager, BlockType::from_id(block_id));
             } else {
                 println!("Place Block Failed | Cannot find drone of id {}", drone_id);
@@ -168,7 +182,21 @@ impl LuaManager {
             Ok(())
         })?;
         globals.set("rust_place_block", place_block)?;
+
+        // Use item for fuel
+        let use_item_for_fuel = self.lua.create_function(|lua, (drone_id, item_id, quantity): (u32, u32, i32)|{
+            let drone_manager = Self::get_drone_manager(lua)?;
+            if let Some(drone) = drone_manager.get_drone_with_id_mut(drone_id) {
+                if let Some(item) = DroneItem::from_id(item_id) {
+                    drone.use_item_for_fuel(item, quantity);
+                }
+            }
+
+            Ok(())
+        })?;
+        globals.set("rust_use_item_for_fuel", use_item_for_fuel)?;
         
+
         Ok(())
     }
     
