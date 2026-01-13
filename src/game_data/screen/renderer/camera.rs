@@ -81,6 +81,18 @@ impl Camera {
         }
     }
 
+    pub fn ray_cast_area_at_cords(&mut self, world: &Arc<RwLock<World>>, casted_tile_cords: [i32; 2], range: i32) {
+        for x_offset in -3..3 {
+            for y_offset in -3..3 {
+                let casted_cords_to_rerender = [
+                    casted_tile_cords[0] + x_offset,
+                    casted_tile_cords[1] + y_offset
+                ];
+                self.ray_cast_tile_at_cords(world, casted_cords_to_rerender);
+            }
+        }
+    }
+
     //=====================================
     // Rendering
     //=====================================

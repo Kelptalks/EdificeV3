@@ -43,25 +43,20 @@ impl DroneUI {
     //=====================================
 
     pub fn handle_motion_event(&mut self, screen_data: &ScreenData) {
-        
-        self.mini_window.handle_motion_event(screen_data);
         if self.spectate_window.is_visible() {
             self.spectate_window.handle_motion_event(screen_data);
         }
+        self.mini_window.handle_motion_event(screen_data);
     }
 
     pub fn mouse_button_down_event(&mut self, button: MouseButton, screen_data: &ScreenData) {
         if self.spectate_window.is_visible() {
             self.spectate_window.mouse_button_down_event(button, screen_data);
         }
-        else {
-            self.mini_window.mouse_button_down_event(button, screen_data);
-        }
         
-        
-        
+        self.mini_window.mouse_button_down_event(button, screen_data);
         if self.mini_window.is_pressed() {
-            self.spectate_window.set_visible(true);
+            self.spectate_window.set_visible(!self.spectate_window.is_visible());
 
             // Calcualte the creation cords the window
             let mut spec_window_cords = self.mini_window.get_ndc_cords();

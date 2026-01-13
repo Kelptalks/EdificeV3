@@ -219,10 +219,11 @@ impl SpectateWindow {
     pub fn handle_motion_event(&mut self, screen_data: &ScreenData) {
         if self.bar_grabbed {
             let mouse_ndc_cords = screen_data.get_mouse_ndc_cords();
-            self.ndc_cords = [
+            let new_ndc_cords = [
                 mouse_ndc_cords[0] + self.window_ndc_bar_grabbed_cords[0],
                 mouse_ndc_cords[1] + self.window_ndc_bar_grabbed_cords[1],
-            ]
+            ];
+            self.set_ndc_cords(new_ndc_cords);
         }
     }
 

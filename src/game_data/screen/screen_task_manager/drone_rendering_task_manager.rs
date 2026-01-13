@@ -8,6 +8,19 @@ struct BlockUpdateTask {
     cords: [i32; 3],
 }
 
+impl BlockUpdateTask {
+    pub fn new(cords: [i32; 3]) -> BlockUpdateTask {
+        BlockUpdateTask {
+            cords: cords,
+        }
+    }
+    
+    pub fn re_render_block(&self, world: &Arc<RwLock<World>>, camera: &mut Camera, camera_data: &CameraData) {
+        // Loop through area around drone
+        let casted_tile_cords = camera_data.world_to_casted_tile_cords(self.cords);
+        camera.ray_cast_area_at_cords(world, casted_tile_cords, 3);
+    }
+}
 /*
 #####################
 ## DroneRenderData ##
@@ -34,15 +47,7 @@ impl DroneRenderData {
     pub fn re_render_drone(&self, world: &Arc<RwLock<World>>, camera: &mut Camera, camera_data: &CameraData) {
         // Loop through area around drone
         let drone_casted_tile_cords = camera_data.world_to_casted_tile_cords(self.drone_cords);
-        for x_offset in -3..3 {
-            for y_offset in -3..3 {
-                let casted_cords_to_rerender = [
-                    drone_casted_tile_cords[0] + x_offset,
-                    drone_casted_tile_cords[1] + y_offset
-                ];
-                camera.ray_cast_tile_at_cords(world, casted_cords_to_rerender);
-            }
-        }
+        camera.ray_cast_area_at_cords(world, drone_casted_tile_cords, 3);
     }
 }
 
@@ -55,7 +60,7 @@ This file is resposible for managing rendering updates that occer every tik
 
 pub struct DroneRenderingTaskManager {
     drones_render_data: HashMap<u32, DroneRenderData>,
-    block_update_task: Vec<BlockUpdateTask>
+    block_update_tasks: Vec<BlockUpdateTask>
 
 }
 
@@ -63,7 +68,7 @@ impl DroneRenderingTaskManager {
     pub fn new() -> DroneRenderingTaskManager {
         DroneRenderingTaskManager {
             drones_render_data: HashMap::new(),
-            block_update_task: Vec::new(),
+            block_update_tasks: Vec::new(),
         }
     }
 
@@ -82,11 +87,15 @@ impl DroneRenderingTaskManager {
         }
     }
 
+    pub fn add_block_render_task(&mut self, cords: [i32; 3]) {
+        self.block_update_tasks.push(BlockUpdateTask { cords });
+    }
+
     //=====================================
     // Rendering
     //=====================================
 
-    pub fn render_drone_movement_to_camera(&mut self, camera: &mut Camera, camera_data: &CameraData, world: Arc<RwLock<World>>, texture_manager: &mut TextureManager){
+    pub fn render_drone_movement_to_camera(&mut self, camera: &mut Camera, camera_data: &CameraData, world: Arc<RwLock<World>>){
         // Loop through drones
         for (id, drone_data) in &mut self.drones_render_data.iter_mut() {
             // Re render area around drone if moved 
@@ -97,6 +106,17 @@ impl DroneRenderingTaskManager {
         }
     }
 
+    pub fn render_block_updates_to_camera(&mut self, camera: &mut Camera, camera_data: &CameraData, world: Arc<RwLock<World>>){
+        // Loop through drones
+        for block_update_task in &mut self.block_update_tasks {
+            block_update_task.re_render_block(&world, camera, camera_data);
+        }
+        // Clear the aray after
+        self.block_update_tasks.clear();
+    }
+
+
+
     //=====================================
     // Execution
     //=====================================
@@ -105,7 +125,8 @@ impl DroneRenderingTaskManager {
         let camera_data = camera.get_camera_data().clone();
 
         // Loop through drones
-        self.render_drone_movement_to_camera(camera, &camera_data, world.clone(), texture_manager);
+        self.render_drone_movement_to_camera(camera, &camera_data, world.clone());
+        self.render_block_updates_to_camera(camera, &camera_data, world.clone())
 
     }
 }

@@ -93,7 +93,7 @@ impl TikManager {
             drop(world_gaurd); // Drop gaurd after done running script
 
             // Execute the tasks to update the events that happend this tik
-            world_task_manager.execute_tasks(self.world.clone());
+            world_task_manager.execute_tasks(self.world.clone(), screen_task_manager);
 
             // End tik execution time
             let system_time_end = SystemTime::now();
