@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use rand::rand_core::block;
 
-use crate::game_data::tik_manager::drones::drone_inventory::DroneInventory;
+use crate::game_data::tik_manager::drones::drone_inventory::{DroneInventory, InventorySlot};
 use crate::game_data::types::drone_item::DroneItem;
 use crate::game_data::{screen::screen_task_manager, world_task_manager::world_task_manager::WorldTaskManager};
 use crate::game_data::{types::BlockType, World};
@@ -54,7 +54,7 @@ pub struct Drone{
 
 impl Drone {
     pub fn new(cords: [i32; 3], name: String, id: u32) -> Drone {
-        Drone {
+        let mut drone = Drone {
             // identity
             name: name,
             id: id,
@@ -77,7 +77,13 @@ impl Drone {
 
             // Changes
             moved: false,
-        }
+        };
+
+        drone.inventory.add_item(DroneItem::PlantMatter, 300);
+        drone.inventory.add_item(DroneItem::StoneDrill, 1);
+        drone.equip_tool(DroneItem::StoneDrill);
+
+        return drone;
     }
 
     //=====================================
@@ -123,6 +129,10 @@ impl Drone {
     // Drone Getters
     //=====================================
 
+    pub fn get_tools(&self) -> [Option<DroneItem>; 3] {
+        return self.tools;
+    }
+
     pub fn get_inventory(&self) -> &DroneInventory {
         return &self.inventory;
     }
@@ -145,6 +155,13 @@ impl Drone {
 
     pub fn get_name(&self) -> String {
         return self.name.clone();
+    }
+
+    pub fn get_busy(&self) -> u32 {
+        return self.busy_time;
+    }
+    pub fn get_fuel(&self) -> u32 {
+        return self.fuel;
     }
 
     pub fn is_busy(&self) -> bool {

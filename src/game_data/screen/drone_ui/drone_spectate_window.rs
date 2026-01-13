@@ -1,8 +1,8 @@
-use std::sync::{Arc, RwLock};
+use std::{fmt::format, sync::{Arc, RwLock}};
 
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, World, screen::{ScreenData, iso_cord_tool, text::render_string_at_ndi_cords}, tik_manager::drones::{drone::Drone, drone_inventory}, types::{BlockType, DroneUITexture}};
+use crate::game_data::{TextureManager, World, screen::{ScreenData, iso_cord_tool, render_centered_string_at_ndi_cords, text::render_string_at_ndi_cords}, tik_manager::drones::{drone::Drone, drone_inventory}, types::{BlockType, DroneUITexture}};
 
 pub struct SpectateWindow {
     ndc_cords: [f32; 2],
@@ -14,6 +14,12 @@ pub struct SpectateWindow {
     // Dragging
     bar_grabbed: bool,
     window_ndc_bar_grabbed_cords: [f32; 2],
+
+    // Statas
+    stats_ndc_start_cords: [f32; 2],
+
+    // tools
+    tool_ndc_start_cords: [f32; 2],
 
     // Inventory
     inventory_ndc_start_cords: [f32; 2],
@@ -38,6 +44,11 @@ impl SpectateWindow {
             bar_grabbed: false,
             window_ndc_bar_grabbed_cords: [0.0, 0.0],
 
+            // Tool
+            tool_ndc_start_cords: [0.76045627376, 0.10714285714],
+
+            // Stats
+            stats_ndc_start_cords: [0.76045627376, 0.61734693877],
 
             // Inventory
             inventory_ndc_start_cords: [0.76045627376, 0.27551020408],
@@ -116,11 +127,12 @@ impl SpectateWindow {
         }
 
 
-        // Render invintory 
-        let drone_inventory = drone.get_inventory();
-
+        // Setup item rendering values
         let scale = (self.item_slot_ndc_spacing_scale[0] * self.x_scale) * 0.75;
         let centering_offset = (self.item_slot_ndc_spacing_scale[0] * self.x_scale * 0.25) / 2.0;
+
+        // Render invintory 
+        let drone_inventory = drone.get_inventory();
 
         let text_scale = scale / 3.0;
         let start_ndc_cords = self.inventory_ndc_start_cords;
@@ -138,14 +150,56 @@ impl SpectateWindow {
                         texture_manager.render_drone_item(drone_item.to_texture_enum().unwrap(), draw_location, scale);
 
                         let text_draw_location = [
-                            draw_location[0] + scale - centering_offset,
-                            draw_location[1] + scale - centering_offset,
+                            draw_location[0] + scale,
+                            draw_location[1] + scale,
                         ];
-                        render_string_at_ndi_cords(texture_manager, inventory_slot.get_quantity().to_string(), "Mini".to_string(), text_scale, text_draw_location);
+                        render_centered_string_at_ndi_cords(texture_manager, inventory_slot.get_quantity().to_string(), "Basic".to_string(), text_scale, text_draw_location);
                     }
                 }
             }
         }
+
+        // Render tools
+        let tool_slots = drone.get_tools();
+        let start_ndc_cords = self.tool_ndc_start_cords;
+
+        for i in 0..tool_slots.len() {
+            if let Some(item) = tool_slots[i] {
+                let draw_location = [
+                    (start_ndc_cords[0] + (i as f32 * self.item_slot_ndc_spacing_scale[0])) * self.x_scale + self.ndc_cords[0] + centering_offset,
+                    (start_ndc_cords[1] * self.y_scale) + self.ndc_cords[1] + centering_offset,
+                ];
+
+                texture_manager.render_drone_item(item.to_texture_enum().unwrap(), draw_location, scale);
+            }
+            
+        }
+
+        // render stats
+        let scale = self.x_scale / 50.0;
+        let spacing_scale = scale * 1.25;
+        
+        let mut draw_cords = [
+            self.ndc_cords[0] + self.stats_ndc_start_cords[0] * self.x_scale,
+            self.ndc_cords[1] + self.stats_ndc_start_cords[1] * self.y_scale
+            ];
+
+        // Render id
+        let drone_id_stat = format!("ID: {}", drone.get_id());
+        render_string_at_ndi_cords(texture_manager, drone_id_stat, "Basic".to_string(), scale, draw_cords);
+        
+        // Render busy
+        draw_cords[1] += spacing_scale;
+        let drone_busy_stat = format!("Busy: {}", drone.get_busy());
+        render_string_at_ndi_cords(texture_manager, drone_busy_stat, "Basic".to_string(), scale, draw_cords);
+
+        // Render fuel
+        draw_cords[1] += spacing_scale;
+        let drone_busy_stat = format!("Fuel: {}", drone.get_fuel());
+        render_string_at_ndi_cords(texture_manager, drone_busy_stat, "Basic".to_string(), scale, draw_cords);
+
+
+
     }
 
     //=====================================
@@ -218,10 +272,7 @@ impl SpectateWindow {
                 // Calculate pixel cords for clicking buttons
                 let pixel_mouse_cords_on_window = self.get_mouse_pixel_cords_on_window(mouse_ndc);
 
-                if self.mouse_on_x(pixel_mouse_cords_on_window) {
-                    self.visible = false;
-                }
-                else if self.mouse_on_move_bar(pixel_mouse_cords_on_window) {
+                if self.mouse_on_move_bar(pixel_mouse_cords_on_window) {
                     // Set the cords of where on the window it was grabbed
                     self.window_ndc_bar_grabbed_cords = [
                         self.ndc_cords[0] - mouse_ndc[0],
@@ -229,6 +280,9 @@ impl SpectateWindow {
                     ];
 
                     self.bar_grabbed = true;
+                }
+                else if self.mouse_on_x(pixel_mouse_cords_on_window) {
+                    self.visible = false;
                 }
                 else if self.mouse_on_right_arrow(pixel_mouse_cords_on_window) {
                     if self.spectate_zoom > 1 {
