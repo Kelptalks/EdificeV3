@@ -1,6 +1,6 @@
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, screen::ScreenData, types::UITextures};
+use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndi_cords}, types::{BlockType, UITextures}};
 
 pub struct Button { 
     cords: [f32; 2],
@@ -35,6 +35,17 @@ impl Button {
             self.scale,
         );
     }
+
+    pub fn render_block_on_button(&self, texture_manager: &mut TextureManager, block: BlockType) {
+        // Render drone on top of button
+        let scale = self.scale / 3.0;
+        let offset = ((scale * 2.0) - self.scale) / 2.0;
+        let draw_location: [f32; 2] = [
+            self.cords[0] - offset,
+            self.cords[1] - offset
+        ];
+        texture_manager.render_block(block, draw_location, scale);
+    }
     
     pub fn handle_mouse_motion_input(&mut self, screen_data: &ScreenData) { 
         // if mouse is over button
@@ -52,6 +63,14 @@ impl Button {
 
     pub fn is_mouse_on_button(&self) -> bool {
         self.is_pressed
+    }
+
+    pub fn get_ndc_cords(&self) -> [f32; 2] {
+        return self.cords;
+    }
+
+    pub fn get_scale(&self) -> f32 {
+        return self.scale;
     }
 
 }

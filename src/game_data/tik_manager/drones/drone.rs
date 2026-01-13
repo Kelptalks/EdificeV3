@@ -129,22 +129,31 @@ impl Drone {
     // Drone Getters
     //=====================================
 
+    // Tool
     pub fn get_tools(&self) -> [Option<DroneItem>; 3] {
         return self.tools;
     }
+    pub fn get_mine_power(&self) -> u32 {
+        return self.mine_power;
+    }
+    pub fn get_chop_power(&self) -> u32 {
+        return  self.chop_power;
+    }
 
+    // Inventory
     pub fn get_inventory(&self) -> &DroneInventory {
         return &self.inventory;
     }
-
     pub fn get_inventory_mut(&mut self) -> &mut DroneInventory {
         return &mut self.inventory;
     }
 
+    // Update
     pub fn moved(&self) -> bool {
         return self.moved;
     }
 
+    // World Data
     pub fn get_cords(&self) -> [i32; 3] {
         return self.cords;
     }
@@ -157,13 +166,15 @@ impl Drone {
         return self.name.clone();
     }
 
-    pub fn get_busy(&self) -> u32 {
-        return self.busy_time;
-    }
+    // Fuel
     pub fn get_fuel(&self) -> u32 {
         return self.fuel;
     }
 
+    // Busy
+    pub fn get_busy(&self) -> u32 {
+        return self.busy_time;
+    }
     pub fn is_busy(&self) -> bool {
         return self.busy_time != 0;
     }

@@ -131,8 +131,8 @@ impl UITextures {
             UITextures::DropdownArrow => [48, 32, 16, 16],
             UITextures::DropdownArrow_Down => [48, 48, 16, 16],
 
-            UITextures::ButtonCircle => [96, 0, 32, 32],
-            UITextures::ButtonCircle_Down => [96, 32, 32, 32],
+            UITextures::ButtonCircle => [0, 64, 32, 32],
+            UITextures::ButtonCircle_Down => [0, 96, 32, 32],
 
             UITextures::VoidBackground => [96, 0, 64, 64],
             UITextures::FaceBackground => [160, 0, 320, 176],

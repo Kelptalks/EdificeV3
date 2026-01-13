@@ -133,9 +133,9 @@ impl SpectateWindow {
 
         // Render invintory 
         let drone_inventory = drone.get_inventory();
-
         let text_scale = scale / 3.0;
         let start_ndc_cords = self.inventory_ndc_start_cords;
+        let text_offset = scale / 2.0;
         
         for y_slot in 0..3 {
             for x_slot in 0..3 {
@@ -150,8 +150,8 @@ impl SpectateWindow {
                         texture_manager.render_drone_item(drone_item.to_texture_enum().unwrap(), draw_location, scale);
 
                         let text_draw_location = [
-                            draw_location[0] + scale,
-                            draw_location[1] + scale,
+                            draw_location[0] + text_offset,
+                            draw_location[1] + centering_offset,
                         ];
                         render_centered_string_at_ndi_cords(texture_manager, inventory_slot.get_quantity().to_string(), "Basic".to_string(), text_scale, text_draw_location);
                     }
@@ -176,7 +176,7 @@ impl SpectateWindow {
         }
 
         // render stats
-        let scale = self.x_scale / 50.0;
+        let scale = self.x_scale / 70.0;
         let spacing_scale = scale * 1.25;
         
         let mut draw_cords = [
@@ -197,6 +197,16 @@ impl SpectateWindow {
         draw_cords[1] += spacing_scale;
         let drone_busy_stat = format!("Fuel: {}", drone.get_fuel());
         render_string_at_ndi_cords(texture_manager, drone_busy_stat, "Basic".to_string(), scale, draw_cords);
+
+        // Mine power
+        draw_cords[1] += spacing_scale;
+        let drone_mine_power = format!("Mine Power: {}", drone.get_mine_power());
+        render_string_at_ndi_cords(texture_manager, drone_mine_power, "Basic".to_string(), scale, draw_cords);
+
+        // Chop power
+        draw_cords[1] += spacing_scale;
+        let drone_chop_power = format!("Chop Power: {}", drone.get_chop_power());
+        render_string_at_ndi_cords(texture_manager, drone_chop_power, "Basic".to_string(), scale, draw_cords);
 
 
 

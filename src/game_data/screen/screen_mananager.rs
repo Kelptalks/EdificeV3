@@ -31,7 +31,6 @@ impl ScreenManager {
     pub fn new()->Self {
         let mut camera = Camera::new();
 
-
         let new_screen = ScreenManager{
             // Menu Structs
             camera: camera,
