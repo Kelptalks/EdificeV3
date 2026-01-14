@@ -65,7 +65,7 @@ impl CameraData {
             
             // Renderer location
             iso_cam_center_cords : [0.0, 0.0],
-            view_distance : 2,
+            view_distance : 4,
             cashed_view_distance : 30,
 
             // Render scaling

@@ -31,7 +31,7 @@ impl TikManager {
 
             // Tik Data
             current_tik: 0,
-            tik_rate: 50,
+            tik_rate: 10,
             last_tik_millis: 0,
             tik_exectuion_time: 0,
 
