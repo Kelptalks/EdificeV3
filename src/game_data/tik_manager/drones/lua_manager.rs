@@ -33,6 +33,7 @@ impl LuaManager {
     pub fn register_functions(&self) -> Result<()> {
         self.register_drone_query_functions()?;
         self.register_drone_action_functions()?;
+        self.register_block_getter_functions()?;
         Ok(())
     }
 
@@ -196,6 +197,45 @@ impl LuaManager {
         })?;
         globals.set("rust_use_item_for_fuel", use_item_for_fuel)?;
         
+        // Has quantity of item checked 
+        let get_item_quantity = self.lua.create_function(|lua, (drone_id, item_id): (u32, u32)|{
+            let drone_manager = Self::get_drone_manager(lua)?;
+            if let Some(drone) = drone_manager.get_drone_with_id_mut(drone_id) {
+                if let Some(item) = DroneItem::from_id(item_id) {
+                    let inventory = drone.get_inventory();
+                    return Ok(inventory.has_item_amount(item));
+                }
+            }
+
+            Ok(0)
+        })?;
+        globals.set("rust_get_item_quantity", get_item_quantity)?;
+
+        // Craft an item
+        let craft_item = self.lua.create_function(|lua, (drone_id, item_id): (u32, u32)|{
+            let drone_manager = Self::get_drone_manager(lua)?;
+            if let Some(drone) = drone_manager.get_drone_with_id_mut(drone_id) {
+                if let Some(item) = DroneItem::from_id(item_id) {
+                    drone.craft_item(item);
+                }
+            }
+
+            Ok(())
+        })?;
+        globals.set("rust_craft_item", craft_item)?;
+
+        Ok(())
+    }
+
+    fn register_block_getter_functions(&self) -> Result<()> {
+        let globals = self.lua.globals();
+        
+        // Move drone
+        let block_is_solid = self.lua.create_function(|lua, (block_id): (u32)| {
+            Ok(BlockType::from_id(block_id as u16).is_solid())
+        })?;
+        globals.set("rust_block_is_solid", block_is_solid)?;
+
 
         Ok(())
     }
