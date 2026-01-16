@@ -1,5 +1,5 @@
 
-local BlockType = require("block_types")
+local BlockType = require("rust_wrapper_functions.block_types")
 local M = {}  -- Module table
 
 -- Drone Getter Functions
@@ -15,6 +15,18 @@ function M.is_busy(drone_id)
     return rust_is_busy(drone_id)
 end
 
+function M.has_item_amount(drone_id, item) 
+    return rust_get_item_quantity(drone_id, item)
+end
+
+function M.get_drone_cords(drone_id)
+    return rust_get_drone_cords(drone_id)
+end
+
+function M.get_vision_range(drone_id)
+    return rust_get_vision_range(drone_id)
+end
+
 -- Drone Action Functions
 function M.move(drone_id, x, y, z)
     rust_move(drone_id, x, y, z)
@@ -26,10 +38,6 @@ end
 
 function M.place_block(drone_id, x, y, z, blocktype)
     rust_place_block(drone_id, x, y, z, blocktype)
-end
-
-function M.has_item_amount(drone_id, amount) 
-    return rust_get_item_quantity(drone_id, amount)
 end
 
 function M.craft_item(drone_id, item) 

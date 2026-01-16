@@ -66,7 +66,7 @@ impl Drone {
             // Stats
             busy_time: 0,
             fuel: 10000,
-            vision_range: 2,
+            vision_range: 3,
             modify_range: 1,
             mine_power: 1,
             chop_power: 1,
@@ -169,6 +169,10 @@ impl Drone {
     // Fuel
     pub fn get_fuel(&self) -> u32 {
         return self.fuel;
+    }
+
+    pub fn get_vision_range(&self) -> u32 {
+        return self.vision_range;
     }
 
     // Busy
@@ -277,10 +281,24 @@ impl Drone {
         // Mine a block relative to the drone | Error 1 = is busy | Error 2 = Cords out of range | Error 3 = Block out of range
     pub fn move_drone(&mut self, world: &World, relative_cords: [i32; 3], world_task_manager: &mut WorldTaskManager) -> u32{
         if self.is_busy() {
-            println!("Drone {} cannot move because busy", self.id);
             return 1;
         }
         
+        // Prevent x, y axis diagonal movement.
+        if (relative_cords[0].abs() + relative_cords[1].abs()) > 1 {
+            return 4;
+        }
+
+        // Prevent diagonal z movement if there is a block above the drone
+        if relative_cords[1] == 1 {
+            // Get block above drone
+            let world_cords = self.get_relative_world_cords([0, 0, 1]);
+            let block_type_of_new_location = BlockType::from_id(world.get_world_value(world_cords));
+            if block_type_of_new_location.is_solid() {
+                return 3;
+            }
+        }
+
         if Drone::if_cords_within_range(relative_cords, 1){
             let world_cords = self.get_relative_world_cords(relative_cords);
             let block_type_of_new_location = BlockType::from_id(world.get_world_value(world_cords));

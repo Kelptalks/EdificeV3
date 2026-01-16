@@ -79,9 +79,22 @@ impl TikManager {
             
             // Temp Drone Creation
             if self.current_tik == 5 {
+
                 self.drone_manager.create_drone_at_cords(screen_task_manager, [0, 0, 0], "Drone 1".to_string());
-                //self.drone_manager.create_drone_at_cords(screen_task_manager, [30, 0, 0], "Drone 2".to_string());
-                //self.drone_manager.create_drone_at_cords(screen_task_manager, [0, 30, 0], "Drone 3".to_string());
+
+                // Test navigation 
+                if false {
+                    let distance = 200;
+                    self.drone_manager.create_drone_at_cords(screen_task_manager, [distance, distance, 0], "Drone 1".to_string());
+                    self.drone_manager.create_drone_at_cords(screen_task_manager, [-distance, distance, 0], "Drone 2".to_string());
+                    self.drone_manager.create_drone_at_cords(screen_task_manager, [distance, -distance, 0], "Drone 3".to_string());
+                    self.drone_manager.create_drone_at_cords(screen_task_manager, [-distance, -distance, 0], "Drone 4".to_string());
+
+                    self.drone_manager.create_drone_at_cords(screen_task_manager, [distance, 0, 0], "Drone 5".to_string());
+                    self.drone_manager.create_drone_at_cords(screen_task_manager, [-distance, 0, 0], "Drone 6".to_string());
+                    self.drone_manager.create_drone_at_cords(screen_task_manager, [0, -distance, 0], "Drone 7".to_string());
+                    self.drone_manager.create_drone_at_cords(screen_task_manager, [-0, distance, 0], "Drone 8".to_string());
+                }
             }
 
             // Tik drones
