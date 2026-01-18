@@ -188,6 +188,12 @@ impl SpectateWindow {
         let drone_id_stat = format!("ID: {}", drone.get_id());
         render_string_at_ndi_cords(texture_manager, drone_id_stat, "Basic".to_string(), scale, draw_cords);
         
+        // Cords
+        draw_cords[1] += spacing_scale;
+        let drone_cords = drone.get_cords();
+        let drone_cords = format!("Cords: ({}, {}, {})", drone_cords[0], drone_cords[1], drone_cords[2]);
+        render_string_at_ndi_cords(texture_manager, drone_cords, "Basic".to_string(), scale, draw_cords);
+
         // Render busy
         draw_cords[1] += spacing_scale;
         let drone_busy_stat = format!("Busy: {}", drone.get_busy());

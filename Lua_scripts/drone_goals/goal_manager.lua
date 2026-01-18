@@ -1,5 +1,4 @@
-local DroneFunctions = require("rust_wrapper_functions.block_types")
-local MoveGoal = require("Lua_scripts.drone_goals.basic_goals.move_goal")
+local DroneFunctions = require("rust_wrapper_functions.drone_functions")
 
 local GoalManager = {}  -- Module table
 GoalManager.__index = GoalManager  -- Add this!
@@ -12,20 +11,30 @@ function GoalManager.new()
 end
 
 function GoalManager:execute(drone_id)
-    local first_goal = self.goals[1]
-    if first_goal ~= nil then
-        first_goal:tik(drone_id, self)
+    -- Loop through goals and break loop when drone is busy
+    for i, goal in ipairs(self.goals) do
+        goal:tik(drone_id)
         -- Remove goal if completed
-        if first_goal:is_complete() then
-            table.remove(self.goals, 1)
+        if goal:is_complete() then
+            table.remove(self.goals, i)
+        end
+
+        if DroneFunctions.is_busy(drone_id) then
+            return true
         end
     end
-
+    return false
 end
 
-function GoalManager:add_move_goal(x, y, z)
-    local move_goal = MoveGoal.new(x, y, z)  -- Assuming MoveGoal is in BasicGoals
-    table.insert(self.goals, 1, move_goal)  -- Insert at position 1, shifts others right
+function GoalManager:has_goal()
+    return #self.goals > 0
 end
+
+-- Insert a goal at index
+function GoalManager:incert_goal(goal, index)
+    table.insert(self.goals, index, goal)
+end
+
+
 
 return GoalManager

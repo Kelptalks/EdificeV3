@@ -195,7 +195,7 @@ impl Drone {
             return block;
         }
         else {
-            return BlockType::Debug;
+            return BlockType::Air;
         }
     }
 
@@ -330,7 +330,9 @@ impl Drone {
 
                 return 0;
             }
-            
+            else {
+                return 4;
+            }   
         }
         return 2;
     }

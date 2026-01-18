@@ -29,7 +29,7 @@ end
 
 -- Drone Action Functions
 function M.move(drone_id, x, y, z)
-    rust_move(drone_id, x, y, z)
+    return rust_move(drone_id, x, y, z)
 end
 
 function M.mine_block(drone_id, x, y, z)

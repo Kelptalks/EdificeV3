@@ -124,7 +124,7 @@ static BLOCK_PROPERTIES: [BlockProperties; 75] = [
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 500, friction: 120, item: DroneItem::PlantMatter,  item_quantity: 1 },    // Core
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 90,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // LBM
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 70,  friction: 85,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // CrackedEarth
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 1,   friction: 50,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // Debug
+    BlockProperties { transparent: false, translucent: false, solid: false,  hardness: 0,   friction: 0,  item: DroneItem::TitaniumIngot,  item_quantity: 99999 },     // Debug
     BlockProperties { transparent: false, translucent: true,  solid: true,  hardness: 0,   friction: 10,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // Water
     BlockProperties { transparent: false, translucent: true,  solid: true,  hardness: 50,  friction: 20,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // Glass
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 95,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // RedBrick
@@ -222,7 +222,7 @@ impl BlockType {
         if id < BlockType::conveyor5 as u16 {
             unsafe { std::mem::transmute(id) }
         } else {
-            BlockType::Debug
+            BlockType::Air
         }
     }
 }

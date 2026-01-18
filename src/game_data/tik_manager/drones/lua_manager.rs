@@ -139,11 +139,11 @@ impl LuaManager {
         globals.set("rust_get_fuel", get_fuel)?;
 
         // Scan block
-        let scan_block = self.lua.create_function(|lua, (drone_id, x, y, z): (u32, f32, f32, f32)| {
+        let scan_block = self.lua.create_function(|lua, (drone_id, x, y, z): (f32, f32, f32, f32)| {
             let world = Self::get_world(lua)?;
             let drone_manager = Self::get_drone_manager(lua)?;
             
-            if let Some(drone) = drone_manager.get_drone_with_id(drone_id) {
+            if let Some(drone) = drone_manager.get_drone_with_id(drone_id as u32) {
                 let block_value = drone.scan_block(world, [x as i32, y as i32, z as i32]).id_as_u16();
                 Ok(block_value)
             } else {
@@ -180,12 +180,12 @@ impl LuaManager {
             let world_task_manager = Self::get_world_task_manager(lua)?;
             
             if let Some(drone) = drone_manager.get_drone_with_id_mut(drone_id) {
-                drone.move_drone(world, [x as i32, y as i32, z as i32], world_task_manager);
+                return Ok(drone.move_drone(world, [x as i32, y as i32, z as i32], world_task_manager));
             } else {
                 println!("Move Drone Failed | Cannot find drone of id {}", drone_id);
             }
             
-            Ok(())
+            Ok(5)
         })?;
         globals.set("rust_move", move_drone)?;
         
