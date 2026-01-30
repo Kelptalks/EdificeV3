@@ -4,15 +4,15 @@ use miniquad::MouseButton;
 
 use crate::game_data::{TextureManager, World, screen::{Button, ScreenData, camera_data::CameraData, drone_ui::drone_ui::DroneUI, renderer::camera}, tik_manager::{self, tik_manager::TikManager}};
 
-pub struct DroneUIManager {
+pub struct CameraUIManager {
     drone_ui_map: HashMap<u32, DroneUI>,
     toggle_drone_ui: Button,
     drone_ui_visible: bool,
 }
 
-impl DroneUIManager {
-    pub fn new() -> DroneUIManager {
-        DroneUIManager {
+impl CameraUIManager {
+    pub fn new() -> CameraUIManager {
+        CameraUIManager {
             drone_ui_map: HashMap::new(),
             toggle_drone_ui: Button::new([-0.99, 0.0], 0.07, crate::game_data::types::UITextures::ButtonCircle),
             drone_ui_visible: true,

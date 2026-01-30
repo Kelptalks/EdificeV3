@@ -29,12 +29,13 @@ function GatherGoal:tik(drone_id)
                 for i, block_type_to_mine in ipairs(self.blocks_to_gather) do
                     if block_type_scanned == block_type_to_mine then
                         DroneFunctions.mine_block(drone_id, x, y, z)
-                        return;
+                        return true;
                     end
                 end
             end
         end
     end
+    return false;
 end
 
 

@@ -10,7 +10,7 @@ function Drone.new(id)
     self.id = id
     self.goal_manager = GoalManager:new()
 
-    local scavenge_goal = ScavengeGoal.new(20, 20, 50, 50)
+    local scavenge_goal = ScavengeGoal.new(-25, -25, 25, 25)
     self.goal_manager:incert_goal(scavenge_goal, 1)
     return self
 end

@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use image::imageops::FilterType::Triangle;
 use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, drone_ui::drone_ui_manager::DroneUIManager, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, render_centered_string_at_ndi_cords, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::drone_rendering_task_manager::DroneRenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures};
+use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, drone_ui::camera_ui_manager::CameraUIManager, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, render_centered_string_at_ndi_cords, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::drone_rendering_task_manager::DroneRenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures};
 
 
 
@@ -21,7 +21,7 @@ pub struct ScreenManager {
     camera : Camera,
     main_menu : MainMenu,
     main_menu_world_creation: WorldCreationMenu,
-    drone_ui_manager: DroneUIManager,
+    drone_ui_manager: CameraUIManager,
 
     // Screen Data
     screen_data: ScreenData,
@@ -36,7 +36,9 @@ impl ScreenManager {
             camera: camera,
             main_menu: MainMenu::new(),
             main_menu_world_creation: WorldCreationMenu::new(),
-            drone_ui_manager: DroneUIManager::new(),
+            
+            //
+            drone_ui_manager: CameraUIManager::new(),
 
             // Screen Data
             screen_data: ScreenData::new(), 
@@ -62,7 +64,7 @@ impl ScreenManager {
     pub fn render_screen(&mut self, 
         texture_manager: &mut TextureManager, 
         world: Arc<RwLock<World>>, 
-        drone_rendering_task_manager: &mut DroneRenderingTaskManager,
+        world_rendering_task_manager: &mut DroneRenderingTaskManager,
         tik_manager: &TikManager,
         ctx : &mut GlContext
     ){
@@ -91,7 +93,7 @@ impl ScreenManager {
             else {
                 self.camera.render_camera(texture_manager, world.clone(), ctx);
                 self.drone_ui_manager.render_ui(texture_manager, self.camera.get_camera_data(), &world.clone(), tik_manager);
-                drone_rendering_task_manager.execute_render_updates_drone(world, &mut self.camera, texture_manager);
+                world_rendering_task_manager.execute_render_updates_drone(world, &mut self.camera, texture_manager);
                 
             }
         }

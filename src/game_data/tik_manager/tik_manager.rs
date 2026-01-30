@@ -80,7 +80,7 @@ impl TikManager {
             // Temp Drone Creation
             if self.current_tik == 5 {
 
-                self.drone_manager.create_drone_at_cords(screen_task_manager, [0, 0, 0], "Drone 1".to_string());
+                self.drone_manager.create_drone_at_cords(screen_task_manager, [-25, -25, 0], "Drone 1".to_string());
 
                 // Test navigation 
                 if false {

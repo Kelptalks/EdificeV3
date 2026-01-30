@@ -65,7 +65,7 @@ impl Drone {
 
             // Stats
             busy_time: 0,
-            fuel: 10000,
+            fuel: 1000000,
             vision_range: 3,
             modify_range: 1,
             mine_power: 1,
