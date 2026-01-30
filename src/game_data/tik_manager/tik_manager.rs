@@ -9,7 +9,7 @@ pub struct TikManager {
     // Tik Data
     current_tik: u32,
     tik_rate: u128,
-    last_tik_millis: u128,
+    last_tik_micros: u128,
     tik_exectuion_time: u32,
 
 
@@ -26,13 +26,14 @@ impl TikManager {
         lua_manager.rebuild_drone_script();
         lua_manager.register_functions();
         
+
         Self {
             paused: true,
 
             // Tik Data
             current_tik: 0,
-            tik_rate: 10,
-            last_tik_millis: 0,
+            tik_rate: 10000,
+            last_tik_micros: 0,
             tik_exectuion_time: 0,
 
             // Drones
@@ -46,8 +47,12 @@ impl TikManager {
         return &self.drone_manager;
     }
 
-    pub fn unpause(&mut self){
-        self.paused = false;
+    pub fn pause(&mut self){
+        self.paused = !self.paused;
+        self.last_tik_micros = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_micros();
     }
 
     pub fn set_tik_rate(&mut self, new_tik_rate: u128) {
@@ -56,8 +61,6 @@ impl TikManager {
 
     // Called every frame to update the tik
     pub fn update_tik_manager(&mut self, world_task_manager: &mut WorldTaskManager, screen_task_manager: &mut DroneRenderingTaskManager) {
-        
-        
         if self.paused {
             return
         }
@@ -65,36 +68,21 @@ impl TikManager {
         let current_millis = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap()
-        .as_millis();
+        .as_micros();
 
         // Execute a tik
-        if current_millis > (self.last_tik_millis + self.tik_rate) {
+        let mut total_tiks_to_execute = (current_millis - self.last_tik_micros) / self.tik_rate;
+        while total_tiks_to_execute > 0 {
             // Start tik execution time
             let tik_start_time = SystemTime::now();
             
             // Update tik time
             self.current_tik += 1;
-            self.last_tik_millis = current_millis;
-
+            self.last_tik_micros = current_millis;
             
             // Temp Drone Creation
             if self.current_tik == 5 {
-
                 self.drone_manager.create_drone_at_cords(screen_task_manager, [-25, -25, 0], "Drone 1".to_string());
-
-                // Test navigation 
-                if false {
-                    let distance = 200;
-                    self.drone_manager.create_drone_at_cords(screen_task_manager, [distance, distance, 0], "Drone 1".to_string());
-                    self.drone_manager.create_drone_at_cords(screen_task_manager, [-distance, distance, 0], "Drone 2".to_string());
-                    self.drone_manager.create_drone_at_cords(screen_task_manager, [distance, -distance, 0], "Drone 3".to_string());
-                    self.drone_manager.create_drone_at_cords(screen_task_manager, [-distance, -distance, 0], "Drone 4".to_string());
-
-                    self.drone_manager.create_drone_at_cords(screen_task_manager, [distance, 0, 0], "Drone 5".to_string());
-                    self.drone_manager.create_drone_at_cords(screen_task_manager, [-distance, 0, 0], "Drone 6".to_string());
-                    self.drone_manager.create_drone_at_cords(screen_task_manager, [0, -distance, 0], "Drone 7".to_string());
-                    self.drone_manager.create_drone_at_cords(screen_task_manager, [-0, distance, 0], "Drone 8".to_string());
-                }
             }
 
             // Tik drones
@@ -107,6 +95,9 @@ impl TikManager {
 
             // Execute the tasks to update the events that happend this tik
             world_task_manager.execute_tasks(self.world.clone(), screen_task_manager);
+
+            // Decrement tiks left to execute
+            total_tiks_to_execute-=1;
 
             // End tik execution time
             let system_time_end = SystemTime::now();

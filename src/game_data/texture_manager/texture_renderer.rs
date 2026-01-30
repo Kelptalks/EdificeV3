@@ -8,67 +8,6 @@ const MAX_QUADS_PER_BATCH: usize = 500_000;
 const MAX_VERTICES: usize = MAX_QUADS_PER_BATCH * 4;
 const MAX_INDICES: usize = MAX_QUADS_PER_BATCH * 6;
 
-// Types
-type QuadUVs = [f32; 4];
-type TriangleUVs = [QuadUVs; 6];
-
-pub struct UVManager {
-    triangles : Vec<TriangleUVs>,
-}
-
-static TRIANGLE_PIXLE_REZ : f32 = 32.0;
-
-impl UVManager{
-    pub fn new() -> Self {
-        let triangles = Self::create_triangle_uvs();
-        Self {
-            triangles : triangles,
-        }
-    }
-
-    fn create_triangle_uvs() -> Vec<TriangleUVs> {
-        let total_blocks = BlockType::get_total_blocks();
-        let triangles_per_block = 6;
-
-        let sprite_sheet_width = TRIANGLE_PIXLE_REZ * total_blocks as f32;
-        let sprite_sheet_height = TRIANGLE_PIXLE_REZ * triangles_per_block as f32;
-        
-        let mut triangle_vec: Vec<TriangleUVs> = Vec::new();
-
-        for current_block in 0..total_blocks {
-            let pixel_start_x_cor = TRIANGLE_PIXLE_REZ * current_block as f32 + 0.5;
-            let pixel_end_x_cor = (TRIANGLE_PIXLE_REZ * current_block as f32) + TRIANGLE_PIXLE_REZ as f32 - 0.5;
-
-            let mut triangle_uvs: TriangleUVs = [[0.0, 0.0, 0.0, 0.0]; 6];
-
-            for current_triangle in 0..triangles_per_block {
-                let pixel_start_y_cor = TRIANGLE_PIXLE_REZ * current_triangle as f32 + 0.5;
-                let pixel_end_y_cor = (TRIANGLE_PIXLE_REZ * current_triangle as f32) + TRIANGLE_PIXLE_REZ as f32 - 0.5;
-                
-                triangle_uvs[current_triangle] = [
-                    pixel_start_x_cor / sprite_sheet_width,
-                    pixel_start_y_cor / sprite_sheet_height,
-                    pixel_end_x_cor / sprite_sheet_width,
-                    pixel_end_y_cor / sprite_sheet_height,
-                ];
-            }
-            triangle_vec.push(triangle_uvs);
-        }
-
-
-        logging_tool::log_init("created triangle UVs");
-
-
-        return triangle_vec;
-    }
-
-    pub fn get_block_triangle_uv(&self, block : BlockType, triangle : BlockTriangle) -> [f32; 4] {
-        return self.triangles[block.id_as_usize() as usize][triangle.id_as_usize()];
-    }
-
-}
-
-
 #[repr(C)]
 struct Vertex {
     pos: [f32; 2],
@@ -81,9 +20,6 @@ struct Uniforms {
 }
 
 pub struct TextureRenderingManager {
-    //SpriteSheet UV manager
-    uv_manager : UVManager,
-    
     // Shaders
     opaque_shader: ShaderId,
     translucent_shader: ShaderId,
@@ -130,8 +66,6 @@ impl TextureRenderingManager {
         );
 
         Self {
-            uv_manager: UVManager::new(), 
-            
             // Renderer
             opaque_shader: opaque_shader,
             translucent_shader: translucent_shader,

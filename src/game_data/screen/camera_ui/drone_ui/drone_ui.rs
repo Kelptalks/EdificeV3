@@ -1,8 +1,9 @@
-use std::sync::{Arc, RwLock};
-
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, World, screen::{Button, ScreenData, camera_data::{self, CameraData}, drone_ui::{drone_mini_window::MiniWindow, drone_spectate_window::SpectateWindow}, screen_data}, tik_manager::drones::drone::Drone, types::DroneUITexture};
+use crate::game_data::{TextureManager, 
+    World, 
+    screen::{ScreenData, camera_data::{CameraData}, camera_ui::drone_ui::{drone_mini_window::MiniWindow, drone_spectate_window::SpectateWindow}}, 
+    tik_manager::drones::drone::Drone};
 
 
 /*

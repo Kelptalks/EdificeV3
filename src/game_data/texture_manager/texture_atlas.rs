@@ -40,7 +40,6 @@ impl TextureAtlas {
     // Init
     //=====================================
     pub fn new(ctx: &mut GlContext) -> Self {
-        log_init("Creating Texture atlas");
         let atlas_dimensions = 8192;
 
         // Create image for texture atlas

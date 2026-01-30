@@ -43,8 +43,6 @@ impl BlockTextureManager {
             start_cords[1] + ((buffer_space + sprite_pixel_scale[1]) * triangles_per_block)
         ];
 
-        println!("Block Texture end cords ({}, {})", end_cords[0], end_cords[1]);
-
         Self {
             start_cords: start_cords,
             end_cords: end_cords,

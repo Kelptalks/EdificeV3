@@ -87,9 +87,7 @@ pub struct World {
 
 impl World {
     pub fn new() -> Self
-    {
-        log_init("Creating world");
-        
+    {   
         Self { 
             loaded_chunks: HashMap::new(),
             total_chunks: 0,

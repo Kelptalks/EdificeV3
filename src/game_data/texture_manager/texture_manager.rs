@@ -1,3 +1,5 @@
+use std::time::SystemTime;
+
 use crate::game_data::{log_init, screen::text, texture_manager::{texture_atlas::TextureAtlas, texture_renderer::TextureRenderingManager}, types::{BlockShaderType, BlockTriangle, BlockType, CharType, DroneItemTexture, DroneUITexture, ShaderTriangle, UITextures}};
 use miniquad::*;
 
@@ -33,7 +35,6 @@ impl TextureManager {
     //======================
 
     pub fn new() -> Self {
-        log_init("Creating Texture Manager");
         Self {
             textures_initialized : false,
             texture_renderer : None,
@@ -61,6 +62,7 @@ impl TextureManager {
 
         // Set to initialized 
         self.textures_initialized = true;
+
     }
 
     pub fn are_textures_initialized(&self) -> bool {

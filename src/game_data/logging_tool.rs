@@ -37,7 +37,12 @@ pub fn log_init(text : &str)
 {
     let indent = *INDENTATION.lock().unwrap();
     print!("{}", "  ".repeat(indent));
-    println!("\x1b[32m+ {}\x1b[0m", text);
+    if indent == 0 {
+        println!("\x1b[32m+ {}\x1b[0m", text);
+    }
+    else {
+        println!("\x1b[32mV {}\x1b[0m", text);
+    }
 
 }
 

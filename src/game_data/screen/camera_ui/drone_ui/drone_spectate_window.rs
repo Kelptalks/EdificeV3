@@ -1,8 +1,8 @@
-use std::{fmt::format, sync::{Arc, RwLock}};
+
 
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, World, screen::{ScreenData, iso_cord_tool, render_centered_string_at_ndi_cords, text::render_string_at_ndi_cords}, tik_manager::drones::{drone::Drone, drone_inventory}, types::{BlockType, DroneUITexture}};
+use crate::game_data::{TextureManager, World, screen::{ScreenData, iso_cord_tool, render_centered_string_at_ndi_cords, text::render_string_at_ndi_cords}, tik_manager::drones::{drone::Drone}, types::{BlockType, DroneUITexture}};
 
 pub struct SpectateWindow {
     ndc_cords: [f32; 2],

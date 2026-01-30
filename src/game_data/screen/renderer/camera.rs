@@ -2,7 +2,7 @@ use std::{alloc::System, clone, sync::{Arc, RwLock, TryLockError}, time::SystemT
 
 use miniquad::{GlContext, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, screen::{self, camera_data::{self, CameraData}, iso_cord_tool, render_string, renderer::{camera, casted_block_manager::{self, casted_chunk::{self, CastedChunk}}, render_cache_manager::{self, canvas_data, render_cashe_manager::RenderCacheManager}, thread_manager::raycast_thread_pool::RaycastThreadPool}, text}, types::{BlockTriangle, BlockType, UITextures}};
+use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, log_init, screen::{self, camera_data::{self, CameraData}, iso_cord_tool, render_string, renderer::{camera, casted_block_manager::{self, casted_chunk::{self, CastedChunk}}, render_cache_manager::{self, canvas_data, render_cashe_manager::RenderCacheManager}, thread_manager::raycast_thread_pool::RaycastThreadPool}, text}, types::{BlockTriangle, BlockType, UITextures}};
 use super::casted_block_manager::casted_block_manager::CastedChunkManager;
 
 pub struct Camera
@@ -32,8 +32,19 @@ impl Camera {
     // initialize the camera
     pub fn initialize_camera(&mut self, ctx: &mut miniquad::GlContext)
     {
+        let init_start_time = SystemTime::now();
         self.render_cache_manager = Some(RenderCacheManager::new(ctx));
+
         self.initialized = true;
+
+        // Get end time
+        let system_time_end = SystemTime::now();
+        let init_duration = system_time_end.duration_since(init_start_time).unwrap();
+        let init_duration_ms = init_duration.as_millis();
+
+        // Log time to init
+        let log_message = format!("Camera Initilized ({}ms)", init_duration_ms);
+        log_init(&log_message);
     }
 
     //=====================================

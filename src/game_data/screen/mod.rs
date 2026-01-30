@@ -27,4 +27,4 @@ pub use main_menu::main_menu::MainMenu;
 pub mod main_menu_world_creation;
 pub use main_menu_world_creation::world_config;
 
-pub mod drone_ui;
+pub mod camera_ui;

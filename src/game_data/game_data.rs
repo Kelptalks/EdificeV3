@@ -1,19 +1,16 @@
 
 
 use miniquad::{GlContext, KeyCode, KeyMods, MouseButton};
-use rand::{rng, Rng};
-use std::sync::{Arc, Mutex, RwLock};
+use std::sync::{Arc, RwLock};
 use std::time::SystemTime;
 
 use crate::game_data::debuging::debug_data::DebugData;
-use crate::game_data::screen::camera_data::CameraData;
+use crate::game_data::{log_indent, log_init, log_unindent};
 use crate::game_data::screen::screen_task_manager::drone_rendering_task_manager::DroneRenderingTaskManager;
-use crate::game_data::screen::{self, render_string, screen_mananager, screen_task_manager};
 use crate::game_data::screen::screen_mananager::ScreenManager;
 use crate::game_data::tik_manager::tik_manager::TikManager;
 use crate::game_data::world::World;
 use crate::game_data::texture_manager::TextureManager;
-use crate::game_data::screen::Camera;
 use crate::game_data::world_task_manager::world_task_manager::WorldTaskManager;
 
 
@@ -35,21 +32,21 @@ impl GameData {
     {
         
         // Set up texture manager
-        let mut texture_manager = TextureManager::new();
+        let texture_manager = TextureManager::new();
 
         // Set up world
-        let mut world = World::new();
+        let world = World::new();
         let world_task_manager = WorldTaskManager::new();
         
         // Wrap world in Arc<RwLock> for thread-safe access
         let world = Arc::new(RwLock::new(world));
 
         // Create screen manager and configure it with the thread pool
-        let mut screen_manager = ScreenManager::new();
+        let screen_manager = ScreenManager::new();
         let drone_rendering_task_manager = DroneRenderingTaskManager::new();
 
         // set up tik managers
-        let mut tik_manager = TikManager::new(world.clone());
+        let tik_manager = TikManager::new(world.clone());
 
 
         Self {
@@ -81,7 +78,7 @@ impl GameData {
     pub fn handle_key_inputs(&mut self, keycode: KeyCode, keymods: KeyMods, repeat: bool) {
         // New
         let screen = &mut self.screen_manager;
-        screen.key_down_event(keycode, keymods, repeat);
+        screen.key_down_event(&mut self.tik_manager, keycode, keymods, repeat);
     }
 
     pub fn handle_mouse_wheel_inputs(&mut self, x_scroll_distance: f32, y_scroll_distance: f32) {
@@ -106,29 +103,47 @@ impl GameData {
     // Getters / Setters
     //=====================================
 
-    pub fn get_mut_camera_data(&mut self) -> &mut CameraData {
-        return self.screen_manager.get_mut_camera_data()
-    }
-
     //=====================================
     // Init functions
     //=====================================
 
     pub fn init_textures(&mut self, ctx : &mut GlContext)
     {
-        if (!self.texture_manager.are_textures_initialized()){
+        if !self.texture_manager.are_textures_initialized(){
+            // Get start time
+            let init_start_time = SystemTime::now();
+
+            // Init textures
             self.texture_manager.init_textures(ctx);
+
+            // Get end time
+            let system_time_end = SystemTime::now();
+            let init_duration = system_time_end.duration_since(init_start_time).unwrap();
+            let init_duration_ms = init_duration.as_millis();
+
+            // Log time to init
+            let log_message = format!("Textures Initilized ({}ms)", init_duration_ms);
+            log_init(&log_message);
         }
     }
 
     pub fn init_screen_manager(&mut self, ctx : &mut GlContext){
+        let init_start_time = SystemTime::now();
+
+        log_indent();
         self.screen_manager.init_screen([1920.0, 1080.0], ctx);
+        log_unindent();
+
+        // Get end time
+        let system_time_end = SystemTime::now();
+        let init_duration = system_time_end.duration_since(init_start_time).unwrap();
+        let init_duration_ms = init_duration.as_millis();
+
+        // Log time to init
+        let log_message = format!("Screen Manager Initilized ({}ms)", init_duration_ms);
+        log_init(&log_message);
+        
     } 
-
-    pub fn init_camera(mut self) {
-
-        //self.screen_manager.get_mut_camera().init(self.world);
-    }
 
     //=====================================
     // Rendering
@@ -146,10 +161,6 @@ impl GameData {
         
         // Tik managing
         self.tik_manager.update_tik_manager(&mut self.world_task_manager, &mut self.drone_rendering_task_manager);
-        if self.screen_manager.get_screen_data().is_world_initialized() {
-            self.tik_manager.unpause();
-        }
-
 
         let screen_mananager = &self.screen_manager;
         screen_mananager.collect_debug_data(&mut self.debug_data);

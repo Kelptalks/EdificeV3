@@ -65,7 +65,11 @@ impl Button {
         self.is_pressed
     }
 
-    pub fn get_ndc_cords(&self) -> [f32; 2] {
+    pub fn set_ndc(&mut self, cords: [f32; 2]) {
+        self.cords = cords;
+    }
+
+    pub fn get_ndc(&self) -> [f32; 2] {
         return self.cords;
     }
 

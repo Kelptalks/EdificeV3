@@ -1,6 +1,6 @@
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, screen::{ScreenData, camera_data::{self, CameraData}, text::render_string_at_ndi_cords}, tik_manager::drones::drone::Drone, types::DroneUITexture};
+use crate::game_data::{TextureManager, screen::{ScreenData, camera_data::{CameraData}, text::render_string_at_ndi_cords}, tik_manager::drones::drone::Drone, types::DroneUITexture};
 
 pub struct MiniWindow {
     // Rendering
@@ -125,7 +125,7 @@ impl MiniWindow {
 
     pub fn handle_motion_event(&mut self, screen_data: &ScreenData) {
         // if on mini_window
-
+        
     }
 
     pub fn mouse_button_down_event(&mut self, button: MouseButton, screen_data: &ScreenData) {

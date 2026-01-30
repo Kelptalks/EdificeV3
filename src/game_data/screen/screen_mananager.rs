@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use image::imageops::FilterType::Triangle;
 use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, drone_ui::camera_ui_manager::CameraUIManager, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, render_centered_string_at_ndi_cords, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::drone_rendering_task_manager::DroneRenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures};
+use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, render_centered_string_at_ndi_cords, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::drone_rendering_task_manager::DroneRenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures};
 
 
 
@@ -21,7 +21,7 @@ pub struct ScreenManager {
     camera : Camera,
     main_menu : MainMenu,
     main_menu_world_creation: WorldCreationMenu,
-    drone_ui_manager: CameraUIManager,
+    camera_ui_manager: CameraUIManager,
 
     // Screen Data
     screen_data: ScreenData,
@@ -29,19 +29,18 @@ pub struct ScreenManager {
 
 impl ScreenManager {
     pub fn new()->Self {
-        let mut camera = Camera::new();
+        let camera = Camera::new();
+        let screen_data = ScreenData::new();
 
         let new_screen = ScreenManager{
             // Menu Structs
             camera: camera,
             main_menu: MainMenu::new(),
             main_menu_world_creation: WorldCreationMenu::new(),
-            
-            //
-            drone_ui_manager: CameraUIManager::new(),
+            camera_ui_manager: CameraUIManager::new(),
 
             // Screen Data
-            screen_data: ScreenData::new(), 
+            screen_data: screen_data, 
         };
         
         
@@ -92,7 +91,7 @@ impl ScreenManager {
             }
             else {
                 self.camera.render_camera(texture_manager, world.clone(), ctx);
-                self.drone_ui_manager.render_ui(texture_manager, self.camera.get_camera_data(), &world.clone(), tik_manager);
+                self.camera_ui_manager.render_ui(&self.screen_data, texture_manager, self.camera.get_camera_data(), &world.clone(), tik_manager);
                 world_rendering_task_manager.execute_render_updates_drone(world, &mut self.camera, texture_manager);
                 
             }
@@ -120,7 +119,7 @@ impl ScreenManager {
         }
         else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
             camera_controls::mouse_motion_event(self, x_cor, y_cor);
-            self.drone_ui_manager.handle_motion_event(&self.screen_data);
+            self.camera_ui_manager.handle_motion_event(&self.screen_data);
         }
     }
 
@@ -139,7 +138,7 @@ impl ScreenManager {
         }
         else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
             camera_controls::mouse_button_down_event(self, button);
-            self.drone_ui_manager.handle_mouse_button_down(button, &self.screen_data);
+            self.camera_ui_manager.handle_mouse_button_down(button, &self.screen_data);
         }
     }
 
@@ -152,12 +151,12 @@ impl ScreenManager {
         }
         else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
             camera_controls::mouse_button_up_event(self, button);
-            self.drone_ui_manager.handle_mouse_button_up(button, &self.screen_data);
+            self.camera_ui_manager.handle_mouse_button_up(button, &self.screen_data);
         }
     }
 
     // Handle key press
-    pub fn key_down_event(&mut self, keycode: KeyCode, keymods: KeyMods, repeat: bool) {
+    pub fn key_down_event(&mut self, tik_manager: &mut TikManager, keycode: KeyCode, keymods: KeyMods, repeat: bool) {
         let camera_data = &self.get_camera_data().clone();
         self.screen_data.re_calculate_mouse_cords(camera_data);
 
@@ -174,6 +173,7 @@ impl ScreenManager {
         }
         else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
             camera_controls::key_down_event(self, keycode, keymods, repeat);
+            self.camera_ui_manager.handle_key_down(keycode, tik_manager);
         }
     }
 
@@ -209,8 +209,12 @@ impl ScreenManager {
     pub fn set_screen_rez(&mut self, screen_rez: [f32; 2], ctx : &mut GlContext) {
         // Calculate and setup viewport and set the correct values 
         self.screen_data.set_screen_rez(screen_rez, ctx);
+
         // Update viewport in camera
         self.camera.update_viewport(self.screen_data.get_viewport_rez(), self.screen_data.get_viewport_offset());
+
+        // Update window locations
+        self.camera_ui_manager.window_resize_update(&self.screen_data);
     }
 
     pub fn get_screen_data(&self) -> &ScreenData {

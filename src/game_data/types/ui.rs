@@ -36,10 +36,14 @@ pub enum UITextures {
     ButtonCircle = 18,
     ButtonCircle_Down = 19,
 
+    // speed button
+    SpeedButton = 20,
+    SpeedButton_Down = 21,
+
     // Backgrounds
-    VoidBackground = 20,
-    FaceBackground = 21,
-    MirrorBackground = 22,
+    VoidBackground = 22,
+    FaceBackground = 23,
+    MirrorBackground = 24,
 
 }
 
@@ -68,6 +72,7 @@ impl UITextures {
             UITextures::BarButtonRight => UITextures::BarButtonRight_Down,
             UITextures::DropdownArrow => UITextures::DropdownArrow_Down,
             UITextures::ButtonCircle => UITextures::ButtonCircle_Down,
+            UITextures::SpeedButton => UITextures::SpeedButton_Down,
             // If already pressed, return itself
             _ => *self,
         }
@@ -96,9 +101,15 @@ impl UITextures {
             17 => Some(UITextures::DropdownArrow_Down),
             18 => Some(UITextures::ButtonCircle),
             19 => Some(UITextures::ButtonCircle_Down),
-            20 => Some(UITextures::VoidBackground),
-            21 => Some(UITextures::FaceBackground),
-            22 => Some(UITextures::MirrorBackground),
+
+            // Speed button
+            20 => Some(UITextures::SpeedButton),
+            21 => Some(UITextures::SpeedButton_Down),
+
+            // Backgrounds
+            22 => Some(UITextures::VoidBackground),
+            23 => Some(UITextures::FaceBackground),
+            24 => Some(UITextures::MirrorBackground),
             _ => None,
         }
     }
@@ -133,6 +144,9 @@ impl UITextures {
 
             UITextures::ButtonCircle => [0, 64, 32, 32],
             UITextures::ButtonCircle_Down => [0, 96, 32, 32],
+
+            UITextures::SpeedButton => [80, 16, 16, 16],
+            UITextures::SpeedButton_Down => [80, 0, 16, 16],
 
             UITextures::VoidBackground => [96, 0, 64, 64],
             UITextures::FaceBackground => [160, 0, 320, 176],

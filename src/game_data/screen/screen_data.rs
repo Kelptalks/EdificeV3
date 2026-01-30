@@ -124,6 +124,15 @@ impl ScreenData {
         return [starting_cords[0], starting_cords[1], ending_cords[0], ending_cords[1]];
     }
 
+    pub fn get_viewport_starting_ndc(&self) -> [f32; 2] {
+        return self.pixel_cords_to_ndc_cords([0.0, 0.0]);
+    }
+
+    pub fn get_viewport_ending_ndc(&self) -> [f32; 2] {
+        return self.pixel_cords_to_ndc_cords(self.get_screen_rez());
+    }
+
+
     pub fn pixel_cords_to_ndc_cords(&self, pixel_cords: [f32; 2]) -> [f32; 2] {
         let centered_pixel_cords = [
             pixel_cords[0] - (self.screen_rez[0] / 2.0),
