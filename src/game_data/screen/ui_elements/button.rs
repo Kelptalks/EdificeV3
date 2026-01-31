@@ -126,8 +126,8 @@ impl Button {
         if let Some(string) = &self.text {
             if self.is_pressed {
                 let ndc = [
-                    self.ndc[0],
-                    self.ndc[1] - self.scale
+                    self.ndc[0] + self.scale / 2.0,
+                    self.ndc[1] - self.scale / 4.0,
                 ];
 
                 render_centered_string_at_ndc(texture_manager, 

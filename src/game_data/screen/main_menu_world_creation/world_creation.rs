@@ -1,6 +1,6 @@
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, screen::{Button, ScreenData, render_centered_string_at_ndc, render_string, ui_manager::BarButton, world_config::WorldConfig}, types::{FontType, UITextures}};
+use crate::game_data::{TextureManager, screen::{Button, ScreenData, render_centered_string_at_ndc, render_string, ui_elements::BarButton, world_config::WorldConfig}, types::{FontType, UITextures}};
 
 pub struct WorldCreationMenu {
     

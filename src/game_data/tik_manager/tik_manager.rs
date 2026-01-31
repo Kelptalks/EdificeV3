@@ -7,8 +7,7 @@ use crate::game_data::{World, debuging::debug_data::DebugData, screen::{Camera, 
 #################
 ## Tik Manager ##
 #################
-This file is resposible for managing the game screen. It handles whitch menu is currently visibile.
-how those menus are rendered and how those controls are processed.
+
 */
 pub struct TikManager {
     paused: bool,
@@ -53,12 +52,18 @@ impl TikManager {
     // Getters / Setters
     //=====================================
     
+    // Lua
     pub fn get_mut_lua_manager(&mut self) -> &mut LuaManager {
         return &mut self.lua_manager;
     }
 
+    // Drone manager
     pub fn get_drone_manager(&self) -> &DroneManager {
         return &self.drone_manager;
+    }
+    
+    pub fn get_mut_drone_manager(&mut self) -> &mut DroneManager {
+        return &mut self.drone_manager;
     }
 
     pub fn pause(&mut self){
@@ -105,11 +110,11 @@ impl TikManager {
             
             // Temp Drone Creation
             if self.current_tik == 5 {
-                self.drone_manager.create_drone_at_cords(screen_task_manager, [-25, -25, 0], "Drone 1".to_string());
+                self.drone_manager.create_drone_at_cords([-25, -25, 0], "Drone 1".to_string());
             }
 
             // Tik drones
-            self.drone_manager.tik_drones(self.world.clone(), world_task_manager, screen_task_manager);
+            self.drone_manager.tik_drones(self.world.clone(), world_task_manager);
 
             // Run lua tik function
             let world_gaurd = self.world.read().unwrap(); // get world lock for lua execution

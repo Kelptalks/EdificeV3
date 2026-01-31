@@ -45,20 +45,17 @@ impl DroneManager {
     }
 
     // Tik all the drones in the world
-    pub fn tik_drones(&mut self, world: Arc<RwLock<World>>, world_task_manager: &mut WorldTaskManager, screen_task_manager: &mut DroneRenderingTaskManager) {
+    pub fn tik_drones(&mut self, world: Arc<RwLock<World>>, world_task_manager: &mut WorldTaskManager) {
         let world_gaurd = world.read().unwrap();
         
         for (key, drone) in &mut self.drone_map {
-            if drone.moved() {
-                screen_task_manager.update_drone_location(drone.get_id(), drone.get_cords());
-            }
             drone.tik_drone(&world_gaurd, world_task_manager);
         }
     
     }
 
     // Function for creating a drone
-    pub fn create_drone_at_cords(&mut self, screen_task_manager: &mut DroneRenderingTaskManager, cords:[i32; 3], name: String){
+    pub fn create_drone_at_cords(&mut self, cords:[i32; 3], name: String){
         // Create drone
         let new_id = self.current_id;
         self.current_id += 1; // Update Current Id
@@ -66,12 +63,8 @@ impl DroneManager {
         // Create the drone
         let drone = Drone::new(cords, name.clone(), new_id);
 
-        screen_task_manager.add_drone_render_data(new_id, cords);
-
         // Add drone to hashmap
         self.drone_map.insert(new_id, drone);
-
-
         
         // Debug
         println!("Created New Drone | Cords: ({:?}) | Id: {} | Name: {}", cords, new_id, name);

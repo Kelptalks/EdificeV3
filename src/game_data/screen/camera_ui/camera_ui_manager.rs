@@ -85,7 +85,7 @@ impl CameraButtons {
 
 
         // Set button block visuals
-        self.button_toggle_drone_ui.set_block(BlockType::DroneBotRight);
+        self.button_toggle_drone_ui.set_block(BlockType::DroneControler);
         self.button_rebuild_lua_script.set_block(BlockType::Debug);
         self.button_kill_all_drones.set_block(BlockType::DroneDead);
         self.button_spawn_drones.set_block(BlockType::DroneBotRight);
@@ -94,8 +94,7 @@ impl CameraButtons {
         self.button_toggle_drone_ui.set_text("Toggle Drone UI".to_string());
         self.button_rebuild_lua_script.set_text("Rebuild Lua Scripts".to_string());
         self.button_kill_all_drones.set_text("Kill All Drones".to_string());
-        self.button_spawn_drones.set_text("Toggle Drone UI".to_string());
-
+        self.button_spawn_drones.set_text("Spawn Drone".to_string());
 
 
     }
@@ -106,31 +105,6 @@ impl CameraButtons {
         for button in buttons {
             button.render_button(texture_manager);
         }
-
-
-        // Render text if mouse on button
-        let scale = self.button_toggle_drone_ui.get_scale() / 4.0;
-        let ndc = [
-            screen_data.get_mouse_ndc()[0],
-            screen_data.get_mouse_ndc()[1] - scale,
-        ];
-        if self.button_toggle_drone_ui.is_mouse_on_button() {
-            render_centered_string_at_ndc(texture_manager, 
-                "Toggle Drone UI".to_string(), 
-                FontType::Basic, 
-                scale, 
-                ndc
-            );
-        }
-        // Rebuild lua scripts
-        if self.button_rebuild_lua_script.is_mouse_on_button() {
-            render_centered_string_at_ndc(texture_manager, 
-                "Rebuild Lua Scripts".to_string(), 
-                FontType::Basic, 
-                scale, 
-                ndc
-            );
-        }
     }
 
     //=====================================
@@ -139,8 +113,10 @@ impl CameraButtons {
 
     pub fn handle_motion_event(&mut self, screen_data: &ScreenData) {
         // Buttons
-        self.button_toggle_drone_ui.handle_mouse_motion_input(screen_data);
-        self.button_rebuild_lua_script.handle_mouse_motion_input(screen_data);
+        let buttons = self.get_buttons_mut();
+        for button in buttons {
+            button.handle_mouse_motion_input(screen_data);
+        }
     }
 
     pub fn handle_mouse_button_down(&mut self, mouse_button: MouseButton, tik_manager: &mut TikManager) {
@@ -153,6 +129,16 @@ impl CameraButtons {
             // Rebuild lua scripts
             if self.button_rebuild_lua_script.is_mouse_on_button() {
                 tik_manager.get_mut_lua_manager().rebuild_drone_script();
+            }
+            // Clear all drones 
+            if self.button_kill_all_drones.is_mouse_on_button() {
+
+            }
+            // Spawn a drone
+            if self.button_kill_all_drones.is_mouse_on_button() {
+
+
+                //tik_manager.get_mut_drone_manager().create_drone_at_cords(screen_task_manager, [], "un named");
             }
         }
     }
@@ -199,7 +185,13 @@ impl CameraUIManager {
         self.tik_ui.set_ndc([viewport_ending_ndc[0] - tik_ui_x_scale, viewport_starting_ndc[1]]);
     }
 
-    pub fn render_ui(&mut self, screen_data: &ScreenData, texture_manager: &mut TextureManager, camera_data: &CameraData, world: &Arc<RwLock<World>>, tik_manager: &TikManager) {
+    pub fn render_ui(&mut self, 
+        screen_data: &ScreenData, 
+        texture_manager: &mut TextureManager, 
+        camera_data: &CameraData, 
+        world: &Arc<RwLock<World>>, 
+        tik_manager: &TikManager) 
+    {
         // Render Camera buttons
         self.camera_buttons.render(texture_manager, screen_data);
 

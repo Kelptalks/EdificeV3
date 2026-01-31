@@ -15,8 +15,8 @@ pub mod text;
 pub use text::render_string;
 pub use text::render_centered_string_at_ndc;
 
-pub mod ui_manager;
-pub use ui_manager::Button;
+pub mod ui_elements;
+pub use ui_elements::Button;
 
 pub mod screen_data;
 pub use screen_data::ScreenData;
