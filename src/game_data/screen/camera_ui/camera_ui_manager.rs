@@ -20,7 +20,7 @@ pub struct CameraButtons {
     drone_ui_visible: bool,
 
     button_kill_all_drones: Button,
-    button_spawn_drones: Button,
+    button_spawn_drone: Button,
 
     // Data
     button_rebuild_lua_script: Button,
@@ -34,7 +34,7 @@ impl CameraButtons {
             button_toggle_drone_ui: Button::new_blank(UITextures::ButtonCircle),
             button_rebuild_lua_script: Button::new_blank(UITextures::ButtonCircle),
             button_kill_all_drones: Button::new_blank(UITextures::ButtonCircle),
-            button_spawn_drones: Button::new_blank(UITextures::ButtonCircle),
+            button_spawn_drone: Button::new_blank(UITextures::ButtonCircle),
 
             // data
             drone_ui_visible: true,
@@ -51,7 +51,7 @@ impl CameraButtons {
             &mut self.button_toggle_drone_ui,
             &mut self.button_rebuild_lua_script,
             &mut self.button_kill_all_drones,
-            &mut self.button_spawn_drones,
+            &mut self.button_spawn_drone,
         ]
     }
 
@@ -88,13 +88,13 @@ impl CameraButtons {
         self.button_toggle_drone_ui.set_block(BlockType::DroneControler);
         self.button_rebuild_lua_script.set_block(BlockType::Debug);
         self.button_kill_all_drones.set_block(BlockType::DroneDead);
-        self.button_spawn_drones.set_block(BlockType::DroneBotRight);
+        self.button_spawn_drone.set_block(BlockType::DroneBotRight);
 
         // Set button text
         self.button_toggle_drone_ui.set_text("Toggle Drone UI".to_string());
         self.button_rebuild_lua_script.set_text("Rebuild Lua Scripts".to_string());
         self.button_kill_all_drones.set_text("Kill All Drones".to_string());
-        self.button_spawn_drones.set_text("Spawn Drone".to_string());
+        self.button_spawn_drone.set_text("Spawn Drone".to_string());
 
 
     }
@@ -131,14 +131,12 @@ impl CameraButtons {
                 tik_manager.get_mut_lua_manager().rebuild_drone_script();
             }
             // Clear all drones 
-            if self.button_kill_all_drones.is_mouse_on_button() {
-
+            if self.button_spawn_drone.is_mouse_on_button() {
+                tik_manager.get_mut_drone_manager().create_drone_at_cords([0, 0, 0]);
             }
             // Spawn a drone
             if self.button_kill_all_drones.is_mouse_on_button() {
-
-
-                //tik_manager.get_mut_drone_manager().create_drone_at_cords(screen_task_manager, [], "un named");
+                tik_manager.get_mut_drone_manager().kill_all_drones();
             }
         }
     }

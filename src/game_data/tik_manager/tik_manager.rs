@@ -107,11 +107,6 @@ impl TikManager {
             // Update tik time
             self.current_tik += 1;
             self.last_tik_micros = current_millis;
-            
-            // Temp Drone Creation
-            if self.current_tik == 5 {
-                self.drone_manager.create_drone_at_cords([-25, -25, 0], "Drone 1".to_string());
-            }
 
             // Tik drones
             self.drone_manager.tik_drones(self.world.clone(), world_task_manager);

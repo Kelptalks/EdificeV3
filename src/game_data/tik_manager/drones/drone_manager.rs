@@ -48,26 +48,32 @@ impl DroneManager {
     pub fn tik_drones(&mut self, world: Arc<RwLock<World>>, world_task_manager: &mut WorldTaskManager) {
         let world_gaurd = world.read().unwrap();
         
-        for (key, drone) in &mut self.drone_map {
+        // Loop through drones
+        self.drone_map.retain(|_key, drone| {
             drone.tik_drone(&world_gaurd, world_task_manager);
-        }
+            drone.get_health() != 0  // Keep if health > 0
+        });
+
     
     }
 
     // Function for creating a drone
-    pub fn create_drone_at_cords(&mut self, cords:[i32; 3], name: String){
+    pub fn create_drone_at_cords(&mut self, cords:[i32; 3]){
         // Create drone
         let new_id = self.current_id;
         self.current_id += 1; // Update Current Id
 
         // Create the drone
-        let drone = Drone::new(cords, name.clone(), new_id);
+        let drone = Drone::new(cords, new_id);
 
         // Add drone to hashmap
         self.drone_map.insert(new_id, drone);
-        
-        // Debug
-        println!("Created New Drone | Cords: ({:?}) | Id: {} | Name: {}", cords, new_id, name);
 
+    }
+
+    pub fn kill_all_drones(&mut self) {
+        for (key, drone) in &mut self.drone_map {
+            drone.set_health(0);
+        }
     }
 }
