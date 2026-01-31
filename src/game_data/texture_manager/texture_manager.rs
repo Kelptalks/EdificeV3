@@ -173,7 +173,7 @@ impl TextureManager {
         let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_ui_uv(ui_texture);
 
         // Modify the y value based off texture src rect | Could cache this
-        let texture_src_rect = ui_texture.ui_texture_to_sprite_sheet_src_rect();
+        let texture_src_rect = ui_texture.get_rect();
         let y_to_x_scale = texture_src_rect [3] as f32 / texture_src_rect[2] as f32;
         let y_scale = scale * y_to_x_scale;
 

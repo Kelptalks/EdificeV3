@@ -130,7 +130,7 @@ impl DebugData {
 
         // Render frame data
         let formated_frame_time = format!(
-            "Frame count {} | Frame High: {} ms | Frame Time: {} ms | Total Tiles Raycasted: {}", 
+            "Frame count {} / Frame High: {} ms / Frame Time: {} ms / Total Tiles Raycasted: {}", 
             self.frame_count, 
             self.frame_high, 
             self.frame_time,
@@ -141,7 +141,7 @@ impl DebugData {
 
         // Render tik time
         let formated_tik_time = format!(
-            "Current Time: {} | Tik Window Execution Time: {} ms | Tiks in window: {}", 
+            "Current Time: {} / Tik Window Execution Time: {} ms / Tiks in window: {}", 
             self.current_tik,
             self.tik_window_execution_time,
             self.tiks_this_window

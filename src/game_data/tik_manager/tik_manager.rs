@@ -79,6 +79,9 @@ impl TikManager {
         .unwrap()
         .as_micros();
     }
+    pub fn is_paused(&self) -> bool {
+        return self.paused;
+    }
 
     pub fn set_tik_rate(&mut self, new_tik_rate: u128) {
         self.tik_rate = new_tik_rate;
