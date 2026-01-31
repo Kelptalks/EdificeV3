@@ -9,7 +9,8 @@ pub struct DebugData {
 
     // Tik data
     current_tik: u32,
-    tik_execution_time: u32,
+    tiks_this_window: u32,
+    tik_window_execution_time: u32,
 
     // Mouse data
     mouse_tile_cords: [i32; 2],
@@ -17,6 +18,7 @@ pub struct DebugData {
     // Rendering
     total_cached_chunks: u32,
     max_cached_chunks: u32, 
+    total_tiles_raycasted: u32,
 }
 /*
 ################
@@ -38,7 +40,8 @@ impl DebugData {
 
             // Current tik
             current_tik: 0,
-            tik_execution_time: 0,
+            tiks_this_window: 0,
+            tik_window_execution_time: 0,
 
             // Mouse data
             mouse_tile_cords: [0, 0],
@@ -46,6 +49,7 @@ impl DebugData {
             // Rendering
             total_cached_chunks: 0,
             max_cached_chunks: 0, 
+            total_tiles_raycasted: 0,
         }
     }
 
@@ -63,13 +67,15 @@ impl DebugData {
 
 
     // Tik Data
-    pub fn set_tik_execution_time(&mut self, tik_execution_time: u32) {
-        self.tik_execution_time = tik_execution_time;
+    pub fn set_tik_window_execution_time(&mut self, tik_execution_time: u32) {
+        self.tik_window_execution_time = tik_execution_time;
+    }
+    pub fn set_tiks_this_window(&mut self, tiks: u32) {
+        self.tiks_this_window = tiks;
     }
     pub fn set_current_tik(&mut self, current_tik: u32) {
         self.current_tik = current_tik;
     }
-
 
     // Mouse Data
     pub fn set_mouse_tile_cords(&mut self, mouse_tile_cords: [i32; 2]) {
@@ -84,7 +90,9 @@ impl DebugData {
     pub fn set_max_cached_chunks(&mut self, max_cached_chunks: u32) {
         self.max_cached_chunks = max_cached_chunks;
     }
-
+    pub fn set_total_tiles_raycasted(&mut self, tiles_raycasted: u32) {
+        self.total_tiles_raycasted = tiles_raycasted;
+    }
 
     //=====================================
     // Rendering
@@ -122,19 +130,21 @@ impl DebugData {
 
         // Render frame data
         let formated_frame_time = format!(
-            "Frame count {} | Frame High: {} ms | Frame Time: {} ms", 
+            "Frame count {} | Frame High: {} ms | Frame Time: {} ms | Total Tiles Raycasted: {}", 
             self.frame_count, 
             self.frame_high, 
-            self.frame_time
+            self.frame_time,
+            self.total_tiles_raycasted
         );
         render_string_at_ndc(texture_manager, formated_frame_time, font, scale, current_text_render_ndi_cords);
         current_text_render_ndi_cords[1] += spacing;
 
         // Render tik time
         let formated_tik_time = format!(
-            "Current Time: {} | Tik Execution Time: {} ms", 
+            "Current Time: {} | Tik Window Execution Time: {} ms | Tiks in window: {}", 
             self.current_tik,
-            self.tik_execution_time
+            self.tik_window_execution_time,
+            self.tiks_this_window
         );
         render_string_at_ndc(texture_manager, formated_tik_time, font, scale, current_text_render_ndi_cords);
         current_text_render_ndi_cords[1] += spacing;
@@ -156,6 +166,5 @@ impl DebugData {
         );
         render_string_at_ndc(texture_manager, render_data, font, scale, current_text_render_ndi_cords);
         current_text_render_ndi_cords[1] += spacing;
-
     }
 }

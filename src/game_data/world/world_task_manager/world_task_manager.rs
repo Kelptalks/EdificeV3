@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, screen::screen_task_manager::{self, drone_rendering_task_manager::{self, DroneRenderingTaskManager}}};
+use crate::game_data::{World, screen::screen_task_manager::{self, rendering_task_manager::{self, RenderingTaskManager}}};
 
 struct ModBlockTask {
     world_cords : [i32; 3],
@@ -41,7 +41,7 @@ impl WorldTaskManager {
     }
 
     // Execute the tasks in the added to the manager
-    pub fn execute_tasks(&mut self, world: Arc<RwLock<World>>, screen_task_manager: &mut DroneRenderingTaskManager) {
+    pub fn execute_tasks(&mut self, world: Arc<RwLock<World>>, screen_task_manager: &mut RenderingTaskManager) {
          // get the write lock of the world
         let mut world_gaurd = world.write().unwrap();
 

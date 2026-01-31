@@ -194,6 +194,11 @@ impl BlockType {
         BLOCK_PROPERTIES[*self as usize].translucent
     }
 
+    #[inline]
+    pub fn is_opaque(&self) -> bool {
+        !self.is_transparent() && !self.is_translucent()
+    }
+
     pub fn is_solid(&self) -> bool {
         BLOCK_PROPERTIES[*self as usize].solid
     }

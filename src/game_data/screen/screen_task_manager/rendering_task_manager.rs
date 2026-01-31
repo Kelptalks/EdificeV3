@@ -18,7 +18,7 @@ impl BlockUpdateTask {
     pub fn re_render_block(&self, world: &Arc<RwLock<World>>, camera: &mut Camera, camera_data: &CameraData) {
         // Loop through area around drone
         let casted_tile_cords = camera_data.world_to_casted_tile_cords(self.cords);
-        camera.ray_cast_area_at_cords(world, casted_tile_cords, 3);
+        camera.ray_cast_area_at_cords(world, casted_tile_cords, 2);
     }
 }
 
@@ -29,14 +29,15 @@ impl BlockUpdateTask {
 This file is resposible for managing rendering updates that occer every tik
 */
 
-pub struct DroneRenderingTaskManager {
-    block_update_tasks: Vec<BlockUpdateTask>
-
+pub struct RenderingTaskManager {
+    // Tasks
+    block_update_tasks: Vec<BlockUpdateTask>,
 }
 
-impl DroneRenderingTaskManager {
-    pub fn new() -> DroneRenderingTaskManager {
-        DroneRenderingTaskManager {
+impl RenderingTaskManager {
+    pub fn new() -> RenderingTaskManager {
+        RenderingTaskManager {
+            // Tasks
             block_update_tasks: Vec::new(),
         }
     }
@@ -74,6 +75,5 @@ impl DroneRenderingTaskManager {
 
         // Loop through drones
         self.render_block_updates_to_camera(camera, &camera_data, world.clone())
-
     }
 }

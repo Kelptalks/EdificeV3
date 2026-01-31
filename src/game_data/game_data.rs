@@ -6,7 +6,7 @@ use std::time::SystemTime;
 
 use crate::game_data::debuging::debug_data::DebugData;
 use crate::game_data::{log_indent, log_init, log_unindent};
-use crate::game_data::screen::screen_task_manager::drone_rendering_task_manager::DroneRenderingTaskManager;
+use crate::game_data::screen::screen_task_manager::rendering_task_manager::RenderingTaskManager;
 use crate::game_data::screen::screen_mananager::ScreenManager;
 use crate::game_data::tik_manager::tik_manager::TikManager;
 use crate::game_data::world::World;
@@ -22,7 +22,7 @@ pub struct GameData {
     texture_manager : TextureManager,
 
     screen_manager: ScreenManager,
-    drone_rendering_task_manager: DroneRenderingTaskManager,
+    drone_rendering_task_manager: RenderingTaskManager,
 
     tik_manager: TikManager,
 }
@@ -43,7 +43,7 @@ impl GameData {
 
         // Create screen manager and configure it with the thread pool
         let screen_manager = ScreenManager::new();
-        let drone_rendering_task_manager = DroneRenderingTaskManager::new();
+        let drone_rendering_task_manager = RenderingTaskManager::new();
 
         // set up tik managers
         let tik_manager = TikManager::new(world.clone());

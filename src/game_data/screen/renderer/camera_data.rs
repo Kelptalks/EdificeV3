@@ -41,11 +41,14 @@ pub struct CameraData {
     // Ray Casting
     direction : Direction,
     direction_mods : [i32; 3],
-    draw_distance : usize,
 
     // Frame Data
     frame_count: u32,
     frame_time: u32,
+
+    // Performance caps
+    draw_distance : usize,
+    shadow_draw_distance: usize,
     max_chunk_cache_per_frame: u32,
 }
 
@@ -81,12 +84,16 @@ impl CameraData {
             // Ray casting
             direction : Direction::North,
             direction_mods : [1, 1, 1],
-            draw_distance : 200,
+
 
             // Frame data
             frame_count: 0,
             frame_time: 0,
+            
+            // Performance caps
             max_chunk_cache_per_frame: 20,
+            draw_distance : 200,
+            shadow_draw_distance: 50,
         }
     }
 
@@ -239,12 +246,14 @@ impl CameraData {
     }
 
     // Ray Casting getters
-    pub fn get_draw_distance(&self) -> usize
-    {
+    pub fn get_draw_distance(&self) -> usize {
         return self.draw_distance;
     }
-    pub fn get_direction_mods(&self) -> [i32; 3]
-    {
+    pub fn get_shadow_draw_distance(&self) -> usize {
+        return self.shadow_draw_distance;
+    }
+
+    pub fn get_direction_mods(&self) -> [i32; 3] {
         return self.direction_mods;
     }
     pub fn get_direction(&self) -> &Direction {

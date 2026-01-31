@@ -1,7 +1,7 @@
 
 use std::{sync::{Arc, RwLock}, time::{SystemTime, UNIX_EPOCH}, u128};
 
-use crate::game_data::{World, debuging::debug_data::DebugData, screen::{Camera, screen_task_manager::drone_rendering_task_manager::DroneRenderingTaskManager}, tik_manager::drones::{drone_manager::DroneManager, lua_manager::LuaManager}, world_task_manager::world_task_manager::WorldTaskManager};
+use crate::game_data::{World, debuging::debug_data::DebugData, screen::{Camera, screen_task_manager::rendering_task_manager::RenderingTaskManager}, tik_manager::drones::{drone_manager::DroneManager, lua_manager::LuaManager}, world_task_manager::world_task_manager::WorldTaskManager};
 
 /*
 #################
@@ -16,13 +16,16 @@ pub struct TikManager {
     current_tik: u32,
     tik_rate: u128,
     last_tik_micros: u128,
-    tik_exectuion_time: u32,
 
 
     // Drones
     drone_manager: DroneManager,
     world: Arc<RwLock<World>>,
     lua_manager: LuaManager,
+
+    // Debug
+    tik_window_exectuion_time: u32,
+    tiks_this_window: u32,
     
 }
 
@@ -39,12 +42,15 @@ impl TikManager {
             current_tik: 0,
             tik_rate: 10000,
             last_tik_micros: 0,
-            tik_exectuion_time: 0,
 
             // Drones
             drone_manager: DroneManager::new(),
             world: world,
             lua_manager: lua_manager,
+
+            // Debug
+            tik_window_exectuion_time: 0,
+            tiks_this_window: 0,
         }
     }
 
@@ -83,7 +89,7 @@ impl TikManager {
     //=====================================
 
     // Called every frame to update the tik
-    pub fn update_tik_manager(&mut self, world_task_manager: &mut WorldTaskManager, screen_task_manager: &mut DroneRenderingTaskManager) {
+    pub fn update_tik_manager(&mut self, world_task_manager: &mut WorldTaskManager, screen_task_manager: &mut RenderingTaskManager) {
         if self.paused {
             return
         }
@@ -100,10 +106,11 @@ impl TikManager {
             total_tiks_to_execute = 50;
         }
         
+        self.tiks_this_window = total_tiks_to_execute as u32;
+        
+        // Execute the number of tiks required this frame
+        let tik_start_time = SystemTime::now(); // Start tik execution timer
         while total_tiks_to_execute > 0 {
-            // Start tik execution time
-            let tik_start_time = SystemTime::now();
-            
             // Update tik time
             self.current_tik += 1;
             self.last_tik_micros = current_millis;
@@ -121,19 +128,20 @@ impl TikManager {
 
             // Decrement tiks left to execute
             total_tiks_to_execute-=1;
-
-            // End tik execution time
-            let system_time_end = SystemTime::now();
-            let tik_duration = system_time_end.duration_since(tik_start_time).unwrap();
-            self.tik_exectuion_time = tik_duration.as_millis() as u32;
         }
+
+        // End tik execution time
+        let system_time_end = SystemTime::now();
+        let tik_duration = system_time_end.duration_since(tik_start_time).unwrap();
+        self.tik_window_exectuion_time = tik_duration.as_millis() as u32;
         
 
     }
 
     pub fn update_debug_data(&self, debug_data: &mut DebugData) {
         debug_data.set_current_tik(self.current_tik);
-        debug_data.set_tik_execution_time(self.tik_exectuion_time);
+        debug_data.set_tiks_this_window(self.tiks_this_window);
+        debug_data.set_tik_window_execution_time(self.tik_window_exectuion_time);
     }
 
 

@@ -1,1 +1,1 @@
-pub mod drone_rendering_task_manager;
+pub mod rendering_task_manager;

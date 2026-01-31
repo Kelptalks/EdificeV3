@@ -6,7 +6,7 @@ use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBacken
 use crate::game_data::{TextureManager, 
     World, 
     debuging::debug_data::{self, DebugData}, 
-    screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::drone_rendering_task_manager::DroneRenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures};
+    screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures};
 
 
 
@@ -66,7 +66,7 @@ impl ScreenManager {
     pub fn render_screen(&mut self, 
         texture_manager: &mut TextureManager, 
         world: Arc<RwLock<World>>, 
-        world_rendering_task_manager: &mut DroneRenderingTaskManager,
+        world_rendering_task_manager: &mut RenderingTaskManager,
         tik_manager: &TikManager,
         ctx : &mut GlContext
     ){
