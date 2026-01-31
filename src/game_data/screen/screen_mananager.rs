@@ -6,7 +6,7 @@ use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBacken
 use crate::game_data::{TextureManager, 
     World, 
     debuging::debug_data::{self, DebugData}, 
-    screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures};
+    screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
 
 
 
@@ -127,7 +127,11 @@ impl ScreenManager {
     }
 
     // Handle mouse button press
-    pub fn mouse_button_down_event(&mut self, button: MouseButton, tik_manager: &mut TikManager) {
+    pub fn mouse_button_down_event(&mut self, 
+        button: MouseButton, 
+        tik_manager: &mut TikManager,
+        world_task_manager: &mut WorldTaskManager
+    ) {
         let camera_data = &self.get_camera_data().clone();
         self.screen_data.re_calculate_mouse_cords(camera_data);
 
@@ -141,7 +145,7 @@ impl ScreenManager {
         }
         else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
             camera_controls::mouse_button_down_event(self, button);
-            self.camera_ui_manager.handle_mouse_button_down(button, &self.screen_data, tik_manager);
+            self.camera_ui_manager.handle_mouse_button_down(button, &self.screen_data, tik_manager, world_task_manager);
         }
     }
 
