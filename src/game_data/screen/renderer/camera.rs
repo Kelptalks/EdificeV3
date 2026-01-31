@@ -2,7 +2,7 @@ use std::{alloc::System, clone, sync::{Arc, RwLock, TryLockError}, time::SystemT
 
 use miniquad::{GlContext, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, screen::{self, camera_data::{self, CameraData}, iso_cord_tool, render_string, renderer::{camera, casted_block_manager::{self, casted_chunk::{self, CastedChunk}}, render_cache_manager::{self, canvas_data, render_cashe_manager::RenderCacheManager}, thread_manager::raycast_thread_pool::RaycastThreadPool}, text}, types::{BlockTriangle, BlockType, UITextures}};
+use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, log_init, screen::{self, camera_data::{self, CameraData}, iso_cord_tool, render_string, renderer::{camera, casted_block_manager::{self, casted_chunk::{self, CastedChunk}}, render_cache_manager::{self, canvas_data, render_cashe_manager::RenderCacheManager}, thread_manager::raycast_thread_pool::RaycastThreadPool}, text}, types::{BlockTriangle, BlockType, UITextures}};
 use super::casted_block_manager::casted_block_manager::CastedChunkManager;
 
 pub struct Camera
@@ -13,6 +13,9 @@ pub struct Camera
     casted_chunk_manager : CastedChunkManager,
     thread_manager: RaycastThreadPool,
     render_cache_manager : Option<RenderCacheManager>,
+
+    // Debug
+    tiles_raycasted_this_frame: u32,
 }
 
 impl Camera {
@@ -21,19 +24,32 @@ impl Camera {
 
         Self {
             initialized : false,
-
             camera_data : camera_data,
             casted_chunk_manager : CastedChunkManager::new(),
             thread_manager: RaycastThreadPool::new(10),
             render_cache_manager : None,
+
+            // debug
+            tiles_raycasted_this_frame: 0,
         }
     }
     
     // initialize the camera
     pub fn initialize_camera(&mut self, ctx: &mut miniquad::GlContext)
     {
+        let init_start_time = SystemTime::now();
         self.render_cache_manager = Some(RenderCacheManager::new(ctx));
+
         self.initialized = true;
+
+        // Get end time
+        let system_time_end = SystemTime::now();
+        let init_duration = system_time_end.duration_since(init_start_time).unwrap();
+        let init_duration_ms = init_duration.as_millis();
+
+        // Log time to init
+        let log_message = format!("Camera Initilized ({}ms)", init_duration_ms);
+        log_init(&log_message);
     }
 
     //=====================================
@@ -79,11 +95,14 @@ impl Camera {
         if let Some(cashed_chunk) = cashed_chunk_option {
             cashed_chunk.set_rendered_to_sprite_sheet(false);
         }
+
+        // Update debug data
+        self.tiles_raycasted_this_frame += 1;
     }
 
     pub fn ray_cast_area_at_cords(&mut self, world: &Arc<RwLock<World>>, casted_tile_cords: [i32; 2], range: i32) {
-        for x_offset in -3..3 {
-            for y_offset in -3..3 {
+        for x_offset in -range..range {
+            for y_offset in -range..range {
                 let casted_cords_to_rerender = [
                     casted_tile_cords[0] + x_offset,
                     casted_tile_cords[1] + y_offset
@@ -321,6 +340,9 @@ impl Camera {
     }
 
     pub fn render_camera(&mut self, texture_manager : &mut TextureManager, world : Arc<RwLock<World>>, ctx: &mut GlContext) {
+        // reset frame debug data
+        self.tiles_raycasted_this_frame = 0;
+        
         // Start frame time
         let frame_start_time = SystemTime::now();
         
@@ -380,6 +402,7 @@ impl Camera {
     pub fn collect_debug_data(&self, debug_data: &mut DebugData) { 
         debug_data.set_frame_time(self.camera_data.get_frame_time());
         debug_data.set_frame_count(self.camera_data.get_frame_count());
+        debug_data.set_total_tiles_raycasted(self.tiles_raycasted_this_frame);
 
         self.render_cache_manager.as_ref().unwrap().collect_debug_data(debug_data);
     }

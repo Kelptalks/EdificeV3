@@ -30,11 +30,19 @@ function GoalManager:has_goal()
     return #self.goals > 0
 end
 
+function GoalManager:get_goal_count()
+    return #self.goals
+end
+
 -- Insert a goal at index
 function GoalManager:incert_goal(goal, index)
     table.insert(self.goals, index, goal)
 end
 
+-- add goal at index
+function GoalManager:add_goal(goal)
+    table.insert(self.goals, goal)
+end
 
 
 return GoalManager

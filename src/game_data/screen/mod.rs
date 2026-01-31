@@ -13,10 +13,10 @@ pub use renderer::iso_cord_tool;
 
 pub mod text;
 pub use text::render_string;
-pub use text::render_centered_string_at_ndi_cords;
+pub use text::render_centered_string_at_ndc;
 
-pub mod ui_manager;
-pub use ui_manager::Button;
+pub mod ui_elements;
+pub use ui_elements::Button;
 
 pub mod screen_data;
 pub use screen_data::ScreenData;
@@ -27,4 +27,4 @@ pub use main_menu::main_menu::MainMenu;
 pub mod main_menu_world_creation;
 pub use main_menu_world_creation::world_config;
 
-pub mod drone_ui;
+pub mod camera_ui;

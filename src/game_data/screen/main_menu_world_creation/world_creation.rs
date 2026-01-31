@@ -1,6 +1,6 @@
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, screen::{Button, ScreenData, render_centered_string_at_ndi_cords, render_string, ui_manager::BarButton, world_config::WorldConfig}, types::UITextures};
+use crate::game_data::{TextureManager, screen::{Button, ScreenData, render_centered_string_at_ndc, render_string, ui_elements::BarButton, world_config::WorldConfig}, types::{FontType, UITextures}};
 
 pub struct WorldCreationMenu {
     
@@ -50,9 +50,9 @@ impl WorldCreationMenu {
         // Render size customize
         self.increase_world_size_button.render_button(texture_manager);
         self.decrease_world_size_button.render_button(texture_manager);
-        render_centered_string_at_ndi_cords(texture_manager,
+        render_centered_string_at_ndc(texture_manager,
             format!("World Size: {}", self.world_size),
-            "Basic".to_string(),
+            FontType::Basic,
             0.03,
             [0.0, 0.0]
         );

@@ -1,8 +1,8 @@
-use std::{fmt::format, sync::{Arc, RwLock}};
+
 
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, World, screen::{ScreenData, iso_cord_tool, render_centered_string_at_ndi_cords, text::render_string_at_ndi_cords}, tik_manager::drones::{drone::Drone, drone_inventory}, types::{BlockType, DroneUITexture}};
+use crate::game_data::{TextureManager, World, screen::{ScreenData, iso_cord_tool, render_centered_string_at_ndc, text::render_string_at_ndc}, tik_manager::drones::drone::Drone, types::{BlockType, DroneUITexture, FontType}};
 
 pub struct SpectateWindow {
     ndc_cords: [f32; 2],
@@ -153,7 +153,7 @@ impl SpectateWindow {
                             draw_location[0] + text_offset,
                             draw_location[1] + centering_offset,
                         ];
-                        render_centered_string_at_ndi_cords(texture_manager, inventory_slot.get_quantity().to_string(), "Basic".to_string(), text_scale, text_draw_location);
+                        render_centered_string_at_ndc(texture_manager, inventory_slot.get_quantity().to_string(), FontType::Basic, text_scale, text_draw_location);
                     }
                 }
             }
@@ -186,33 +186,33 @@ impl SpectateWindow {
 
         // Render id
         let drone_id_stat = format!("ID: {}", drone.get_id());
-        render_string_at_ndi_cords(texture_manager, drone_id_stat, "Basic".to_string(), scale, draw_cords);
+        render_string_at_ndc(texture_manager, drone_id_stat, FontType::Basic, scale, draw_cords);
         
         // Cords
         draw_cords[1] += spacing_scale;
         let drone_cords = drone.get_cords();
         let drone_cords = format!("Cords: ({}, {}, {})", drone_cords[0], drone_cords[1], drone_cords[2]);
-        render_string_at_ndi_cords(texture_manager, drone_cords, "Basic".to_string(), scale, draw_cords);
+        render_string_at_ndc(texture_manager, drone_cords, FontType::Basic, scale, draw_cords);
 
         // Render busy
         draw_cords[1] += spacing_scale;
         let drone_busy_stat = format!("Busy: {}", drone.get_busy());
-        render_string_at_ndi_cords(texture_manager, drone_busy_stat, "Basic".to_string(), scale, draw_cords);
+        render_string_at_ndc(texture_manager, drone_busy_stat, FontType::Basic, scale, draw_cords);
 
         // Render fuel
         draw_cords[1] += spacing_scale;
         let drone_busy_stat = format!("Fuel: {}", drone.get_fuel());
-        render_string_at_ndi_cords(texture_manager, drone_busy_stat, "Basic".to_string(), scale, draw_cords);
+        render_string_at_ndc(texture_manager, drone_busy_stat, FontType::Basic, scale, draw_cords);
 
         // Mine power
         draw_cords[1] += spacing_scale;
         let drone_mine_power = format!("Mine Power: {}", drone.get_mine_power());
-        render_string_at_ndi_cords(texture_manager, drone_mine_power, "Basic".to_string(), scale, draw_cords);
+        render_string_at_ndc(texture_manager, drone_mine_power, FontType::Basic, scale, draw_cords);
 
         // Chop power
         draw_cords[1] += spacing_scale;
         let drone_chop_power = format!("Chop Power: {}", drone.get_chop_power());
-        render_string_at_ndi_cords(texture_manager, drone_chop_power, "Basic".to_string(), scale, draw_cords);
+        render_string_at_ndc(texture_manager, drone_chop_power, FontType::Basic, scale, draw_cords);
 
 
 
@@ -224,7 +224,7 @@ impl SpectateWindow {
 
     pub fn handle_motion_event(&mut self, screen_data: &ScreenData) {
         if self.bar_grabbed {
-            let mouse_ndc_cords = screen_data.get_mouse_ndc_cords();
+            let mouse_ndc_cords = screen_data.get_mouse_ndc();
             let new_ndc_cords = [
                 mouse_ndc_cords[0] + self.window_ndc_bar_grabbed_cords[0],
                 mouse_ndc_cords[1] + self.window_ndc_bar_grabbed_cords[1],
@@ -279,7 +279,7 @@ impl SpectateWindow {
     pub fn mouse_button_down_event(&mut self, button: MouseButton, screen_data: &ScreenData) {
         // Gotta calculate if mouse is on window based off scale using src rect y to x racio
         if button == MouseButton::Left {
-            let mouse_ndc = screen_data.get_mouse_ndc_cords();
+            let mouse_ndc = screen_data.get_mouse_ndc();
 
             let x_in_window = mouse_ndc[0] > self.ndc_cords[0] && mouse_ndc[0] < self.end_ndc_cords[0];
             let y_in_window = mouse_ndc[1] > self.ndc_cords[1] && mouse_ndc[1] < self.end_ndc_cords[1];
@@ -317,7 +317,7 @@ impl SpectateWindow {
 
     pub fn handle_mouse_button_up(&mut self, mouse_button_up: MouseButton, screen_data: &ScreenData) {
         if mouse_button_up == MouseButton::Left {
-            let mouse_ndc = screen_data.get_mouse_ndc_cords();
+            let mouse_ndc = screen_data.get_mouse_ndc();
 
             let x_in_window = mouse_ndc[0] > self.ndc_cords[0] && mouse_ndc[0] < self.end_ndc_cords[0];
             let y_in_window = mouse_ndc[1] > self.ndc_cords[1] && mouse_ndc[1] < self.end_ndc_cords[1];

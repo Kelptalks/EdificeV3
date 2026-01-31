@@ -2,7 +2,7 @@ use std::{collections::HashMap, process::id, sync::{Arc, RwLock}};
 
 use rand::distr::Map;
 
-use crate::game_data::{World, screen::screen_task_manager::{self, drone_rendering_task_manager::DroneRenderingTaskManager}, tik_manager::drones::{drone::Drone, lua_manager::LuaManager}, world_task_manager::world_task_manager::WorldTaskManager};
+use crate::game_data::{World, screen::screen_task_manager::{self, rendering_task_manager::RenderingTaskManager}, tik_manager::drones::{drone::Drone, lua_manager::LuaManager}, world_task_manager::world_task_manager::WorldTaskManager};
 
 pub struct DroneManager{
     current_id: u32,
@@ -45,36 +45,35 @@ impl DroneManager {
     }
 
     // Tik all the drones in the world
-    pub fn tik_drones(&mut self, world: Arc<RwLock<World>>, world_task_manager: &mut WorldTaskManager, screen_task_manager: &mut DroneRenderingTaskManager) {
+    pub fn tik_drones(&mut self, world: Arc<RwLock<World>>, world_task_manager: &mut WorldTaskManager) {
         let world_gaurd = world.read().unwrap();
         
-        for (key, drone) in &mut self.drone_map {
-            if drone.moved() {
-                screen_task_manager.update_drone_location(drone.get_id(), drone.get_cords());
-            }
+        // Loop through drones
+        self.drone_map.retain(|_key, drone| {
             drone.tik_drone(&world_gaurd, world_task_manager);
-        }
+            drone.get_health() != 0  // Keep if health > 0
+        });
+
     
     }
 
     // Function for creating a drone
-    pub fn create_drone_at_cords(&mut self, screen_task_manager: &mut DroneRenderingTaskManager, cords:[i32; 3], name: String){
+    pub fn create_drone_at_cords(&mut self, cords:[i32; 3]){
         // Create drone
         let new_id = self.current_id;
         self.current_id += 1; // Update Current Id
 
         // Create the drone
-        let drone = Drone::new(cords, name.clone(), new_id);
-
-        screen_task_manager.add_drone_render_data(new_id, cords);
+        let drone = Drone::new(cords, new_id);
 
         // Add drone to hashmap
         self.drone_map.insert(new_id, drone);
 
+    }
 
-        
-        // Debug
-        println!("Created New Drone | Cords: ({:?}) | Id: {} | Name: {}", cords, new_id, name);
-
+    pub fn kill_all_drones(&mut self) {
+        for (key, drone) in &mut self.drone_map {
+            drone.set_health(0);
+        }
     }
 }

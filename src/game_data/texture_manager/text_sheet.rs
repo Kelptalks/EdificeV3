@@ -6,7 +6,7 @@ use image::RgbaImage;
 use miniquad::gl::GL_TEXTURE_BASE_LEVEL;
 use rand::distr::Map;
 
-use crate::game_data::types::CharType;
+use crate::game_data::types::{CharType, FontType};
 
 /*
 ################
@@ -15,13 +15,10 @@ use crate::game_data::types::CharType;
 This file is responsable for managing the splicing of the text textures from the
 "Assets/Text.png" image to the texture atlas. It also manages fonts locations on
 the texture atlass for the generation of pre calculated Texture UVs.
-
-
-
 */
 
 pub struct Font {
-    name: String,
+    font_type: FontType,
     atlas_start_cords: [f32; 2],    
     splicing_start_cords: [f32; 2],
     buffer_space: f32,
@@ -30,9 +27,9 @@ pub struct Font {
 }
 
 impl Font {
-    pub fn new(name: &str, atlas_start_cords: [f32; 2], splicing_start_cords: [f32; 2], font_pixel_scale: [f32; 2], buffer_space: f32) -> Self {
+    pub fn new(font_type: FontType, atlas_start_cords: [f32; 2], splicing_start_cords: [f32; 2], font_pixel_scale: [f32; 2], buffer_space: f32) -> Self {
         Self {
-            name: name.to_string(),
+            font_type: font_type,
             atlas_start_cords: atlas_start_cords,
             splicing_start_cords: splicing_start_cords,
             buffer_space: buffer_space,
@@ -48,9 +45,10 @@ impl Font {
         let atlas_start_cords = self.atlas_start_cords;
         let buffered_spacing = self.font_pixel_scale[0] + self.buffer_space;
 
+
         // Loop through each letter
         for current_char in 0..CharType::get_total_chars() {
-            
+
             // Calculate cords to splice from fonts_image
             let char_x_splicing_offset = ((current_char as f32 * (self.font_pixel_scale[0])) + splicing_start_cords[0]) as u32;
             let char_y_splicing_offset = (splicing_start_cords[1]) as u32;
@@ -81,7 +79,6 @@ impl Font {
         }
     }
 
-
     pub fn get_char_src_rect(&mut self, char: CharType) -> [f32; 4] {
         let char_index = char.get_id();
         let atlas_start_cords = self.atlas_start_cords;
@@ -109,7 +106,6 @@ impl Font {
         return uv;
     }
 
-
     pub fn create_pre_calculated_chars_uvs(&mut self, atlas_dimensions: f32) -> Vec<[f32; 4]>{
         let mut char_uvs = Vec::new();
         
@@ -135,40 +131,40 @@ pub struct TextTextureManager {
     pub end_cords: [f32; 2],
     
     // Fonts
-    fonts: HashMap<String, Font>,
+    fonts: Vec<Font>,
 
 }
 
 impl TextTextureManager {
     // Create the Text Manager in initilize Font values
     pub fn new(start_cords : [f32; 2]) -> Self {
-        let mut fonts: HashMap<String, Font> = HashMap::new();
+        let mut fonts: Vec<Font> = Vec::new();
         
         let mut current_font_starting_cor = start_cords.clone();
         let font_buffer_spacing = 8.0;
 
-        // Add Basic font
-        fonts.insert(
-            "Basic".to_string(),
-            Font::new("Basic",
-            current_font_starting_cor,
-            [0.0, 0.0],
-            [16.0, 16.0],
-            8.0,
-            )
-        );
-
         // Add Mini font
-        current_font_starting_cor[1] += 16.0 + font_buffer_spacing; // Calculate cords for next font 
-        fonts.insert(
-            "Mini".to_string(),
-            Font::new("Mini",
+        current_font_starting_cor[0] += 16.0 * CharType::get_total_chars() as f32; // calcualte end cords based off total
+        let mini_font = Font::new(
+            FontType::Mini, 
             current_font_starting_cor,
             [0.0, 26.0],
             [6.0, 6.0],
             4.0
-            )
         );
+        fonts.push(mini_font);
+
+
+        // Add Basic font
+        let basic_font = Font::new(
+            FontType::Basic, 
+            current_font_starting_cor, 
+            [0.0, 0.0], 
+            [16.0, 16.0], 
+            8.0
+        );
+        fonts.push(basic_font);
+
 
         // Use for calulating the end cords of the font sheet on the atlas
         current_font_starting_cor[1] += 6.0 + font_buffer_spacing;
@@ -181,26 +177,21 @@ impl TextTextureManager {
         }
     }
 
-    // Get a font by name
-    pub fn get_font(&self, name: &str) -> Option<&Font> {
-        self.fonts.get(name)
-    }
-
     // Splice all the fonts added during the creation of TextTextureManager to the atlas
     pub fn splice_fonts_to_atlas(&self, atlas_image: &mut RgbaImage) {
         let mut fonts_image = image::open("Assets/Text.png").unwrap().to_rgba8();
-        for (_name, font) in &self.fonts {
+        for font in &self.fonts {
             font.splice_font_to_atlas(atlas_image, &mut fonts_image);
         }
     }
 
-    pub fn create_pre_calculated_fonts_uvs(&mut self, atlas_dimensions: f32) -> HashMap<String, Vec<[f32; 4]>>{
-        let mut fonts_uvs = HashMap::new();
+    pub fn create_pre_calculated_fonts_uvs(&mut self, atlas_dimensions: f32) -> Vec<Vec<[f32; 4]>>{
+        let mut fonts_uvs = Vec::new();
         
         // Loop through all fonts and calculate pre-calculated UVs for each
-        for (font_name, font) in &mut self.fonts {
+        for font in &mut self.fonts {
             let char_uvs = font.create_pre_calculated_chars_uvs(atlas_dimensions);
-            fonts_uvs.insert(font_name.clone(), char_uvs);
+            fonts_uvs.push(char_uvs);
         }
         
         fonts_uvs

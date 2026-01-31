@@ -1,178 +1,127 @@
-#[derive(Clone, Copy)]
-pub enum UITextures {
-    // Left Arrow Button
-    ButtonLeftArrow = 0,
-    ButtonLeftArrow_Down = 1,
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct UITextureData {
+    pub id: u32,
+    pub name: &'static str,
+    pub rect: [u32; 4],  // [x, y, width, height]
+    pub pressed_variant: Option<u32>,  // ID of pressed version, if any
+}
 
-    // Right Arrow Button
-    ButtonRightArrow = 2,
-    ButtonRightArrow_Down =3,
+// All UI textures defined in one place
+pub const UI_TEXTURES: &[UITextureData] = &[
+    // Arrow buttons
+    UITextureData { id: 0, name: "ButtonLeftArrow", rect: [0, 0, 16, 16], pressed_variant: Some(1) },
+    UITextureData { id: 1, name: "ButtonLeftArrow_Down", rect: [0, 16, 16, 16], pressed_variant: None },
+    UITextureData { id: 2, name: "ButtonRightArrow", rect: [16, 0, 16, 16], pressed_variant: Some(3) },
+    UITextureData { id: 3, name: "ButtonRightArrow_Down", rect: [16, 16, 16, 16], pressed_variant: None },
     
     // X Button
-    ButtonX = 4,
-    ButtonX_Down = 5,    
+    UITextureData { id: 4, name: "ButtonX", rect: [32, 0, 16, 16], pressed_variant: Some(5) },
+    UITextureData { id: 5, name: "ButtonX_Down", rect: [32, 16, 16, 16], pressed_variant: None },
     
     // Check Button
-    ButtonCheck = 6,
-    ButtonCheck_Down = 7,
+    UITextureData { id: 6, name: "ButtonCheck", rect: [48, 0, 16, 16], pressed_variant: Some(7) },
+    UITextureData { id: 7, name: "ButtonCheck_Down", rect: [48, 16, 16, 16], pressed_variant: None },
     
     // Slider Button
+    UITextureData { id: 8, name: "ButtonSlider", rect: [64, 0, 16, 16], pressed_variant: Some(9) },
+    UITextureData { id: 9, name: "ButtonSlider_Down", rect: [64, 16, 16, 16], pressed_variant: None },
+    
+    // Bar buttons
+    UITextureData { id: 10, name: "BarButtonLeft", rect: [0, 32, 16, 16], pressed_variant: Some(13) },
+    UITextureData { id: 11, name: "BarButtonCenter", rect: [16, 32, 16, 16], pressed_variant: Some(14) },
+    UITextureData { id: 12, name: "BarButtonRight", rect: [32, 32, 16, 16], pressed_variant: Some(15) },
+    UITextureData { id: 13, name: "BarButtonLeft_Down", rect: [0, 48, 16, 16], pressed_variant: None },
+    UITextureData { id: 14, name: "BarButtonCenter_Down", rect: [16, 48, 16, 16], pressed_variant: None },
+    UITextureData { id: 15, name: "BarButtonRight_Down", rect: [32, 48, 16, 16], pressed_variant: None },
+    
+    // Dropdown arrow
+    UITextureData { id: 16, name: "DropdownArrow", rect: [48, 32, 16, 16], pressed_variant: Some(17) },
+    UITextureData { id: 17, name: "DropdownArrow_Down", rect: [48, 48, 16, 16], pressed_variant: None },
+    
+    // Circle button
+    UITextureData { id: 18, name: "ButtonCircle", rect: [0, 64, 32, 32], pressed_variant: Some(19) },
+    UITextureData { id: 19, name: "ButtonCircle_Down", rect: [0, 96, 32, 32], pressed_variant: None },
+    
+    // Speed button
+    UITextureData { id: 20, name: "SpeedButton", rect: [80, 16, 16, 16], pressed_variant: Some(21) },
+    UITextureData { id: 21, name: "SpeedButton_Down", rect: [80, 0, 16, 16], pressed_variant: None },
+    UITextureData { id: 22, name: "Pause", rect: [80, 32, 16, 16], pressed_variant: None },
+    UITextureData { id: 23, name: "Play", rect: [80, 48, 16, 16], pressed_variant: None },
+    
+    // Backgrounds
+    UITextureData { id: 24, name: "VoidBackground", rect: [96, 0, 64, 64], pressed_variant: None },
+    UITextureData { id: 25, name: "FaceBackground", rect: [160, 0, 320, 176], pressed_variant: None },
+    UITextureData { id: 26, name: "MirrorBackground", rect: [480, 0, 240, 128], pressed_variant: None },
+];
+
+// Keep enum for type safety if you want
+#[derive(Clone, Copy, Debug, PartialEq)]
+#[repr(u32)]
+pub enum UITextures {
+    ButtonLeftArrow = 0,
+    ButtonLeftArrow_Down = 1,
+    ButtonRightArrow = 2,
+    ButtonRightArrow_Down = 3,
+    ButtonX = 4,
+    ButtonX_Down = 5,
+    ButtonCheck = 6,
+    ButtonCheck_Down = 7,
     ButtonSlider = 8,
     ButtonSlider_Down = 9,
-    // Bar button split for resizing
     BarButtonLeft = 10,
     BarButtonCenter = 11,
     BarButtonRight = 12,
-    
     BarButtonLeft_Down = 13,
     BarButtonCenter_Down = 14,
     BarButtonRight_Down = 15,
-    
-    // Dropdown arrow
     DropdownArrow = 16,
     DropdownArrow_Down = 17,
-
-    // circle button
     ButtonCircle = 18,
     ButtonCircle_Down = 19,
-
-    // Backgrounds
-    VoidBackground = 20,
-    FaceBackground = 21,
-    MirrorBackground = 22,
-
+    Speed = 20,
+    Speed_Down = 21,
+    Pause = 22,
+    Play = 23,
+    VoidBackground = 24,
+    FaceBackground = 25,
+    MirrorBackground = 26,
 }
 
 impl UITextures {
-    /// Get the ID of this UI texture
+    #[inline]
     pub fn get_id(&self) -> u32 {
         *self as u32
     }
 
-    /// Get the total number of UI elements
-    pub fn get_total_UI_elements() -> u32 {
-        UITextures::MirrorBackground.get_id() + 1 // ButtonCircle_Down is the last element at index 19, so total is 20
+    #[inline]
+    pub fn get_data(&self) -> &'static UITextureData {
+        &UI_TEXTURES[self.get_id() as usize]
     }
 
-    /// Get the pressed (down) variant of this button
-    /// If the button is already pressed, returns itself
+    #[inline]
+    pub fn get_rect(&self) -> [u32; 4] {
+        self.get_data().rect
+    }
+
+    #[inline]
     pub fn get_pressed_variant(&self) -> UITextures {
-        match self {
-            UITextures::ButtonLeftArrow => UITextures::ButtonLeftArrow_Down,
-            UITextures::ButtonRightArrow => UITextures::ButtonRightArrow_Down,
-            UITextures::ButtonX => UITextures::ButtonX_Down,
-            UITextures::ButtonCheck => UITextures::ButtonCheck_Down,
-            UITextures::ButtonSlider => UITextures::ButtonSlider_Down,
-            UITextures::BarButtonLeft => UITextures::BarButtonLeft_Down,
-            UITextures::BarButtonCenter => UITextures::BarButtonCenter_Down,
-            UITextures::BarButtonRight => UITextures::BarButtonRight_Down,
-            UITextures::DropdownArrow => UITextures::DropdownArrow_Down,
-            UITextures::ButtonCircle => UITextures::ButtonCircle_Down,
-            // If already pressed, return itself
-            _ => *self,
+        if let Some(pressed_id) = self.get_data().pressed_variant {
+            UITextures::from_id(pressed_id).unwrap()
+        } else {
+            *self
         }
     }
 
-    /// Create a UITextures from an ID
     pub fn from_id(id: u32) -> Option<UITextures> {
-        match id {
-            0 => Some(UITextures::ButtonLeftArrow),
-            1 => Some(UITextures::ButtonLeftArrow_Down),
-            2 => Some(UITextures::ButtonRightArrow),
-            3 => Some(UITextures::ButtonRightArrow_Down),
-            4 => Some(UITextures::ButtonX),
-            5 => Some(UITextures::ButtonX_Down),
-            6 => Some(UITextures::ButtonCheck),
-            7 => Some(UITextures::ButtonCheck_Down),
-            8 => Some(UITextures::ButtonSlider),
-            9 => Some(UITextures::ButtonSlider_Down),
-            10 => Some(UITextures::BarButtonLeft),
-            11 => Some(UITextures::BarButtonCenter),
-            12 => Some(UITextures::BarButtonRight),
-            13 => Some(UITextures::BarButtonLeft_Down),
-            14 => Some(UITextures::BarButtonCenter_Down),
-            15 => Some(UITextures::BarButtonRight_Down),
-            16 => Some(UITextures::DropdownArrow),
-            17 => Some(UITextures::DropdownArrow_Down),
-            18 => Some(UITextures::ButtonCircle),
-            19 => Some(UITextures::ButtonCircle_Down),
-            20 => Some(UITextures::VoidBackground),
-            21 => Some(UITextures::FaceBackground),
-            22 => Some(UITextures::MirrorBackground),
-            _ => None,
+        if (id as usize) < UI_TEXTURES.len() {
+            // Safe because we checked bounds and enum is repr(u32)
+            Some(unsafe { std::mem::transmute(id) })
+        } else {
+            None
         }
     }
 
-    pub fn ui_texture_to_sprite_sheet_src_rect(&self) -> [u32; 4] {
-        match self {
-            UITextures::ButtonLeftArrow => [0, 0, 16, 16],
-            UITextures::ButtonLeftArrow_Down => [0, 16, 16, 16],
-
-            UITextures::ButtonRightArrow => [16, 0, 16, 16],
-            UITextures::ButtonRightArrow_Down => [16, 16, 16, 16],
-
-            UITextures::ButtonX => [32, 0, 16, 16],
-            UITextures::ButtonX_Down => [32, 16, 16, 16],
-
-            UITextures::ButtonCheck => [48, 0, 16, 16],
-            UITextures::ButtonCheck_Down => [48, 16, 16, 16],
-
-            UITextures::ButtonSlider => [64, 0, 16, 16],
-            UITextures::ButtonSlider_Down => [64, 16, 16, 16],
-
-            UITextures::BarButtonLeft => [0, 32, 16, 16],
-            UITextures::BarButtonCenter => [16, 32, 16, 16],
-            UITextures::BarButtonRight => [32, 32, 16, 16],
-
-            UITextures::BarButtonLeft_Down => [0, 48, 16, 16],
-            UITextures::BarButtonCenter_Down => [16, 48, 16, 16],
-            UITextures::BarButtonRight_Down => [32, 48, 16, 16],
-
-            UITextures::DropdownArrow => [48, 32, 16, 16],
-            UITextures::DropdownArrow_Down => [48, 48, 16, 16],
-
-            UITextures::ButtonCircle => [0, 64, 32, 32],
-            UITextures::ButtonCircle_Down => [0, 96, 32, 32],
-
-            UITextures::VoidBackground => [96, 0, 64, 64],
-            UITextures::FaceBackground => [160, 0, 320, 176],
-            UITextures::MirrorBackground => [480, 0, 240, 128],
-        }
-    }
-
-}
-
-
-pub enum UIAnimation {
-    LoadingBlue,
-    LoadingRed,
-}
-
-impl UIAnimation {
-    pub fn ui_animation_to_sprite_sheet_src_rect(&self, frame_number: u32) -> [u32; 4] {
-        if frame_number >= self.get_total_frames() {
-            panic!("Frame number {} exceeds total frames {}", frame_number, self.get_total_frames());
-            return [0, 0, 0, 0];
-        }
-        
-        match self {
-            UIAnimation::LoadingBlue => {
-                let x_cor = frame_number * 16;
-                let y_cor = 64;
-                [x_cor, y_cor, 16, 16]
-            },
-            UIAnimation::LoadingRed => {
-                let x_cor = frame_number * 16;
-                let y_cor = 80;
-                [x_cor, y_cor, 16, 16]
-            },
-        }
-    }
-
-    pub fn get_total_frames(&self) -> u32 {
-        match self {
-            UIAnimation::LoadingBlue => 6,
-            UIAnimation::LoadingRed => 9,
-        }
+    pub fn get_total_ui_elements() -> u32 {
+        UI_TEXTURES.len() as u32
     }
 }

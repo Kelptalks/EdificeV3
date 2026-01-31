@@ -29,7 +29,6 @@ impl DroneDirection {
 
 pub struct Drone{
     // identity
-    name: String,
     id: u32,
 
     // Position
@@ -39,6 +38,7 @@ pub struct Drone{
     // Stats
     busy_time: u32,
     fuel: u32,
+    health: u32,
     vision_range: u32,
     modify_range: u32,
     mine_power: u32,
@@ -53,10 +53,9 @@ pub struct Drone{
 }
 
 impl Drone {
-    pub fn new(cords: [i32; 3], name: String, id: u32) -> Drone {
+    pub fn new(cords: [i32; 3], id: u32) -> Drone {
         let mut drone = Drone {
             // identity
-            name: name,
             id: id,
 
             // Position
@@ -65,7 +64,8 @@ impl Drone {
 
             // Stats
             busy_time: 0,
-            fuel: 10000,
+            fuel: 1000000,
+            health: 1,
             vision_range: 3,
             modify_range: 1,
             mine_power: 1,
@@ -79,9 +79,13 @@ impl Drone {
             moved: false,
         };
 
-        //drone.inventory.add_item(DroneItem::PlantMatter, 300);
-        //drone.inventory.add_item(DroneItem::StoneDrill, 1);
-        //drone.equip_tool(DroneItem::StoneDrill);
+        drone.inventory.add_item(DroneItem::BrownLog, 300);
+        
+        drone.inventory.add_item(DroneItem::StoneDrill, 1);
+        drone.equip_tool(DroneItem::StoneDrill);
+
+        drone.inventory.add_item(DroneItem::StoneSaw, 1);
+        drone.equip_tool(DroneItem::StoneSaw);
 
         return drone;
     }
@@ -162,10 +166,6 @@ impl Drone {
         return self.id;
     }
 
-    pub fn get_name(&self) -> String {
-        return self.name.clone();
-    }
-
     // Fuel
     pub fn get_fuel(&self) -> u32 {
         return self.fuel;
@@ -181,6 +181,14 @@ impl Drone {
     }
     pub fn is_busy(&self) -> bool {
         return self.busy_time != 0;
+    }
+
+    // Health
+    pub fn get_health(&self) -> u32 {
+        return self.health;
+    }
+    pub fn set_health(&mut self, health: u32) {
+        self.health = health;
     }
 
     // Get a block based of cords relative to the drone
@@ -389,6 +397,12 @@ impl Drone {
     //=====================================
 
     pub fn tik_drone(&mut self, world: &World, world_task_manager: &mut WorldTaskManager) {
+        // If dead set drone
+        if self.health == 0 {
+            world_task_manager.mod_block(self.cords, BlockType::DroneDead.id_as_u16());
+            return;
+        }
+        
         if self.moved {
             self.moved = false;
             return;

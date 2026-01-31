@@ -1,5 +1,19 @@
 #[repr(u16)]
-#[derive(Copy, Clone, PartialEq)]  // Add these
+#[derive(Copy, Clone, PartialEq)]
+pub enum FontType {
+    Mini = 0,
+    Basic = 1,
+}
+impl FontType {
+/// Get the ID value of the enum variant
+    pub fn get_id(&self) -> u16 {
+        *self as u16
+    }
+}
+
+
+#[repr(u16)]
+#[derive(Copy, Clone, PartialEq)]
 pub enum CharType {
     CharA = 0,
     CharB = 1,

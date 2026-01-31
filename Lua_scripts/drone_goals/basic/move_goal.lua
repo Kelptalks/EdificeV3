@@ -297,7 +297,6 @@ function MoveGoal:is_at_goal_cords(cords)
        and math.abs(cords[2] - self.goal_cords[2]) <= 1
 end
 
-
 function MoveGoal:is_complete()
     return self.complete
 end
@@ -307,7 +306,7 @@ function MoveGoal:tik(drone_id)
     -- Check if goal cords have been reached
     if self:is_at_goal_cords(drone_cords) then
         self.complete = true
-        return
+        return false;
     end
 
     -- Scan the nodes around the drone    
@@ -318,7 +317,7 @@ function MoveGoal:tik(drone_id)
         -- No valid path
         if #self.path == 0 then
             self.complete = true
-            return
+            return false;
         end
 
         local path_cords = self.nodes[self.path[1]]["Cords"]
@@ -336,6 +335,7 @@ function MoveGoal:tik(drone_id)
         if #self.path == 0 then
             self.path = nil
         end
+        return true;
     else --Calculate the next path to move
         local path = self:compute_path(drone_id)
         -- Set the current path to the one calculated

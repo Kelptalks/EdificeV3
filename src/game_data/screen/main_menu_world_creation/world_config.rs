@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use miniquad::GlContext;
 
-use crate::game_data::{TextureManager, World, screen::{ScreenData, render_centered_string_at_ndi_cords, renderer::{camera, casted_block_manager::casted_block_manager::CastedChunkManager}}, types::UITextures};
+use crate::game_data::{TextureManager, World, screen::{ScreenData, render_centered_string_at_ndc, renderer::{camera, casted_block_manager::casted_block_manager::CastedChunkManager}}, types::{FontType, UITextures}};
 
 
 #[derive(PartialEq)]
@@ -73,9 +73,9 @@ impl WorldConfig {
     pub fn render_loading_screen(&self, texture_manager: &mut TextureManager, ctx: &mut GlContext) {
         let screen_uv = [-1.0, -1.0, 1.0, 1.0];
         texture_manager.render_ui_element_with_pos(UITextures::VoidBackground, screen_uv);
-        render_centered_string_at_ndi_cords(texture_manager, 
+        render_centered_string_at_ndc(texture_manager, 
             self.loading_state.to_string(), 
-            "Basic".to_string(), 
+            FontType::Basic, 
             0.1, 
             [0.0, 0.0]
         );

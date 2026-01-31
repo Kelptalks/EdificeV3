@@ -1,4 +1,6 @@
-use crate::game_data::{log_init, screen::text, texture_manager::{texture_atlas::TextureAtlas, texture_renderer::TextureRenderingManager}, types::{BlockShaderType, BlockTriangle, BlockType, CharType, DroneItemTexture, DroneUITexture, ShaderTriangle, UITextures}};
+use std::time::SystemTime;
+
+use crate::game_data::{log_init, screen::text, texture_manager::{texture_atlas::TextureAtlas, texture_renderer::TextureRenderingManager}, types::{BlockShaderType, BlockTriangle, BlockType, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
 use miniquad::*;
 
 // Expander tuning constants - adjust these to control gap prevention
@@ -33,7 +35,6 @@ impl TextureManager {
     //======================
 
     pub fn new() -> Self {
-        log_init("Creating Texture Manager");
         Self {
             textures_initialized : false,
             texture_renderer : None,
@@ -61,6 +62,7 @@ impl TextureManager {
 
         // Set to initialized 
         self.textures_initialized = true;
+
     }
 
     pub fn are_textures_initialized(&self) -> bool {
@@ -146,7 +148,7 @@ impl TextureManager {
     //=====================================
     // Font Rendering
     //=====================================
-    pub fn render_char(&mut self, font: String, char : CharType, draw_location : [f32; 2], scale : f32) {
+    pub fn render_char(&mut self, font: FontType, char : CharType, draw_location : [f32; 2], scale : f32) {
         if char == CharType::CharSpace {
             return; // Don't render spaces
         }
@@ -171,7 +173,7 @@ impl TextureManager {
         let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_ui_uv(ui_texture);
 
         // Modify the y value based off texture src rect | Could cache this
-        let texture_src_rect = ui_texture.ui_texture_to_sprite_sheet_src_rect();
+        let texture_src_rect = ui_texture.get_rect();
         let y_to_x_scale = texture_src_rect [3] as f32 / texture_src_rect[2] as f32;
         let y_scale = scale * y_to_x_scale;
 

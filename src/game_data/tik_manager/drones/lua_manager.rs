@@ -39,7 +39,8 @@ impl LuaManager {
 
 
     pub fn rebuild_drone_script(&mut self) {
-        
+        self.lua = Lua::new();
+
         // Set up the Lua package path FIRST
         if let Err(e) = self.lua.load(r#"
             package.path = "./Lua_scripts/?.lua;./Lua_scripts/?/init.lua;" .. package.path
@@ -53,6 +54,9 @@ impl LuaManager {
         if let Err(e) = self.lua.load(&script).exec() {
             eprintln!("Failed to load Lua script: {}", e);
         }
+
+        // Register functions
+        let _ = self.register_functions();
         
     }
 

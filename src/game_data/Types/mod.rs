@@ -6,6 +6,7 @@ pub use blocks::BlockType;
 
 mod chars;
 pub use chars::CharType;
+pub use chars::FontType;
 
 mod shaders;
 pub use shaders::BlockShaderType;

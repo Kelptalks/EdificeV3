@@ -1,6 +1,6 @@
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, screen::{ScreenData, camera_data::{self, CameraData}, text::render_string_at_ndi_cords}, tik_manager::drones::drone::Drone, types::DroneUITexture};
+use crate::game_data::{TextureManager, screen::{ScreenData, camera_data::CameraData, text::render_string_at_ndc}, tik_manager::drones::drone::Drone, types::{DroneUITexture, FontType}};
 
 pub struct MiniWindow {
     // Rendering
@@ -107,12 +107,12 @@ impl MiniWindow {
 
         // Render id
         let drone_id_stat = format!("ID: {}", drone.get_id());
-        render_string_at_ndi_cords(texture_manager, drone_id_stat, "Basic".to_string(), scale, draw_cords);
+        render_string_at_ndc(texture_manager, drone_id_stat, FontType::Basic, scale, draw_cords);
 
         // Render fuel
         draw_cords[1] += spacing_scale;
         let drone_id_stat = format!("Fuel: {}", drone.get_fuel());
-        render_string_at_ndi_cords(texture_manager, drone_id_stat, "Basic".to_string(), scale, draw_cords);
+        render_string_at_ndc(texture_manager, drone_id_stat, FontType::Basic, scale, draw_cords);
 
 
 
@@ -125,7 +125,7 @@ impl MiniWindow {
 
     pub fn handle_motion_event(&mut self, screen_data: &ScreenData) {
         // if on mini_window
-
+        
     }
 
     pub fn mouse_button_down_event(&mut self, button: MouseButton, screen_data: &ScreenData) {
@@ -135,7 +135,7 @@ impl MiniWindow {
             let y_scale = DroneUITexture::DroneMiniWindow.get_y_to_x_ratio() * self.x_scale;
             let end_ndc_cords = [self.ndc_cords[0] + self.x_scale, self.ndc_cords[1] + y_scale];
 
-            let mouse_ndc = screen_data.get_mouse_ndc_cords();
+            let mouse_ndc = screen_data.get_mouse_ndc();
 
             let x_in_window = mouse_ndc[0] > self.ndc_cords[0] && mouse_ndc[0] < end_ndc_cords[0];
             let y_in_window = mouse_ndc[1] > self.ndc_cords[1] && mouse_ndc[1] < end_ndc_cords[1];
