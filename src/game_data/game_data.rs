@@ -90,7 +90,7 @@ impl GameData {
     pub fn handle_mouse_inputs(&mut self, button: MouseButton) {
         // New
         let screen = &mut self.screen_manager;
-        screen.mouse_button_down_event(button);
+        screen.mouse_button_down_event(button, &mut self.tik_manager);
     }
 
     pub fn handle_mouse_button_up(&mut self, button: MouseButton) {

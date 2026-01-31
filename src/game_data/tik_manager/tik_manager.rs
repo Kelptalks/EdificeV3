@@ -3,6 +3,13 @@ use std::{sync::{Arc, RwLock}, time::{SystemTime, UNIX_EPOCH}, u128};
 
 use crate::game_data::{World, debuging::debug_data::DebugData, screen::{Camera, screen_task_manager::drone_rendering_task_manager::DroneRenderingTaskManager}, tik_manager::drones::{drone_manager::DroneManager, lua_manager::LuaManager}, world_task_manager::world_task_manager::WorldTaskManager};
 
+/*
+#################
+## Tik Manager ##
+#################
+This file is resposible for managing the game screen. It handles whitch menu is currently visibile.
+how those menus are rendered and how those controls are processed.
+*/
 pub struct TikManager {
     paused: bool,
 
@@ -24,7 +31,6 @@ impl TikManager {
     pub fn new(world: Arc<RwLock<World>>) -> Self {
         let mut lua_manager = LuaManager::new();
         lua_manager.rebuild_drone_script();
-        lua_manager.register_functions();
         
 
         Self {
@@ -43,6 +49,14 @@ impl TikManager {
         }
     }
 
+    //=====================================
+    // Getters / Setters
+    //=====================================
+    
+    pub fn get_mut_lua_manager(&mut self) -> &mut LuaManager {
+        return &mut self.lua_manager;
+    }
+
     pub fn get_drone_manager(&self) -> &DroneManager {
         return &self.drone_manager;
     }
@@ -59,6 +73,10 @@ impl TikManager {
         self.tik_rate = new_tik_rate;
     }
 
+    //=====================================
+    // Init functions
+    //=====================================
+
     // Called every frame to update the tik
     pub fn update_tik_manager(&mut self, world_task_manager: &mut WorldTaskManager, screen_task_manager: &mut DroneRenderingTaskManager) {
         if self.paused {
@@ -72,6 +90,11 @@ impl TikManager {
 
         // Execute a tik
         let mut total_tiks_to_execute = (current_millis - self.last_tik_micros) / self.tik_rate;
+        // Cap total_tiks_to_execute
+        if total_tiks_to_execute > 50 {
+            total_tiks_to_execute = 50;
+        }
+        
         while total_tiks_to_execute > 0 {
             // Start tik execution time
             let tik_start_time = SystemTime::now();

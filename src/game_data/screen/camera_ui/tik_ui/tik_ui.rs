@@ -23,14 +23,15 @@ impl TikUI {
     pub fn new()-> TikUI {
         // Setup diffrent tik speeds
         let mut tik_speeds:Vec<u128> = Vec::new();
-        tik_speeds.push(1000000);
-        tik_speeds.push(100000);
+        tik_speeds.push(50000);
         tik_speeds.push(10000);
+        tik_speeds.push(5000);
         tik_speeds.push(1000);
+        tik_speeds.push(500);
         
         // Calculate scales
-        let speed_triangle_scale = 0.07;
-        let speed_triangle_spacing = 0.02;
+        let speed_triangle_scale = 0.04;
+        let speed_triangle_spacing = 0.005;
         let scale = [
             (speed_triangle_scale + speed_triangle_spacing) * tik_speeds.len() as f32,
             speed_triangle_scale
@@ -38,7 +39,7 @@ impl TikUI {
 
         TikUI {
             // Controls
-            current_tik_speed: 2,
+            current_tik_speed: 0,
             tik_speeds:tik_speeds,
 
             // Rendering
@@ -79,12 +80,6 @@ impl TikUI {
     // Rendering
     //=====================================
 
-    
-
-    //=====================================
-    // Controls
-    //=====================================
-
     pub fn render(&mut self, texture_manager: &mut TextureManager) {    
         // Render all the triangles
         let spaced_draw_x_offset = self.speed_triangle_spacing + self.speed_triangle_scale;
@@ -103,6 +98,10 @@ impl TikUI {
 
     }
 
+    //=====================================
+    // Controls
+    //=====================================
+
     pub fn handle_key_down(&mut self, keycode: KeyCode, tik_manager: &mut TikManager) {
         match keycode {
             KeyCode::Period => {
@@ -115,6 +114,7 @@ impl TikUI {
             }
             KeyCode::Space => {
                 tik_manager.pause();
+                tik_manager.set_tik_rate(self.tik_speeds[self.current_tik_speed]);
             }
             _=> {}
         }

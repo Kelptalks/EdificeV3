@@ -228,7 +228,7 @@ impl ScreenData {
         return self.mouse_renderer_ndc_cords;
     }
 
-    pub fn get_mouse_ndc_cords(&self) -> [f32; 2] {
+    pub fn get_mouse_ndc(&self) -> [f32; 2] {
         return self.mouse_ndc_cords;
     }
 

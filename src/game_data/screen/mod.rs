@@ -13,7 +13,7 @@ pub use renderer::iso_cord_tool;
 
 pub mod text;
 pub use text::render_string;
-pub use text::render_centered_string_at_ndi_cords;
+pub use text::render_centered_string_at_ndc;
 
 pub mod ui_manager;
 pub use ui_manager::Button;

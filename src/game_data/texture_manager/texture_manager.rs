@@ -1,6 +1,6 @@
 use std::time::SystemTime;
 
-use crate::game_data::{log_init, screen::text, texture_manager::{texture_atlas::TextureAtlas, texture_renderer::TextureRenderingManager}, types::{BlockShaderType, BlockTriangle, BlockType, CharType, DroneItemTexture, DroneUITexture, ShaderTriangle, UITextures}};
+use crate::game_data::{log_init, screen::text, texture_manager::{texture_atlas::TextureAtlas, texture_renderer::TextureRenderingManager}, types::{BlockShaderType, BlockTriangle, BlockType, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
 use miniquad::*;
 
 // Expander tuning constants - adjust these to control gap prevention
@@ -148,7 +148,7 @@ impl TextureManager {
     //=====================================
     // Font Rendering
     //=====================================
-    pub fn render_char(&mut self, font: String, char : CharType, draw_location : [f32; 2], scale : f32) {
+    pub fn render_char(&mut self, font: FontType, char : CharType, draw_location : [f32; 2], scale : f32) {
         if char == CharType::CharSpace {
             return; // Don't render spaces
         }

@@ -1,6 +1,6 @@
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndi_cords, ui_manager::button}, types::UITextures};
+use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndc, ui_manager::button}, types::{FontType, UITextures}};
 
 pub struct BarButton {
     cords: [f32; 2],
@@ -62,9 +62,9 @@ impl BarButton {
         let x_button_center_cor = self.cords[0] + (self.get_x_scale() / 2.0);
         let y_button_center_cor = self.cords[1] + (self.scale) / 2.0;
         let button_text_scale = self.scale * 0.3;
-        render_centered_string_at_ndi_cords(texture_manager,
+        render_centered_string_at_ndc(texture_manager,
             self.text.to_string(),
-            "Basic".to_string(),
+            FontType::Basic,
             button_text_scale,
             [x_button_center_cor, y_button_center_cor],
         );
@@ -77,7 +77,7 @@ impl BarButton {
 
     pub fn handle_mouse_motion_input(&mut self, screen_data: &ScreenData) { 
         // if mouse is over button
-        let mouse_cords = screen_data.get_mouse_ndc_cords();
+        let mouse_cords = screen_data.get_mouse_ndc();
         let button_x_scale = self.scale * self.length as f32;
         
         if mouse_cords[0] >= self.cords[0] &&

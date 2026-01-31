@@ -1,6 +1,6 @@
 use std::{collections::HashMap, ops::Index};
 
-use crate::game_data::{log_init, texture_manager::{block_sheet::BlockTextureManager, shader_sheet::ShaderTextureManager, text_sheet::TextTextureManager, ui_sheet::UITextureManager}, types::{BlockShaderType, BlockTriangle, BlockType, CharType, DroneItemTexture, DroneUITexture, ShaderTriangle, UITextures}};
+use crate::game_data::{log_init, texture_manager::{block_sheet::BlockTextureManager, shader_sheet::ShaderTextureManager, text_sheet::TextTextureManager, ui_sheet::UITextureManager}, types::{BlockShaderType, BlockTriangle, BlockType, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
 use image::{ImageBuffer, RgbaImage};
 use miniquad::*;
 
@@ -26,7 +26,7 @@ pub struct TextureAtlas {
     pre_calculated_shader_uvs: Vec<[[f32; 4]; 14]>,
 
     text_texture_manager: TextTextureManager,
-    pre_calculated_font_uvs: HashMap<String, Vec<[f32; 4]>>,
+    pre_calculated_font_uvs: Vec<Vec<[f32; 4]>>,
 
     ui_texture_manager: UITextureManager,
     pre_calculated_ui_uvs: Vec<[f32; 4]>,
@@ -143,15 +143,7 @@ impl TextureAtlas {
 
 
     // Fonts
-    pub fn get_precalculated_font_uv(&self, font: String, char: CharType) -> [f32; 4] {
-        let char_uvs = self.pre_calculated_font_uvs.get(&font);
-
-        if let Some(char_uvs) = char_uvs {
-            return char_uvs[char.get_id() as usize];
-
-        } else {
-            println!("Failed to index font");
-            return [0.0, 0.0, 0.0, 0.0];
-        }
+    pub fn get_precalculated_font_uv(&self, font: FontType, char: CharType) -> [f32; 4] {
+        return self.pre_calculated_font_uvs[font.get_id() as usize][char.get_id() as usize];
     }
 }

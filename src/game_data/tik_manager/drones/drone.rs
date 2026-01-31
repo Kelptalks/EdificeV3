@@ -79,9 +79,13 @@ impl Drone {
             moved: false,
         };
 
-        //drone.inventory.add_item(DroneItem::PlantMatter, 300);
-        //drone.inventory.add_item(DroneItem::StoneDrill, 1);
-        //drone.equip_tool(DroneItem::StoneDrill);
+        drone.inventory.add_item(DroneItem::BrownLog, 300);
+        
+        drone.inventory.add_item(DroneItem::StoneDrill, 1);
+        drone.equip_tool(DroneItem::StoneDrill);
+
+        drone.inventory.add_item(DroneItem::StoneSaw, 1);
+        drone.equip_tool(DroneItem::StoneSaw);
 
         return drone;
     }

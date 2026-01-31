@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, screen::{ScreenData, text::render_string_at_ndi_cords}};
+use crate::game_data::{TextureManager, screen::{ScreenData, text::render_string_at_ndc}, types::FontType};
 
 pub struct DebugData {
     // Frame
@@ -118,7 +118,7 @@ impl DebugData {
         let mut current_text_render_ndi_cords = [screen_uv[0], screen_uv[1]];
         let scale = 0.01;
         let spacing = scale + 0.003;
-        let font = "Basic".to_string();
+        let font = FontType::Basic;
 
         // Render frame data
         let formated_frame_time = format!(
@@ -127,7 +127,7 @@ impl DebugData {
             self.frame_high, 
             self.frame_time
         );
-        render_string_at_ndi_cords(texture_manager, formated_frame_time, font.clone(), scale, current_text_render_ndi_cords);
+        render_string_at_ndc(texture_manager, formated_frame_time, font, scale, current_text_render_ndi_cords);
         current_text_render_ndi_cords[1] += spacing;
 
         // Render tik time
@@ -136,7 +136,7 @@ impl DebugData {
             self.current_tik,
             self.tik_execution_time
         );
-        render_string_at_ndi_cords(texture_manager, formated_tik_time, font.clone(), scale, current_text_render_ndi_cords);
+        render_string_at_ndc(texture_manager, formated_tik_time, font, scale, current_text_render_ndi_cords);
         current_text_render_ndi_cords[1] += spacing;
 
         // Render mouse location data
@@ -144,7 +144,7 @@ impl DebugData {
             "Mouse Tile Cords: ({:?})", 
             self.mouse_tile_cords
         );
-        render_string_at_ndi_cords(texture_manager, mouse_tile_cords, font.clone(), scale, current_text_render_ndi_cords);
+        render_string_at_ndc(texture_manager, mouse_tile_cords, font, scale, current_text_render_ndi_cords);
         current_text_render_ndi_cords[1] += spacing;
 
 
@@ -154,7 +154,7 @@ impl DebugData {
             self.total_cached_chunks,
             self.max_cached_chunks
         );
-        render_string_at_ndi_cords(texture_manager, render_data, font.clone(), scale, current_text_render_ndi_cords);
+        render_string_at_ndc(texture_manager, render_data, font, scale, current_text_render_ndi_cords);
         current_text_render_ndi_cords[1] += spacing;
 
     }
