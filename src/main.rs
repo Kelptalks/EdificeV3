@@ -13,8 +13,6 @@ struct GameStage {
     game_data: GameData,
 }
 
-const VIRTUAL_SIZE: f32 = 1080.0;
-
 
 impl GameStage {
     pub fn new() -> GameStage {

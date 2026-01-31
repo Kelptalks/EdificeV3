@@ -1,4 +1,0 @@
-(Get-ChildItem -Recurse -Include *.rs,*.lua | Get-Content | Measure-Object -Line).Lines
-
-1/17/2026 = 8274
-1/30/2026 = 8728

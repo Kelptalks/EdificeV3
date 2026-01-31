@@ -96,7 +96,7 @@ impl ScreenManager {
                 self.camera.render_camera(texture_manager, world.clone(), ctx);
                 self.camera_ui_manager.render_ui(&self.screen_data, texture_manager, self.camera.get_camera_data(), &world.clone(), tik_manager);
                 world_rendering_task_manager.execute_render_updates_drone(world, &mut self.camera, texture_manager);
-                
+
             }
         }
         
@@ -140,7 +140,7 @@ impl ScreenManager {
         if current_menu == CurrentMenu::MainMenu {
             self.main_menu.handle_mouse_button_down(&mut self.screen_data, button);
         }
-        if current_menu == CurrentMenu::MainMenuWorldCreation {
+        else if current_menu == CurrentMenu::MainMenuWorldCreation {
             self.main_menu_world_creation.handle_mouse_button_down(&mut self.screen_data, button);
         }
         else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
