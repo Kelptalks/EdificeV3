@@ -1,1 +1,4 @@
-Set up drone goal system
+* Finish scavenging goal
+* Tree chopping Goal
+* Quarry Goal
+* Build pyramid Goal
