@@ -56,8 +56,8 @@ Low due to vacation in Chile
 - 1/31/26 = 6
 
 **Lines**
-- 1/30/2026 = 8728
-- 1/31/2026 = 8971
+- 1/30/26 = 8728
+- 1/31/26 = 9071
 
 **Notes:**
 + Tik speed controls
@@ -67,10 +67,14 @@ Low due to vacation in Chile
 ## Week 5
 
 **Hours:**
+- 2/1/26 = 6
 
 **Lines**
+- 2/1/26 = 9238
 
 **Notes:**
++ Drone tree chopping script
+
 
 ---------------------------------------------------------------
 ## Week template

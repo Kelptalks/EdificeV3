@@ -1,12 +1,14 @@
+-- Drone and world
 local DroneFunctions = require("rust_wrapper_functions.drone_functions")
 local BlockTypes = require("rust_wrapper_functions.block_types")
 
+-- Goals
 local GoalManager = require("drone_goals.goal_manager")
 local MoveGoal = require("drone_goals.basic.move_goal")
 local GatherGoal = require("drone_goals.basic.gather_goal")
 
-local ScavengeGoal = {}  -- Module table
-ScavengeGoal.__index = ScavengeGoal  -- Add this!
+local ScavengeGoal = {}
+ScavengeGoal.__index = ScavengeGoal
 
 function ScavengeGoal.new(x_start_cor, y_start_cor, x_end_cor, y_end_cor)
     local self = setmetatable({}, ScavengeGoal)

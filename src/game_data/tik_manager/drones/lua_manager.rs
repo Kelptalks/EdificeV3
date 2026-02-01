@@ -212,10 +212,11 @@ impl LuaManager {
         // Mine block
         let place_block = self.lua.create_function(|lua, (drone_id, x, y, z, block_id): (u32, i32, i32, i32, u16)| {
             let drone_manager = Self::get_drone_manager(lua)?;
+            let world = Self::get_world(lua)?;
             let world_task_manager = Self::get_world_task_manager(lua)?;
             
             if let Some(drone) = drone_manager.get_drone_with_id_mut(drone_id) {
-                drone.place_block([x, y, z], world_task_manager, BlockType::from_id(block_id));
+                drone.place_block([x, y, z], world, world_task_manager, BlockType::from_id(block_id));
             } else {
                 println!("Place Block Failed | Cannot find drone of id {}", drone_id);
             }

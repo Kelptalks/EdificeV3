@@ -101,7 +101,7 @@ static BLOCK_PROPERTIES: [BlockProperties; 75] = [
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 30,  item: DroneItem::PlantMatter,  item_quantity: 2},     // Grass
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 40,  friction: 20,  item: DroneItem::Dirt,         item_quantity: 1 },     // Dirt
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 60,  friction: 15,  item: DroneItem::BrownLog,     item_quantity: 5 },     // BrownTrunk
-    BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 20,  friction: 60,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // Leaves
+    BlockProperties { transparent: false, translucent: false, solid: false,  hardness: 20,  friction: 60,  item: DroneItem::PlantMatter,  item_quantity: 1 },     // Leaves
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 60,  friction: 15,  item: DroneItem::PurpleLog,    item_quantity: 5  },     // PurpleTrunk
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 300, friction: 5,   item: DroneItem::IronOar,      item_quantity: 3},     // Iron
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 120, friction: 4,   item: DroneItem::Stone,        item_quantity: 10},    // Granite

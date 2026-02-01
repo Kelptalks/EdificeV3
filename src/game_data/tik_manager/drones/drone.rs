@@ -1,6 +1,7 @@
 use std::sync::{Arc, RwLock};
 
 use rand::rand_core::block;
+use rand::thread_rng;
 
 use crate::game_data::tik_manager::drones::drone_inventory::{DroneInventory, InventorySlot};
 use crate::game_data::types::drone_item::DroneItem;
@@ -128,6 +129,7 @@ impl Drone {
         }
         return true;
     }
+
 
     //=====================================
     // Drone Getters
@@ -370,22 +372,47 @@ impl Drone {
         return 2;
     }
 
-    // Place a block relative to the drone | Error 1 = is busy | Error 2 = Cords out of range | Error 3 = Missing items
-    pub fn place_block(&mut self, relative_cords: [i32; 3], world_task_manager: &mut WorldTaskManager, block: BlockType) -> u32{
+    /// Place a block relative to the drone
+    /// 
+    /// # Error Codes
+    ///     - Error 1 = is busy
+    ///     - Error 2 = Cords out of range
+    ///     - Error 3 = Missing items
+    ///     - Error 4 = Cannot place block as solid block is in the way
+    ///     - Error 5 = Cannot piller with block type
+    /// 
+    pub fn place_block(&mut self, relative_cords: [i32; 3],  world: &World, world_task_manager: &mut WorldTaskManager, block: BlockType) -> u32{
         if self.is_busy() {
-            println!("Drone {} cannot mine because busy", self.id);
             return 1;
         }
         
         if Drone::if_cords_within_range(relative_cords, self.modify_range) {
             // Get world cords
             let world_cords = self.get_relative_world_cords(relative_cords);
+            let block_type_at_cords = world.get_world_value(world_cords);
 
+
+            if BlockType::from_id(block_type_at_cords).is_solid() {
+                // Pillering
+                if relative_cords.iter().sum::<i32>() == 0 {
+                    if block == BlockType::Scaffolding {
+                        self.move_drone(world, [0, 0, 1], world_task_manager);
+                    }
+                    else {
+                        return 5
+                    }
+                }
+                else {
+                    return 4 
+                }
+            }
+
+            // Remove the requried item from the invintory
             if !self.inventory.remove_item(block.item(), block.item_quantity() as i32) {
                 return 3;
             }
 
-            // Change the block to air
+            // Set the block
             world_task_manager.mod_block(world_cords, block.id_as_u16());
             return 0;
         }

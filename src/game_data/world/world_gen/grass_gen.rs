@@ -239,7 +239,7 @@ impl GrassGenManager {
         // Setup Plant generation probabilitys
         let plants:Vec<Plant> = vec![
             Plant {plant_type: PlantType::Tree, weight: 200},
-            Plant {plant_type: PlantType::Mushroom, weight: 1},
+            Plant {plant_type: PlantType::Mushroom, weight: 0},
             Plant {plant_type: PlantType::Dandelion, weight: 10},
         ];
 

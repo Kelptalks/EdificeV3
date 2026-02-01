@@ -270,6 +270,9 @@ function MoveGoal:compute_path(drone_id)
     -- If we get here, we explored everything visible but didn't reach goal
     -- Return path to closest node
     if best_node_key then
+        if best_node_key == nil then
+            print("Node Key nil")
+        end
         return self:reconstruct_path(came_from, best_node_key, start_key)
     end
 
@@ -287,8 +290,8 @@ function MoveGoal:is_at_goal(node_key)
     local cords = node["Cords"]
     
     -- Check if within 1 block of goal (or exact match)
-    return math.abs(cords[1] - self.goal_cords[1]) <= 1 
-       and math.abs(cords[2] - self.goal_cords[2]) <= 1
+    local distance = math.abs(cords[1] - self.goal_cords[1]) + math.abs(cords[2] - self.goal_cords[2])
+    return distance <= 1
 end
 
 function MoveGoal:is_at_goal_cords(cords)
@@ -314,10 +317,10 @@ function MoveGoal:tik(drone_id)
 
     -- Execute current path 
     if self.path then
-        -- No valid path
-        if #self.path == 0 then
-            self.complete = true
-            return false;
+        -- If node in path is no longer safe rebuild
+        if self.nodes[self.path[1]] == nil then
+            self.path = nil
+            return;
         end
 
         local path_cords = self.nodes[self.path[1]]["Cords"]
@@ -329,8 +332,10 @@ function MoveGoal:tik(drone_id)
         -- Move drone
         DroneFunctions.move(drone_id, x_direction, y_direction, z_direction)
 
-        -- Remove current movment from path
+        -- Remove current movment from path        
         table.remove(self.path, 1)
+
+
         -- Clear path if all movments have been executed
         if #self.path == 0 then
             self.path = nil
