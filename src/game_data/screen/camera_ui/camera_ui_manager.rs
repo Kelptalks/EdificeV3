@@ -163,7 +163,8 @@ impl CameraButtons {
 */
 
 pub struct CameraUIManager {
-    
+    visible: bool,
+
     // Buttons
     camera_buttons: CameraButtons,
     tik_ui: TikUI,
@@ -173,6 +174,7 @@ pub struct CameraUIManager {
 impl CameraUIManager {
     pub fn new() -> CameraUIManager {
         CameraUIManager {
+            visible: true,
             drone_ui_map: HashMap::new(),
             camera_buttons: CameraButtons::new(),
             tik_ui: TikUI::new()
@@ -201,6 +203,9 @@ impl CameraUIManager {
         world: &Arc<RwLock<World>>, 
         tik_manager: &TikManager) 
     {
+        if !self.visible {
+            return;
+        }
         // Render Camera buttons
         self.camera_buttons.render(texture_manager, screen_data);
 
@@ -231,6 +236,9 @@ impl CameraUIManager {
     //=====================================
     
     pub fn handle_motion_event(&mut self, screen_data: &ScreenData) {
+        if !self.visible {
+            return;
+        }
         // Buttons
         self.camera_buttons.handle_motion_event(screen_data);
         
@@ -246,6 +254,9 @@ impl CameraUIManager {
         tik_manager: &mut TikManager,
         world_task_manager: &mut WorldTaskManager
     ) {
+        if !self.visible {
+            return;
+        }
         // buttons
         self.camera_buttons.handle_mouse_button_down(mouse_button, tik_manager, world_task_manager);
 
@@ -256,14 +267,25 @@ impl CameraUIManager {
     }
     
     pub fn handle_mouse_button_up(&mut self, mouse_button_up: MouseButton, screen_data: &ScreenData) {
+        if !self.visible {
+            return;
+        }
         for (id, drone_ui) in &mut self.drone_ui_map.iter_mut() {
             drone_ui.handle_mouse_button_up(mouse_button_up, screen_data);
         }
     }
 
     pub fn handle_key_down(&mut self, keycode: KeyCode, tik_manager: &mut TikManager) {
+        match keycode {
+            KeyCode::F1 => {
+                self.visible = !self.visible;
+            }
+            _=> {}
+        }
+        if !self.visible {
+            return;
+        }
         self.tik_ui.handle_key_down(keycode, tik_manager);
-        
     }
 
 

@@ -39,7 +39,7 @@ impl LayerManager {
     pub fn get_layer_rules_in_range(&self, z_start: i32, z_end: i32) -> Vec<&LayerRule> {
         self.layers.iter()
             .filter(|layer_rule| {
-                layer_rule.start_z >= z_start && layer_rule.end_z <= z_end
+                layer_rule.start_z >= z_start || layer_rule.end_z <= z_end
             })
             .collect()
     }
@@ -72,7 +72,7 @@ impl WorldGenManager {
         let mut layer_manager = LayerManager::new();
         layer_manager.add_lair(BlockType::Grass, 0, 0);
         layer_manager.add_lair(BlockType::Dirt, -3, -1);
-        layer_manager.add_lair(BlockType::Stone, -10, -4);
+        layer_manager.add_lair(BlockType::Stone, -100, -4);
 
         Self {
             layer_manager: layer_manager,
@@ -82,7 +82,7 @@ impl WorldGenManager {
     pub fn generate_area(&self, world: &mut World, start_cords: [i32; 3], end_cords: [i32; 3]) {
         let lair_rules_in_range = self.layer_manager.get_layer_rules_in_range(start_cords[2], end_cords[2]);
 
-        let terrain_noise = TerrainNoise::new(152452, 3, 1000.0);
+        let terrain_noise = TerrainNoise::new(152452, 4, 500.0);
 
         println!("Generating Terrain");
         println!(" - Total Lair rules in area = {}", lair_rules_in_range.len());

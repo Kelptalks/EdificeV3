@@ -35,7 +35,7 @@ This is where I track progress through time worked and other metrics
 - 1/17/2026 = 8274
 
 **Notes:**
-+ Lots of work on part 1 of devblog
++ Finished part 1 of devblog
 + Drone tools, crafting, and inventorys
 
 
@@ -68,13 +68,14 @@ Low due to vacation in Chile
 
 **Hours:**
 - 2/1/26 = 6
+- 2/2/26 = 1
 
 **Lines**
 - 2/1/26 = 9238
 
 **Notes:**
 + Drone tree chopping script
-
++ Finished Part 2 Of devblog
 
 ---------------------------------------------------------------
 ## Week template
