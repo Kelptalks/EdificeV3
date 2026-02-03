@@ -95,7 +95,7 @@ impl ScreenManager {
             else {
                 self.camera.render_camera(texture_manager, world.clone(), ctx);
                 self.camera_ui_manager.render_ui(&self.screen_data, texture_manager, self.camera.get_camera_data(), &world.clone(), tik_manager);
-                world_rendering_task_manager.execute_render_updates_drone(world, &mut self.camera, texture_manager);
+                world_rendering_task_manager.execute_render_updates_drone(&mut self.camera, texture_manager);
 
             }
         }

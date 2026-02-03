@@ -15,10 +15,10 @@ impl BlockUpdateTask {
         }
     }
     
-    pub fn re_render_block(&self, world: &Arc<RwLock<World>>, camera: &mut Camera, camera_data: &CameraData) {
+    pub fn re_render_block(&self, camera: &mut Camera, camera_data: &CameraData) {
         // Loop through area around drone
         let casted_tile_cords = camera_data.world_to_casted_tile_cords(self.cords);
-        camera.ray_cast_area_at_cords(world, casted_tile_cords, 2);
+        camera.dirty_tiles_in_area(casted_tile_cords, 2);
     }
 }
 
@@ -55,10 +55,10 @@ impl RenderingTaskManager {
     //=====================================
 
 
-    pub fn render_block_updates_to_camera(&mut self, camera: &mut Camera, camera_data: &CameraData, world: Arc<RwLock<World>>){
+    pub fn render_block_updates_to_camera(&mut self, camera: &mut Camera, camera_data: &CameraData){
         // Loop through drones
         for block_update_task in &mut self.block_update_tasks {
-            block_update_task.re_render_block(&world, camera, camera_data);
+            block_update_task.re_render_block(camera, camera_data);
         }
         // Clear the aray after
         self.block_update_tasks.clear();
@@ -70,10 +70,10 @@ impl RenderingTaskManager {
     // Execution
     //=====================================
 
-    pub fn execute_render_updates_drone(&mut self, world: Arc<RwLock<World>>, camera: &mut Camera, texture_manager: &mut TextureManager) {
+    pub fn execute_render_updates_drone(&mut self, camera: &mut Camera, texture_manager: &mut TextureManager) {
         let camera_data = camera.get_camera_data().clone();
 
         // Loop through drones
-        self.render_block_updates_to_camera(camera, &camera_data, world.clone())
+        self.render_block_updates_to_camera(camera, &camera_data)
     }
 }

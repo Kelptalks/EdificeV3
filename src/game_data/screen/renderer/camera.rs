@@ -1,8 +1,9 @@
-use std::{alloc::System, clone, sync::{Arc, RwLock, TryLockError}, time::SystemTime};
+use std::{alloc::System, clone, collections::{HashMap, HashSet}, sync::{Arc, RwLock, TryLockError}, time::SystemTime};
 
 use miniquad::{GlContext, RenderingBackend};
+use rand::distr::Map;
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, log_init, screen::{self, camera_data::{self, CameraData}, iso_cord_tool, render_string, renderer::{camera, casted_block_manager::{self, casted_chunk::{self, CastedChunk}}, render_cache_manager::{self, canvas_data, render_cashe_manager::RenderCacheManager}, thread_manager::raycast_thread_pool::RaycastThreadPool}, text}, types::{BlockTriangle, BlockType, UITextures}};
+use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, log_init, screen::{self, camera_data::{self, CameraData}, iso_cord_tool, render_string, renderer::{camera, casted_block_manager::{self, casted_chunk::{self, CastedChunk}, casted_tile::CastedTile}, render_cache_manager::{self, canvas_data, render_cashe_manager::RenderCacheManager}, thread_manager::raycast_thread_pool::RaycastThreadPool}, text}, types::{BlockTriangle, BlockType, UITextures}};
 use super::casted_block_manager::casted_block_manager::CastedChunkManager;
 
 pub struct Camera
@@ -14,6 +15,9 @@ pub struct Camera
     thread_manager: RaycastThreadPool,
     render_cache_manager : Option<RenderCacheManager>,
 
+    // Dirty
+    dirty_tiles: HashSet<[i32; 2]>,
+    dirty_chunks: HashSet<[i32; 2]>,
     
 
     // Debug
@@ -30,6 +34,10 @@ impl Camera {
             casted_chunk_manager : CastedChunkManager::new(),
             thread_manager: RaycastThreadPool::new(10),
             render_cache_manager : None,
+
+            // Dirty
+            dirty_tiles: HashSet::new(),
+            dirty_chunks: HashSet::new(),
 
             // debug
             tiles_raycasted_this_frame: 0,
@@ -87,7 +95,44 @@ impl Camera {
     // Render Updating
     //=====================================
 
-    pub fn ray_cast_tile_at_cords(&mut self, world: &Arc<RwLock<World>>, casted_tile_cords: [i32; 2]) {
+    //=====================================
+    // Tile Management
+    //=====================================
+
+
+    /// Execute the raycasting of all tiles marked dirt
+    /// 
+    /// Called every frame and clears dirty tiles
+    pub fn ray_cast_dirty_tiles(&mut self, world: &Arc<RwLock<World>>) {
+        // Swap dirty_tiles with an empty HashSet
+        let tiles_to_process = std::mem::take(&mut self.dirty_tiles);
+        
+        for tile_cords in tiles_to_process {
+            self.ray_cast_tile_at_cords(world, tile_cords);
+        }
+    }
+
+    /// Marks tiles dirty for re rendering
+    pub fn dirty_tiles_in_area(&mut self, casted_tile_cords: [i32; 2], range: i32) {
+        for x_offset in -range..range {
+            for y_offset in -range..range {
+                let casted_cords_to_rerender = [
+                    casted_tile_cords[0] + x_offset,
+                    casted_tile_cords[1] + y_offset
+                ];
+                self.set_tile_dirty(casted_cords_to_rerender);
+            }
+        }
+    }
+    pub fn set_tile_dirty(&mut self, casted_tile_cords: [i32; 2]) {
+        self.dirty_tiles.insert(casted_tile_cords);
+    }
+
+    /// For executing the re rendering of a tile
+    ///
+    /// Re raycasts a tile and 
+    /// marks the cached chunk it's contained on for re rendering
+    fn ray_cast_tile_at_cords(&mut self, world: &Arc<RwLock<World>>, casted_tile_cords: [i32; 2]) {
         // Re raycast the tile
         self.casted_chunk_manager.ray_cast_tile_at_casted_cords(world, &self.camera_data, casted_tile_cords);
 
@@ -102,16 +147,83 @@ impl Camera {
         self.tiles_raycasted_this_frame += 1;
     }
 
-    pub fn ray_cast_area_at_cords(&mut self, world: &Arc<RwLock<World>>, casted_tile_cords: [i32; 2], range: i32) {
-        for x_offset in -range..range {
-            for y_offset in -range..range {
-                let casted_cords_to_rerender = [
-                    casted_tile_cords[0] + x_offset,
-                    casted_tile_cords[1] + y_offset
-                ];
-                self.ray_cast_tile_at_cords(world, casted_cords_to_rerender);
+    //=====================================
+    // Chunk Managament
+    //=====================================
+
+    /// Execute the raycasting of all chunks marked dirt
+    /// 
+    /// Called every frame and clears dirty chunks 
+    pub fn ray_cast_dirty_chunks(
+        &mut self, 
+        arc_camera_data: Arc<CameraData>, 
+        world: &Arc<RwLock<World>>,
+    ) {
+        let chunks_to_process = std::mem::take(&mut self.dirty_chunks);
+        for chunk_cords in chunks_to_process {
+            self.ray_cast_chunk_at_cords(arc_camera_data.clone(), world.clone(), chunk_cords);
+        }
+    }
+
+    pub fn set_chunk_dirty(&mut self, casted_chunk_cords: [i32; 2]) {
+        self.dirty_chunks.insert(casted_chunk_cords);
+    }
+
+
+    /// Re Renders a chunk at cords
+    /// 
+    /// 
+    /// Creates a chunk if it doesn't exist
+    /// Raycasts chunk
+    /// 
+    pub fn ray_cast_chunk_at_cords(
+        &mut self, 
+        arc_camera_data: Arc<CameraData>, 
+        world: Arc<RwLock<World>>,
+        chunk_cords: [i32; 2]
+    ) {
+
+
+        let casted_chunk_manager = &mut self.casted_chunk_manager;
+        
+        // If chunk exists
+        if let Some(_chunk) = casted_chunk_manager.get_chunk_at_chunk_cords(chunk_cords) {
+            match _chunk.read() {
+                Ok(guard) => {
+                    // Chunk is not locked, safe to render
+                    if !guard.is_ray_casted() {
+                        // submit raycast task
+                        let _ = self.thread_manager.submit_task(_chunk.clone(), arc_camera_data, world);
+                    }
+                    else {
+                    }
+                },
+                Err(_) => {
+                    // Chunk is locked, skip rendering this frame
+                    
+                }
             }
         }
+        else {   
+            // Create the missing chunk
+            casted_chunk_manager.create_chunk_at_cords(&self.camera_data, chunk_cords);
+
+            // Raycast
+            if let Some(_chunk) = casted_chunk_manager.get_chunk_at_chunk_cords(chunk_cords) {
+                self.render_cache_manager.as_mut().unwrap().add_chunk_to_canvas(_chunk.clone());
+                let _ = self.thread_manager.submit_task(_chunk.clone(), arc_camera_data, world);
+            }
+
+        }
+
+        // Re render the chunk to the canvas cache
+        let chunk_cords = CastedChunkManager::tile_cords_to_chunk_cords(chunk_cords);
+        let cashed_chunk_option = self.render_cache_manager.as_mut().unwrap().get_mut_canvas_tile(chunk_cords);
+        if let Some(cashed_chunk) = cashed_chunk_option {
+            cashed_chunk.set_rendered_to_sprite_sheet(false);
+        }
+
+
     }
 
     //=====================================
@@ -124,7 +236,6 @@ impl Camera {
         arc_camera_data: Arc<CameraData>, 
         range: i32
     ) {
-        let casted_chunk_manager = &mut self.casted_chunk_manager;
         
         // Center around world center
         let cam_z_offset = camera_data.get_cam_world_cords()[2] as i32;
@@ -136,39 +247,9 @@ impl Camera {
                     x_rel_cor + world_center_chunk_shift,
                     y_rel_cor + world_center_chunk_shift
                 ];
-
-                // If chunk exists
-                if let Some(_chunk) = casted_chunk_manager.get_chunk_at_chunk_cords(relative_chunk_cords) {
-                    match _chunk.read() {
-                        Ok(guard) => {
-                            // Chunk is not locked, safe to render
-                            if !guard.is_ray_casted() {
-                                // submit raycast task
-                                let _ = self.thread_manager.submit_task(_chunk.clone(), arc_camera_data.clone(), world.clone());
-                            }
-                            else {
-                            }
-                        },
-                        Err(_) => {
-                            // Chunk is locked, skip rendering this frame
-
-                        }
-                    }
-                }
-                else {   
-                    // Create the missing chunk
-                    casted_chunk_manager.create_chunk_at_cords(&self.camera_data, relative_chunk_cords);
-
-                    if let Some(_chunk) = casted_chunk_manager.get_chunk_at_chunk_cords(relative_chunk_cords) {
-                        self.render_cache_manager.as_mut().unwrap().add_chunk_to_canvas(_chunk.clone());
-                        self.thread_manager.submit_task(_chunk.clone(), arc_camera_data.clone(), world.clone());
-                        
-                    }
-
-                }
+                self.set_chunk_dirty(relative_chunk_cords);
             }
         }
-        self.thread_manager.wait_for_completion();
     }
 
     pub fn render_chunks_around_camera(&mut self, texture_manager: &mut TextureManager, world: Arc<RwLock<World>>, camera_data: &CameraData, arc_camera_data: Arc<CameraData>) {
@@ -188,35 +269,17 @@ impl Camera {
                     iso_chunk_center[1] + y_rel_cor
                 ];
 
-                // If chunk exists
+                // If chunk exists render it
                 if let Some(_chunk) = casted_chunk_manager.get_chunk_at_chunk_cords(relative_chunk_cords) {
                     match _chunk.try_read() {
                         Ok(guard) => {
-                            // Chunk is not locked, safe to render
-                            if !guard.is_ray_casted() {
-    
-                                // submit raycast task
-                                self.thread_manager.submit_task(_chunk.clone(), arc_camera_data.clone(), world.clone());
-                            }
-                            else {
-                                guard.render_chunk(&camera_data, texture_manager);
-                                
-                            }
+                            guard.render_chunk(&camera_data, texture_manager);
                         },
                         Err(_) => {
                             // Chunk is locked, skip rendering this frame
 
                         }
                     }
-                }
-                else {   
-                    // Create the missing chunk
-                    casted_chunk_manager.create_chunk_at_cords(&self.camera_data, relative_chunk_cords);
-
-                    if let Some(_chunk) = casted_chunk_manager.get_chunk_at_chunk_cords(relative_chunk_cords) {
-                        self.render_cache_manager.as_mut().unwrap().add_chunk_to_canvas(_chunk.clone());
-                    }
-
                 }
             }
         }
@@ -347,10 +410,6 @@ impl Camera {
         // Start frame time
         let frame_start_time = SystemTime::now();
         
-        // Render background
-        texture_manager.render_ui_element_with_pos(UITextures::VoidBackground, [-1.0, -1.0, 1.0, 1.0]);
-        texture_manager.get_texture_renderer().flush(ctx);
-
         // Update values
         self.get_mut_camera_data().update_camera_values();
         self.get_mut_camera_data().increment_frame_number();
@@ -358,6 +417,15 @@ impl Camera {
         // Create clones of camera data for threading frame
         let camera_data = self.get_mut_camera_data().clone();
         let arc_camera_data = camera_data.clone().get_arc_ref();
+
+        // Re re render dirty
+        self.ray_cast_dirty_tiles(&world);
+        self.ray_cast_dirty_chunks(arc_camera_data.clone(), &world);
+
+        // Render background
+        texture_manager.render_ui_element_with_pos(UITextures::VoidBackground, [-1.0, -1.0, 1.0, 1.0]);
+        texture_manager.get_texture_renderer().flush(ctx);
+
 
         // Render cashed chunks around camera
         texture_manager.set_cached_expander(0.0); // Clear expander for cashing renderings
