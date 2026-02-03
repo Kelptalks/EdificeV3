@@ -98,7 +98,7 @@ impl GameData {
     pub fn handle_mouse_inputs(&mut self, button: MouseButton) {
         // New
         let screen = &mut self.screen_manager;
-        screen.mouse_button_down_event(button, &mut self.tik_manager, &mut self.world_task_manager);
+        screen.mouse_button_down_event(button, &mut self.tik_manager, &mut self.world_task_manager, &mut self.event_manager);
     }
 
     pub fn handle_mouse_button_up(&mut self, button: MouseButton) {
@@ -170,7 +170,7 @@ impl GameData {
         // Tik managing
         self.tik_manager.update_tik_manager(&mut self.world_task_manager, &mut self.drone_rendering_task_manager);
 
-        let screen_mananager = &self.screen_manager;
+        let screen_mananager = &mut self.screen_manager;
         screen_mananager.collect_debug_data(&mut self.debug_data);
         
         // Test sprite sheet
@@ -194,6 +194,7 @@ impl GameData {
         };
 
         self.event_manager.execute_world_events(&mut world_guard);
+        self.event_manager.execute_render_events(screen_mananager, &self.world);
 
         // Update debug data
         self.debug_data.set_frame_time(frame_duration_ms as u32);

@@ -56,6 +56,9 @@ impl WorldConfig {
     pub fn get_scale(&self) -> u32 {
         self.scale
     }
+    pub fn get_chunk_rendering_range(&self) -> u32 {
+        return (self.get_scale() / CastedChunkManager::get_chunk_tile_scale() / 2) + 4;
+    }
 
     pub fn get_height_variation(&self) -> u32 {
         self.height_variation
@@ -80,42 +83,5 @@ impl WorldConfig {
             [0.0, 0.0]
         );
         texture_manager.get_texture_renderer().flush(ctx);
-    }
-
-    pub fn init_world(&mut self, texture_manager: &mut TextureManager, 
-        world: &Arc<RwLock<World>>,
-        camera: &mut camera::Camera, 
-        ctx : &mut GlContext
-    ) {
-        match self.loading_state {
-            LoadingState::ShowLoading => {
-                self.loading_state = LoadingState::GenerateTerrain;
-            }
-            LoadingState::GenerateTerrain => {
-                let world_rwlock = world.as_ref();
-                let mut world_guard = world_rwlock.write().unwrap();
-                world_guard.generate_terrain(self.get_scale());
-                self.loading_state = LoadingState::InitRendering;
-            }
-            LoadingState::InitRendering => {
-                // Pre raycast chunks around camera
-                let range = (self.get_scale() / CastedChunkManager::get_chunk_tile_scale() / 2) + 4;
-                println!("Initializing World Rendering with range: {}", range);
-                camera.init_chunks_in_area(
-                    world.clone(), 
-                    &camera.get_camera_data().clone(), 
-                    Arc::new(camera.get_camera_data().clone()), 
-                    range as i32
-                );
-                self.loading_state = LoadingState::Finilize;
-            }
-            LoadingState::Finilize => {
-                self.loading_state = LoadingState::Done;
-            }
-            LoadingState::Done => {
-                // Normal game rendering
-            }
-        }
-        self.render_loading_screen(texture_manager, ctx);
     }
 }

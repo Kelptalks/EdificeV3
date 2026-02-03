@@ -8,7 +8,7 @@ use crate::game_data::{World, screen::world_config::{self, WorldConfig}};
 
 */
 pub enum WorldEvent {
-    Clear,                          // No Data
+    Clear,                     // No Data
     GenWorld(WorldConfig),     // World Config
     GenLevel(u32)              // Level Id
 }
@@ -37,7 +37,7 @@ impl WorldEvent {
 
             },
             WorldEvent::GenWorld(world_config) => {
-                
+                world.generate_terrain(world_config.get_scale());
             },
             WorldEvent::GenLevel(level) => {
                 

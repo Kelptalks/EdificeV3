@@ -30,10 +30,6 @@ pub struct ScreenData {
     // Button held states
     middle_mouse_held: bool,
 
-    // Init
-    world_config: Option<WorldConfig>,
-    is_world_initialized: bool,
-
     // Quit
     quit_game : bool,
 }
@@ -58,11 +54,6 @@ impl ScreenData {
             mouse_iso_world_cords: [0, 0],
 
             middle_mouse_held: false,
-
-
-            // Init
-            is_world_initialized: false,
-            world_config: None,
 
             // Quit
             quit_game: false,
@@ -230,30 +221,6 @@ impl ScreenData {
 
     pub fn get_mouse_ndc(&self) -> [f32; 2] {
         return self.mouse_ndc_cords;
-    }
-
-    //=====================================
-    // World Initilization
-    //=====================================
-
-    pub fn is_world_initialized(&self) -> bool {
-        return self.is_world_initialized;
-    }
-
-    pub fn set_world_initialized(&mut self, initialized: bool) {
-        self.is_world_initialized = initialized;
-    }
-
-    pub fn set_world_config(&mut self, world_config: WorldConfig) {
-        self.world_config = Some(world_config);
-    }
-
-    pub fn get_world_config(&self) -> &WorldConfig {
-        self.world_config.as_ref().unwrap()
-    }
-
-    pub fn get_mut_world_config(&mut self) -> &mut WorldConfig {
-        self.world_config.as_mut().unwrap()
     }
 
     //=====================================

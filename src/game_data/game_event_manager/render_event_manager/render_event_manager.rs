@@ -1,3 +1,7 @@
+use std::sync::{Arc, RwLock};
+
+use crate::game_data::{World, screen::{screen_mananager::{ScreenManager}}};
+
 /*
 ##################
 ## Render Event ##
@@ -6,39 +10,29 @@
 
 */
 pub enum RenderEvent {
-    InitWorldRender(world_config),          // world config
-    GenWorld(WorldConfig),     // World Config
-    GenLevel(u32)              // Level Id
+    InitWorldRender(u32),       // Range 
+
 }
 
-impl WorldEvent {
+impl RenderEvent {
     
     //=====================================
     // Constructors 
     //=====================================
-    pub fn new_clear() -> WorldEvent {
-        return WorldEvent::Clear;
-    }
-    pub fn new_gen_world(world_config: WorldConfig) -> WorldEvent {
-        return WorldEvent::GenWorld(world_config);
-    }
-    pub fn new_gen_level(level: u32) -> WorldEvent {
-        return WorldEvent::GenLevel(level);
-    }
 
     //=====================================
     // Execution
     //=====================================
-    pub fn execute_world_event(&self, world: &mut World) {
+    pub fn execute_render_event(&self, screen_mananager: &mut ScreenManager, world:&Arc<RwLock<World>>) {
+        let camera = screen_mananager.get_mut_camera();
+        let camera_data = &camera.get_camera_data().clone();
         match self {
-            WorldEvent::Clear => {
-
-            },
-            WorldEvent::GenWorld(world_config) => {
-                
-            },
-            WorldEvent::GenLevel(level) => {
-                
+            RenderEvent::InitWorldRender(range) => {
+                camera.dirty_chunks_in_area(
+                    &camera_data, 
+                    *range as i32
+                );
+                camera.ray_cast_dirty_chunks(camera_data.clone().get_arc_ref(), world);
             },
         }
     }

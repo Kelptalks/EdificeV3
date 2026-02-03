@@ -1,6 +1,6 @@
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, screen::{Button, ScreenData, render_centered_string_at_ndc, render_string, ui_elements::BarButton, world_config::WorldConfig}, types::{FontType, UITextures}};
+use crate::game_data::{TextureManager, game_event_manager::game_event_manager::GameEventManager, screen::{Button, ScreenData, render_centered_string_at_ndc, render_string, ui_elements::BarButton, world_config::WorldConfig}, types::{FontType, UITextures}};
 
 pub struct WorldCreationMenu {
     
@@ -65,10 +65,10 @@ impl WorldCreationMenu {
         self.decrease_world_size_button.handle_mouse_motion_input(screen_data);
     }
 
-    pub fn handle_mouse_button_down(&mut self, screen_data: &mut ScreenData, mouse_button: MouseButton) {
+    pub fn handle_mouse_button_down(&mut self, screen_data: &mut ScreenData, event_manager: &mut GameEventManager, mouse_button: MouseButton) {
         if mouse_button == MouseButton::Left {
             if self.create_world_button.is_mouse_on_button() {
-                screen_data.set_world_config(self.create_world_config());
+                event_manager.init_world(self.create_world_config());
                 screen_data.set_current_menu(crate::game_data::screen::screen_data::CurrentMenu::Camera);
                 
             }

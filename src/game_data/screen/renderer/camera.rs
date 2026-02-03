@@ -230,10 +230,8 @@ impl Camera {
     // Rendering
     //=====================================
 
-    pub fn init_chunks_in_area(&mut self, 
-        world: Arc<RwLock<World>>, 
-        camera_data: &CameraData, 
-        arc_camera_data: Arc<CameraData>, 
+    pub fn dirty_chunks_in_area(&mut self, 
+        camera_data: &CameraData,
         range: i32
     ) {
         

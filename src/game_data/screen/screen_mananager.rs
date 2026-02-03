@@ -3,10 +3,7 @@ use std::sync::{Arc, RwLock};
 use image::imageops::FilterType::Triangle;
 use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, 
-    World, 
-    debuging::debug_data::{self, DebugData}, 
-    screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
+use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, game_event_manager::game_event_manager::GameEventManager, screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
 
 
 
@@ -83,21 +80,9 @@ impl ScreenManager {
             self.main_menu_world_creation.render(texture_manager, &self.screen_data);
         }
         else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
-            // Generate the world if not yet initilized
-            if !self.screen_data.is_world_initialized() {
-                let world_config = self.screen_data.get_mut_world_config();
-                world_config.init_world(texture_manager, &world, &mut self.camera, ctx);
-
-                if world_config.done_initializing() {
-                    self.screen_data.set_world_initialized(true);
-                }
-            }
-            else {
-                self.camera.render_camera(texture_manager, world.clone(), ctx);
-                self.camera_ui_manager.render_ui(&self.screen_data, texture_manager, self.camera.get_camera_data(), &world.clone(), tik_manager);
-                world_rendering_task_manager.execute_render_updates_drone(&mut self.camera, texture_manager);
-
-            }
+            self.camera.render_camera(texture_manager, world.clone(), ctx);
+            self.camera_ui_manager.render_ui(&self.screen_data, texture_manager, self.camera.get_camera_data(), &world.clone(), tik_manager);
+            world_rendering_task_manager.execute_render_updates_drone(&mut self.camera, texture_manager);
         }
         
     }
@@ -130,7 +115,8 @@ impl ScreenManager {
     pub fn mouse_button_down_event(&mut self, 
         button: MouseButton, 
         tik_manager: &mut TikManager,
-        world_task_manager: &mut WorldTaskManager
+        world_task_manager: &mut WorldTaskManager,
+        event_manager: &mut GameEventManager,
     ) {
         let camera_data = &self.get_camera_data().clone();
         self.screen_data.re_calculate_mouse_cords(camera_data);
@@ -141,7 +127,7 @@ impl ScreenManager {
             self.main_menu.handle_mouse_button_down(&mut self.screen_data, button);
         }
         else if current_menu == CurrentMenu::MainMenuWorldCreation {
-            self.main_menu_world_creation.handle_mouse_button_down(&mut self.screen_data, button);
+            self.main_menu_world_creation.handle_mouse_button_down(&mut self.screen_data, event_manager, button);
         }
         else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
             camera_controls::mouse_button_down_event(self, button);
