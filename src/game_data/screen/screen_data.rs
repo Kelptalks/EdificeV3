@@ -1,11 +1,12 @@
 use miniquad::{GlContext, RenderingBackend};
 
-use crate::game_data::{World, screen::{camera_data::CameraData, iso_cord_tool, world_config::WorldConfig}};
+use crate::game_data::{World, screen::{camera_data::CameraData, iso_cord_tool}};
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum CurrentMenu {
     MainMenu,
-    MainMenuWorldCreation,
+    WorldCreationMenu,
+    LevelSelectMenu,
     Camera,
 
 }
@@ -39,7 +40,7 @@ impl ScreenData {
         ScreenData {
             // Menu
             current_menu: CurrentMenu::MainMenu,
-            debug_visible: true,
+            debug_visible: false,
 
             // Screen Data
             screen_rez: [0.0, 0.0],

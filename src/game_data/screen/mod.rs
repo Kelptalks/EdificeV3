@@ -21,10 +21,6 @@ pub use ui_elements::Button;
 pub mod screen_data;
 pub use screen_data::ScreenData;
 
-pub mod main_menu;
-pub use main_menu::main_menu::MainMenu;
-
-pub mod main_menu_world_creation;
-pub use main_menu_world_creation::world_config;
+pub mod menus;
 
 pub mod camera_ui;

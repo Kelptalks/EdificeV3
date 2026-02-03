@@ -1,12 +1,14 @@
-use crate::game_data::{World, screen::world_config::{self, WorldConfig}};
+use rand::rand_core::le;
+
+use crate::game_data::{World, game_event_manager::game_event_manager::EventTools, level_manager::level_manager::LevelManager, screen::menus::world_creation_menu::world_config::WorldConfig, world_gen::WorldGenManager};
 
 /*
 #################
 ## World Event ##
 #################
 
-
 */
+
 pub enum WorldEvent {
     Clear,                     // No Data
     GenWorld(WorldConfig),     // World Config
@@ -31,16 +33,20 @@ impl WorldEvent {
     //=====================================
     // Execution
     //=====================================
-    pub fn execute_world_event(&self, world: &mut World) {
+    pub fn execute_world_event(&self, world: &mut World, event_tools: &mut EventTools) {
         match self {
             WorldEvent::Clear => {
-
+                world.clear();
             },
             WorldEvent::GenWorld(world_config) => {
-                world.generate_terrain(world_config.get_scale());
+                let size = world_config.get_scale() as i32 / 2;
+                let start_cords = [-size, -size, -100];
+                let end_cords = [size, size, 100];
+                        
+                event_tools.get_mut_world_gen_manager().generate_area(world, start_cords, end_cords);
             },
             WorldEvent::GenLevel(level) => {
-                
+                event_tools.get_level_manager().get_level_at_index(level.clone() as usize).gen_level(world);
             },
         }
     }

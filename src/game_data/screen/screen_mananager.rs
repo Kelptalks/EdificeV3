@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use image::imageops::FilterType::Triangle;
 use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, game_event_manager::game_event_manager::GameEventManager, screen::{self, Camera, MainMenu, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, iso_cord_tool, main_menu_world_creation::world_creation::WorldCreationMenu, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
+use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, game_event_manager::game_event_manager::GameEventManager, log_init, screen::{self, Camera, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, iso_cord_tool, menus::{level_select_menu::{self, level_select_menu::LevelSelectMenu}, main_menu::main_menu::MainMenu, world_creation_menu::world_creation::WorldCreationMenu}, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
 
 
 
@@ -18,9 +18,12 @@ how those menus are rendered and how those controls are processed.
 
 pub struct ScreenManager {
     // Menu Structs
-    camera : Camera,
     main_menu : MainMenu,
-    main_menu_world_creation: WorldCreationMenu,
+    world_creation_menu: WorldCreationMenu,
+    level_select_menu: LevelSelectMenu,
+    
+    // Camera
+    camera : Camera,
     camera_ui_manager: CameraUIManager,
 
     // Screen Data
@@ -34,9 +37,12 @@ impl ScreenManager {
 
         let new_screen = ScreenManager{
             // Menu Structs
-            camera: camera,
             main_menu: MainMenu::new(),
-            main_menu_world_creation: WorldCreationMenu::new(),
+            world_creation_menu: WorldCreationMenu::new(),
+            level_select_menu: LevelSelectMenu::new(),
+        
+            // Camera
+            camera: camera,
             camera_ui_manager: CameraUIManager::new(),
 
             // Screen Data
@@ -51,7 +57,10 @@ impl ScreenManager {
     // Init functions
     //=====================================
 
-    pub fn init_screen(&mut self, screen_rez: [f32; 2], ctx : &mut GlContext) {
+    pub fn init_screen(&mut self, event_manager: &mut GameEventManager, screen_rez: [f32; 2], ctx : &mut GlContext) {
+        // Init level manager with all levels
+        self.level_select_menu.init(event_manager);
+        
         self.set_screen_rez(screen_rez, ctx);
         self.camera.initialize_camera(ctx);
     }
@@ -72,18 +81,23 @@ impl ScreenManager {
             window::order_quit();
         }
         
-        // If current menu is camera
-        if self.screen_data.get_current_menu() == CurrentMenu::MainMenu {
-            self.main_menu.render_main_menu(texture_manager, &self.screen_data);
+        match self.screen_data.get_current_menu() {
+            CurrentMenu::MainMenu => {
+                self.main_menu.render_main_menu(texture_manager, &self.screen_data);
+            }
+            CurrentMenu::WorldCreationMenu => {
+                self.world_creation_menu.render(texture_manager, &self.screen_data);
+            }
+            CurrentMenu::LevelSelectMenu => {
+                self.level_select_menu.render_menu(texture_manager, &self.screen_data);
+            }
+            CurrentMenu::Camera => {
+                self.camera.render_camera(texture_manager, world.clone(), ctx);
+                self.camera_ui_manager.render_ui(&self.screen_data, texture_manager, self.camera.get_camera_data(), &world.clone(), tik_manager);
+                world_rendering_task_manager.execute_render_updates_drone(&mut self.camera, texture_manager);
+            }
         }
-        if self.screen_data.get_current_menu() == CurrentMenu::MainMenuWorldCreation {
-            self.main_menu_world_creation.render(texture_manager, &self.screen_data);
-        }
-        else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
-            self.camera.render_camera(texture_manager, world.clone(), ctx);
-            self.camera_ui_manager.render_ui(&self.screen_data, texture_manager, self.camera.get_camera_data(), &world.clone(), tik_manager);
-            world_rendering_task_manager.execute_render_updates_drone(&mut self.camera, texture_manager);
-        }
+
         
     }
 
@@ -95,20 +109,29 @@ impl ScreenManager {
     pub fn mouse_motion_event(&mut self, x_cor: f32, y_cor: f32) {
         self.screen_data.set_mouse_pixel_cords([x_cor as i32, y_cor as i32]);
         // If current menu is camera
-        if self.screen_data.get_current_menu() == CurrentMenu::MainMenu {
-            let camera_data = &self.get_camera_data().clone();
-            self.screen_data.re_calculate_mouse_cords(camera_data);
-            self.main_menu.handle_mouse_motion_input(&self.screen_data);
+
+        match self.screen_data.get_current_menu() {
+            CurrentMenu::MainMenu => {
+                let camera_data = &self.get_camera_data().clone();
+                self.screen_data.re_calculate_mouse_cords(camera_data);
+                self.main_menu.handle_mouse_motion_input(&self.screen_data);
+            },
+            CurrentMenu::WorldCreationMenu => {
+                let camera_data = &self.get_camera_data().clone();
+                self.screen_data.re_calculate_mouse_cords(camera_data);
+                self.world_creation_menu.handle_mouse_motion_input(&self.screen_data);
+            },
+            CurrentMenu::LevelSelectMenu => {
+                let camera_data = &self.get_camera_data().clone();
+                self.screen_data.re_calculate_mouse_cords(camera_data);
+                self.level_select_menu.handle_mouse_motion_input(&self.screen_data);
+            },
+            CurrentMenu::Camera => {
+                camera_controls::mouse_motion_event(self, x_cor, y_cor);
+                self.camera_ui_manager.handle_motion_event(&self.screen_data);
+            },
         }
-        else if self.screen_data.get_current_menu() == CurrentMenu::MainMenuWorldCreation {
-            let camera_data = &self.get_camera_data().clone();
-            self.screen_data.re_calculate_mouse_cords(camera_data);
-            self.main_menu_world_creation.handle_mouse_motion_input(&self.screen_data);
-        }
-        else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
-            camera_controls::mouse_motion_event(self, x_cor, y_cor);
-            self.camera_ui_manager.handle_motion_event(&self.screen_data);
-        }
+
     }
 
     // Handle mouse button press
@@ -122,16 +145,20 @@ impl ScreenManager {
         self.screen_data.re_calculate_mouse_cords(camera_data);
 
 
-        let current_menu = self.screen_data.get_current_menu();
-        if current_menu == CurrentMenu::MainMenu {
-            self.main_menu.handle_mouse_button_down(&mut self.screen_data, button);
-        }
-        else if current_menu == CurrentMenu::MainMenuWorldCreation {
-            self.main_menu_world_creation.handle_mouse_button_down(&mut self.screen_data, event_manager, button);
-        }
-        else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
-            camera_controls::mouse_button_down_event(self, button);
-            self.camera_ui_manager.handle_mouse_button_down(button, &self.screen_data, tik_manager, world_task_manager);
+        match self.screen_data.get_current_menu() {
+            CurrentMenu::MainMenu => {
+                self.main_menu.handle_mouse_button_down(event_manager, &mut self.screen_data, button);
+            },
+            CurrentMenu::WorldCreationMenu => {
+                self.world_creation_menu.handle_mouse_button_down(&mut self.screen_data, event_manager, button);
+            },
+            CurrentMenu::LevelSelectMenu => {
+                self.level_select_menu.handle_mouse_button_down(event_manager, &mut self.screen_data, button);
+            },
+            CurrentMenu::Camera => {
+                camera_controls::mouse_button_down_event(self, button);
+                self.camera_ui_manager.handle_mouse_button_down(button, &self.screen_data, tik_manager, world_task_manager);
+            },
         }
     }
 
@@ -149,7 +176,7 @@ impl ScreenManager {
     }
 
     // Handle key press
-    pub fn key_down_event(&mut self, tik_manager: &mut TikManager, keycode: KeyCode, keymods: KeyMods, repeat: bool) {
+    pub fn key_down_event(&mut self, event_manager: &mut GameEventManager, tik_manager: &mut TikManager, keycode: KeyCode, keymods: KeyMods, repeat: bool) {
         let camera_data = &self.get_camera_data().clone();
         self.screen_data.re_calculate_mouse_cords(camera_data);
 
@@ -161,12 +188,22 @@ impl ScreenManager {
             _ => {}
         }
 
-        if self.screen_data.get_current_menu() == CurrentMenu::MainMenu {
 
-        }
-        else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
-            camera_controls::key_down_event(self, keycode, keymods, repeat);
-            self.camera_ui_manager.handle_key_down(keycode, tik_manager);
+
+        match self.screen_data.get_current_menu() {
+            CurrentMenu::MainMenu => {
+
+            },
+            CurrentMenu::WorldCreationMenu => {
+
+            },
+            CurrentMenu::LevelSelectMenu => {
+
+            },
+            CurrentMenu::Camera => {
+                camera_controls::key_down_event(self, keycode, keymods, repeat);
+                self.camera_ui_manager.handle_key_down(event_manager, keycode, tik_manager);
+            },
         }
     }
 
@@ -209,6 +246,7 @@ impl ScreenManager {
         // Update ui 
         self.main_menu.window_resize_update(&self.screen_data);
         self.camera_ui_manager.window_resize_update(&self.screen_data);
+        self.level_select_menu.window_resize_update(&self.screen_data);
     }
 
     pub fn get_screen_data(&self) -> &ScreenData {

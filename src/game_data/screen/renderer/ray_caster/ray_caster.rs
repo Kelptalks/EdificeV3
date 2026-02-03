@@ -383,6 +383,5 @@ pub fn raycast_tile(camera_data : &CameraData, world : &World, casted_tile : &mu
         if (left_face_struck && right_face_struck) {
             break;
         }
-
     }
 }

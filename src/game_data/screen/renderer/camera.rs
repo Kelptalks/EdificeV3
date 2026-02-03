@@ -165,10 +165,29 @@ impl Camera {
         }
     }
 
+
     pub fn set_chunk_dirty(&mut self, casted_chunk_cords: [i32; 2]) {
         self.dirty_chunks.insert(casted_chunk_cords);
     }
-
+    pub fn dirty_chunks_in_area(&mut self, 
+        camera_data: &CameraData,
+        range: i32
+    ) {
+        
+        // Center around world center
+        let cam_z_offset = camera_data.get_cam_world_cords()[2] as i32;
+        let world_center_chunk_shift = (cam_z_offset / CastedChunkManager::get_chunk_tile_scale() as i32) / 2;
+        
+        for x_rel_cor in -range..range {
+            for y_rel_cor in -range..range {
+                let relative_chunk_cords = [
+                    x_rel_cor + world_center_chunk_shift,
+                    y_rel_cor + world_center_chunk_shift
+                ];
+                self.set_chunk_dirty(relative_chunk_cords);
+            }
+        }
+    }
 
     /// Re Renders a chunk at cords
     /// 
@@ -189,14 +208,9 @@ impl Camera {
         // If chunk exists
         if let Some(_chunk) = casted_chunk_manager.get_chunk_at_chunk_cords(chunk_cords) {
             match _chunk.read() {
+                // If not locked
                 Ok(guard) => {
-                    // Chunk is not locked, safe to render
-                    if !guard.is_ray_casted() {
-                        // submit raycast task
-                        let _ = self.thread_manager.submit_task(_chunk.clone(), arc_camera_data, world);
-                    }
-                    else {
-                    }
+                    let _ = self.thread_manager.submit_task(_chunk.clone(), arc_camera_data, world);
                 },
                 Err(_) => {
                     // Chunk is locked, skip rendering this frame
@@ -222,33 +236,11 @@ impl Camera {
         if let Some(cashed_chunk) = cashed_chunk_option {
             cashed_chunk.set_rendered_to_sprite_sheet(false);
         }
-
-
     }
 
     //=====================================
     // Rendering
     //=====================================
-
-    pub fn dirty_chunks_in_area(&mut self, 
-        camera_data: &CameraData,
-        range: i32
-    ) {
-        
-        // Center around world center
-        let cam_z_offset = camera_data.get_cam_world_cords()[2] as i32;
-        let world_center_chunk_shift = (cam_z_offset / CastedChunkManager::get_chunk_tile_scale() as i32) / 2;
-        
-        for x_rel_cor in -range..range {
-            for y_rel_cor in -range..range {
-                let relative_chunk_cords = [
-                    x_rel_cor + world_center_chunk_shift,
-                    y_rel_cor + world_center_chunk_shift
-                ];
-                self.set_chunk_dirty(relative_chunk_cords);
-            }
-        }
-    }
 
     pub fn render_chunks_around_camera(&mut self, texture_manager: &mut TextureManager, world: Arc<RwLock<World>>, camera_data: &CameraData, arc_camera_data: Arc<CameraData>) {
         let iso_sceen_center = [
@@ -441,24 +433,11 @@ impl Camera {
         self.camera_data.set_frame_time(frame_duration_ms as u32);
     }
 
-    pub fn get_quadrent_of_cords(cords : [i32; 2]) -> usize {
-        // Identify the quadrent the chunk is located in and invert based on it
-        if cords[0] >= 0 && cords[1] >= 0 {
-            return 1;
-        }
-        else if cords[0] < 0 && cords[1] >= 0 {
-            return 2;
-        }
-        else if cords[0] >= 0 && cords[1] < 0 {
-            return 3;
-        }
-        else if cords[0] < 0 && cords[1] < 0 {
-            return 4;
-        }
-        else
-        {
-            return 5;
-        }
+
+    pub fn clear(&mut self) {
+        self.casted_chunk_manager.clear();
+        self.dirty_chunks.clear();
+        self.dirty_tiles.clear();
     }
 
 

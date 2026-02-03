@@ -1,6 +1,6 @@
 use miniquad::{KeyCode, KeyMods, MouseButton};
 
-use crate::game_data::screen::{Camera, screen_data::CurrentMenu , MainMenu, camera_controls, iso_cord_tool, renderer::camera, screen_mananager::ScreenManager};
+use crate::game_data::screen::{Camera, screen_data::CurrentMenu, camera_controls, iso_cord_tool, renderer::camera, screen_mananager::ScreenManager};
 /*
 ####################
 ## CameraControls ##
@@ -82,9 +82,6 @@ pub fn key_down_event(screen_manager: &mut ScreenManager, keycode: KeyCode, keym
             }
             KeyCode::D | KeyCode::Left => {
                 camera_data.mod_x_cam_cor(-0.01);
-            }
-            KeyCode::Escape => {
-                screen_manager.get_mut_screen_data().set_current_menu(CurrentMenu::MainMenu);
             }
             _ => {}
     }

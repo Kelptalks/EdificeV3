@@ -118,57 +118,8 @@ impl CastedChunkManager {
         }
     }
 
-    // Need to fix for arc_rwlock
-
-    /*
-    pub fn get_tile_at_casted_tile_cords(&mut self, cords : [i32; 2]) -> Option<&mut CastedTile> {
-        
-        let mut x_chunk_casted_cor = cords[0] / CHUNK_TILE_DIMENSIONS as i32;
-        let mut y_chunk_casted_cor = cords[1] / CHUNK_TILE_DIMENSIONS as i32;
-
-        let mut x_tile_internal_cor = cords[0] % CHUNK_TILE_DIMENSIONS as i32;
-        let mut y_tile_internal_cor = cords[1] % CHUNK_TILE_DIMENSIONS as i32;
-
-        if (x_tile_internal_cor < 0)
-        {
-            x_tile_internal_cor += CHUNK_TILE_DIMENSIONS as i32;
-            x_chunk_casted_cor -= 1;
-        }
-        if (y_tile_internal_cor <  0)
-        {
-            y_tile_internal_cor += CHUNK_TILE_DIMENSIONS as i32;
-            y_chunk_casted_cor -= 1;
-        }
-
-        println!("Chunk Internal Tile cords : ({}, {})", x_tile_internal_cor, y_tile_internal_cor);
-
-
-        let casted_chunk = self.get_chunk_at_chunk_cords([x_chunk_casted_cor, y_chunk_casted_cor]);
-        let tile_index = (x_tile_internal_cor + (y_tile_internal_cor * CHUNK_TILE_DIMENSIONS as i32)) as usize;
-
-
-        if let Some(casted_chunk) = casted_chunk {
-            return Some(casted_chunk.write().unwrap().get_mut_tile_at_index(tile_index).clone());
-        }
-        else {
-            return None;
-        }
-
-        
+    pub fn clear(&mut self) {
+        self.casted_chunk_key_list.clear();
+        self.casted_chunk_map.clear();
     }
-
-    
-    /// Get a casted tile at the given isometric coordinates (converts f32 to i32)
-    /// Returns None if the chunk containing the tile doesn't exist
-    pub fn get_tile_at_iso_cords(&mut self, iso_cords: [f32; 2]) -> Option<&mut CastedTile> {
-        // Convert float isometric coordinates to integer tile coordinates
-        let tile_x = iso_cords[0] as i32;
-        let tile_y = iso_cords[1] as i32;
-        
-        // Use the existing function to get the tile
-        self.get_tile_at_casted_tile_cords([tile_x, tile_y])
-    }
-
-    */
-
 }

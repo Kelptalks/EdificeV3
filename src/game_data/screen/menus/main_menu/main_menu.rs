@@ -2,7 +2,7 @@ use std::process::id;
 
 use miniquad::MouseButton;
 
-use crate::game_data::{World, screen::{Button, ScreenData, screen_data::CurrentMenu, ui_elements::BarButton}, types::UITextures};
+use crate::game_data::{World, game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, screen::{Button, ScreenData, screen_data::CurrentMenu, ui_elements::BarButton}, types::UITextures};
 
 
 
@@ -87,8 +87,6 @@ impl MainMenu {
         self.button_levels.set_text("Levels".to_string());
         self.button_options.set_text("Options".to_string());
         self.button_exit.set_text("Exit".to_string());
-
-
     }
 
     /// Render the main menu to the
@@ -116,13 +114,15 @@ impl MainMenu {
         }
     }
 
-    pub fn handle_mouse_button_down(&mut self, screen_data: &mut ScreenData, mouse_button: MouseButton) {
+    pub fn handle_mouse_button_down(&mut self, event_manager: &mut GameEventManager, screen_data: &mut ScreenData, mouse_button: MouseButton) {
         if mouse_button == MouseButton::Left {
             if self.button_sandbox.is_mouse_on_button() {
-                screen_data.set_current_menu(CurrentMenu::MainMenuWorldCreation);
+                event_manager.add_render_event(RenderEvent::ChangeMenu(CurrentMenu::WorldCreationMenu));
             }
-
-            if self.button_exit.is_mouse_on_button() {
+            else if self.button_levels.is_mouse_on_button() {
+                event_manager.add_render_event(RenderEvent::ChangeMenu(CurrentMenu::LevelSelectMenu));
+            }
+            else if self.button_exit.is_mouse_on_button() {
                 screen_data.quit();
             }
         }

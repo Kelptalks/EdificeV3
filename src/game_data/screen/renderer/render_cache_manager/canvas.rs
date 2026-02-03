@@ -161,17 +161,6 @@ impl Canvas {
     }
 
     // ===================
-    // Rendering
-    // ===================
-    pub fn render_chunk_tiles(&mut self, texture_manager: &mut TextureManager, ctx: &mut GlContext) {
-        for (_key, tile) in self.canvas_map.iter() {
-            
-            let mut canvas_ndc_cords = tile.canvas_ndc_cords;
-
-        }
-    }
-
-    // ===================
     // Debug Data
     // ===================
     pub fn collect_debug_data(&self, debug_data: &mut DebugData) {

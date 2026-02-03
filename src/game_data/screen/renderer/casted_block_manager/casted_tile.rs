@@ -60,10 +60,12 @@ impl CastedTile {
     pub fn reset_casting_values(&mut self) {
         self.left_triangle.clear_triangle();
         self.right_triangle.clear_triangle();
+
     }
 
     pub fn render_tile(&self, camera_data : &CameraData, texture_manager : &mut TextureManager)
     {
+        // If tile has no textures add default clouds
         let scale = camera_data.get_tile_ndc_scale();
 
         let draw_cords = iso_cord_tool::casted_to_ndc_cords(scale, self.casted_cor);

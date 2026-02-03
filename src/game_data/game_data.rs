@@ -86,7 +86,7 @@ impl GameData {
     pub fn handle_key_inputs(&mut self, keycode: KeyCode, keymods: KeyMods, repeat: bool) {
         // New
         let screen = &mut self.screen_manager;
-        screen.key_down_event(&mut self.tik_manager, keycode, keymods, repeat);
+        screen.key_down_event(&mut self.event_manager, &mut self.tik_manager, keycode, keymods, repeat);
     }
 
     pub fn handle_mouse_wheel_inputs(&mut self, x_scroll_distance: f32, y_scroll_distance: f32) {
@@ -139,7 +139,7 @@ impl GameData {
         let init_start_time = SystemTime::now();
 
         log_indent();
-        self.screen_manager.init_screen([1920.0, 1080.0], ctx);
+        self.screen_manager.init_screen(&mut self.event_manager, [1920.0, 1080.0], ctx);
         log_unindent();
 
         // Get end time

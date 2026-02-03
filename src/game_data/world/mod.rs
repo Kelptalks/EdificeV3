@@ -2,6 +2,8 @@ mod world;
 pub use world::WorldChunk;
 pub use world::World;
 
+pub mod level_manager;
+
 
 pub mod world_task_manager;
-mod world_gen;
+pub mod world_gen;

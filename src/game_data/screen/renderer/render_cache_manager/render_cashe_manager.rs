@@ -80,5 +80,4 @@ impl RenderCacheManager {
         self.canvas.collect_debug_data(debug_data);
     }
 
-
 }
