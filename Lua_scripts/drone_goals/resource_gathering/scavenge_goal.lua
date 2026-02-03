@@ -10,6 +10,12 @@ local GatherGoal = require("drone_goals.basic.gather_goal")
 local ScavengeGoal = {}
 ScavengeGoal.__index = ScavengeGoal
 
+
+--- @param x_start_cor integer 
+--- @param y_start_cor integer
+--- @param x_end_cor integer
+--- @param y_end_cor integer
+--- @return table
 function ScavengeGoal.new(x_start_cor, y_start_cor, x_end_cor, y_end_cor)
     local self = setmetatable({}, ScavengeGoal)
     self.complete = false
@@ -39,6 +45,7 @@ function ScavengeGoal.new(x_start_cor, y_start_cor, x_end_cor, y_end_cor)
     return self
 end
 
+--- @return boolean
 function ScavengeGoal:is_complete()
     return self.complete
 end

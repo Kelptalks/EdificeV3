@@ -9,7 +9,13 @@ local ChopTreesInAreaGoal = {}
 ChopTreesInAreaGoal.__index = ChopTreesInAreaGoal
 
 
-
+--- comment
+--- @param drone_id integer
+--- @param x_start_cor integer
+--- @param y_start_cor integer
+--- @param x_end_cor integer
+--- @param y_end_cor integer
+--- @return table
 function ChopTreesInAreaGoal.new(drone_id, x_start_cor, y_start_cor, x_end_cor, y_end_cor)
     local self = setmetatable({}, ChopTreesInAreaGoal)
 
@@ -44,11 +50,14 @@ function ChopTreesInAreaGoal.new(drone_id, x_start_cor, y_start_cor, x_end_cor, 
     return self
 end
 
+--- comment
+--- @return boolean
 function ChopTreesInAreaGoal:is_complete()
     return self.complete
 end
 
-
+--- func desc
+---@param drone_id integer
 function ChopTreesInAreaGoal:tik(drone_id)
     local drone_cords = DroneFunctions.get_drone_cords(drone_id)
 
@@ -78,7 +87,6 @@ function ChopTreesInAreaGoal:tik(drone_id)
             -- Tree has been completly chopped
             else
                 -- Reset variables after tree has been cleared
-                print("Finished chopping tree")
                 self.at_tree = false;
                 self.found_tree = false;
 
@@ -94,7 +102,6 @@ function ChopTreesInAreaGoal:tik(drone_id)
     -- Move towards tree
     elseif self.found_tree then
         if self.move_to_tree_goal:is_complete() then
-            print("At Tree")
             self.move_to_tree_goal = nil
 
             -- Setup next goal
@@ -129,8 +136,7 @@ function ChopTreesInAreaGoal:tik(drone_id)
                         -- Setup tree location and goal to navigate to tree
                         self.move_to_tree_goal = MoveGoal.new(drone_cords[1] + x, drone_cords[2] + y, drone_cords[3] + z)
                         self.found_tree = true
-                        
-                        print("Found Tree")
+
                         return false;
                     end
                 end
@@ -143,7 +149,6 @@ function ChopTreesInAreaGoal:tik(drone_id)
             return false
         else
             -- Plan next row movment based off current row
-            print("current move goal complete | Setting up new move goal")
             if self.current_row < self.rows then
             if self.current_row % 2 == 1 then
                 self.current_move_goal = MoveGoal.new(self.start_cords[1] + (self.row_width * self.current_row), self.start_cords[2], 0)
@@ -154,7 +159,6 @@ function ChopTreesInAreaGoal:tik(drone_id)
             self.current_row = self.current_row + 1
             else
                 self.complete = true
-                print("Tree Chop Goal Complete")
             end
         end
     end

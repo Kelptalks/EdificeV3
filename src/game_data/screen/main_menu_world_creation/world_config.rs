@@ -102,7 +102,6 @@ impl WorldConfig {
                 let range = (self.get_scale() / CastedChunkManager::get_chunk_tile_scale() / 2) + 4;
                 println!("Initializing World Rendering with range: {}", range);
                 camera.init_chunks_in_area(
-                    texture_manager, 
                     world.clone(), 
                     &camera.get_camera_data().clone(), 
                     Arc::new(camera.get_camera_data().clone()), 

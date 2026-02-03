@@ -220,7 +220,8 @@ impl ScreenManager {
         // Update viewport in camera
         self.camera.update_viewport(self.screen_data.get_viewport_rez(), self.screen_data.get_viewport_offset());
 
-        // Update window locations
+        // Update ui 
+        self.main_menu.window_resize_update(&self.screen_data);
         self.camera_ui_manager.window_resize_update(&self.screen_data);
     }
 

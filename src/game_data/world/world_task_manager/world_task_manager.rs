@@ -50,14 +50,21 @@ impl WorldTaskManager {
     // Execute the tasks in the added to the manager
     pub fn execute_tasks(&mut self, world: Arc<RwLock<World>>, screen_task_manager: &mut RenderingTaskManager) {
         // Get the write lock of the world
-        let mut world_gaurd = world.write().unwrap();
+        let mut world_guard = match world.write() {
+            Ok(guard) => guard,
+            Err(poisoned) => {
+                // Lock was poisoned, but we can still access the data
+                eprintln!("Warning: World lock was poisoned, recovering...");
+                poisoned.into_inner()
+            }
+        };
 
         for task in &mut self.block_modding_tasks {
             // Save old world value. 
-            task.original_block_type = world_gaurd.get_world_value(task.world_cords);
+            task.original_block_type = world_guard.get_world_value(task.world_cords);
 
             // Set new world value
-            world_gaurd.set_world_value(task.block_type, task.world_cords);
+            world_guard.set_world_value(task.block_type, task.world_cords);
             screen_task_manager.add_block_render_task(task.world_cords);
         }
 
@@ -67,7 +74,7 @@ impl WorldTaskManager {
 
         // Undo all tasks if needed
         if self.undo_all_tasks {
-            self.execute_undo_all_tasks(&mut world_gaurd, screen_task_manager)
+            self.execute_undo_all_tasks(&mut world_guard, screen_task_manager)
         }
     }
 

@@ -14,6 +14,8 @@ pub struct Camera
     thread_manager: RaycastThreadPool,
     render_cache_manager : Option<RenderCacheManager>,
 
+    
+
     // Debug
     tiles_raycasted_this_frame: u32,
 }
@@ -117,7 +119,6 @@ impl Camera {
     //=====================================
 
     pub fn init_chunks_in_area(&mut self, 
-        texture_manager: &mut TextureManager, 
         world: Arc<RwLock<World>>, 
         camera_data: &CameraData, 
         arc_camera_data: Arc<CameraData>, 
@@ -143,7 +144,7 @@ impl Camera {
                             // Chunk is not locked, safe to render
                             if !guard.is_ray_casted() {
                                 // submit raycast task
-                                self.thread_manager.submit_task(_chunk.clone(), arc_camera_data.clone(), world.clone());
+                                let _ = self.thread_manager.submit_task(_chunk.clone(), arc_camera_data.clone(), world.clone());
                             }
                             else {
                             }

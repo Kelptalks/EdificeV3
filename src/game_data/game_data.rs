@@ -5,6 +5,7 @@ use std::sync::{Arc, RwLock};
 use std::time::SystemTime;
 
 use crate::game_data::debuging::debug_data::DebugData;
+use crate::game_data::game_event_manager::game_event_manager::GameEventManager;
 use crate::game_data::{log_indent, log_init, log_unindent};
 use crate::game_data::screen::screen_task_manager::rendering_task_manager::RenderingTaskManager;
 use crate::game_data::screen::screen_mananager::ScreenManager;
@@ -15,16 +16,20 @@ use crate::game_data::world_task_manager::world_task_manager::WorldTaskManager;
 
 
 pub struct GameData {
+    // Other
     debug_data: DebugData,
+    event_manager: GameEventManager,
+
+    // World
     world : Arc<RwLock<World>>,
     world_task_manager: WorldTaskManager,
+    tik_manager: TikManager,
 
+    // Rendering
     texture_manager : TextureManager,
-
     screen_manager: ScreenManager,
     drone_rendering_task_manager: RenderingTaskManager,
 
-    tik_manager: TikManager,
 }
 
 impl GameData {
@@ -50,16 +55,19 @@ impl GameData {
 
 
         Self {
+            // Other
             debug_data: DebugData::new(),
+            event_manager: GameEventManager::new(),
+
+            // World
             world: world,
             world_task_manager: world_task_manager,
+            tik_manager: tik_manager,
 
+            // Rendering
             texture_manager: texture_manager,
-
             screen_manager: screen_manager,
             drone_rendering_task_manager: drone_rendering_task_manager,
-            
-            tik_manager: tik_manager,
 
         }
     }
@@ -174,11 +182,23 @@ impl GameData {
         let frame_duration = system_time_end.duration_since(frame_start_time).unwrap();
         let frame_duration_ms = frame_duration.as_millis();
         
+        // Update game events
+        //Get world gaurd
+        let mut world_guard = match self.world.write() {
+            Ok(guard) => guard,
+            Err(poisoned) => {
+                // Lock was poisoned, but we can still access the data
+                eprintln!("Warning: World lock was poisoned, recovering...");
+                poisoned.into_inner()
+            }
+        };
+
+        self.event_manager.execute_world_events(&mut world_guard);
+
         // Update debug data
         self.debug_data.set_frame_time(frame_duration_ms as u32);
         self.debug_data.render_debug_data(&mut self.texture_manager, screen_mananager.get_screen_data());
         self.tik_manager.update_debug_data(&mut self.debug_data);
-
         self.texture_manager.get_texture_renderer().flush(ctx);
 
 
