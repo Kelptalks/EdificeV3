@@ -20,6 +20,7 @@ pub struct ScreenData {
     screen_rez: [f32; 2],
     viewport_rez: [f32; 2],
     viewport_offset: [f32; 2],
+    ui_scale: f32,
 
     // Mouse Cords
     mouse_pixel_cords: [i32; 2],
@@ -46,6 +47,7 @@ impl ScreenData {
             screen_rez: [0.0, 0.0],
             viewport_rez: [0.0, 0.0],
             viewport_offset: [0.0, 0.0],
+            ui_scale: 1.0,
 
             // Mouse Cords
             mouse_pixel_cords: [0, 0],
@@ -149,6 +151,10 @@ impl ScreenData {
 
     pub fn get_viewport_offset(&self) -> [f32; 2] {
         return self.viewport_offset;
+    }
+
+    pub fn get_ui_scale(&self) -> f32 {
+        return self.ui_scale;
     }
 
     //=====================================

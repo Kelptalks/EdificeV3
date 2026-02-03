@@ -69,13 +69,18 @@ Low due to vacation in Chile
 **Hours:**
 - 2/1/26 = 6
 - 2/2/26 = 1.5
+- 2/3/26 = 7.5
 
 **Lines**
 - 2/1/26 = 9238
+- 2/3/26 = 10020
 
 **Notes:**
 + Drone tree chopping script
 + Finished Part 2 Of devblog
++ Added level menu system
++ Added event manager
++ Added dirty tiles and dirty chunks
 
 ---------------------------------------------------------------
 ## Week template

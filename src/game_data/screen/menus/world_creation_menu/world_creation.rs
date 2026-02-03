@@ -1,16 +1,19 @@
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, game_event_manager::game_event_manager::GameEventManager, screen::{Button, ScreenData, menus::world_creation_menu::world_config::WorldConfig, render_centered_string_at_ndc, render_string, ui_elements::BarButton}, types::{FontType, UITextures}};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, screen::{Button, ScreenData, menus::world_creation_menu::world_config::WorldConfig, render_centered_string_at_ndc, render_string, screen_data::CurrentMenu, ui_elements::{BarButton, stepper::Stepper}}, types::{FontType, UITextures}};
+
 
 pub struct WorldCreationMenu {
+    // Back button
+    button_back: Button,
     
+    // Create world
+    button_create_world: BarButton,
+    
+    stepper_world_size: Stepper,
+    
+    // World folliage control
 
-    create_world_button: BarButton,
-    
-    // World size buttons
-    increase_world_size_button: Button,
-    decrease_world_size_button: Button,
-    world_size: u32,
 
 }
 
@@ -33,59 +36,92 @@ impl WorldCreationMenu {
         create_world_button.set_text("Create World!".to_string());
 
         Self {
-            create_world_button: create_world_button,
-            increase_world_size_button: Button::new(increase_world_cords, scale, UITextures::ButtonRightArrow),
-            decrease_world_size_button: Button::new(decrease_world_cords, scale, UITextures::ButtonLeftArrow),
-            world_size: 200,
+            button_back: Button::new_blank(UITextures::ButtonLeftArrow),
+            button_create_world: create_world_button,
+            
+            stepper_world_size: Stepper::new_blank(),
         }
+    }
+
+    //=====================================
+    // Rendering
+    //=====================================
+
+    pub fn window_resize_update(&mut self, screen_data: &ScreenData) {
+        // Viewport data
+        let viewport_starting_ndc = screen_data.get_viewport_starting_ndc();
+        let viewport_ending_ndc = screen_data.get_viewport_ending_ndc();
+
+        // scaling
+        let buttonscale = 0.1 * screen_data.get_ui_scale();
+        let button_spacing = buttonscale / 2.0;
+        let total_button_spacing = buttonscale + button_spacing;
+
+        // Back button
+        let back_button_ndc = [
+            viewport_starting_ndc[0] + button_spacing,
+            viewport_ending_ndc[1] - total_button_spacing,
+        ];
+
+        self.button_back.set_ndc(back_button_ndc);
+        self.button_back.set_scale(buttonscale);
+        self.button_back.set_text("Back".to_string());
+
+
+        // Stepper
+        self.stepper_world_size.set_ndc([0.0, -0.5]);
+        self.stepper_world_size.set_scale(buttonscale);
+        self.stepper_world_size.set_text("World Size".to_string());
+        self.stepper_world_size.set_value(250);
+        self.stepper_world_size.set_max_value(1000);
+        self.stepper_world_size.set_min_value(0);
+        self.stepper_world_size.set_increment(25);
+
+
     }
 
     pub fn render(&mut self, texture_manager: &mut TextureManager, screen_data: &ScreenData) {
         // Render background
         texture_manager.render_ui_element_with_pos(UITextures::MirrorBackground, screen_data.get_viewport_uv());
         
-        // Render create world button
-        self.create_world_button.render_button(texture_manager);
+        // Render back button
+        self.button_back.render_button(texture_manager);
 
-        // Render size customize
-        self.increase_world_size_button.render_button(texture_manager);
-        self.decrease_world_size_button.render_button(texture_manager);
-        render_centered_string_at_ndc(texture_manager,
-            format!("World Size: {}", self.world_size),
-            FontType::Basic,
-            0.03,
-            [0.0, 0.0]
-        );
+        self.stepper_world_size.render(texture_manager);
+
+        // Render create world button
+        self.button_create_world.render_button(texture_manager);
+
+
     }
 
     pub fn handle_mouse_motion_input(&mut self, screen_data: &ScreenData) {
-        // Handle mouse motion for all buttons
-        self.create_world_button.handle_mouse_motion_input(screen_data);
-        self.increase_world_size_button.handle_mouse_motion_input(screen_data);
-        self.decrease_world_size_button.handle_mouse_motion_input(screen_data);
+        // Back button
+        self.button_back.handle_mouse_motion_input(screen_data);
+        self.stepper_world_size.handle_mouse_motion_input(screen_data);
+
+        // Create world
+        self.button_create_world.handle_mouse_motion_input(screen_data);
+        
     }
 
-    pub fn handle_mouse_button_down(&mut self, screen_data: &mut ScreenData, event_manager: &mut GameEventManager, mouse_button: MouseButton) {
+    pub fn handle_mouse_button_down(&mut self, event_manager: &mut GameEventManager, screen_data: &mut ScreenData, mouse_button: MouseButton) {
+        
+        self.stepper_world_size.handle_mouse_button_down(mouse_button);
         if mouse_button == MouseButton::Left {
-            if self.create_world_button.is_mouse_on_button() {
+            if self.button_create_world.is_mouse_on_button() {
                 event_manager.init_world(self.create_world_config());
-                screen_data.set_current_menu(crate::game_data::screen::screen_data::CurrentMenu::Camera);
-                
+                event_manager.add_render_event(RenderEvent::ChangeMenu(CurrentMenu::Camera));
             }
-            else if self.increase_world_size_button.is_mouse_on_button() {
-                self.world_size += 25;
-            }
-            else if self.decrease_world_size_button.is_mouse_on_button() {
-                if self.world_size > 0 {
-                    self.world_size -= 25;
-                }
+            else if self.button_back.is_mouse_on_button() {
+                event_manager.add_render_event(RenderEvent::ChangeMenu(CurrentMenu::MainMenu));
             }
         }
     }
 
     pub fn create_world_config(&self) -> WorldConfig {
         let mut world_config = WorldConfig::new();
-        world_config.set_scale(self.world_size);
+        world_config.set_scale(self.stepper_world_size.get_value() as u32);
         return world_config;
     }
 

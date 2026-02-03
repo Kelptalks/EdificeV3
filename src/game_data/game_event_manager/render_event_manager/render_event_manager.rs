@@ -40,7 +40,7 @@ impl RenderEvent {
                 screen_data.set_current_menu(*current_menu);
             }
             RenderEvent::Clear => {
-                camera.clear();
+                
             }
         }
     }

@@ -150,7 +150,7 @@ impl ScreenManager {
                 self.main_menu.handle_mouse_button_down(event_manager, &mut self.screen_data, button);
             },
             CurrentMenu::WorldCreationMenu => {
-                self.world_creation_menu.handle_mouse_button_down(&mut self.screen_data, event_manager, button);
+                self.world_creation_menu.handle_mouse_button_down(event_manager, &mut self.screen_data, button);
             },
             CurrentMenu::LevelSelectMenu => {
                 self.level_select_menu.handle_mouse_button_down(event_manager, &mut self.screen_data, button);
@@ -247,6 +247,7 @@ impl ScreenManager {
         self.main_menu.window_resize_update(&self.screen_data);
         self.camera_ui_manager.window_resize_update(&self.screen_data);
         self.level_select_menu.window_resize_update(&self.screen_data);
+        self.world_creation_menu.window_resize_update(&self.screen_data);
     }
 
     pub fn get_screen_data(&self) -> &ScreenData {

@@ -434,13 +434,6 @@ impl Camera {
     }
 
 
-    pub fn clear(&mut self) {
-        self.casted_chunk_manager.clear();
-        self.dirty_chunks.clear();
-        self.dirty_tiles.clear();
-    }
-
-
     //=====================================
     // Debugging
     //=====================================
