@@ -127,7 +127,7 @@ impl LevelSelectMenu {
                 
                 if button.is_mouse_on_button() {
                     event_manager.add_world_event(WorldEvent::GenLevel(level_index));
-                    event_manager.add_render_event(RenderEvent::InitWorldRender(10));
+                    event_manager.add_render_event(RenderEvent::InitWorldRender(15));
                     event_manager.add_render_event(RenderEvent::ChangeMenu(CurrentMenu::Camera));
                 }
                 level_index += 1;

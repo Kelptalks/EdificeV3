@@ -231,7 +231,6 @@ impl Camera {
         }
 
         // Re render the chunk to the canvas cache
-        let chunk_cords = CastedChunkManager::tile_cords_to_chunk_cords(chunk_cords);
         let cashed_chunk_option = self.render_cache_manager.as_mut().unwrap().get_mut_canvas_tile(chunk_cords);
         if let Some(cashed_chunk) = cashed_chunk_option {
             cashed_chunk.set_rendered_to_sprite_sheet(false);

@@ -43,8 +43,8 @@ impl Level for Monoliths {
     }
 
     fn gen_level(&self, world: &mut crate::game_data::World) {
-        for x in -100..100 {
-            for y in -100..100 {
+        for x in -200..200 {
+            for y in -200..200 {
                 world.set_world_value(BlockType::Grass.id_as_u16(), [x, y, -1]);
                 world.set_world_value(BlockType::Stone.id_as_u16(), [x, y, -2]);
                 world.set_world_value(BlockType::Stone.id_as_u16(), [x, y, -3]);
