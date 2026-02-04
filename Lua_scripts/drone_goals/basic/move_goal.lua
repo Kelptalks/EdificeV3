@@ -4,6 +4,11 @@ local BlockTypes = require("rust_wrapper_functions.block_types")
 local MoveGoal = {}  -- Module table
 MoveGoal.__index = MoveGoal  -- Add this!
 
+--- comment
+--- @param x integer
+--- @param y integer
+--- @param z integer
+--- @return table
 function MoveGoal.new(x, y, z)
     local self = setmetatable({}, MoveGoal)
     self.goal_cords = {x, y, z}

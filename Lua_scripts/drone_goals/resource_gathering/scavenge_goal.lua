@@ -50,9 +50,9 @@ function ScavengeGoal:is_complete()
     return self.complete
 end
 
-
+--- comment
+--- @param drone_id integer
 function ScavengeGoal:tik(drone_id)
-    
     -- If current goal is not complete
     if not self.current_move_goal:is_complete() then
         -- attempt to gather item

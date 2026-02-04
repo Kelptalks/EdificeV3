@@ -1,3 +1,5 @@
+local Quarry = require("world_data.structures.quarry")
+
 --[[
 ################
 ## World Data ##
@@ -14,11 +16,10 @@ have collected. It also stores locations of structures.
 
 
 --]]
+
+---@class WorldData
 WorldData = {
-    structures = {}
-    
+    quarry = Quarry.new({20, 20}, 20)
 }
-
-
 
 return WorldData

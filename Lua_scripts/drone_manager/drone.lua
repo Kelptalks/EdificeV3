@@ -5,7 +5,7 @@ local DroneFunctions = require("rust_wrapper_functions.drone_functions")
 -- Goals
 local TreeChoppingGoal = require("drone_goals.resource_gathering.tree_chopping_goal")
 local MoveGoal = require("Lua_scripts.drone_goals.basic.move_goal")
-
+local QuarryGoal = require("drone_goals.resource_gathering.quarry_goal")
 
 local Drone = {}
 Drone.__index = Drone
@@ -23,10 +23,15 @@ function Drone.new(id)
     -- local move_goal = MoveGoal.new(-10, 100, 0)
     -- self.goal_manager:incert_goal(move_goal, 1)
 
+    -- local tree_chopping_goal = TreeChoppingGoal.new(id, -95, -95, 95, 95)
+    -- self.goal_manager:incert_goal(tree_chopping_goal, 1)
 
-    local tree_chopping_goal = TreeChoppingGoal.new(id, -95, -95, 95, 95)
-    self.goal_manager:incert_goal(tree_chopping_goal, 1)
-
+    local quarry_goal = QuarryGoal.new()
+    if quarry_goal == nil then
+        print("test")
+    end
+    
+    self.goal_manager:incert_goal(quarry_goal, 1)
 
     return self
 end

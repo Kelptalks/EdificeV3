@@ -43,7 +43,7 @@ impl LuaManager {
 
         // Set up the Lua package path FIRST
         if let Err(e) = self.lua.load(r#"
-            package.path = "./Lua_scripts/?.lua;./Lua_scripts/?/init.lua;" .. package.path
+            package.path = "./lua_scripts/?.lua;./Lua_scripts/?/init.lua;" .. package.path
         "#).exec() {
             eprintln!("Failed to set Lua package path: {}", e);
         }
