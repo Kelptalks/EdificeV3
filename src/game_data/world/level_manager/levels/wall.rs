@@ -20,8 +20,8 @@ impl Level for Wall {
 
     fn gen_level(&self, world: &mut crate::game_data::World) {
         // Platform
-        for x in -50..10 {
-            for y in -10..10 {
+        for x in -50..12 {
+            for y in -10..12 {
                 world.set_world_value(BlockType::Grass.id_as_u16(), [x, y, -1]);
                 world.set_world_value(BlockType::Stone.id_as_u16(), [x, y, -2]);
                 world.set_world_value(BlockType::Stone.id_as_u16(), [x, y, -3]);

@@ -1,4 +1,4 @@
-use crate::game_data::level_manager::{level::Level, levels::{flat_field::{self, FlatField}, wall::Wall}};
+use crate::game_data::level_manager::{level::Level, levels::{flat_field::{self, FlatField}, monoliths::Monoliths, wall::Wall}};
 
 pub struct LevelManager {
     levels: Vec<Box<dyn Level>>,
@@ -12,7 +12,8 @@ impl LevelManager {
         // Add different level types
         levels.push(Box::new(FlatField::new()));
         levels.push(Box::new(Wall::new()));
-        
+        levels.push(Box::new(Monoliths::new()));
+
         Self { levels }
     }
 
