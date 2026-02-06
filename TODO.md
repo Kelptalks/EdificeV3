@@ -3,9 +3,18 @@
 Things to do listed 
 
 ## Drone Scripts
-* Tree chopping Goal
 * Quarry Goal
-* Build pyramid Goal
+    - Add exit quarry goal
+
+* Build pyramid Goal 
+
+* Move scripts
+    - Save node data to worlds
+        - Add traversal costs to nodes based off block type
+        - Make air blocks above air blocks calulate cost to build up
+        - 
+    - 
+
 
 ## Drones
 * Furnaces

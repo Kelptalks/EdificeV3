@@ -218,10 +218,10 @@ impl ScreenManager {
             camera_controls::mouse_wheel_event(self, _x, _y);
         }
     }
+//=====================================
+// Getters / Setters
+ //=====================================
 
-    //=====================================
-    // Getters / Setters
-    //=====================================
 
 
     pub fn get_mut_camera(&mut self) -> &mut Camera {

@@ -70,11 +70,12 @@ Low due to vacation in Chile
 - 2/1/26 = 6
 - 2/2/26 = 1.5
 - 2/3/26 = 7.5
-- 2/4/26 = 2.5 +
+- 2/4/26 = 3
 
 **Lines**
 - 2/1/26 = 9238
 - 2/3/26 = 10020
+- 2/4/26 = 10223
 
 **Notes:**
 + Drone tree chopping script

@@ -207,9 +207,10 @@ impl Camera {
         
         // If chunk exists
         if let Some(_chunk) = casted_chunk_manager.get_chunk_at_chunk_cords(chunk_cords) {
-            match _chunk.read() {
+            match _chunk.write().as_mut() {
                 // If not locked
                 Ok(guard) => {
+                    guard.set_ray_casted(false);
                     let _ = self.thread_manager.submit_task(_chunk.clone(), arc_camera_data, world);
                 },
                 Err(_) => {
