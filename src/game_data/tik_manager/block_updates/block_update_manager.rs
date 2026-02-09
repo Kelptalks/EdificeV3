@@ -1,5 +1,7 @@
 use std::collections::HashSet;
 
+use rand::random_range;
+
 use crate::game_data::{World, tik_manager::block_updates::plant_update, types::BlockType, world_task_manager::{self, world_task_manager::WorldTaskManager}};
 
 /*
@@ -44,15 +46,27 @@ impl BlockUpdateManager {
 
     /// Tik a block in the update manager
     /// 
-    pub fn tik_block(&mut self, world: &World, world_task_manager: &mut WorldTaskManager, block_cords: [i32; 3]) {
+    /// 
+    /// 
+    pub fn tik_block(&mut self, 
+        world: &World, 
+        world_task_manager: &mut WorldTaskManager, 
+        block_cords: [i32; 3],
+    ) {
         let block_type = BlockType::from_id(world.get_world_value(block_cords));
-    
+        let rand_value = random_range(0..1000);
         match block_type {
             BlockType::Air => {
                 
             }
             BlockType::Leaves => {
-                plant_update::tik_leaf(self, world_task_manager, world, block_cords);
+                plant_update::tik_leaf(self, world_task_manager, world, block_cords, rand_value);
+            }
+            BlockType::Grass =>{
+                plant_update::tik_grass(self, world_task_manager, world, block_cords, rand_value);
+            }
+            BlockType::Dirt => {
+                plant_update::tik_dirt(self, world_task_manager, world, block_cords, rand_value);
             }
             _ => {
                 
@@ -60,19 +74,25 @@ impl BlockUpdateManager {
         }
     }
 
-    /// Tik all the blocks in block update manager and
-    /// controls 
+    /// Update blocks for tiking using world task manager mods
     ///
-    ///
-    ///
-    pub fn tik_blocks(&mut self, world: &World, world_task_manager: &mut WorldTaskManager) {
+    /// ### Why: 
+    /// We need to update all the blocks sarounding blocks modified
+    /// during the past tik mostly by drones
+    /// 
+    /// 
+    pub fn update_blocks(&mut self, world: &World, world_task_manager: &mut WorldTaskManager) {
         
         // Update blocks around all the blocks modified
         let blocks_to_add_to_update = world_task_manager.get_blocks_to_update();
         for mod_task in blocks_to_add_to_update {
             self.update_area(world, mod_task.get_cords());
         }
+    }
 
+
+    /// Tik all the blocks in the update manager
+    pub fn tik_blocks(&mut self, world: &World, world_task_manager: &mut WorldTaskManager) {
         // Take ownership of the HashSet, leaving a new empty one in its place
         let mut block_update_tasks = std::mem::take(&mut self.block_update_tasks);
         for current_block_cords in block_update_tasks.drain() { 

@@ -236,6 +236,12 @@ impl BlockType {
             BlockType::Leaves => {
                 return true;
             }
+            BlockType::Grass => {
+                return true;
+            }
+            BlockType::Dirt => {
+                return true;
+            }
             _ => {
                 return false;
             }

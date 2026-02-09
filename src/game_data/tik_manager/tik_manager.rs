@@ -135,7 +135,8 @@ impl TikManager {
             let world_gaurd = self.world.read().unwrap(); // get world lock for lua execution
             self.lua_manager.tik_script(&world_gaurd, &mut self.drone_manager, world_task_manager);
             
-            // Tik block updates
+            // Block updates: Add all modified blocks and tik
+            self.block_update_manager.update_blocks(&world_gaurd, world_task_manager);
             self.block_update_manager.tik_blocks(&world_gaurd, world_task_manager);
 
 
