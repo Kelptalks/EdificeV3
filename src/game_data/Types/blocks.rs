@@ -230,4 +230,15 @@ impl BlockType {
             BlockType::Air
         }
     }
+
+    pub fn is_tikable(&self) -> bool {
+        match self {
+            BlockType::Leaves => {
+                return true;
+            }
+            _ => {
+                return false;
+            }
+        }
+    }
 }

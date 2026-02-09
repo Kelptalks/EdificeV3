@@ -1,8 +1,8 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, screen::screen_task_manager::{self, rendering_task_manager::{self, RenderingTaskManager}}};
+use crate::game_data::{World, screen::screen_task_manager::{self, rendering_task_manager::{self, RenderingTaskManager}}, types::BlockType};
 
-struct ModBlockTask {
+pub struct ModBlockTask {
     world_cords : [i32; 3],
     block_type : u16,
     original_block_type: u16,
@@ -15,13 +15,30 @@ impl ModBlockTask {
             original_block_type: 0,
         }
     }
+
+    //=====================================
+    // Getters
+    //=====================================
+    
+    pub fn get_cords(&self) -> [i32; 3] {
+        return self.world_cords;
+    } 
+
+    pub fn get_block_type(&self) -> BlockType {
+        return BlockType::from_id(self.block_type);
+    }
 }
 
 /*
 ########################
 ## World Task Manager ##
 ########################
-This is the manager for minipulating the world in a single write lock.
+This is the manager for minipulating the world
+
+Why :
+    To modify the world with one write lock in one centrilized location
+    and to control the order in which blocks are modified
+
 */
 
 
@@ -42,10 +59,27 @@ impl WorldTaskManager {
         }
     }
 
+    //=====================================
+    // Task adding
+    //=====================================
+
     // Add a mod block task to the manager
     pub fn mod_block(&mut self, world_cords : [i32; 3], block_type: u16) {
         self.block_modding_tasks.push(ModBlockTask::new(world_cords, block_type));
     }
+
+    //=====================================
+    // Getters
+    //=====================================
+
+    pub fn get_blocks_to_update(&self) -> &Vec<ModBlockTask>{
+        return &self.block_modding_tasks;
+    }
+
+
+    //=====================================
+    // Execution
+    //=====================================
 
     // Execute the tasks in the added to the manager
     pub fn execute_tasks(&mut self, world: Arc<RwLock<World>>, screen_task_manager: &mut RenderingTaskManager) {

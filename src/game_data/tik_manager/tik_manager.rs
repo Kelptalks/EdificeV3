@@ -1,7 +1,7 @@
 
 use std::{sync::{Arc, RwLock}, time::{SystemTime, UNIX_EPOCH}, u128};
 
-use crate::game_data::{World, debuging::debug_data::DebugData, screen::{Camera, screen_task_manager::rendering_task_manager::RenderingTaskManager}, tik_manager::drones::{drone_manager::DroneManager, lua_manager::LuaManager}, world_task_manager::world_task_manager::WorldTaskManager};
+use crate::game_data::{World, debuging::debug_data::DebugData, screen::{Camera, screen_task_manager::rendering_task_manager::RenderingTaskManager}, tik_manager::{block_updates::block_update_manager::{self, BlockUpdateManager}, drones::{drone_manager::DroneManager, lua_manager::LuaManager}}, world, world_task_manager::world_task_manager::WorldTaskManager};
 
 /*
 #################
@@ -20,8 +20,13 @@ pub struct TikManager {
 
     // Drones
     drone_manager: DroneManager,
-    world: Arc<RwLock<World>>,
     lua_manager: LuaManager,
+
+    // Block Updates
+    block_update_manager: BlockUpdateManager, 
+
+    // World
+    world: Arc<RwLock<World>>,
 
     // Debug
     tik_window_exectuion_time: u32,
@@ -45,8 +50,13 @@ impl TikManager {
 
             // Drones
             drone_manager: DroneManager::new(),
-            world: world,
             lua_manager: lua_manager,
+
+            // Block Updates
+            block_update_manager: BlockUpdateManager::new(),
+
+            // World
+            world: world,
 
             // Debug
             tik_window_exectuion_time: 0,
@@ -124,10 +134,17 @@ impl TikManager {
             // Run lua tik function
             let world_gaurd = self.world.read().unwrap(); // get world lock for lua execution
             self.lua_manager.tik_script(&world_gaurd, &mut self.drone_manager, world_task_manager);
-            drop(world_gaurd); // Drop gaurd after done running script
+            
+            // Tik block updates
+            self.block_update_manager.tik_blocks(&world_gaurd, world_task_manager);
 
+
+            drop(world_gaurd); // Drop gaurd after done running script
+            
             // Execute the tasks to update the events that happend this tik
             world_task_manager.execute_tasks(self.world.clone(), screen_task_manager);
+
+
 
             // Decrement tiks left to execute
             total_tiks_to_execute-=1;
