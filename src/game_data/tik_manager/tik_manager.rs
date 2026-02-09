@@ -128,18 +128,19 @@ impl TikManager {
             self.current_tik += 1;
             self.last_tik_micros = current_millis;
 
+            let world_gaurd = self.world.read().unwrap(); // get world lock for lua execution
+
+            // Tik Blocks
+            self.block_update_manager.tik_blocks(&world_gaurd, world_task_manager);
+
             // Tik drones
             self.drone_manager.tik_drones(self.world.clone(), world_task_manager);
 
             // Run lua tik function
-            let world_gaurd = self.world.read().unwrap(); // get world lock for lua execution
             self.lua_manager.tik_script(&world_gaurd, &mut self.drone_manager, world_task_manager);
             
             // Block updates: Add all modified blocks and tik
             self.block_update_manager.update_blocks(&world_gaurd, world_task_manager);
-            self.block_update_manager.tik_blocks(&world_gaurd, world_task_manager);
-
-
             drop(world_gaurd); // Drop gaurd after done running script
             
             // Execute the tasks to update the events that happend this tik

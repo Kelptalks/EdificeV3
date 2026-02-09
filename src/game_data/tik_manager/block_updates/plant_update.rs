@@ -78,12 +78,11 @@ pub fn tik_leaf(
     
     // Check if Connected to log
     if leaf_connected_to_log(world, block_cords) {
-        
+
     }
     else {
         if rand_value % 500 == 0{
             world_task_manager.mod_block(block_cords, BlockType::Air.id_as_u16());
-            block_update_manager.update_area(world, block_cords);
         }
         else {
             block_update_manager.update_block(block_cords);
@@ -119,7 +118,6 @@ pub fn tik_grass(
     // If there is a block on top
     if solid_block_above(world, block_cords) {
         world_task_manager.mod_block(block_cords, BlockType::Dirt.id_as_u16());
-        block_update_manager.update_block(block_cords)
     }
 }
 
@@ -159,7 +157,6 @@ pub fn tik_dirt(
         if next_to_block_type(world, block_cords, BlockType::Grass) {
             if rand_value % 500 == 0 { 
                 world_task_manager.mod_block(block_cords, BlockType::Grass.id_as_u16());
-                block_update_manager.update_area(world, block_cords);
             }
             else {
                 block_update_manager.update_block(block_cords);
