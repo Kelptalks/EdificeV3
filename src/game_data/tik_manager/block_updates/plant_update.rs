@@ -117,8 +117,14 @@ pub fn tik_grass(
 ) {
     // If there is a block on top
     if solid_block_above(world, block_cords) {
-        world_task_manager.mod_block(block_cords, BlockType::Dirt.id_as_u16());
+        if rand_value % 250 == 0 {
+            world_task_manager.mod_block(block_cords, BlockType::Dirt.id_as_u16());
+        }
+        else {
+            block_update_manager.update_block(block_cords);
+        }
     }
+    
 }
 
 //=====================================

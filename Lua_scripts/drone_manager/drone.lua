@@ -26,7 +26,7 @@ function Drone.new(id)
     -- local tree_chopping_goal = TreeChoppingGoal.new(id, -95, -95, 95, 95)
     -- self.goal_manager:incert_goal(tree_chopping_goal, 1)
 
-    local quarry_goal = QuarryGoal.new(100)
+    local quarry_goal = QuarryGoal.new(500)
     self.goal_manager:incert_goal(quarry_goal, 1)
 
     return self

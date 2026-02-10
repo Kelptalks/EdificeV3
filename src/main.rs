@@ -99,8 +99,8 @@ fn main() {
     miniquad::start(
         conf::Conf {
             window_title: "Edifice V3".to_owned(),
-            window_width: 1920,
-            window_height: 1080,
+            window_width: 2560,
+            window_height: 1440,
             window_resizable: false,
             icon: get_icon(),
             ..Default::default()

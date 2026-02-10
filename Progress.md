@@ -90,12 +90,16 @@ Low due to vacation in Chile
 ## Week template
 
 **Hours:**
-    - 2/9/26: 3.5
+- 2/9/26 = 3.5
+- 2/10/26 = 2
 
 **Lines**
+- 2/10/26 = 10585
 
 **Notes:**
 + Added block update system for leaf decay and grass spreading
++ Completed quarry scripts
+
 
 ---------------------------------------------------------------
 ## Week template
