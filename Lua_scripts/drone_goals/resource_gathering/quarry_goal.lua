@@ -1,7 +1,9 @@
 local WorldData = require("world_data.world_data")
+
+-- Rust wrappers
 local DroneFunctions = require("rust_wrapper_functions.drone_functions")
 local BlockTypes = require("rust_wrapper_functions.block_types")
-
+local DroneItems = require("rust_wrapper_functions.drone_items")
 
 local Quarry = require("world_data.structures.quarry")
 local MoveGoal = require("drone_goals.basic.move_goal")
@@ -12,8 +14,9 @@ QuarryGoal.__index = QuarryGoal
 local row_width = 2
 
 --- mine at the quarry in world data
+--- @param goal_stone_amount integer amount of stone to gather
 --- @return table new quarrying goal
-function QuarryGoal.new()
+function QuarryGoal.new(goal_stone_amount)
     local self = setmetatable({}, QuarryGoal)
 
     self.complete = false;
@@ -25,11 +28,14 @@ function QuarryGoal.new()
     print("Quarry location ".. quarry_location[1].. ","..quarry_location[2])
 
     self.current_move_goal = MoveGoal.new(quarry_location[1], quarry_location[2], 0)
+    
+    -- Goals
+    self.goal_stone_amount = goal_stone_amount
+    self.exit_quarry = false
 
     -- Setup rows
     self.rows = math.ceil(math.abs(quarry_scale / row_width))
-    self.current_row = 0;
-
+    self.current_row = 0
     self.highest_block_found_z = -999999
 
     return self
@@ -54,6 +60,48 @@ function QuarryGoal:tik(drone_id)
 
     -- Drone Data
     local drone_cords = DroneFunctions.get_drone_cords(drone_id)
+
+
+    if self.exit_quarry then
+        if self.current_move_goal:is_complete() then        
+            local x_corner_distance = drone_cords[1] - quarry_location[1];
+            local y_corner_distance = drone_cords[2] - quarry_location[2];
+
+            if x_corner_distance > 0 then
+                print("Correcting X")
+                DroneFunctions.move(drone_id, -1, 0, 0)
+                return;
+            elseif y_corner_distance > 0 then
+                print("Correcting Y: ".. y_corner_distance)
+                DroneFunctions.move(drone_id, 0, -1, 0)
+                return;
+            else
+                if DroneFunctions.scan_block(drone_id, -1, 0, 0) == BlockTypes.Air then
+                    self.complete = true;
+                else
+                    DroneFunctions.place_block(drone_id, 0, 0, 0, BlockTypes.Scaffolding)
+                    return;
+                end
+            end
+            
+
+
+
+            return;
+        else
+            self.current_move_goal:tik(drone_id);
+            return;
+        end
+    end
+
+    -- Check if acheaved goal amount of stone
+    if DroneFunctions.has_item_amount(drone_id, DroneItems.Stone) >= self.goal_stone_amount then
+        print("completed goal")
+        self.exit_quarry = true
+        -- Move back to starting location
+        self.current_move_goal = MoveGoal.new(quarry_location[1], quarry_location[2], 0);
+        return;
+    end
 
     -- attempt to mine all blocks in quarry in range of drone_goals
     -- Scan all blocks in mine range

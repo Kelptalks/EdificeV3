@@ -71,6 +71,7 @@ Low due to vacation in Chile
 - 2/2/26 = 1.5
 - 2/3/26 = 7.5
 - 2/4/26 = 3
+- 2/6/26 = 1
 
 **Lines**
 - 2/1/26 = 9238
@@ -83,6 +84,18 @@ Low due to vacation in Chile
 + Added level menu system
 + Added event manager
 + Added dirty tiles and dirty chunks
+
+
+---------------------------------------------------------------
+## Week template
+
+**Hours:**
+    - 2/9/26: 3.5
+
+**Lines**
+
+**Notes:**
++ Added block update system for leaf decay and grass spreading
 
 ---------------------------------------------------------------
 ## Week template
