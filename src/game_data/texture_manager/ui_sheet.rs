@@ -30,9 +30,11 @@ impl UITextureManager {
     // Init
     //=====================================
 
-    pub fn splice_textures(&self, atlas_image: &mut RgbaImage) {
+    pub fn splice_textures(&mut self, atlas_image: &mut RgbaImage) {
         // Load UI textures image
         let mut ui_image = image::open("Assets/UI.png").unwrap().to_rgba8(); 
+
+        self.end_cords[0] = ui_image.height() as f32;
 
         // Copy image to atlas
         image::imageops::replace(atlas_image, &mut ui_image, self.start_cords[0] as i64, self.start_cords[1] as i64);

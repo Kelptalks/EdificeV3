@@ -110,23 +110,18 @@ impl TextureManager {
     }
 
     pub fn render_block(&mut self, block : BlockType, draw_location : [f32; 2], scale : f32) { 
-        let mut current_draw_location = draw_location;
-        let half_scale = scale / 2.0;
+        let double_scale = scale * 2.0;
         // Right side
-        self.render_block_triangle(block, BlockTriangle::TopLeft, current_draw_location, scale);
-        current_draw_location[1] += half_scale;
-        self.render_block_triangle(block, BlockTriangle::LeftTop, current_draw_location, scale);
-        current_draw_location[1] += half_scale;
-        self.render_block_triangle(block, BlockTriangle::LeftBot, current_draw_location, scale);
+        let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_block_uv(block);
 
-        // Left side
-        current_draw_location[1] = draw_location[1];
-        current_draw_location[0] += scale;
-        self.render_block_triangle(block, BlockTriangle::TopRight, current_draw_location, scale);
-        current_draw_location[1] += half_scale;
-        self.render_block_triangle(block, BlockTriangle::RightTop, current_draw_location, scale);
-        current_draw_location[1] += half_scale;
-        self.render_block_triangle(block, BlockTriangle::RightBot, current_draw_location, scale);
+        let pos = [
+            draw_location[0],         // x1 (left)
+            draw_location[1],         // y1 (top/bottom) 
+            draw_location[0] + double_scale, // x2 (right)
+            draw_location[1] + double_scale, // y2 (bottom/top)
+        ];
+
+        self.get_texture_renderer().add_quad(pos, uv);
     }
 
     //=====================================

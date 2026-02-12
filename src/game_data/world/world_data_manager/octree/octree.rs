@@ -66,8 +66,13 @@ impl Octree {
         }
     }
 
+    /// Create a node on the current node
+    /// 
+    /// Set branch value to 
     pub fn create_node_at_index(&mut self, root_index: usize, branch_index: u64) {
         self.node_data[root_index] = set_branch_value(self.node_data[root_index], branch_index, 1);
+
+        
         self.node_data.push(0);
     }
 

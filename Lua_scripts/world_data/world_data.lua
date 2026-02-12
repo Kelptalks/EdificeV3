@@ -19,7 +19,7 @@ have collected. It also stores locations of structures.
 
 ---@class WorldData
 WorldData = {
-    quarry = Quarry.new({20, 20}, 20)
+    quarry = Quarry.new({35, 35}, 15)
 }
 
 return WorldData

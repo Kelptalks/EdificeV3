@@ -1,6 +1,6 @@
 use std::{collections::HashMap, ops::Index};
 
-use crate::game_data::{log_init, texture_manager::{block_sheet::BlockTextureManager, shader_sheet::ShaderTextureManager, text_sheet::TextTextureManager, ui_sheet::UITextureManager}, types::{BlockShaderType, BlockTriangle, BlockType, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
+use crate::game_data::{log_init, texture_manager::{block_sheet::BlockTextureManager, block_triangle_sheet::BlockTriangleTextureManager, shader_sheet::ShaderTextureManager, text_sheet::TextTextureManager, ui_sheet::UITextureManager}, types::{BlockShaderType, BlockTriangle, BlockType, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
 use image::{ImageBuffer, RgbaImage};
 use miniquad::*;
 
@@ -18,11 +18,17 @@ pub struct TextureAtlas {
     pub texture_id: TextureId,
     pub atlas_dimensions: u32,
 
-    // Tools for managing sections texture atlas
-    pub block_texture_manager: BlockTextureManager,
-    pre_calculated_block_uvs: Vec<[[f32; 4]; 6]>,
 
-    pub shader_texture_manager: ShaderTextureManager,
+
+    // Tools for managing sections texture atlas
+
+    block_texture_manager: BlockTextureManager,
+    pre_calculated_block_uvs: Vec<[f32; 4]>,
+
+    block_triangle_texture_manager: BlockTriangleTextureManager,
+    pre_calculated_block_triangle_uvs: Vec<[[f32; 4]; 6]>,
+
+    shader_texture_manager: ShaderTextureManager,
     pre_calculated_shader_uvs: Vec<[[f32; 4]; 14]>,
 
     text_texture_manager: TextTextureManager,
@@ -47,13 +53,19 @@ impl TextureAtlas {
 
         // Pass image through atlas section managers
         
-        // Block Textures
-        let block_texture_manager = BlockTextureManager::new([0.0, 0.0], atlas_dimensions as f32);
+        // Blocks
+        let mut block_texture_manager = BlockTextureManager::new([0.0, 0.0]);
         block_texture_manager.splice_textures(&mut atlas_image);
         let pre_calculated_block_uvs = block_texture_manager.create_pre_calculated_block_uvs(atlas_dimensions as f32);
+
+        // Block Triangle Textures
+        let starting_y_cor = block_texture_manager.get_end_cords()[1] + 50.0;
+        let block_triangle_texture_manager = BlockTriangleTextureManager::new([0.0, starting_y_cor], atlas_dimensions as f32);
+        block_triangle_texture_manager.splice_textures(&mut atlas_image);
+        let pre_calculated_block_triangle_uvs = block_triangle_texture_manager.create_pre_calculated_block_uvs(atlas_dimensions as f32);
         
         // Shader Textures
-        let start_shader_y_cor = block_texture_manager.get_end_cords()[1] + 50.0;
+        let start_shader_y_cor = block_triangle_texture_manager.get_end_cords()[1] + 50.0;
         let shader_texture_manager = ShaderTextureManager::new([0.0, start_shader_y_cor]);
         shader_texture_manager.splice_textures(&mut atlas_image);
         let pre_calculated_shader_uvs = shader_texture_manager.create_pre_calculated_shader_uvs(atlas_dimensions as f32);
@@ -66,7 +78,7 @@ impl TextureAtlas {
 
         // UI Textures
         let start_ui_y_cor = text_texture_manager.get_end_cords()[1] + 50.0;
-        let ui_texture_manager = UITextureManager::new([0.0, start_ui_y_cor]);
+        let mut ui_texture_manager = UITextureManager::new([0.0, start_ui_y_cor]);
         ui_texture_manager.splice_textures(&mut atlas_image);
         let pre_calculated_ui_uvs = ui_texture_manager.create_pre_calculated_ui_uvs(atlas_dimensions as f32);
         let pre_calculated_drone_ui_uvs = ui_texture_manager.create_pre_calculated_drone_ui_uvs(atlas_dimensions as f32);
@@ -92,8 +104,11 @@ impl TextureAtlas {
             atlas_dimensions: atlas_dimensions,
 
             // Atlas section managers
-            block_texture_manager: block_texture_manager,
-            pre_calculated_block_uvs: pre_calculated_block_uvs,
+            block_texture_manager,
+            pre_calculated_block_uvs,
+            
+            block_triangle_texture_manager,
+            pre_calculated_block_triangle_uvs,
 
             shader_texture_manager: shader_texture_manager,
             pre_calculated_shader_uvs: pre_calculated_shader_uvs,
@@ -121,8 +136,11 @@ impl TextureAtlas {
     //=====================================
 
     // Blocks
+    pub fn get_precalculated_block_uv(&self, block: BlockType) -> [f32; 4] {
+        return self.pre_calculated_block_uvs[block.id_as_usize()];
+    }
     pub fn get_precalculated_block_triangle_uv(&self, triangle: BlockTriangle, block: BlockType) -> [f32; 4] {
-        return self.pre_calculated_block_uvs[block.id_as_usize()][triangle.id_as_usize()];
+        return self.pre_calculated_block_triangle_uvs[block.id_as_usize()][triangle.id_as_usize()];
     }
 
     // Shaders
@@ -140,7 +158,6 @@ impl TextureAtlas {
     pub fn get_precalculated_drone_item_uv(&self, drone_item_texture: DroneItemTexture) -> [f32; 4] {
         return self.pre_calculated_drone_item_uvs[drone_item_texture.get_id() as usize];
     }
-
 
     // Fonts
     pub fn get_precalculated_font_uv(&self, font: FontType, char: CharType) -> [f32; 4] {

@@ -1,166 +1,119 @@
-use crate::game_data::types::{BlockTriangle, BlockType};
-use image::{ImageBuffer, Rgba, RgbaImage};
+use image::{RgbaImage, imageops};
+
+use crate::game_data::types::BlockType;
 
 static BLOCK_PIXLE_REZ: u32 = 64;
 static BLOCK_TEXTURES_PER_ROW: u32 = 20;
 
-/*
-#################
-## Block Sheet ##
-#################
-This file is responsable for managing the splicing of the block textures. This
-file uses masking textures to create triangles from each block texture and splices
-them to the atlas.
-
-
-Go to "game_data/Types/Triangles" for more information on what bock triangles are
-
-
-*/
-
 pub struct BlockTextureManager {
-    start_cords: [f32; 2],
-    end_cords: [f32; 2],
+    pub start_cords: [f32; 2],
+    pub end_cords: [f32; 2],
+   
+    pub buffer_space: u32,
 
-    // Texture alignment  
-    buffer_space: f32,
-    total_blocks: u32,
-    triangles_per_block: u32,
-    sprite_pixel_scale: [f32; 2],
+
 }
 
 impl BlockTextureManager {
-    pub fn new(start_cords: [f32; 2], atlas_dimensions: f32) -> Self {
-        // Texture alignment  
-        let buffer_space = 8.0;
-        let total_blocks = BlockType::get_total_blocks() as f32;
-        let triangles_per_block = 6.0;
-        let sprite_pixel_scale = [32.0, 32.0];
+
+    pub fn new(start_cords: [f32; 2]) -> BlockTextureManager {
+        BlockTextureManager {
+            start_cords: start_cords,
+            end_cords: [start_cords[0], start_cords[1]],
+
+            buffer_space: 32,
+        }
+    }
+
+
+    //=====================================
+    // Init
+    //=====================================
+    pub fn splice_textures(&mut self, atlas_image: &mut RgbaImage) {
+        
+        // Load UI textures image
+        let block_image = image::open("Assets/blocks.png").unwrap().to_rgba8(); 
+        
+        let block_spacing = self.buffer_space + BLOCK_PIXLE_REZ;
+        // Splice every block with buffer space
+        for block_id in 0..BlockType::get_total_blocks() {
+            let block_row_index= block_id % BLOCK_TEXTURES_PER_ROW;
+            let block_collumn_index = block_id / BLOCK_TEXTURES_PER_ROW;
+            
+            let src_pixel_start_cords = [
+                BLOCK_PIXLE_REZ * block_row_index, 
+                BLOCK_PIXLE_REZ * block_collumn_index,
+            ];
+
+            let dest_pixel_start_cords = [
+                self.start_cords[0] as u32 + (block_spacing * block_row_index), 
+                self.start_cords[1] as u32 + (block_spacing * block_collumn_index),
+            ];
+
+            for x in 0..BLOCK_PIXLE_REZ {
+                for y in 0..BLOCK_PIXLE_REZ {
+                    let src_cords= [
+                        src_pixel_start_cords[0] + x,
+                        src_pixel_start_cords[1] + y
+                    ];
+
+                    let dest_cords = [
+                        dest_pixel_start_cords[0] + x,
+                        dest_pixel_start_cords[1] + y
+                    ];
+
+
+                    atlas_image.put_pixel(
+                        dest_cords[0], dest_cords[1],
+                        *block_image.get_pixel(src_cords[0], src_cords[1])
+                    );
+
+                }                
+            }
+        }   
+
 
         // Calculate end cords
-        let end_cords = [
-            start_cords[0] + ((buffer_space + sprite_pixel_scale[0]) * total_blocks),
-            start_cords[1] + ((buffer_space + sprite_pixel_scale[1]) * triangles_per_block)
-        ];
+        self.end_cords[0] = (block_spacing * BLOCK_TEXTURES_PER_ROW) as f32 + self.start_cords[0];
 
-        Self {
-            start_cords: start_cords,
-            end_cords: end_cords,
-            buffer_space: buffer_space,
-            total_blocks: total_blocks as u32,
-            triangles_per_block: triangles_per_block as u32,
-            sprite_pixel_scale: sprite_pixel_scale
-        }
+        let total_collumns = (BlockType::get_total_blocks() / BLOCK_TEXTURES_PER_ROW) + 1;
+        self.end_cords[1] = (block_spacing * total_collumns) as f32 + self.start_cords[1];
+        println!("End Cords: {:?}", self.end_cords);
     }
 
-    // Splice the textures from block sheet to sprite sheets location
-    pub fn splice_textures(&self, atlas_image: &mut RgbaImage) {
-        // Get the block sprite sheet and masking block
-        let block_sprite_image = image::open("Assets/Blocks.png").unwrap().to_rgba8();
-        let block_masks_image = image::open("Assets/masking_textures.png").unwrap().to_rgba8();
+    //=====================================
+    // Pre calculated UVs
+    //=====================================
 
-        // Loop through all blocks and splice there textures
-        //Loop through all block locations
+    pub fn create_pre_calculated_block_uvs(&self, atlas_dimensions: f32) -> Vec<[f32; 4]> {
+        let mut pre_calculated_block_uvs: Vec<[f32; 4]> = Vec::new();
+
+        let block_spacing = self.buffer_space + BLOCK_PIXLE_REZ;
         for block_id in 0..BlockType::get_total_blocks() {
-            let block_src_x_cor = BLOCK_PIXLE_REZ * (block_id % BLOCK_TEXTURES_PER_ROW);
-            let block_src_y_cor = BLOCK_PIXLE_REZ * (block_id / BLOCK_TEXTURES_PER_ROW);
+            let block_row_index= block_id % BLOCK_TEXTURES_PER_ROW;
+            let block_collumn_index = block_id / BLOCK_TEXTURES_PER_ROW;
+            let start_pixel_cords = [
+                self.start_cords[0] + (block_row_index * block_spacing) as f32,
+                self.start_cords[1] + (block_collumn_index * block_spacing) as f32,
+            ];
 
-            let x_dest_cor = ((self.sprite_pixel_scale[0] + self.buffer_space) * block_id as f32) as u32;
+            let end_pixel_cords = [
+                start_pixel_cords[0] + BLOCK_PIXLE_REZ as f32,
+                start_pixel_cords[1] + BLOCK_PIXLE_REZ as f32
+            ];
 
-            // Splice block texture useing RGB values of masking texture to identify what triangle the pixel belongs too.
-            for y in 0..BLOCK_PIXLE_REZ {
-                for x in 0..BLOCK_PIXLE_REZ {
-                    // Get masking textures pixle color
-                    let source_pixel = block_masks_image.get_pixel(x, y);
-                    let [r, g, b, a] = source_pixel.0;  // Gets [u8; 4] array
+            let uv = [
+                start_pixel_cords[0] / atlas_dimensions,
+                start_pixel_cords[1] / atlas_dimensions,
 
-                    let x_draw_cor = x + x_dest_cor;
+                end_pixel_cords[0] / atlas_dimensions,
+                end_pixel_cords[1] / atlas_dimensions,
+            ];
 
-                    //Top Left
-                    if r == 243 && g == 255 && b == 0 {
-                        let y_mod = (0.0 + 0.0 * self.buffer_space) as u32;
-                        atlas_image.put_pixel(x_draw_cor, y + y_mod, *block_sprite_image.get_pixel(x + block_src_x_cor, y + block_src_y_cor));
-                    }
-                    //Top Right
-                    else if r == 7 && g == 255 && b == 0 {
-                        let y_mod = (32.0 + 1.0 * self.buffer_space) as u32;
-                        atlas_image.put_pixel(x_draw_cor - 32, y + y_mod, *block_sprite_image.get_pixel(x + block_src_x_cor, y + block_src_y_cor));
-                    }
-                    //Left Top
-                    else if r == 255 && g == 0 && b == 0 {
-                        let y_mod = (48.0 + 2.0 * self.buffer_space) as u32;
-                        atlas_image.put_pixel(x_draw_cor, y + y_mod, *block_sprite_image.get_pixel(x + block_src_x_cor, y + block_src_y_cor));
-                    }
-                    //Left Bot
-                    else if r == 253 && g == 0 && b == 232 {
-                        let y_mod = (64.0 + 3.0 * self.buffer_space) as u32;
-                        atlas_image.put_pixel(x_draw_cor, y + y_mod, *block_sprite_image.get_pixel(x + block_src_x_cor, y + block_src_y_cor));
-                    }
-                    //Right Top
-                    else if r == 0 && g == 193 && b == 255 {
-                        let y_mod = (112.0 + 4.0 * self.buffer_space) as u32;
-                        atlas_image.put_pixel(x_draw_cor - 32, y + y_mod, *block_sprite_image.get_pixel(x + block_src_x_cor, y + block_src_y_cor));
-                    }
-                    //Right Bot
-                    else if r == 110 && g == 0 && b == 255 {
-                        let y_mod = (128.0 + 5.0 * self.buffer_space) as u32;
-                        atlas_image.put_pixel(x_draw_cor - 32, y + y_mod, *block_sprite_image.get_pixel(x + block_src_x_cor, y + block_src_y_cor));
-                    }
-                }
-            }
-        }
-    }
-
-    // Get the pixel based SRC rect of a specific block triangle
-    pub fn get_block_triangle_src_rect(&self, triangle: BlockTriangle, block: BlockType) -> [f32; 4] {
-        let x_start_cor = self.start_cords[0] + ((self.buffer_space + self.sprite_pixel_scale[0]) * block.id() as f32);
-        let y_start_cor = self.start_cords[1] + ((self.buffer_space + self.sprite_pixel_scale[1]) * triangle.id() as f32);
-
-        let x_end_cor = x_start_cor + self.sprite_pixel_scale[0];
-        let y_end_cor = y_start_cor + self.sprite_pixel_scale[1];
-
-        return [x_start_cor, y_start_cor, x_end_cor, y_end_cor];
-    }
-
-    // Get the UV based on atlas size of a specific block triangle
-    pub fn get_block_triangle_uv(&self, triangle: BlockTriangle, block: BlockType, atlas_dimensions: f32) -> [f32; 4] {
-        let src_rect = self.get_block_triangle_src_rect(triangle, block);
-        let mut uv = [0.0, 0.0, 0.0, 0.0];
-
-        // Create uv
-        uv[0] = src_rect[0] / atlas_dimensions;
-        uv[1] = src_rect[1] / atlas_dimensions;
-        uv[2] = src_rect[2] / atlas_dimensions;
-        uv[3] = src_rect[3] / atlas_dimensions;
-
-        return uv;
-    }
-
-    // Create a pre calculate UV array of all block triangle UVs
-    pub fn create_pre_calculated_block_uvs(&self, atlas_dimensions: f32) -> Vec<[[f32; 4]; 6]> {
-        let mut blocks: Vec<[[f32; 4]; 6]> = Vec::new();
-
-        for current_block in 0..self.total_blocks {
-            // Create triangle uv array from block
-            let mut block_triangles = [[0.0; 4]; 6];
-            for current_triangle in 0..self.triangles_per_block {
-                let uv = self.get_block_triangle_uv(
-                    BlockTriangle::from_id(current_triangle as u16),
-                    BlockType::from_id(current_block as u16),
-                    atlas_dimensions
-                );
-                block_triangles[current_triangle as usize] = uv;
-            }
-
-            // Add triangle array uv to block uv vector
-            blocks.push(block_triangles);
+            pre_calculated_block_uvs.push(uv);
         }
 
-        return blocks;
-    }
-
-    pub fn get_start_cords(&self) -> [f32; 2] {
-        return self.start_cords;
+        return pre_calculated_block_uvs;
     }
 
     pub fn get_end_cords(&self) -> [f32; 2] {

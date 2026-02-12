@@ -174,7 +174,7 @@ impl GameData {
         screen_mananager.collect_debug_data(&mut self.debug_data);
         
         // Test sprite sheet
-        //self.texture_manager.test_sprites(ctx);
+        // self.texture_manager.test_sprites(ctx);
 
 
         // Render frame time | Eventualy create a debug window under screen for this

@@ -4,7 +4,7 @@ This is where I track progress through time worked and other metrics
 
 ## Week 1
 
-**Hours:**
+**Hours: 23**
 - 1/5/26 = 5
 - 1/6/26 = 4
 - 1/7/26 = 5
@@ -22,7 +22,7 @@ This is where I track progress through time worked and other metrics
 ---------------------------------------------------------------
 ## Week 2
 
-**Hours:**
+**Hours: 28.5**
 - 1/11/26 = 3
 - 1/12/26 = 5
 - 1/13/26 = 6
@@ -42,7 +42,7 @@ This is where I track progress through time worked and other metrics
 ---------------------------------------------------------------
 ## Week 3
 
-**Hours:**
+**Hours: 1**
 1/23/26 = 1
 
 **Notes:**
@@ -51,7 +51,7 @@ Low due to vacation in Chile
 ---------------------------------------------------------------
 ## Week 4
 
-**Hours:**
+**Hours: 10**
 - 1/30/26 = 4
 - 1/31/26 = 6
 
@@ -66,7 +66,7 @@ Low due to vacation in Chile
 ---------------------------------------------------------------
 ## Week 5
 
-**Hours:**
+**Hours: 19**
 - 2/1/26 = 6
 - 2/2/26 = 1.5
 - 2/3/26 = 7.5
@@ -89,14 +89,17 @@ Low due to vacation in Chile
 ---------------------------------------------------------------
 ## Week template
 
-**Hours:**
+**Hours: 5.5**
 - 2/9/26 = 3.5
 - 2/10/26 = 2
+- 2/11/26 = 2
+
 
 **Lines**
 - 2/10/26 = 10585
 
 **Notes:**
++ Lower due to pet sitting at moms house
 + Added block update system for leaf decay and grass spreading
 + Completed quarry scripts
 
