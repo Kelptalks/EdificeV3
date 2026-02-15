@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use image::imageops::FilterType::Triangle;
 use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, game_event_manager::game_event_manager::GameEventManager, log_init, screen::{self, Camera, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, iso_cord_tool, menus::{level_select_menu::{self, level_select_menu::LevelSelectMenu}, main_menu::main_menu::MainMenu, world_creation_menu::world_creation::WorldCreationMenu}, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
+use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, game_event_manager::game_event_manager::GameEventManager, log_init, screen::{self, Camera, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, iso_cord_tool, menus::{level_select_menu::{self, level_select_menu::LevelSelectMenu}, main_menu::main_menu::MainMenu, world_creation_menu::world_creation::WorldCreationMenu}, play_view::play_view::PlayView, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
 
 
 
@@ -23,6 +23,8 @@ pub struct ScreenManager {
     level_select_menu: LevelSelectMenu,
     
     // Camera
+    play_view: PlayView,
+
     camera : Camera,
     camera_ui_manager: CameraUIManager,
 
@@ -42,6 +44,9 @@ impl ScreenManager {
             level_select_menu: LevelSelectMenu::new(),
         
             // Camera
+            play_view: PlayView::new(),
+
+
             camera: camera,
             camera_ui_manager: CameraUIManager::new(),
 
@@ -96,6 +101,9 @@ impl ScreenManager {
                 self.camera_ui_manager.render_ui(&self.screen_data, texture_manager, self.camera.get_camera_data(), &world.clone(), tik_manager);
                 world_rendering_task_manager.execute_render_updates_drone(&mut self.camera, texture_manager);
             }
+            CurrentMenu::PlayView => {
+                self.play_view.render_view(&self.screen_data, texture_manager, &world);
+            }
         }
 
         
@@ -130,6 +138,9 @@ impl ScreenManager {
                 camera_controls::mouse_motion_event(self, x_cor, y_cor);
                 self.camera_ui_manager.handle_motion_event(&self.screen_data);
             },
+            CurrentMenu::PlayView => {
+
+            },
         }
 
     }
@@ -159,6 +170,9 @@ impl ScreenManager {
                 camera_controls::mouse_button_down_event(self, button);
                 self.camera_ui_manager.handle_mouse_button_down(button, &self.screen_data, tik_manager, world_task_manager);
             },
+            CurrentMenu::PlayView => {
+                
+            }
         }
     }
 
@@ -204,6 +218,9 @@ impl ScreenManager {
                 camera_controls::key_down_event(self, keycode, keymods, repeat);
                 self.camera_ui_manager.handle_key_down(event_manager, keycode, tik_manager);
             },
+            CurrentMenu::PlayView => {
+                self.play_view.key_down_event(keycode);
+            }
         }
     }
 
@@ -216,6 +233,9 @@ impl ScreenManager {
         }
         else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
             camera_controls::mouse_wheel_event(self, _x, _y);
+        }
+        else if self.screen_data.get_current_menu() == CurrentMenu::PlayView {
+            self.play_view.mouse_wheel_event(_x, _y);
         }
     }
 //=====================================
@@ -285,6 +305,7 @@ impl ScreenManager {
 
     pub fn collect_debug_data(&self, debug_data: &mut DebugData) { 
         self.camera.collect_debug_data(debug_data);
+        self.play_view.collect_debug_data(debug_data);
 
         debug_data.set_mouse_tile_cords(self.screen_data.get_mouse_iso_world_cords());
     }

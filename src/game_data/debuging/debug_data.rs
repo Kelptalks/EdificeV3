@@ -19,6 +19,11 @@ pub struct DebugData {
     total_cached_chunks: u32,
     max_cached_chunks: u32, 
     total_tiles_raycasted: u32,
+
+    // View Rendering
+    direction: String,
+    camera_cords: [i32; 3],
+
 }
 /*
 ################
@@ -50,6 +55,10 @@ impl DebugData {
             total_cached_chunks: 0,
             max_cached_chunks: 0, 
             total_tiles_raycasted: 0,
+
+            // View Rendering
+            direction: "North".to_string(),
+            camera_cords: [0, 0, 0],
         }
     }
 
@@ -92,6 +101,14 @@ impl DebugData {
     }
     pub fn set_total_tiles_raycasted(&mut self, tiles_raycasted: u32) {
         self.total_tiles_raycasted = tiles_raycasted;
+    }
+
+    // View Rendering
+    pub fn set_direction(&mut self, direction_string: String) {
+        self.direction = direction_string;
+    }
+    pub fn set_camera_cords(&mut self, camera_cords: [i32; 3]) {
+        self.camera_cords = camera_cords;
     }
 
     //=====================================
@@ -166,5 +183,24 @@ impl DebugData {
         );
         render_string_at_ndc(texture_manager, render_data, font, scale, current_text_render_ndi_cords);
         current_text_render_ndi_cords[1] += spacing;
+
+        // Render Camera Direction
+        let direction_data = format!(
+            "View_direction: {}", 
+            self.direction,
+        );
+        render_string_at_ndc(texture_manager, direction_data, font, scale, current_text_render_ndi_cords);
+        current_text_render_ndi_cords[1] += spacing;
+
+
+        // Render Camera Direction
+        let view_camera_cords = format!(
+            "Ciew Camera Cords: {:?}", 
+            self.camera_cords,
+        );
+        render_string_at_ndc(texture_manager, view_camera_cords, font, scale, current_text_render_ndi_cords);
+        current_text_render_ndi_cords[1] += spacing;
+
+
     }
 }

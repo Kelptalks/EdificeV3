@@ -111,7 +111,7 @@ impl WorldCreationMenu {
         if mouse_button == MouseButton::Left {
             if self.button_create_world.is_mouse_on_button() {
                 event_manager.init_world(self.create_world_config());
-                event_manager.add_render_event(RenderEvent::ChangeMenu(CurrentMenu::Camera));
+                event_manager.add_render_event(RenderEvent::ChangeMenu(CurrentMenu::PlayView));
             }
             else if self.button_back.is_mouse_on_button() {
                 event_manager.add_render_event(RenderEvent::ChangeMenu(CurrentMenu::MainMenu));

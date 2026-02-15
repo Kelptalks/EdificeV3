@@ -8,7 +8,7 @@ pub enum CurrentMenu {
     WorldCreationMenu,
     LevelSelectMenu,
     Camera,
-
+    PlayView,
 }
 
 pub struct ScreenData {
