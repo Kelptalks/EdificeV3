@@ -5,3 +5,5 @@ mod barbutton;
 pub use barbutton::BarButton;
 
 pub mod stepper;
+
+pub mod panel;

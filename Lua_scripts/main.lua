@@ -13,6 +13,7 @@ function tik()
     for i, drone_id in ipairs(drone_ids) do
         local drone = drone_manager:get_drone(drone_id)
         drone:tik()
+
     end
 
 end

@@ -190,7 +190,13 @@ impl ScreenManager {
     }
 
     // Handle key press
-    pub fn key_down_event(&mut self, event_manager: &mut GameEventManager, tik_manager: &mut TikManager, keycode: KeyCode, keymods: KeyMods, repeat: bool) {
+    pub fn key_down_event(&mut self, 
+        event_manager: &mut GameEventManager, 
+        tik_manager: &mut TikManager, 
+        keycode: KeyCode, 
+        keymods: KeyMods, 
+        repeat: bool
+    ) {
         let camera_data = &self.get_camera_data().clone();
         self.screen_data.re_calculate_mouse_cords(camera_data);
 
@@ -215,11 +221,11 @@ impl ScreenManager {
 
             },
             CurrentMenu::Camera => {
-                camera_controls::key_down_event(self, keycode, keymods, repeat);
+                camera_controls::key_down_event(event_manager, self,  keycode, keymods, repeat);
                 self.camera_ui_manager.handle_key_down(event_manager, keycode, tik_manager);
             },
             CurrentMenu::PlayView => {
-                self.play_view.key_down_event(keycode);
+                self.play_view.key_down_event(event_manager, keycode);
             }
         }
     }
@@ -238,11 +244,10 @@ impl ScreenManager {
             self.play_view.mouse_wheel_event(_x, _y);
         }
     }
+
 //=====================================
 // Getters / Setters
  //=====================================
-
-
 
     pub fn get_mut_camera(&mut self) -> &mut Camera {
         return &mut self.camera;
@@ -268,6 +273,7 @@ impl ScreenManager {
         self.camera_ui_manager.window_resize_update(&self.screen_data);
         self.level_select_menu.window_resize_update(&self.screen_data);
         self.world_creation_menu.window_resize_update(&self.screen_data);
+        self.play_view.window_resize_update(&self.screen_data);
     }
 
     pub fn get_screen_data(&self) -> &ScreenData {

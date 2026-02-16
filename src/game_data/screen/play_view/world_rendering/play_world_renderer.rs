@@ -58,6 +58,7 @@ pub struct PlayWorldRender {
 
     // Rendering
     render_scale: f32,
+    x_drawing_offset: f32,
 }
 
 impl PlayWorldRender {
@@ -71,6 +72,7 @@ impl PlayWorldRender {
 
             // Rendering
             render_scale: 0.4,
+            x_drawing_offset: 0.1,
         }
     }
 
@@ -81,8 +83,8 @@ impl PlayWorldRender {
     pub fn render_view(&mut self, texture_manager: &mut TextureManager, world: &Arc<RwLock<World>>) {
         let world = world.read().unwrap();
 
-        let ndc_scale = self.render_scale / (self.zoom * 2) as f32;
-        let ndc_x_draw_center_offset = ndc_scale;
+        let ndc_scale = self.render_scale / ((self.zoom * 2) + 1) as f32;
+        let ndc_x_draw_center_offset = ndc_scale + self.x_drawing_offset;
 
         let direction_offsets = self.view_direction.offsets();
 
@@ -151,6 +153,10 @@ impl PlayWorldRender {
         else {
             self.view_direction = ViewDirection::from_id(3);
         }
+    }
+
+    pub fn set_x_offset(&mut self, offset: f32) {
+        self.x_drawing_offset = offset;
     }
 
     //=====================================

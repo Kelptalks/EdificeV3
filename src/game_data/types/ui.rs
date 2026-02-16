@@ -52,6 +52,23 @@ pub const UI_TEXTURES: &[UITextureData] = &[
     UITextureData { id: 24, name: "VoidBackground", rect: [96, 0, 64, 64], pressed_variant: None },
     UITextureData { id: 25, name: "FaceBackground", rect: [160, 0, 320, 176], pressed_variant: None },
     UITextureData { id: 26, name: "MirrorBackground", rect: [480, 0, 240, 128], pressed_variant: None },
+
+    // Panels
+    // Row 1
+    UITextureData { id: 27, name: "PanelTopLeft", rect: [672, 128, 16, 16], pressed_variant: None },
+    UITextureData { id: 28, name: "PanelTopCenter", rect: [688, 128, 16, 16], pressed_variant: None },
+    UITextureData { id: 29, name: "PanelTopRight", rect: [704, 128, 16, 16], pressed_variant: None },
+
+    // Row 2
+    UITextureData { id: 30, name: "PanelMidLeft", rect: [672, 144, 16, 16], pressed_variant: None },
+    UITextureData { id: 31, name: "PanelMidCenter", rect: [688, 144, 16, 16], pressed_variant: None },
+    UITextureData { id: 32, name: "PanelMidRight", rect: [704, 144, 16, 16], pressed_variant: None },
+
+    // Row 3
+    UITextureData { id: 33, name: "PanelBotLeft", rect: [672, 160, 16, 16], pressed_variant: None },
+    UITextureData { id: 34, name: "PanelBotCenter", rect: [688, 160, 16, 16], pressed_variant: None },
+    UITextureData { id: 35, name: "PanelBotRight", rect: [704, 160, 16, 16], pressed_variant: None },
+
 ];
 
 // Keep enum for type safety if you want
@@ -82,9 +99,22 @@ pub enum UITextures {
     Speed_Down = 21,
     Pause = 22,
     Play = 23,
+
+    // Backgrounds
     VoidBackground = 24,
     FaceBackground = 25,
     MirrorBackground = 26,
+
+    // Panels
+    PanelTopLeft = 27,
+    PanelTopCenter = 28,
+    PanelTopRight = 29,
+    PanelMidLeft = 30,
+    PanelMidCenter = 31,
+    PanelMidRight = 32,
+    PanelBotLeft = 33,
+    PanelBotCenter = 34,
+    PanelBotRight = 35,
 }
 
 impl UITextures {

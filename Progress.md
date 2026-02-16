@@ -15,6 +15,7 @@ This is where I track progress through time worked and other metrics
 - 1/5/25 = 3801
 
 **Notes:**
+***Additions***
 + Cashed rendering system
 + World customazation menu and other UI elements
 + Drones with lua controls
@@ -35,6 +36,7 @@ This is where I track progress through time worked and other metrics
 - 1/17/2026 = 8274
 
 **Notes:**
+***Additions***
 + Finished part 1 of devblog
 + Drone tools, crafting, and inventorys
 
@@ -46,7 +48,11 @@ This is where I track progress through time worked and other metrics
 1/23/26 = 1
 
 **Notes:**
-Low due to vacation in Chile
+***Life Circumstances***
+Low due to Chile vacation
+
+***Additions***
++ Progress Tracker
 
 ---------------------------------------------------------------
 ## Week 4
@@ -60,6 +66,10 @@ Low due to vacation in Chile
 - 1/31/26 = 9071
 
 **Notes:**
+***Life Circumstances***
+Low due to Chile vacation
+
+***Additions***
 + Tik speed controls
 + Buttons for rebuilding lua scripts and resetting the world for testing
 
@@ -79,6 +89,10 @@ Low due to vacation in Chile
 - 2/4/26 = 10223
 
 **Notes:**
+***Life Circumstances***
+Low due New Girl
+
+***Additions***
 + Drone tree chopping script
 + Finished Part 2 Of devblog
 + Added level menu system
@@ -89,23 +103,42 @@ Low due to vacation in Chile
 ---------------------------------------------------------------
 ## Week template
 
-**Hours: 5.5**
+**Hours: 7.0**
 - 2/9/26 = 3.5
 - 2/10/26 = 2
 - 2/11/26 = 2
-
+- 2/12/26 = 1.5
 
 **Lines**
 - 2/10/26 = 10585
 
 **Notes:**
+***Life Circumstances***
+Low due to Dog Sitting and new girl
+
+***Additions***
 + Lower due to pet sitting at moms house
 + Added block update system for leaf decay and grass spreading
 + Completed quarry scripts
 
+---------------------------------------------------------------
+## Week 
+
+**Hours:**
+- 2/15/26 = 1.5
+
+**Lines**
+- 2/15/26 = 10962
+
+**Notes:**
+
+***Additions***
++ Started on Player View Camera
+    + Basic World Rendering
+
 
 ---------------------------------------------------------------
-## Week template
+## Week NUM
 
 **Hours:**
 
