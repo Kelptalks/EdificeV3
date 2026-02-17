@@ -85,6 +85,10 @@ impl ScreenManager {
         if self.screen_data.should_quit() {
             window::order_quit();
         }
+
+        // Update screen cords
+        let camera_data = &self.get_camera_data().clone();
+        self.screen_data.re_calculate_mouse_cords(camera_data);
         
         match self.screen_data.get_current_menu() {
             CurrentMenu::MainMenu => {
@@ -116,22 +120,17 @@ impl ScreenManager {
     // handle mouse movment
     pub fn mouse_motion_event(&mut self, x_cor: f32, y_cor: f32) {
         self.screen_data.set_mouse_pixel_cords([x_cor as i32, y_cor as i32]);
+        
         // If current menu is camera
 
         match self.screen_data.get_current_menu() {
             CurrentMenu::MainMenu => {
-                let camera_data = &self.get_camera_data().clone();
-                self.screen_data.re_calculate_mouse_cords(camera_data);
                 self.main_menu.handle_mouse_motion_input(&self.screen_data);
             },
             CurrentMenu::WorldCreationMenu => {
-                let camera_data = &self.get_camera_data().clone();
-                self.screen_data.re_calculate_mouse_cords(camera_data);
                 self.world_creation_menu.handle_mouse_motion_input(&self.screen_data);
             },
             CurrentMenu::LevelSelectMenu => {
-                let camera_data = &self.get_camera_data().clone();
-                self.screen_data.re_calculate_mouse_cords(camera_data);
                 self.level_select_menu.handle_mouse_motion_input(&self.screen_data);
             },
             CurrentMenu::Camera => {
@@ -139,7 +138,7 @@ impl ScreenManager {
                 self.camera_ui_manager.handle_motion_event(&self.screen_data);
             },
             CurrentMenu::PlayView => {
-
+                self.play_view.mouse_motion_event(&self.screen_data);
             },
         }
 
@@ -154,7 +153,10 @@ impl ScreenManager {
     ) {
         let camera_data = &self.get_camera_data().clone();
         self.screen_data.re_calculate_mouse_cords(camera_data);
-
+();
+        if button == MouseButton::Middle {
+            self.screen_data.set_middle_mouse_held(true);
+        }
 
         match self.screen_data.get_current_menu() {
             CurrentMenu::MainMenu => {
@@ -171,21 +173,37 @@ impl ScreenManager {
                 self.camera_ui_manager.handle_mouse_button_down(button, &self.screen_data, tik_manager, world_task_manager);
             },
             CurrentMenu::PlayView => {
-                
+                self.play_view.mouse_button_down_event(event_manager, &self.screen_data, button);
             }
         }
     }
 
     // Handle mouse button release
-    pub fn mouse_button_up_event(&mut self, button: MouseButton) {
+    pub fn mouse_button_up_event(
+        &mut self, 
+        event_manager: &mut GameEventManager,
+        button: MouseButton,
+    ) {
         let camera_data = &self.get_camera_data().clone();
         self.screen_data.re_calculate_mouse_cords(camera_data);
-        if self.screen_data.get_current_menu() == CurrentMenu::MainMenu {
-            
+        
+        // Screen Data updating
+        if button == MouseButton::Middle {
+            self.screen_data.set_middle_mouse_held(false);
         }
-        else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
-            camera_controls::mouse_button_up_event(self, button);
-            self.camera_ui_manager.handle_mouse_button_up(button, &self.screen_data);
+
+        // Execution
+        match self.screen_data.get_current_menu() {
+            CurrentMenu::MainMenu => {},
+            CurrentMenu::WorldCreationMenu => {},
+            CurrentMenu::LevelSelectMenu => {},
+            CurrentMenu::Camera => {
+                camera_controls::mouse_button_up_event(self, button);
+                self.camera_ui_manager.handle_mouse_button_up(button, &self.screen_data);
+            },
+            CurrentMenu::PlayView => {
+                self.play_view.mouse_button_up_event(event_manager, &self.screen_data, button);
+            },
         }
     }
 

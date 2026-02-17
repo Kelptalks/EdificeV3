@@ -29,8 +29,13 @@ pub struct ScreenData {
     mouse_renderer_ndc_cords: [f32; 2],
     mouse_iso_world_cords: [i32; 2],
 
+    // Last mouse cords 
+    last_mouse_ndc_cords: [f32; 2],
+
     // Button held states
     middle_mouse_held: bool,
+    starting_mouse_ndc_on_middle_down: [f32; 2],
+    ending_mouse_ndc_on_middle_down: [f32; 2],
 
     // Quit
     quit_game : bool,
@@ -56,7 +61,13 @@ impl ScreenData {
             mouse_renderer_ndc_cords: [0.0, 0.0],
             mouse_iso_world_cords: [0, 0],
 
+            // Last mouse cords 
+            last_mouse_ndc_cords: [0.0, 0.0],
+
+            // Middle Mouse Dragging
             middle_mouse_held: false,
+            starting_mouse_ndc_on_middle_down: [0.0, 0.0],
+            ending_mouse_ndc_on_middle_down: [0.0, 0.0],
 
             // Quit
             quit_game: false,
@@ -83,7 +94,7 @@ impl ScreenData {
     }
 
     //=====================================
-    // Screen 
+    // Rendering
     //=====================================
 
     pub fn set_screen_rez(&mut self, screen_rez: [f32; 2], ctx : &mut GlContext) {
@@ -158,7 +169,7 @@ impl ScreenData {
     }
 
     //=====================================
-    // Mouse / Control handling
+    // Mouse Cords
     //=====================================
 
     pub fn re_calculate_mouse_cords(&mut self, camera_data: &CameraData) {
@@ -193,6 +204,9 @@ impl ScreenData {
         ];
         let iso_world_cords = iso_cord_tool::ndi_screen_cords_to_iso_cords(camera_data.get_tile_ndc_scale(), offset_mouse_ndc_cords);
 
+        // Set last values
+        self.last_mouse_ndc_cords = self.mouse_ndc_cords;
+
         // Set all values
         self.mouse_pixel_cords = [x_cor as i32, y_cor as i32];
         self.mouse_ndc_cords = mouse_ndc_cords;
@@ -214,20 +228,44 @@ impl ScreenData {
         return self.mouse_iso_world_cords;
     }
 
-    pub fn is_middle_mouse_held(&self) -> bool {
-        return self.middle_mouse_held;
-    }
-
-    pub fn set_middle_mouse_held(&mut self, held: bool) {
-        self.middle_mouse_held = held;
-    }
-
     pub fn get_renderer_mouse_ndc_cords(&self) -> [f32; 2] {
         return self.mouse_renderer_ndc_cords;
     }
 
     pub fn get_mouse_ndc(&self) -> [f32; 2] {
         return self.mouse_ndc_cords;
+    }
+
+    //=====================================
+    // Mouse Dragging
+    //=====================================
+
+    pub fn is_middle_mouse_held(&self) -> bool {
+        return self.middle_mouse_held;
+    }
+
+    pub fn set_middle_mouse_held(&mut self, held: bool) {
+        self.middle_mouse_held = held;
+        if held {
+            self.starting_mouse_ndc_on_middle_down = self.get_mouse_ndc();
+        }
+        else {
+            self.ending_mouse_ndc_on_middle_down = self.get_mouse_ndc();
+        }
+    }
+
+    pub fn get_total_middle_drag_ndc_from_start(&self) -> [f32; 2] {
+        return [
+            self.starting_mouse_ndc_on_middle_down[0] + self.mouse_ndc_cords[0],
+            self.starting_mouse_ndc_on_middle_down[1] + self.mouse_ndc_cords[0],
+        ];
+    }
+
+    pub fn get_change_in_mouse_ndc(&self) -> [f32; 2] {
+        return [
+            self.last_mouse_ndc_cords[0] - self.mouse_ndc_cords[0],
+            self.last_mouse_ndc_cords[1] - self.mouse_ndc_cords[1],
+        ]
     }
 
     //=====================================

@@ -104,7 +104,7 @@ impl GameData {
     pub fn handle_mouse_button_up(&mut self, button: MouseButton) {
         // New
         let screen = &mut self.screen_manager;
-        screen.mouse_button_up_event(button);
+        screen.mouse_button_up_event(&mut self.event_manager, button);
     }
 
     //=====================================

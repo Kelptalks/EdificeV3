@@ -81,6 +81,10 @@ pub enum BlockType {
     conveyor3 = 72,
     conveyor4 = 73,
     conveyor5 = 74,
+    selector = 75,
+    translucent_green = 76,
+    translucent_red = 77,
+
 }
 
 #[derive(Copy, Clone)]
@@ -95,7 +99,7 @@ pub struct BlockProperties {
     pub item_quantity: u32,
 }
 
-static BLOCK_PROPERTIES: [BlockProperties; 75] = [
+static BLOCK_PROPERTIES: [BlockProperties; 78] = [
     BlockProperties { transparent: true,  translucent: true,  solid: false, hardness: 0,   friction: 1,   item: DroneItem::Ash,          item_quantity: 1},      // Air
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 5,   item: DroneItem::Stone,        item_quantity: 1},    // Stone
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 30,  item: DroneItem::PlantMatter,  item_quantity: 2},     // Grass
@@ -171,6 +175,9 @@ static BLOCK_PROPERTIES: [BlockProperties; 75] = [
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 30,  item: DroneItem::IronIngot,   item_quantity: 1 },     // conveyor3
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 30,  item: DroneItem::IronIngot,   item_quantity: 1 },     // conveyor4
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 150, friction: 30,  item: DroneItem::IronIngot,   item_quantity: 1 },     // conveyor5
+    BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Selector
+    BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Translucent Green
+    BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Translucent Red
 ];
 
 impl BlockType {
@@ -220,7 +227,7 @@ impl BlockType {
     }
 
     pub fn get_total_blocks() -> u32 {
-        75
+        return BLOCK_PROPERTIES.len() as u32;
     }
 
     pub fn from_id(id: u16) -> BlockType {

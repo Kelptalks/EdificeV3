@@ -126,9 +126,11 @@ Low due to Dog Sitting and new girl
 
 **Hours:**
 - 2/15/26 = 1.5
+- 2/16/26 = 2
 
 **Lines**
-- 2/15/26 = 10962
+- 2/15/26 = 10962 
+- 2/16/26 = 11146
 
 **Notes:**
 
