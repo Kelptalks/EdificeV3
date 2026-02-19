@@ -85,6 +85,9 @@ pub enum BlockType {
     translucent_green = 76,
     translucent_red = 77,
 
+    SelectorBarLeft = 78,
+    SelectorBarRight = 79,
+
 }
 
 #[derive(Copy, Clone)]
@@ -99,7 +102,7 @@ pub struct BlockProperties {
     pub item_quantity: u32,
 }
 
-static BLOCK_PROPERTIES: [BlockProperties; 78] = [
+static BLOCK_PROPERTIES: [BlockProperties; 80] = [
     BlockProperties { transparent: true,  translucent: true,  solid: false, hardness: 0,   friction: 1,   item: DroneItem::Ash,          item_quantity: 1},      // Air
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 5,   item: DroneItem::Stone,        item_quantity: 1},    // Stone
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 30,  item: DroneItem::PlantMatter,  item_quantity: 2},     // Grass
@@ -178,6 +181,8 @@ static BLOCK_PROPERTIES: [BlockProperties; 78] = [
     BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Selector
     BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Translucent Green
     BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Translucent Red
+    BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Selector Bar Left
+    BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Selector Bar Right
 ];
 
 impl BlockType {
