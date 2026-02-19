@@ -88,6 +88,12 @@ pub enum BlockType {
     SelectorBarLeft = 78,
     SelectorBarRight = 79,
 
+    SelectorBarLeftRed = 80,
+    SelectorBarRightRed = 81,
+
+    SelectorVertical = 82,
+    SelectorVerticalRed = 83,
+
 }
 
 #[derive(Copy, Clone)]
@@ -102,7 +108,7 @@ pub struct BlockProperties {
     pub item_quantity: u32,
 }
 
-static BLOCK_PROPERTIES: [BlockProperties; 80] = [
+static BLOCK_PROPERTIES: [BlockProperties; 84] = [
     BlockProperties { transparent: true,  translucent: true,  solid: false, hardness: 0,   friction: 1,   item: DroneItem::Ash,          item_quantity: 1},      // Air
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 5,   item: DroneItem::Stone,        item_quantity: 1},    // Stone
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 30,  item: DroneItem::PlantMatter,  item_quantity: 2},     // Grass
@@ -183,6 +189,10 @@ static BLOCK_PROPERTIES: [BlockProperties; 80] = [
     BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Translucent Red
     BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Selector Bar Left
     BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Selector Bar Right
+    BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Selector Bar Left Red
+    BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Selector Bar Right Red
+    BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Selector Vertical
+    BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Selector Vertical Red
 ];
 
 impl BlockType {
@@ -236,7 +246,7 @@ impl BlockType {
     }
 
     pub fn from_id(id: u16) -> BlockType {
-        if id < BlockType::conveyor5 as u16 {
+        if id <= BlockType::SelectorVerticalRed as u16 {
             unsafe { std::mem::transmute(id) }
         } else {
             BlockType::Air

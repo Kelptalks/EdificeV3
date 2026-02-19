@@ -14,6 +14,8 @@ any other low level block interactions
 pub struct PlayView {
     play_world_renderer: PlayWorldRender,
     gui_manager: BuildingGUIManager,
+
+    
 }
 
 impl PlayView {
@@ -21,6 +23,9 @@ impl PlayView {
         PlayView {
             play_world_renderer: PlayWorldRender::new(),
             gui_manager: BuildingGUIManager::new(),
+
+
+
         }
     }
 
@@ -33,9 +38,17 @@ impl PlayView {
     pub fn window_resize_update(&mut self, screen_data: &ScreenData) {
         // Resize GUI
         self.gui_manager.window_resize_update(screen_data);
-        
-        // Offset the world rendering based off GUI Size
-        self.play_world_renderer.set_x_offset(self.gui_manager.get_ending_ndc()[0] / 2.0);
+
+        let gui_width_ocupied = self.gui_manager.get_gui_pos()[2];
+        let screen_width_remaining = 1.0 - gui_width_ocupied;
+
+        let center_of_remaining_space = [
+            gui_width_ocupied + (screen_width_remaining / 2.0),
+            0.0,
+        ];
+
+        self.play_world_renderer.set_ndc_center_cords(center_of_remaining_space);
+
     }
 
     pub fn render_view(

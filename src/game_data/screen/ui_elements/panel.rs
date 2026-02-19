@@ -3,11 +3,12 @@ use crate::game_data::{TextureManager, types::UITextures};
 pub struct Panel {
     // Panel Rendering Data
     panel_ndc_scale: [f32; 2],
-    panel_ndc_cords: [f32; 2],
+    panel_ndc: [f32; 2],
+    panel_ndc_center: [f32; 2],
 
 
     // Tile rendering data
-    tile_texture_ndc_scale: f32,
+    tile_ndc_scale: f32,
     tile_dimensions: [u32; 2],
 }
 
@@ -22,10 +23,11 @@ impl Panel {
         Panel {
             // Panel Rendering data
             panel_ndc_scale: [0.0, 0.0], 
-            panel_ndc_cords: [0.0, 0.0],
+            panel_ndc: [0.0, 0.0],
+            panel_ndc_center: [0.0, 0.0],
 
             // Tile rendering data
-            tile_texture_ndc_scale: 0.0,
+            tile_ndc_scale: 0.0,
             tile_dimensions: [0, 0]
         }
     }
@@ -34,28 +36,44 @@ impl Panel {
     // Getters and setters
     //=====================================
 
-    pub fn set_tile_scale(&mut self, scale: f32) {
-        self.tile_texture_ndc_scale = scale;
+    pub fn get_tile_ndc_scale(&self) -> f32 {
+        return self.tile_ndc_scale;
+    }
+    pub fn set_tile_ndc_scale(&mut self, scale: f32) {
+        self.tile_ndc_scale = scale;
 
         self.tile_dimensions = [
             (self.panel_ndc_scale[0] / scale) as u32,
             (self.panel_ndc_scale[1] / scale) as u32,
         ];
+
+        self.panel_ndc_center = [
+            self.panel_ndc[0] + (self.panel_ndc_scale[0] / 2.0),
+            self.panel_ndc[1] + (self.panel_ndc_scale[1] / 2.0),
+        ];
     }
 
     pub fn set_ndc(&mut self, ndc: [f32; 2]) {
-        self.panel_ndc_cords = ndc;
+        self.panel_ndc = ndc;
     }
 
-    pub fn set_scale(&mut self, scale: [f32; 2]) {
+    pub fn set_ndc_scale(&mut self, scale: [f32; 2]) {
         self.panel_ndc_scale = scale;
+    }
+
+    pub fn get_ndc(&self) -> [f32; 2] {
+        return self.panel_ndc;
     }
 
     pub fn get_ending_ndc(&self) -> [f32; 2] {
         return [
-            self.panel_ndc_cords[0] + self.panel_ndc_scale[0],
-            self.panel_ndc_cords[1] + self.panel_ndc_scale[1],
+            self.panel_ndc[0] + self.panel_ndc_scale[0],
+            self.panel_ndc[1] + self.panel_ndc_scale[1],
         ];
+    }
+
+    pub fn get_panel_ndc_center(&self) -> [f32; 2] {
+        self.panel_ndc_center
     }
 
     //=====================================
@@ -90,14 +108,14 @@ impl Panel {
         for x in 0..=self.tile_dimensions[0] {
             for y in 0..=self.tile_dimensions[1] as usize {
                 let ndc_cords = [
-                    self.panel_ndc_cords[0] + (x as f32 * self.tile_texture_ndc_scale),
-                    self.panel_ndc_cords[1] + (y as f32 * self.tile_texture_ndc_scale),
+                    self.panel_ndc[0] + (x as f32 * self.tile_ndc_scale),
+                    self.panel_ndc[1] + (y as f32 * self.tile_ndc_scale),
                 ];
 
                 let texture = self.tile_cords_to_texture([x as i32, y as i32]);
 
 
-                texture_manager.render_ui_element(texture, ndc_cords, self.tile_texture_ndc_scale);
+                texture_manager.render_ui_element(texture, ndc_cords, self.tile_ndc_scale);
             
             }
         }

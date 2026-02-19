@@ -54,13 +54,14 @@ static MAX_VIEW_DISTANCE: i32 = 20;
 static MIN_VIEW_DISTANCE: i32 = 1;
 
 pub struct PlayWorldRender {
+    ndc_cords: [f32; 2],
+    
     // World
     zoom: i32,
     camera_cords: [i32; 3],
     camera_ndc_offset: [f32; 2],
     view_direction: ViewDirection,
     render_scale: f32,
-    x_drawing_offset: f32,
 
     // Cached scale values
     ndc_block_scale: f32,
@@ -71,7 +72,8 @@ pub struct PlayWorldRender {
 impl PlayWorldRender {
     pub fn new() -> PlayWorldRender {
         PlayWorldRender {
-
+            // Ndc Cords
+            ndc_cords: [0.0, 0.0],
 
 
             // Rendering
@@ -80,9 +82,7 @@ impl PlayWorldRender {
             camera_ndc_offset: [0.0, 0.0],
             view_direction: ViewDirection::North,
 
-            render_scale: 0.4,
-
-            x_drawing_offset: 0.1,
+            render_scale: 0.5,
 
             ndc_block_scale: 0.0,
             ndc_tile_scale: 0.0,
@@ -134,8 +134,8 @@ impl PlayWorldRender {
         }
     }
 
-    pub fn set_x_offset(&mut self, offset: f32) {
-        self.x_drawing_offset = offset;
+    pub fn set_ndc_center_cords(&mut self, offset: [f32; 2]) {
+        self.ndc_cords = offset;
     }
 
     //=====================================
@@ -154,7 +154,7 @@ impl PlayWorldRender {
 
         let world = world.read().unwrap();
 
-        let ndc_x_draw_center_offset = self.ndc_block_scale + self.x_drawing_offset;
+        let ndc_x_draw_center_offset = self.ndc_block_scale - self.ndc_cords[0];
 
         let direction_offsets = self.view_direction.offsets();
 
@@ -189,6 +189,34 @@ impl PlayWorldRender {
                         }
                         texture_manager.render_block(BlockType::selector, draw_cords, self.ndc_block_scale);
                     }
+                    // Render Selector bars
+                    else if !block_type_at_cord.is_solid(){
+                        
+                        if block_type_at_cord == BlockType::Air {
+                            if z == 0 {
+                                if x == 0 {
+                                    texture_manager.render_block(BlockType::SelectorBarRight, draw_cords, self.ndc_block_scale);
+                                }
+                                else if y == 0 {
+                                    texture_manager.render_block(BlockType::SelectorBarLeft, draw_cords, self.ndc_block_scale);
+                                }
+                            }
+                            else if x == 0 && y == 0 {
+                                texture_manager.render_block(BlockType::SelectorVertical, draw_cords, self.ndc_block_scale);
+                            }
+                        }
+                        else if z == 0 {
+                            if x == 0 {
+                                texture_manager.render_block(BlockType::SelectorBarRightRed, draw_cords, self.ndc_block_scale);
+                            }
+                            else if y == 0 {
+                                texture_manager.render_block(BlockType::SelectorBarLeftRed, draw_cords, self.ndc_block_scale);
+                            }
+                        }
+                        else if x == 0 && y == 0 {
+                            texture_manager.render_block(BlockType::SelectorVerticalRed, draw_cords, self.ndc_block_scale);
+                        }
+                    }
                 }
             }
         }
@@ -209,7 +237,7 @@ impl PlayWorldRender {
         // Correct for camera_ndc_offset
 
         // Get iso offset amounts
-        let iso_offset = iso_cord_tool::ndi_screen_cords_to_iso_cords(self.ndc_block_scale, self.camera_ndc_offset);
+        let iso_offset = iso_cord_tool::ndi_screen_cords_to_iso_cords(self.ndc_tile_scale, self.camera_ndc_offset);
 
         // Iso X camera movment
         if iso_offset[0] > 1.0 {
@@ -250,13 +278,13 @@ impl PlayWorldRender {
         match keycode {
             // Rotate camera
             KeyCode::Q => {
-                self.mod_cords([0, 0, -1]);
+                self.rotate_left();
             }
             KeyCode::E => {
-                self.mod_cords([0, 0, 1]);
+                self.rotate_right();
             }
             
-            // Vertical Camera Movement
+            // X Axis
             KeyCode::S => {
                 self.mod_cords([1, 0, 0]);
             }
@@ -264,7 +292,7 @@ impl PlayWorldRender {
                 self.mod_cords([-1, 0, 0])
             }
 
-            // Horozontal Camera Movemnent
+            // Y Axis
             KeyCode::A => {
                 self.mod_cords([0, 1, 0]);
             }
@@ -272,8 +300,12 @@ impl PlayWorldRender {
                 self.mod_cords([0, -1, 0])
             }
 
-            KeyCode::R => {
-                self.rotate_right();
+            // Z Axis
+            KeyCode::LeftShift => {
+                self.mod_cords([0, 0, -1]);
+            }
+            KeyCode::Space => {
+                self.mod_cords([0, 0, 1]);
             }
             _ => {
                 
