@@ -1,7 +1,7 @@
 use miniquad::MouseButton;
 use rand::rand_core::block;
 
-use crate::game_data::{TextureManager, game_event_manager::game_event_manager::GameEventManager, screen::{Button, ScreenData, render_centered_string_at_ndc, ui_elements::{block_selection::BlockSelection, panel::Panel}}, types::{FontType, UITextures}};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::GameEventManager, world_event_manager::world_event_manager::WorldEvent}, screen::{Button, ScreenData, play_view::play_view_data::{self, PlayViewData}, render_centered_string_at_ndc, ui_elements::{block_selection::BlockSelection, panel::Panel}}, types::{BlockTexture, FontType, UITextures}};
 
 pub struct BuildingGUIManager {
     panel: Panel,
@@ -9,6 +9,7 @@ pub struct BuildingGUIManager {
     gui_scale: [f32; 2],
     ndc_pos: [f32; 4],
 
+    // Block selection
     button_block_select: Button,
     block_selection: BlockSelection,
     block_selection_visible: bool,
@@ -55,21 +56,14 @@ impl BuildingGUIManager {
         
 
         // Panel
-        let panel_x_scale = (screen_end_ndc[0] - screen_start_ndc[1]) / 3.0;
-        let panel_y_scale = (screen_end_ndc[1] - screen_start_ndc[1]) * 0.9;
-
-        let panel_x_ndc_cor = screen_start_ndc[0] + (self.panal_padding_ndc_scale);
-        let panel_y_ndc_cor = screen_start_ndc[1] + (self.panal_padding_ndc_scale);
-
-        self.panel.set_ndc([panel_x_ndc_cor, panel_y_ndc_cor]);
-        self.panel.set_ndc_scale([panel_x_scale, panel_y_scale]);
-        self.panel.set_tile_ndc_scale(0.025);
-        
+        self.panel.scale_to_fill_screen_left(screen_data, 0.025, 0.2);
+        self.panel.set_title("Building".to_string());
+        let panel_center = self.panel.get_panel_ndc_center();
+        let panel_start_cords = self.panel.get_ndc();
+        let panel_ndc_scale = self.panel.get_ndc_scale();
 
         // Buttons
         let button_scale = self.panel.get_tile_ndc_scale() * 3.0;
-        let panel_center = self.panel.get_panel_ndc_center();
-        let panel_start_cords = self.panel.get_ndc();
         
 
         // Block Selection Button
@@ -87,13 +81,15 @@ impl BuildingGUIManager {
             block_selection_ndc[1],
         ];
 
-        self.block_selection.set_ndc(block_selection_ndc);
-        self.block_selection.set_scale([0.5, 0.5]);
+        let block_selection_scale = [panel_ndc_scale[0], panel_ndc_scale[1]];
+
+        self.block_selection.set_scale(block_selection_scale);
+        self.block_selection.set_ndc(panel_start_cords);
 
         // Set GUI values
         self.gui_scale = [
-            (self.panal_padding_ndc_scale * 2.0) + panel_x_scale,
-            (self.panal_padding_ndc_scale * 2.0) + panel_y_scale,
+            (self.panal_padding_ndc_scale * 2.0) + panel_ndc_scale[0],
+            (self.panal_padding_ndc_scale * 2.0) + panel_ndc_scale[1],
         ];
 
         self.ndc_pos = [
@@ -105,24 +101,12 @@ impl BuildingGUIManager {
         
     }
 
-    pub fn render_view(&mut self, 
+    pub fn render(&mut self, 
         screen_data: &ScreenData, 
         texture_manager: &mut TextureManager,
     ) {
         // Render background
         self.panel.render(texture_manager);
-        
-        // Render header text
-        let text_scale = self.panel.get_tile_ndc_scale();
-        let panel_center = self.panel.get_panel_ndc_center();
-        let panel_start_cords = self.panel.get_ndc();
-        render_centered_string_at_ndc(
-            texture_manager, 
-            "Build Menu".to_string(), 
-            FontType::Basic, 
-            text_scale, 
-            [panel_center[0], panel_start_cords[1] + text_scale]
-        );
 
         // Render buttons
         self.button_block_select.render_button(texture_manager, screen_data);
@@ -137,15 +121,32 @@ impl BuildingGUIManager {
     // Controls
     //=====================================
 
-    pub fn mouse_button_down_event(&mut self, event_manager: &mut GameEventManager, screen_data: &ScreenData, button: MouseButton) {
-        if MouseButton::Left == button {
-            if self.button_block_select.is_mouse_on_button() {
-                self.block_selection_visible = !self.block_selection_visible; 
-            }
-            if self.block_selection_visible {
-                self.button_block_select.set_block(self.block_selection.get_block_of_mouse());
+    pub fn mouse_button_down_event(&mut self, event_manager: &mut GameEventManager, play_view_data: &mut PlayViewData, screen_data: &ScreenData, button: MouseButton) {
+        
+        // If on GUI
+        if screen_data.mouse_on_ndc_pos(self.ndc_pos) {
+            print!("test");
+            if MouseButton::Left == button {
+                if self.button_block_select.is_mouse_on_button() {
+                    self.block_selection_visible = !self.block_selection_visible; 
+                }
+                else if self.block_selection_visible {
+                    self.block_selection_visible = false;
+                    play_view_data.set_block_selected(self.block_selection.get_block_of_mouse());
+                    self.button_block_select.set_block(self.block_selection.get_block_of_mouse());
+                }
             }
         }
+        // If on Render
+        else {
+            if button == MouseButton::Left {
+            event_manager.add_world_event(WorldEvent::ModBlock(play_view_data.get_world_cords(), BlockTexture::Air));
+            }
+            else if button == MouseButton::Right {
+                event_manager.add_world_event(WorldEvent::ModBlock(play_view_data.get_world_cords(), play_view_data.get_block_selected()));
+            }
+        }
+
     }
 
 }

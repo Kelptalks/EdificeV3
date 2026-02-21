@@ -13,6 +13,7 @@ pub struct BlockSelection {
     block_ndc_gap: f32,
     block_ndc_spacing: f32,
 
+
     mouse_on_block: u16,
 }
 
@@ -31,7 +32,10 @@ impl BlockSelection {
             block_ndc_scale: 0.0,
             block_ndc_gap: 0.0,
             block_ndc_spacing: 0.0,
+
+            // Controls
             mouse_on_block: 0,
+
         }
     }
 

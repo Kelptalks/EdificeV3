@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, types::UITextures};
+use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndc, screen_data}, types::{FontType, UITextures}};
 
 pub struct Panel {
     // Panel Rendering Data
@@ -10,6 +10,9 @@ pub struct Panel {
     // Tile rendering data
     tile_ndc_scale: f32,
     tile_dimensions: [u32; 2],
+
+    // 
+    title: String,
 }
 
 
@@ -28,7 +31,10 @@ impl Panel {
 
             // Tile rendering data
             tile_ndc_scale: 0.0,
-            tile_dimensions: [0, 0]
+            tile_dimensions: [0, 0],
+
+            // 
+            title: "".to_string(),
         }
     }
 
@@ -60,6 +66,9 @@ impl Panel {
     pub fn set_ndc_scale(&mut self, scale: [f32; 2]) {
         self.panel_ndc_scale = scale;
     }
+    pub fn get_ndc_scale(&self) -> [f32; 2] {
+        return self.panel_ndc_scale;
+    }
 
     pub fn get_ndc(&self) -> [f32; 2] {
         return self.panel_ndc;
@@ -74,6 +83,33 @@ impl Panel {
 
     pub fn get_panel_ndc_center(&self) -> [f32; 2] {
         self.panel_ndc_center
+    }
+
+    pub fn set_title(&mut self, title: String) {
+        self.title = title;
+    }
+
+    //=====================================
+    // Sizing
+    //=====================================
+
+    pub fn scale_to_fill_screen_left(&mut self, screen_data: &ScreenData, padding: f32, scale: f32) {
+        let screen_end_ndc = screen_data.get_viewport_ending_ndc();
+        let screen_start_ndc = screen_data.get_viewport_starting_ndc();
+
+        // Free Buttons
+        
+
+        // Panel
+        let panel_x_scale = (screen_end_ndc[0] - screen_start_ndc[1]) * scale;
+        let panel_y_scale = (screen_end_ndc[1] - screen_start_ndc[1]) * 0.9;
+
+        let panel_x_ndc_cor = screen_start_ndc[0] + (padding);
+        let panel_y_ndc_cor = screen_start_ndc[1] + (padding);
+
+        self.set_ndc([panel_x_ndc_cor, panel_y_ndc_cor]);
+        self.set_ndc_scale([panel_x_scale, panel_y_scale]);
+        self.set_tile_ndc_scale(0.025);
     }
 
     //=====================================
@@ -120,6 +156,16 @@ impl Panel {
             }
         }
 
+        let text_scale = self.get_tile_ndc_scale();
+        let panel_center = self.get_panel_ndc_center();
+        let panel_start_cords = self.get_ndc();
+        render_centered_string_at_ndc(
+            texture_manager, 
+            self.title.clone(), 
+            FontType::Basic, 
+            text_scale, 
+            [panel_center[0], panel_start_cords[1] + text_scale]
+        );
 
     }
     

@@ -120,9 +120,7 @@ impl ScreenManager {
     // handle mouse movment
     pub fn mouse_motion_event(&mut self, x_cor: f32, y_cor: f32) {
         self.screen_data.set_mouse_pixel_cords([x_cor as i32, y_cor as i32]);
-        
-        // If current menu is camera
-
+    
         match self.screen_data.get_current_menu() {
             CurrentMenu::MainMenu => {
                 self.main_menu.handle_mouse_motion_input(&self.screen_data);

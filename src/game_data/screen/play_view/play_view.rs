@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use miniquad::{KeyCode, MouseButton};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, screen::{ScreenData, play_view::{building_gui::building_gui_manager::BuildingGUIManager, world_rendering::play_world_renderer::PlayWorldRender}, screen_data}, texture_manager, types::UITextures, world};
+use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, screen::{ScreenData, play_view::{gui::{building_gui_manager::BuildingGUIManager, drone_gui_manager::DroneGUIManager}, play_view_data::PlayViewData, world_rendering::play_world_renderer::PlayWorldRender}, screen_data}, texture_manager, types::UITextures, world};
 /*
 ##############
 ## PlayView ##
@@ -12,20 +12,24 @@ any other low level block interactions
 
 */
 pub struct PlayView {
+    play_view_data: PlayViewData,
     play_world_renderer: PlayWorldRender,
-    building_gui_manager: BuildingGUIManager,
 
-    
+
+    building_gui_manager: BuildingGUIManager,
+    drone_gui_manager: DroneGUIManager,
 }
 
 impl PlayView {
     pub fn new() -> PlayView {
         PlayView {
+            play_view_data: PlayViewData::new(),
+            
             play_world_renderer: PlayWorldRender::new(),
+            
+            
             building_gui_manager: BuildingGUIManager::new(),
-
-
-
+            drone_gui_manager: DroneGUIManager::new(),
         }
     }
 
@@ -38,6 +42,7 @@ impl PlayView {
     pub fn window_resize_update(&mut self, screen_data: &ScreenData) {
         // Resize GUI
         self.building_gui_manager.window_resize_update(screen_data);
+        self.drone_gui_manager.window_resize_update(screen_data);
 
         let gui_width_ocupied = self.building_gui_manager.get_gui_pos()[2];
         let screen_width_remaining = 1.0 - gui_width_ocupied;
@@ -61,9 +66,15 @@ impl PlayView {
         texture_manager.render_ui_element_with_pos(UITextures::VoidBackground, screen_data.get_viewport_uv());
         
         
-        self.play_world_renderer.render_view(screen_data, texture_manager, world);    
-        self.building_gui_manager.render_view(screen_data, texture_manager);
-
+        self.play_world_renderer.render_view(screen_data, &mut self.play_view_data, texture_manager, world);    
+        match self.play_view_data.get_play_mode() {
+            super::play_view_data::PlayMode::Build => {
+                self.building_gui_manager.render(screen_data, texture_manager);
+            },
+            super::play_view_data::PlayMode::DroneSpectate => {
+                self.drone_gui_manager.render(screen_data, texture_manager);
+            },
+        }
     }
 
 
@@ -72,11 +83,14 @@ impl PlayView {
     //=====================================
 
     pub fn key_down_event(&mut self, event_manager: &mut GameEventManager, keycode: KeyCode) {
-        self.play_world_renderer.key_down_event(keycode);
+        self.play_world_renderer.key_down_event(&mut self.play_view_data, keycode);
         
         match keycode {
             KeyCode::M => {
                 event_manager.add_render_event(RenderEvent::ChangeMenu(screen_data::CurrentMenu::Camera));
+            }
+            KeyCode::Tab => {
+                self.play_view_data.toggle_play_mode();
             }
             _ => {
             }
@@ -93,8 +107,17 @@ impl PlayView {
     }
 
     pub fn mouse_button_down_event(&mut self, event_manager: &mut GameEventManager, screen_data: &ScreenData, button: MouseButton) {
-        self.play_world_renderer.mouse_button_down_event(event_manager, screen_data, button);
-        self.building_gui_manager.mouse_button_down_event(event_manager, screen_data, button);
+        self.play_world_renderer.mouse_button_down_event(event_manager, &self.play_view_data, screen_data, button);
+
+
+        match self.play_view_data.get_play_mode() {
+            super::play_view_data::PlayMode::Build => {
+                self.building_gui_manager.mouse_button_down_event(event_manager, &mut self.play_view_data, screen_data, button);       
+            },
+            super::play_view_data::PlayMode::DroneSpectate => {
+                
+            },
+        }
     }
 
     pub fn mouse_button_up_event(&mut self, event_manager: &mut GameEventManager, screen_data: &ScreenData, button: MouseButton) {
@@ -106,7 +129,7 @@ impl PlayView {
     //=====================================
 
     pub fn collect_debug_data(&self, debug_data: &mut DebugData) {
-        self.play_world_renderer.collect_debug_data(debug_data);
+        self.play_view_data.collect_debug_data(debug_data);
     }
 
 }

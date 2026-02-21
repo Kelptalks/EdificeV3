@@ -236,6 +236,14 @@ impl ScreenData {
         return self.mouse_ndc_cords;
     }
 
+    pub fn mouse_on_ndc_pos(&self, pos: [f32; 4]) -> bool {
+        return 
+            self.mouse_ndc_cords[0] >= pos[0] && 
+            self.mouse_ndc_cords[1] >= pos[1] &&
+            self.mouse_ndc_cords[0] <= pos[2] &&
+            self.mouse_ndc_cords[1] <= pos[3];
+    }
+
     //=====================================
     // Mouse Dragging
     //=====================================

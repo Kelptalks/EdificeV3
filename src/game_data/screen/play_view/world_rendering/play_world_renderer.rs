@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use image::flat::View;
 use miniquad::{KeyCode, MouseButton};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, game_event_manager::{game_event_manager::{self, GameEventManager}, world_event_manager::world_event_manager::WorldEvent}, screen::{ScreenData, camera_data::Direction, iso_cord_tool, screen_data, text}, types::BlockTexture};
+use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, game_event_manager::{game_event_manager::{self, GameEventManager}, world_event_manager::world_event_manager::WorldEvent}, screen::{ScreenData, camera_data::Direction, iso_cord_tool, play_view::play_view_data::{self, PlayViewData}, screen_data, text}, types::BlockTexture};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
@@ -58,9 +58,7 @@ pub struct PlayWorldRender {
     
     // World
     zoom: i32,
-    camera_cords: [i32; 3],
     camera_ndc_offset: [f32; 2],
-    view_direction: ViewDirection,
     render_scale: f32,
 
     // Cached scale values
@@ -75,12 +73,9 @@ impl PlayWorldRender {
             // Ndc Cords
             ndc_cords: [0.0, 0.0],
 
-
             // Rendering
             zoom: 10,
-            camera_cords: [0, 0, 0],
             camera_ndc_offset: [0.0, 0.0],
-            view_direction: ViewDirection::North,
 
             render_scale: 0.5,
 
@@ -94,43 +89,11 @@ impl PlayWorldRender {
     // Getters / Setters
     //=====================================
 
-    // Add / Subtract cords 
-    pub fn mod_cords(&mut self, cord_mods: [i32; 3]) {
-
-        let direction_offsets = self.view_direction.offsets();
-
-        for i in 0..self.camera_cords.len() {
-            self.camera_cords[i] += (cord_mods[i] * direction_offsets[i]);
-        }
-    }
-
     // Mod amount of blocks in view
     pub fn mod_zoom(&mut self, zoom_mod: i32) {
         let new_zoom = self.zoom + zoom_mod;
         if new_zoom > MIN_VIEW_DISTANCE && new_zoom < MAX_VIEW_DISTANCE {
             self.zoom = new_zoom;
-        }
-    }
-
-    // Camera Direction
-    pub fn rotate_left(&mut self) {
-        let new_direction_id = self.view_direction.id() + 1;
-        if new_direction_id < 4 {
-            self.view_direction = ViewDirection::from_id(new_direction_id);
-        }
-        else {
-            self.view_direction = ViewDirection::from_id(0);
-        }
-    }
-
-    pub fn rotate_right(&mut self) {
-        let current_direction_id = self.view_direction.id();
-
-        if current_direction_id > 0 {
-            self.view_direction = ViewDirection::from_id(current_direction_id - 1);
-        }
-        else {
-            self.view_direction = ViewDirection::from_id(3);
         }
     }
 
@@ -148,25 +111,25 @@ impl PlayWorldRender {
         self.ndc_tile_half_scale = self.ndc_tile_scale / 2.0;
     }
 
-    pub fn render_view(&mut self, screen_data: &ScreenData, texture_manager: &mut TextureManager, world: &Arc<RwLock<World>>) {
+    pub fn render_view(&mut self, screen_data: &ScreenData, play_view_data: &mut PlayViewData, texture_manager: &mut TextureManager, world: &Arc<RwLock<World>>) {
         self.update_rendering_scales();
-        self.handle_camera_panning(screen_data);
+        self.handle_camera_panning(play_view_data, screen_data);
 
         let world = world.read().unwrap();
 
         let ndc_x_draw_center_offset = self.ndc_block_scale - self.ndc_cords[0];
 
-        let direction_offsets = self.view_direction.offsets();
+        let direction_offsets = play_view_data.get_view_direction_offsets();
 
-
+        let camera_cords = play_view_data.get_world_cords();
         // Loop through blocks in zoom
         for z in -self.zoom..=self.zoom {
             for y in -self.zoom..=self.zoom {
                 for x in -self.zoom..=self.zoom {
                     let world_block_cords = [
-                        self.camera_cords[0] + (x * direction_offsets[0]),
-                        self.camera_cords[1] + (y * direction_offsets[1]),
-                        self.camera_cords[2] + z,
+                        camera_cords[0] + (x * direction_offsets[0]),
+                        camera_cords[1] + (y * direction_offsets[1]),
+                        camera_cords[2] + z,
                     ];
 
                     // Block Type
@@ -226,7 +189,7 @@ impl PlayWorldRender {
     // Controls
     //=====================================
 
-    fn handle_camera_panning(&mut self, screen_data: &ScreenData) {
+    fn handle_camera_panning(&mut self, play_view_data: &mut PlayViewData, screen_data: &ScreenData) {
         // Update camera offset based off scrolling change
         if screen_data.is_middle_mouse_held() {
             let scrolling_offset = screen_data.get_change_in_mouse_ndc();
@@ -241,25 +204,25 @@ impl PlayWorldRender {
 
         // Iso X camera movment
         if iso_offset[0] > 1.0 {
-            self.mod_cords([-1, 0, 0]);
+            play_view_data.mod_world_cords([-1, 0, 0]);
             self.camera_ndc_offset[0] -= self.ndc_tile_scale;
             self.camera_ndc_offset[1] -= self.ndc_tile_half_scale;
         }
         if iso_offset[0] < -1.0 {
-            self.mod_cords([1, 0, 0]);
+            play_view_data.mod_world_cords([1, 0, 0]);
             self.camera_ndc_offset[0] += self.ndc_tile_scale;
             self.camera_ndc_offset[1] += self.ndc_tile_half_scale;
         }
 
         // Iso Y Cam movment
         if iso_offset[1] > 1.0 {
-            self.mod_cords([0, -1, 0]);
+            play_view_data.mod_world_cords([0, -1, 0]);
             self.camera_ndc_offset[0] += self.ndc_tile_scale;
             self.camera_ndc_offset[1] -= self.ndc_tile_half_scale;
         }
 
         if iso_offset[1] < -1.0 {
-            self.mod_cords([0, 1, 0]);
+            play_view_data.mod_world_cords([0, 1, 0]);
             self.camera_ndc_offset[0] -= self.ndc_tile_scale;
             self.camera_ndc_offset[1] += self.ndc_tile_half_scale;
         }
@@ -274,38 +237,38 @@ impl PlayWorldRender {
         }
     }
 
-    pub fn key_down_event(&mut self, keycode: KeyCode) {
+    pub fn key_down_event(&mut self, play_view_data: &mut PlayViewData, keycode: KeyCode) {
         match keycode {
             // Rotate camera
             KeyCode::Q => {
-                self.rotate_left();
+                play_view_data.rotate_left();
             }
             KeyCode::E => {
-                self.rotate_right();
+                play_view_data.rotate_right();
             }
             
             // X Axis
             KeyCode::S => {
-                self.mod_cords([1, 0, 0]);
+                play_view_data.mod_world_cords([1, 0, 0]);
             }
             KeyCode::W => {
-                self.mod_cords([-1, 0, 0])
+                play_view_data.mod_world_cords([-1, 0, 0])
             }
 
             // Y Axis
             KeyCode::A => {
-                self.mod_cords([0, 1, 0]);
+                play_view_data.mod_world_cords([0, 1, 0]);
             }
             KeyCode::D => {
-                self.mod_cords([0, -1, 0])
+                play_view_data.mod_world_cords([0, -1, 0])
             }
 
             // Z Axis
             KeyCode::LeftShift => {
-                self.mod_cords([0, 0, -1]);
+                play_view_data.mod_world_cords([0, 0, -1]);
             }
             KeyCode::Space => {
-                self.mod_cords([0, 0, 1]);
+                play_view_data.mod_world_cords([0, 0, 1]);
             }
             _ => {
                 
@@ -318,12 +281,12 @@ impl PlayWorldRender {
 
     }
 
-    pub fn mouse_button_down_event(&mut self, event_manager: &mut GameEventManager, screen_data: &ScreenData, button: MouseButton) {
+    pub fn mouse_button_down_event(&mut self, event_manager: &mut GameEventManager, play_view_data: &PlayViewData, screen_data: &ScreenData, button: MouseButton) {
         if button == MouseButton::Left {
-            event_manager.add_world_event(WorldEvent::ModBlock(self.camera_cords, BlockTexture::Air));
+            event_manager.add_world_event(WorldEvent::ModBlock(play_view_data.get_world_cords(), BlockTexture::Air));
         }
         else if button == MouseButton::Right {
-            event_manager.add_world_event(WorldEvent::ModBlock(self.camera_cords, BlockTexture::Stone));
+            event_manager.add_world_event(WorldEvent::ModBlock(play_view_data.get_world_cords(), play_view_data.get_block_selected()));
         }
     }
 
@@ -334,9 +297,5 @@ impl PlayWorldRender {
     //=====================================
     // Debug
     //=====================================
-    pub fn collect_debug_data(&self, debug_data: &mut DebugData) {
-        debug_data.set_camera_cords(self.camera_cords);
-        debug_data.set_direction(self.view_direction.to_string());
-    }
 
 }
