@@ -1,11 +1,11 @@
 use miniquad::ShaderType;
 
-use crate::game_data::{texture_manager, TextureManager, types::{BlockShaderType, BlockTriangle, BlockType, ShaderTriangle}};
+use crate::game_data::{texture_manager, TextureManager, types::{BlockShaderType, BlockTriangle, BlockTexture, ShaderTriangle}};
 
 #[derive(Clone)]
 pub struct CastedTriangle {
     // Textures for the casted triangle
-    block_types : Vec<BlockType>, 
+    block_types : Vec<BlockTexture>, 
     triangle_types : Vec<BlockTriangle>,
 
     shader_triangle : ShaderTriangle,
@@ -42,7 +42,7 @@ impl CastedTriangle {
         self.shader_type = BlockShaderType::None;
     }
 
-    pub fn add_texture(&mut self, block : BlockType, triangle : BlockTriangle) {
+    pub fn add_texture(&mut self, block : BlockTexture, triangle : BlockTriangle) {
         self.block_types.insert(0, block);
         self.triangle_types.insert(0, triangle);
     }

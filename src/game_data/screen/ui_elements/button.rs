@@ -1,6 +1,6 @@
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndc}, types::{BlockType, FontType, UITextures}};
+use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndc}, types::{BlockTexture, FontType, UITextures}};
 
 pub struct Button { 
     // Rendering
@@ -8,11 +8,11 @@ pub struct Button {
     scale: f32,
 
     // Controls
-    is_pressed: bool,
+    is_mouse_on: bool,
 
     // Apearence
     button_type: UITextures,
-    block_type: Option<BlockType>,
+    block_type: Option<BlockTexture>,
     text: Option<String>,
 
 }
@@ -32,7 +32,7 @@ impl Button {
             scale,
 
             // Controls
-            is_pressed: false,
+            is_mouse_on: false,
 
             // Apearence
             button_type: button_type,
@@ -50,7 +50,7 @@ impl Button {
             scale: 0.0, 
 
             // Controls
-            is_pressed: false, 
+            is_mouse_on: false, 
 
             // Apearence
             button_type: button_type,
@@ -64,7 +64,7 @@ impl Button {
     //=====================================
 
     pub fn is_mouse_on_button(&self) -> bool {
-        self.is_pressed
+        self.is_mouse_on
     }
 
     // Cords
@@ -84,7 +84,7 @@ impl Button {
     }
 
     // Apearence
-    pub fn set_block(&mut self, block: BlockType) {
+    pub fn set_block(&mut self, block: BlockTexture) {
         self.block_type = Some(block);
     }
     pub fn set_text(&mut self, text: String) {
@@ -95,9 +95,20 @@ impl Button {
     // Rendering
     //=====================================
 
-    pub fn render_button(&self, texture_manager: &mut TextureManager) {
+    pub fn render_button(&mut self, texture_manager: &mut TextureManager, screen_data: &ScreenData) {
+        // if mouse is over button
+        let mouse_cords = screen_data.get_mouse_ndc();
+        if mouse_cords[0] >= self.ndc[0] &&
+           mouse_cords[0] <= self.ndc[0] + self.scale &&
+           mouse_cords[1] >= self.ndc[1] &&
+           mouse_cords[1] <= self.ndc[1] + self.scale {
+            self.is_mouse_on = true;
+        } else {
+            self.is_mouse_on = false;
+        }
+        
         // Render the button itself
-        let button_texture = if self.is_pressed {
+        let button_texture = if self.is_mouse_on {
             self.button_type
         } else {
             self.button_type.get_pressed_variant()
@@ -124,7 +135,7 @@ impl Button {
 
         // If has text and mouse is on button render text above button
         if let Some(string) = &self.text {
-            if self.is_pressed {
+            if self.is_mouse_on {
                 let ndc = [
                     self.ndc[0] + self.scale / 2.0,
                     self.ndc[1] - self.scale / 4.0,
@@ -138,24 +149,6 @@ impl Button {
                 );
             }
         }
-    }
-    
-    //=====================================
-    // Controls
-    //=====================================
-
-    pub fn handle_mouse_motion_input(&mut self, screen_data: &ScreenData) { 
-        // if mouse is over button
-        let mouse_cords = screen_data.get_mouse_ndc();
-        if mouse_cords[0] >= self.ndc[0] &&
-           mouse_cords[0] <= self.ndc[0] + self.scale &&
-           mouse_cords[1] >= self.ndc[1] &&
-           mouse_cords[1] <= self.ndc[1] + self.scale {
-               self.is_pressed = true;
-        } else {
-            self.is_pressed = false;
-        }
-
     }
 
 }

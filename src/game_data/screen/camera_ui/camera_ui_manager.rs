@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::{Arc, RwLock}};
 
 use miniquad::{KeyCode, KeyMods, MouseButton};
 
-use crate::game_data::{TextureManager, World, game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent, world_event_manager::world_event_manager::WorldEvent}, screen::{Button, ScreenData, camera_data::CameraData, camera_ui::{drone_ui::drone_ui::DroneUI, tik_ui::tik_ui::TikUI}, render_centered_string_at_ndc, screen_data::CurrentMenu, text::render_string_at_ndc}, tik_manager::tik_manager::TikManager, types::{BlockType, FontType, UITextures}, world_task_manager::{self, world_task_manager::WorldTaskManager}};
+use crate::game_data::{TextureManager, World, game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent, world_event_manager::world_event_manager::WorldEvent}, screen::{Button, ScreenData, camera_data::CameraData, camera_ui::{drone_ui::drone_ui::DroneUI, tik_ui::tik_ui::TikUI}, render_centered_string_at_ndc, screen_data::CurrentMenu, text::render_string_at_ndc}, tik_manager::tik_manager::TikManager, types::{BlockTexture, FontType, UITextures}, world_task_manager::{self, world_task_manager::WorldTaskManager}};
 
 
 /*
@@ -83,11 +83,11 @@ impl CameraButtons {
 
 
         // Set button block visuals
-        self.button_toggle_drone_ui.set_block(BlockType::DroneControler);
-        self.button_rebuild_lua_script.set_block(BlockType::Debug);
-        self.button_kill_all_drones.set_block(BlockType::DroneDead);
-        self.button_spawn_drone.set_block(BlockType::DroneBotRight);
-        self.button_reset_world.set_block(BlockType::Grass);
+        self.button_toggle_drone_ui.set_block(BlockTexture::DroneControler);
+        self.button_rebuild_lua_script.set_block(BlockTexture::Debug);
+        self.button_kill_all_drones.set_block(BlockTexture::DroneDead);
+        self.button_spawn_drone.set_block(BlockTexture::DroneBotRight);
+        self.button_reset_world.set_block(BlockTexture::Grass);
 
         // Set button text
         self.button_toggle_drone_ui.set_text("Toggle Drone UI".to_string());
@@ -103,7 +103,7 @@ impl CameraButtons {
         // Render buttons
         let buttons = self.get_buttons_mut();
         for button in buttons {
-            button.render_button(texture_manager);
+            button.render_button(texture_manager, screen_data);
         }
     }
 
@@ -115,7 +115,7 @@ impl CameraButtons {
         // Buttons
         let buttons = self.get_buttons_mut();
         for button in buttons {
-            button.handle_mouse_motion_input(screen_data);
+
         }
     }
 

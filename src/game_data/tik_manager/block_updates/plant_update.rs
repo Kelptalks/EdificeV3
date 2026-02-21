@@ -1,5 +1,5 @@
 use std::collections::{HashSet, VecDeque};
-use crate::game_data::{World, tik_manager::block_updates::block_update_manager::BlockUpdateManager, types::BlockType, world_task_manager::{self, world_task_manager::WorldTaskManager}};
+use crate::game_data::{World, tik_manager::block_updates::block_update_manager::BlockUpdateManager, types::BlockTexture, world_task_manager::{self, world_task_manager::WorldTaskManager}};
 
 
 //=====================================
@@ -48,13 +48,13 @@ fn leaf_connected_to_log(world: &World, start_cords: [i32; 3]) -> bool{
                         continue; // Already checked this block
                     }
                     
-                    let scanned_block_type = BlockType::from_id(world.get_world_value(cords));
+                    let scanned_block_type = BlockTexture::from_id(world.get_world_value(cords));
                     
-                    if scanned_block_type == BlockType::BrownTrunk || 
-                       scanned_block_type == BlockType::PurpleTrunk {
+                    if scanned_block_type == BlockTexture::BrownTrunk || 
+                       scanned_block_type == BlockTexture::PurpleTrunk {
                         return true;
                     }
-                    else if scanned_block_type == BlockType::Leaves {
+                    else if scanned_block_type == BlockTexture::Leaves {
                         queue.push_back(cords);
                     }
                 }
@@ -82,7 +82,7 @@ pub fn tik_leaf(
     }
     else {
         if rand_value % 500 == 0{
-            world_task_manager.mod_block(block_cords, BlockType::Air.id_as_u16());
+            world_task_manager.mod_block(block_cords, BlockTexture::Air.id_as_u16());
         }
         else {
             block_update_manager.update_block(block_cords);
@@ -99,7 +99,7 @@ pub fn solid_block_above(world: &World, block_cords: [i32; 3]) -> bool {
     let mut block_above_cords = block_cords;
     block_above_cords[2] += 1;
 
-    if BlockType::from_id(world.get_world_value(block_above_cords)).is_solid() {
+    if BlockTexture::from_id(world.get_world_value(block_above_cords)).is_solid() {
         return true;
     }
     else {
@@ -118,7 +118,7 @@ pub fn tik_grass(
     // If there is a block on top
     if solid_block_above(world, block_cords) {
         if rand_value % 250 == 0 {
-            world_task_manager.mod_block(block_cords, BlockType::Dirt.id_as_u16());
+            world_task_manager.mod_block(block_cords, BlockTexture::Dirt.id_as_u16());
         }
         else {
             block_update_manager.update_block(block_cords);
@@ -131,7 +131,7 @@ pub fn tik_grass(
 // Tik Dirt
 //=====================================
 
-pub fn next_to_block_type(world: &World, block_cords: [i32; 3], block_type: BlockType) -> bool {
+pub fn next_to_block_type(world: &World, block_cords: [i32; 3], block_type: BlockTexture) -> bool {
     for x in -1..=1 {
         for y in -1..=1 {
             for z in -1..=1 {
@@ -140,7 +140,7 @@ pub fn next_to_block_type(world: &World, block_cords: [i32; 3], block_type: Bloc
                     block_cords[1] + y,
                     block_cords[2] + z,
                 ];
-                let scanned_block_type = BlockType::from_id(world.get_world_value(cords));
+                let scanned_block_type = BlockTexture::from_id(world.get_world_value(cords));
                 if scanned_block_type == block_type {
                     return true;
                 }
@@ -160,9 +160,9 @@ pub fn tik_dirt(
 ) {
     if !solid_block_above(world, block_cords) {
         // If it's next to grass try and grow 
-        if next_to_block_type(world, block_cords, BlockType::Grass) {
+        if next_to_block_type(world, block_cords, BlockTexture::Grass) {
             if rand_value % 500 == 0 { 
-                world_task_manager.mod_block(block_cords, BlockType::Grass.id_as_u16());
+                world_task_manager.mod_block(block_cords, BlockTexture::Grass.id_as_u16());
             }
             else {
                 block_update_manager.update_block(block_cords);

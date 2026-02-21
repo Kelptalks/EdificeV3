@@ -1,4 +1,4 @@
-use crate::game_data::types::{BlockTriangle, BlockType};
+use crate::game_data::types::{BlockTriangle, BlockTexture};
 use image::{ImageBuffer, Rgba, RgbaImage};
 
 static BLOCK_PIXLE_REZ: u32 = 64;
@@ -33,7 +33,7 @@ impl BlockTriangleTextureManager {
     pub fn new(start_cords: [f32; 2], atlas_dimensions: f32) -> Self {
         // Texture alignment  
         let buffer_space = 8.0;
-        let total_blocks = BlockType::get_total_blocks() as f32;
+        let total_blocks = BlockTexture::get_total_blocks() as f32;
         let triangles_per_block = 6.0;
         let sprite_pixel_scale = [32.0, 32.0];
 
@@ -61,7 +61,7 @@ impl BlockTriangleTextureManager {
 
         // Loop through all blocks and splice there textures
         //Loop through all block locations
-        for block_id in 0..BlockType::get_total_blocks() {
+        for block_id in 0..BlockTexture::get_total_blocks() {
             let block_src_x_cor = BLOCK_PIXLE_REZ * (block_id % BLOCK_TEXTURES_PER_ROW);
             let block_src_y_cor = BLOCK_PIXLE_REZ * (block_id / BLOCK_TEXTURES_PER_ROW);
 
@@ -112,7 +112,7 @@ impl BlockTriangleTextureManager {
     }
 
     // Get the pixel based SRC rect of a specific block triangle
-    pub fn get_block_triangle_src_rect(&self, triangle: BlockTriangle, block: BlockType) -> [f32; 4] {
+    pub fn get_block_triangle_src_rect(&self, triangle: BlockTriangle, block: BlockTexture) -> [f32; 4] {
         let x_start_cor = self.start_cords[0] + ((self.buffer_space + self.sprite_pixel_scale[0]) * block.id() as f32);
         let y_start_cor = self.start_cords[1] + ((self.buffer_space + self.sprite_pixel_scale[1]) * triangle.id() as f32);
 
@@ -123,7 +123,7 @@ impl BlockTriangleTextureManager {
     }
 
     // Get the UV based on atlas size of a specific block triangle
-    pub fn get_block_triangle_uv(&self, triangle: BlockTriangle, block: BlockType, atlas_dimensions: f32) -> [f32; 4] {
+    pub fn get_block_triangle_uv(&self, triangle: BlockTriangle, block: BlockTexture, atlas_dimensions: f32) -> [f32; 4] {
         let src_rect = self.get_block_triangle_src_rect(triangle, block);
         let mut uv = [0.0, 0.0, 0.0, 0.0];
 
@@ -146,7 +146,7 @@ impl BlockTriangleTextureManager {
             for current_triangle in 0..self.triangles_per_block {
                 let uv = self.get_block_triangle_uv(
                     BlockTriangle::from_id(current_triangle as u16),
-                    BlockType::from_id(current_block as u16),
+                    BlockTexture::from_id(current_block as u16),
                     atlas_dimensions
                 );
                 block_triangles[current_triangle as usize] = uv;

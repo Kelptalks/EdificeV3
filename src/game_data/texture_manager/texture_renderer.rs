@@ -1,7 +1,7 @@
  use image::imageops::FilterType::Triangle;
 use miniquad::*;
 
-use crate::game_data::{logging_tool, types::{BlockTriangle, BlockType}};
+use crate::game_data::{logging_tool, types::{BlockTriangle, BlockTexture}};
 
 // Static vars
 const MAX_QUADS_PER_BATCH: usize = 500_000;

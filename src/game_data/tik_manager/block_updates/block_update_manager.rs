@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use rand::random_range;
 
-use crate::game_data::{World, tik_manager::block_updates::plant_update, types::BlockType, world_task_manager::{self, world_task_manager::WorldTaskManager}};
+use crate::game_data::{World, tik_manager::block_updates::plant_update, types::BlockTexture, world_task_manager::{self, world_task_manager::WorldTaskManager}};
 
 /*
 ##########################
@@ -35,7 +35,7 @@ impl BlockUpdateManager {
                         block_cords[1] + y,
                         block_cords[2] + z,
                     ];
-                    let block_type = BlockType::from_id(world.get_world_value(cords));
+                    let block_type = BlockTexture::from_id(world.get_world_value(cords));
                     if block_type.is_tikable() {
                         self.block_update_tasks.insert(cords);
                     }
@@ -53,19 +53,19 @@ impl BlockUpdateManager {
         world_task_manager: &mut WorldTaskManager, 
         block_cords: [i32; 3],
     ) {
-        let block_type = BlockType::from_id(world.get_world_value(block_cords));
+        let block_type = BlockTexture::from_id(world.get_world_value(block_cords));
         let rand_value = random_range(0..1000);
         match block_type {
-            BlockType::Air => {
+            BlockTexture::Air => {
                 
             }
-            BlockType::Leaves => {
+            BlockTexture::Leaves => {
                 plant_update::tik_leaf(self, world_task_manager, world, block_cords, rand_value);
             }
-            BlockType::Grass =>{
+            BlockTexture::Grass =>{
                 plant_update::tik_grass(self, world_task_manager, world, block_cords, rand_value);
             }
-            BlockType::Dirt => {
+            BlockTexture::Dirt => {
                 plant_update::tik_dirt(self, world_task_manager, world, block_cords, rand_value);
             }
             _ => {

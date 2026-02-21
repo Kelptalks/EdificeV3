@@ -43,7 +43,7 @@ impl Stepper {
     // Rendering
     //=====================================
 
-    pub fn render(&mut self, texture_manager: &mut TextureManager) {
+    pub fn render(&mut self, texture_manager: &mut TextureManager, screen_data: &ScreenData) {
         // Render text
         render_centered_string_at_ndc(texture_manager, 
             self.text.clone(), 
@@ -61,8 +61,8 @@ impl Stepper {
         );
 
         // Render buttons
-        self.decrease_button.render_button(texture_manager);
-        self.increase_button.render_button(texture_manager);
+        self.decrease_button.render_button(texture_manager, screen_data);
+        self.increase_button.render_button(texture_manager, screen_data);
     }
 
     pub fn re_calculate_rendering_values(&mut self) {
@@ -125,13 +125,7 @@ impl Stepper {
     //=====================================
     // Controls
     //=====================================
-
-    pub fn handle_mouse_motion_input(&mut self, screen_data: &ScreenData) { 
-        // Handle button inputs
-        self.decrease_button.handle_mouse_motion_input(screen_data);
-        self.increase_button.handle_mouse_motion_input(screen_data);
-    }
-
+    
     pub fn handle_mouse_button_down(&mut self, mouse_button: MouseButton) {
         if mouse_button == MouseButton::Left {
             if self.decrease_button.is_mouse_on_button() {

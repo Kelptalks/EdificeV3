@@ -85,9 +85,9 @@ impl WorldCreationMenu {
         texture_manager.render_ui_element_with_pos(UITextures::MirrorBackground, screen_data.get_viewport_uv());
         
         // Render back button
-        self.button_back.render_button(texture_manager);
+        self.button_back.render_button(texture_manager, screen_data);
 
-        self.stepper_world_size.render(texture_manager);
+        self.stepper_world_size.render(texture_manager, screen_data);
 
         // Render create world button
         self.button_create_world.render_button(texture_manager);
@@ -96,10 +96,6 @@ impl WorldCreationMenu {
     }
 
     pub fn handle_mouse_motion_input(&mut self, screen_data: &ScreenData) {
-        // Back button
-        self.button_back.handle_mouse_motion_input(screen_data);
-        self.stepper_world_size.handle_mouse_motion_input(screen_data);
-
         // Create world
         self.button_create_world.handle_mouse_motion_input(screen_data);
         

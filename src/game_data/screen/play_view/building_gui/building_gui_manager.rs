@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, screen::{Button, ScreenData, render_centered_string_at_ndc, ui_elements::panel::Panel}, types::{FontType, UITextures}};
+use crate::game_data::{TextureManager, screen::{Button, ScreenData, render_centered_string_at_ndc, ui_elements::{block_selection::BlockSelection, panel::Panel}}, types::{FontType, UITextures}};
 
 pub struct BuildingGUIManager {
     panel: Panel,
@@ -7,6 +7,8 @@ pub struct BuildingGUIManager {
     ndc_pos: [f32; 4],
 
     button_block_select: Button,
+    block_selection: BlockSelection,
+    block_selection_visible: bool,
 }
 
 impl BuildingGUIManager {
@@ -17,8 +19,11 @@ impl BuildingGUIManager {
             gui_scale: [0.0, 0.0],
             ndc_pos: [0.0, 0.0, 0.0, 0.0],
 
-            button_block_select: Button::new_blank(UITextures::ButtonCircle)
-            
+            // Block selection
+            button_block_select: Button::new_blank(UITextures::ButtonCircle),
+            block_selection: BlockSelection::new(),
+            block_selection_visible: false,
+
         }
     }
 
@@ -66,7 +71,7 @@ impl BuildingGUIManager {
         self.button_block_select.set_scale(button_scale);
         self.button_block_select.set_ndc([panel_center[0] -(button_scale / 2.0), panel_start_cords[1] + (button_scale)]);
         self.button_block_select.set_text("Block Selection".to_string());
-        self.button_block_select.set_block(crate::game_data::types::BlockType::selector);
+        self.button_block_select.set_block(crate::game_data::types::BlockTexture::selector);
 
 
         // Set GUI values
@@ -104,6 +109,12 @@ impl BuildingGUIManager {
         );
 
         // Render buttons
-        self.button_block_select.render_button(texture_manager);
+        self.button_block_select.render_button(texture_manager, screen_data);
     }
+
+    //=====================================
+    // Controls
+    //=====================================
+
+
 }

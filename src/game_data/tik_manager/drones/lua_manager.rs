@@ -2,7 +2,7 @@ use std::{fs};
 
 use mlua::{Function as LuaFunction, Lua, Result};
 
-use crate::game_data::{World, tik_manager::drones::drone_manager::DroneManager, types::{BlockType, drone_item::DroneItem}, world_task_manager::world_task_manager::WorldTaskManager};
+use crate::game_data::{World, tik_manager::drones::drone_manager::DroneManager, types::{BlockTexture, drone_item::DroneItem}, world_task_manager::world_task_manager::WorldTaskManager};
 
 pub struct LuaManager {
     lua: Lua,
@@ -152,7 +152,7 @@ impl LuaManager {
                 Ok(block_value)
             } else {
                 println!("Cannot find drone of id {}", drone_id);
-                Ok(BlockType::Debug.id_as_u16())
+                Ok(BlockTexture::Debug.id_as_u16())
             }
         })?;
         globals.set("rust_scan_block", scan_block)?;
@@ -216,7 +216,7 @@ impl LuaManager {
             let world_task_manager = Self::get_world_task_manager(lua)?;
             
             if let Some(drone) = drone_manager.get_drone_with_id_mut(drone_id) {
-                drone.place_block([x, y, z], world, world_task_manager, BlockType::from_id(block_id));
+                drone.place_block([x, y, z], world, world_task_manager, BlockTexture::from_id(block_id));
             } else {
                 println!("Place Block Failed | Cannot find drone of id {}", drone_id);
             }
@@ -275,7 +275,7 @@ impl LuaManager {
         
         // Move drone
         let block_is_solid = self.lua.create_function(|lua, (block_id): (u32)| {
-            Ok(BlockType::from_id(block_id as u16).is_solid())
+            Ok(BlockTexture::from_id(block_id as u16).is_solid())
         })?;
         globals.set("rust_block_is_solid", block_is_solid)?;
 

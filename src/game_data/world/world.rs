@@ -1,6 +1,6 @@
 use std::{collections::HashMap, hash::Hash, path::absolute, ptr::null, sync::Arc};
 
-use crate::game_data::{level_manager::level_manager::LevelManager, log_header, log_init, tik_manager::drones::drone_manager::DroneManager, types::BlockType, world::{self, world_gen::WorldGenManager}};
+use crate::game_data::{level_manager::level_manager::LevelManager, log_header, log_init, tik_manager::drones::drone_manager::DroneManager, types::BlockTexture, world::{self, world_gen::WorldGenManager}};
 
 
 const CHUNK_SIZE: usize = 64;

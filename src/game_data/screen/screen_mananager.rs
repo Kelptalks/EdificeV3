@@ -318,8 +318,8 @@ impl ScreenManager {
         let mut casted_tile = CastedTile::new(iso_cords);
         
         let triangles = casted_tile.get_mut_triangles();
-        triangles[0].add_texture(crate::game_data::types::BlockType::Debug, crate::game_data::types::BlockTriangle::TopLeft);
-        triangles[1].add_texture(crate::game_data::types::BlockType::Debug, crate::game_data::types::BlockTriangle::TopRight);
+        triangles[0].add_texture(crate::game_data::types::BlockTexture::Debug, crate::game_data::types::BlockTriangle::TopLeft);
+        triangles[1].add_texture(crate::game_data::types::BlockTexture::Debug, crate::game_data::types::BlockTriangle::TopRight);
         return casted_tile;
     }
 

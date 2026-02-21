@@ -5,7 +5,7 @@ pub static TOTAL_BLOCKS: u32 = 100;
 
 #[repr(u16)]
 #[derive(Copy, Clone, PartialEq)]  // Add these
-pub enum BlockType {
+pub enum BlockTexture {
     Air = 0,
     Stone = 1,
     Grass = 2,
@@ -195,7 +195,7 @@ static BLOCK_PROPERTIES: [BlockProperties; 84] = [
     BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Selector Vertical Red
 ];
 
-impl BlockType {
+impl BlockTexture {
     pub fn id(&self) -> u32 {
         *self as u32
     }
@@ -245,23 +245,23 @@ impl BlockType {
         return BLOCK_PROPERTIES.len() as u32;
     }
 
-    pub fn from_id(id: u16) -> BlockType {
-        if id <= BlockType::SelectorVerticalRed as u16 {
+    pub fn from_id(id: u16) -> BlockTexture {
+        if id <= BlockTexture::SelectorVerticalRed as u16 {
             unsafe { std::mem::transmute(id) }
         } else {
-            BlockType::Air
+            BlockTexture::Air
         }
     }
 
     pub fn is_tikable(&self) -> bool {
         match self {
-            BlockType::Leaves => {
+            BlockTexture::Leaves => {
                 return true;
             }
-            BlockType::Grass => {
+            BlockTexture::Grass => {
                 return true;
             }
-            BlockType::Dirt => {
+            BlockTexture::Dirt => {
                 return true;
             }
             _ => {

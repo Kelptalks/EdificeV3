@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use image::flat::View;
 use miniquad::{KeyCode, MouseButton};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, game_event_manager::{game_event_manager::{self, GameEventManager}, world_event_manager::world_event_manager::WorldEvent}, screen::{ScreenData, camera_data::Direction, iso_cord_tool, screen_data, text}, types::BlockType};
+use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, game_event_manager::{game_event_manager::{self, GameEventManager}, world_event_manager::world_event_manager::WorldEvent}, screen::{ScreenData, camera_data::Direction, iso_cord_tool, screen_data, text}, types::BlockTexture};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
@@ -170,7 +170,7 @@ impl PlayWorldRender {
                     ];
 
                     // Block Type
-                    let block_type_at_cord = BlockType::from_id(world.get_world_value(world_block_cords));
+                    let block_type_at_cord = BlockTexture::from_id(world.get_world_value(world_block_cords));
                     
                     // Draw Cords
                     let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, [x - z, y - z]);
@@ -184,37 +184,37 @@ impl PlayWorldRender {
 
                     // Render Selector if at center
                     if x == 0 && y == 0 && z == 0 {
-                        if block_type_at_cord != BlockType::Air {
-                            texture_manager.render_block(BlockType::translucent_red, draw_cords, self.ndc_block_scale);
+                        if block_type_at_cord != BlockTexture::Air {
+                            texture_manager.render_block(BlockTexture::translucent_red, draw_cords, self.ndc_block_scale);
                         }
-                        texture_manager.render_block(BlockType::selector, draw_cords, self.ndc_block_scale);
+                        texture_manager.render_block(BlockTexture::selector, draw_cords, self.ndc_block_scale);
                     }
                     // Render Selector bars
                     else if !block_type_at_cord.is_solid(){
                         
-                        if block_type_at_cord == BlockType::Air {
+                        if block_type_at_cord == BlockTexture::Air {
                             if z == 0 {
                                 if x == 0 {
-                                    texture_manager.render_block(BlockType::SelectorBarRight, draw_cords, self.ndc_block_scale);
+                                    texture_manager.render_block(BlockTexture::SelectorBarRight, draw_cords, self.ndc_block_scale);
                                 }
                                 else if y == 0 {
-                                    texture_manager.render_block(BlockType::SelectorBarLeft, draw_cords, self.ndc_block_scale);
+                                    texture_manager.render_block(BlockTexture::SelectorBarLeft, draw_cords, self.ndc_block_scale);
                                 }
                             }
                             else if x == 0 && y == 0 {
-                                texture_manager.render_block(BlockType::SelectorVertical, draw_cords, self.ndc_block_scale);
+                                texture_manager.render_block(BlockTexture::SelectorVertical, draw_cords, self.ndc_block_scale);
                             }
                         }
                         else if z == 0 {
                             if x == 0 {
-                                texture_manager.render_block(BlockType::SelectorBarRightRed, draw_cords, self.ndc_block_scale);
+                                texture_manager.render_block(BlockTexture::SelectorBarRightRed, draw_cords, self.ndc_block_scale);
                             }
                             else if y == 0 {
-                                texture_manager.render_block(BlockType::SelectorBarLeftRed, draw_cords, self.ndc_block_scale);
+                                texture_manager.render_block(BlockTexture::SelectorBarLeftRed, draw_cords, self.ndc_block_scale);
                             }
                         }
                         else if x == 0 && y == 0 {
-                            texture_manager.render_block(BlockType::SelectorVerticalRed, draw_cords, self.ndc_block_scale);
+                            texture_manager.render_block(BlockTexture::SelectorVerticalRed, draw_cords, self.ndc_block_scale);
                         }
                     }
                 }
@@ -320,10 +320,10 @@ impl PlayWorldRender {
 
     pub fn mouse_button_down_event(&mut self, event_manager: &mut GameEventManager, screen_data: &ScreenData, button: MouseButton) {
         if button == MouseButton::Left {
-            event_manager.add_world_event(WorldEvent::ModBlock(self.camera_cords, BlockType::Air));
+            event_manager.add_world_event(WorldEvent::ModBlock(self.camera_cords, BlockTexture::Air));
         }
         else if button == MouseButton::Right {
-            event_manager.add_world_event(WorldEvent::ModBlock(self.camera_cords, BlockType::Stone));
+            event_manager.add_world_event(WorldEvent::ModBlock(self.camera_cords, BlockTexture::Stone));
         }
     }
 

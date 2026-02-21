@@ -1,13 +1,13 @@
-use crate::game_data::{World, types::BlockType, world::world_gen::{grass_gen::GrassGenManager, perlin_noise::TerrainNoise}};
+use crate::game_data::{World, types::BlockTexture, world::world_gen::{grass_gen::GrassGenManager, perlin_noise::TerrainNoise}};
 
 struct LayerRule {
-    main_block_type: BlockType,
+    main_block_type: BlockTexture,
     start_z: i32,
     end_z: i32,
 }
 
 impl LayerRule {
-    pub fn get_block_type(&self) -> BlockType{
+    pub fn get_block_type(&self) -> BlockTexture{
         return self.main_block_type;
     }
 
@@ -27,7 +27,7 @@ impl LayerManager {
         }
     }
 
-    pub fn add_lair(&mut self, block_type: BlockType, start_z: i32, end_z: i32){
+    pub fn add_lair(&mut self, block_type: BlockTexture, start_z: i32, end_z: i32){
         let new_layer = LayerRule {
             main_block_type: block_type,
             start_z: start_z,
@@ -70,9 +70,9 @@ impl WorldGenManager {
     pub fn new() -> Self {
         // Set up world layers
         let mut layer_manager = LayerManager::new();
-        layer_manager.add_lair(BlockType::Grass, 0, 0);
-        layer_manager.add_lair(BlockType::Dirt, -3, -1);
-        layer_manager.add_lair(BlockType::Stone, -100, -4);
+        layer_manager.add_lair(BlockTexture::Grass, 0, 0);
+        layer_manager.add_lair(BlockTexture::Dirt, -3, -1);
+        layer_manager.add_lair(BlockTexture::Stone, -100, -4);
 
         Self {
             layer_manager: layer_manager,
@@ -106,7 +106,7 @@ impl WorldGenManager {
                             
                     
                             let block_to_gen = layer.get_block_type().id();
-                            if (block_to_gen == BlockType::Grass.id()) {
+                            if (block_to_gen == BlockTexture::Grass.id()) {
                                 grass_gen_manager.gen_grass(modded_cords, world);
                             }
                             else {

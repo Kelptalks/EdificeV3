@@ -2,7 +2,7 @@
 
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, World, screen::{ScreenData, iso_cord_tool, render_centered_string_at_ndc, text::render_string_at_ndc}, tik_manager::drones::drone::Drone, types::{BlockType, DroneUITexture, FontType}};
+use crate::game_data::{TextureManager, World, screen::{ScreenData, iso_cord_tool, render_centered_string_at_ndc, text::render_string_at_ndc}, tik_manager::drones::drone::Drone, types::{BlockTexture, DroneUITexture, FontType}};
 
 pub struct SpectateWindow {
     ndc_cords: [f32; 2],
@@ -119,7 +119,7 @@ impl SpectateWindow {
                         drone_cords[1] + y_block_cor,
                         drone_cords[2] + z_block_cor,
                     ];
-                    let block = BlockType::from_id(world.get_world_value(block_cords));
+                    let block = BlockTexture::from_id(world.get_world_value(block_cords));
 
                     texture_manager.render_block(block, final_draw_location, scale);
                 }

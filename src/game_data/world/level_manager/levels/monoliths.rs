@@ -1,6 +1,6 @@
 use rand::random_range;
 
-use crate::game_data::{level_manager::level::Level, screen::Button, types::{BlockType, UITextures}};
+use crate::game_data::{level_manager::level::Level, screen::Button, types::{BlockTexture, UITextures}};
 
 pub struct Monoliths {
     name: String,
@@ -26,7 +26,7 @@ impl Monoliths {
                     cords[1] + y,
                     cords[2] + z,
                 ];
-                world.set_world_value(BlockType::Stone.id_as_u16(), block_cords);
+                world.set_world_value(BlockTexture::Stone.id_as_u16(), block_cords);
                 }
             }
         }
@@ -45,10 +45,10 @@ impl Level for Monoliths {
     fn gen_level(&self, world: &mut crate::game_data::World) {
         for x in -200..200 {
             for y in -200..200 {
-                world.set_world_value(BlockType::Grass.id_as_u16(), [x, y, -1]);
-                world.set_world_value(BlockType::Stone.id_as_u16(), [x, y, -2]);
-                world.set_world_value(BlockType::Stone.id_as_u16(), [x, y, -3]);
-                world.set_world_value(BlockType::Stone.id_as_u16(), [x, y, -4]);
+                world.set_world_value(BlockTexture::Grass.id_as_u16(), [x, y, -1]);
+                world.set_world_value(BlockTexture::Stone.id_as_u16(), [x, y, -2]);
+                world.set_world_value(BlockTexture::Stone.id_as_u16(), [x, y, -3]);
+                world.set_world_value(BlockTexture::Stone.id_as_u16(), [x, y, -4]);
                 
                 // Gen moniliths if they are not the center
                 if x > 20 || x < -20 || y > 20 || y < -20 {
@@ -63,7 +63,7 @@ impl Level for Monoliths {
 
     fn get_level_select_button(&self) -> Button {
         let mut button = Button::new_blank(UITextures::ButtonCircle);
-        button.set_block(BlockType::Stone);
+        button.set_block(BlockTexture::Stone);
         button.set_text(self.name.clone());
 
         return  button;

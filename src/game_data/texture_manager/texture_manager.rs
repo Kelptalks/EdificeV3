@@ -1,6 +1,6 @@
 use std::time::SystemTime;
 
-use crate::game_data::{log_init, screen::text, texture_manager::{texture_atlas::TextureAtlas, texture_renderer::TextureRenderingManager}, types::{BlockShaderType, BlockTriangle, BlockType, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
+use crate::game_data::{log_init, screen::text, texture_manager::{texture_atlas::TextureAtlas, texture_renderer::TextureRenderingManager}, types::{BlockShaderType, BlockTriangle, BlockTexture, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
 use miniquad::*;
 
 // Expander tuning constants - adjust these to control gap prevention
@@ -96,7 +96,7 @@ impl TextureManager {
     //=================================================
     // Block Rendering
     //=================================================
-    pub fn render_block_triangle(&mut self, block : BlockType, triangle : BlockTriangle, draw_location : [f32; 2], scale : f32) {
+    pub fn render_block_triangle(&mut self, block : BlockTexture, triangle : BlockTriangle, draw_location : [f32; 2], scale : f32) {
         let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_block_triangle_uv(triangle, block);
 
         let pos = [
@@ -109,7 +109,7 @@ impl TextureManager {
         self.get_texture_renderer().add_quad(pos, uv);
     }
 
-    pub fn render_block(&mut self, block : BlockType, draw_location : [f32; 2], scale : f32) { 
+    pub fn render_block(&mut self, block : BlockTexture, draw_location : [f32; 2], scale : f32) { 
         let double_scale = scale * 2.0;
         // Right side
         let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_block_uv(block);

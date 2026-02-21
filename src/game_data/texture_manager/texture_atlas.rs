@@ -1,6 +1,6 @@
 use std::{collections::HashMap, ops::Index};
 
-use crate::game_data::{log_init, texture_manager::{block_sheet::BlockTextureManager, block_triangle_sheet::BlockTriangleTextureManager, shader_sheet::ShaderTextureManager, text_sheet::TextTextureManager, ui_sheet::UITextureManager}, types::{BlockShaderType, BlockTriangle, BlockType, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
+use crate::game_data::{log_init, texture_manager::{block_sheet::BlockTextureManager, block_triangle_sheet::BlockTriangleTextureManager, shader_sheet::ShaderTextureManager, text_sheet::TextTextureManager, ui_sheet::UITextureManager}, types::{BlockShaderType, BlockTriangle, BlockTexture, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
 use image::{ImageBuffer, RgbaImage};
 use miniquad::*;
 
@@ -136,10 +136,10 @@ impl TextureAtlas {
     //=====================================
 
     // Blocks
-    pub fn get_precalculated_block_uv(&self, block: BlockType) -> [f32; 4] {
+    pub fn get_precalculated_block_uv(&self, block: BlockTexture) -> [f32; 4] {
         return self.pre_calculated_block_uvs[block.id_as_usize()];
     }
-    pub fn get_precalculated_block_triangle_uv(&self, triangle: BlockTriangle, block: BlockType) -> [f32; 4] {
+    pub fn get_precalculated_block_triangle_uv(&self, triangle: BlockTriangle, block: BlockTexture) -> [f32; 4] {
         return self.pre_calculated_block_triangle_uvs[block.id_as_usize()][triangle.id_as_usize()];
     }
 

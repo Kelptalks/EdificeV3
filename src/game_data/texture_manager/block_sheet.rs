@@ -1,6 +1,6 @@
 use image::{RgbaImage, imageops};
 
-use crate::game_data::types::BlockType;
+use crate::game_data::types::BlockTexture;
 
 static BLOCK_PIXLE_REZ: u32 = 64;
 static BLOCK_TEXTURES_PER_ROW: u32 = 20;
@@ -36,7 +36,7 @@ impl BlockTextureManager {
         
         let block_spacing = self.buffer_space + BLOCK_PIXLE_REZ;
         // Splice every block with buffer space
-        for block_id in 0..BlockType::get_total_blocks() {
+        for block_id in 0..BlockTexture::get_total_blocks() {
             let block_row_index= block_id % BLOCK_TEXTURES_PER_ROW;
             let block_collumn_index = block_id / BLOCK_TEXTURES_PER_ROW;
             
@@ -76,7 +76,7 @@ impl BlockTextureManager {
         // Calculate end cords
         self.end_cords[0] = (block_spacing * BLOCK_TEXTURES_PER_ROW) as f32 + self.start_cords[0];
 
-        let total_collumns = (BlockType::get_total_blocks() / BLOCK_TEXTURES_PER_ROW) + 1;
+        let total_collumns = (BlockTexture::get_total_blocks() / BLOCK_TEXTURES_PER_ROW) + 1;
         self.end_cords[1] = (block_spacing * total_collumns) as f32 + self.start_cords[1];
         println!("End Cords: {:?}", self.end_cords);
     }
@@ -89,7 +89,7 @@ impl BlockTextureManager {
         let mut pre_calculated_block_uvs: Vec<[f32; 4]> = Vec::new();
 
         let block_spacing = self.buffer_space + BLOCK_PIXLE_REZ;
-        for block_id in 0..BlockType::get_total_blocks() {
+        for block_id in 0..BlockTexture::get_total_blocks() {
             let block_row_index= block_id % BLOCK_TEXTURES_PER_ROW;
             let block_collumn_index = block_id / BLOCK_TEXTURES_PER_ROW;
             let start_pixel_cords = [

@@ -6,7 +6,7 @@ use rand::thread_rng;
 use crate::game_data::tik_manager::drones::drone_inventory::{DroneInventory, InventorySlot};
 use crate::game_data::types::drone_item::DroneItem;
 use crate::game_data::{screen::screen_task_manager, world_task_manager::world_task_manager::WorldTaskManager};
-use crate::game_data::{types::BlockType, World};
+use crate::game_data::{types::BlockTexture, World};
 
 #[derive(Clone)]
 pub enum DroneDirection {
@@ -194,18 +194,18 @@ impl Drone {
     }
 
     // Get a block based of cords relative to the drone
-    pub fn scan_block(&self, world: &World, relative_cords: [i32; 3]) -> BlockType {
+    pub fn scan_block(&self, world: &World, relative_cords: [i32; 3]) -> BlockTexture {
         // check if scan is in vision range
         if Drone::if_cords_within_range(relative_cords, self.vision_range){
             // Calculate the world cords based of drone position 
             let world_cords = self.get_relative_world_cords(relative_cords);
 
             // Get block from world
-            let block = BlockType::from_id(world.get_world_value(world_cords));
+            let block = BlockTexture::from_id(world.get_world_value(world_cords));
             return block;
         }
         else {
-            return BlockType::Air;
+            return BlockTexture::Air;
         }
     }
 
@@ -303,7 +303,7 @@ impl Drone {
         if relative_cords[1] == 1 {
             // Get block above drone
             let world_cords = self.get_relative_world_cords([0, 0, 1]);
-            let block_type_of_new_location = BlockType::from_id(world.get_world_value(world_cords));
+            let block_type_of_new_location = BlockTexture::from_id(world.get_world_value(world_cords));
             if block_type_of_new_location.is_solid() {
                 return 3;
             }
@@ -311,16 +311,16 @@ impl Drone {
 
         if Drone::if_cords_within_range(relative_cords, 1){
             let world_cords = self.get_relative_world_cords(relative_cords);
-            let block_type_of_new_location = BlockType::from_id(world.get_world_value(world_cords));
+            let block_type_of_new_location = BlockTexture::from_id(world.get_world_value(world_cords));
 
             // If block is not solid allow movment
             if !block_type_of_new_location.is_solid() {
                 // Get block bellow to calculate move speed
                 let cords_below_drone = self.get_relative_world_cords([0, 0, -1]);
-                let block_below_drone = BlockType::from_id(world.get_world_value(cords_below_drone));
+                let block_below_drone = BlockTexture::from_id(world.get_world_value(cords_below_drone));
 
                 // Don't allow movement if falling
-                if !BlockType::is_solid(&block_below_drone) {
+                if !BlockTexture::is_solid(&block_below_drone) {
                     return 3;
                 }
 
@@ -334,7 +334,7 @@ impl Drone {
 
                 // Set drone busy time based off new block below drone
                 let cords_below_drone = self.get_relative_world_cords([0, 0, -1]);
-                let block_below_drone = BlockType::from_id(world.get_world_value(cords_below_drone));
+                let block_below_drone = BlockTexture::from_id(world.get_world_value(cords_below_drone));
                 self.busy_time += block_below_drone.friction() as u32;
                 self.moved = true;
 
@@ -358,10 +358,10 @@ impl Drone {
         if Drone::if_cords_within_range(relative_cords, self.modify_range) {
             // Get world cords
             let world_cords = self.get_relative_world_cords(relative_cords);
-            let block_to_mine = BlockType::from_id(world.get_world_value(world_cords));
+            let block_to_mine = BlockTexture::from_id(world.get_world_value(world_cords));
 
             // Change the block to air
-            world_task_manager.mod_block(world_cords, BlockType::Air.id_as_u16());
+            world_task_manager.mod_block(world_cords, BlockTexture::Air.id_as_u16());
             self.busy_time += block_to_mine.hardness() as u32;
 
             // Add block to inventory
@@ -381,7 +381,7 @@ impl Drone {
     ///     - Error 4 = Cannot place block as solid block is in the way
     ///     - Error 5 = Cannot piller with block type
     /// 
-    pub fn place_block(&mut self, relative_cords: [i32; 3],  world: &World, world_task_manager: &mut WorldTaskManager, block: BlockType) -> u32{
+    pub fn place_block(&mut self, relative_cords: [i32; 3],  world: &World, world_task_manager: &mut WorldTaskManager, block: BlockTexture) -> u32{
         if self.is_busy() {
             return 1;
         }
@@ -392,10 +392,10 @@ impl Drone {
             let block_type_at_cords = world.get_world_value(world_cords);
 
 
-            if BlockType::from_id(block_type_at_cords).is_solid() {
+            if BlockTexture::from_id(block_type_at_cords).is_solid() {
                 // Pillering
                 if relative_cords.iter().sum::<i32>() == 0 {
-                    if block == BlockType::Scaffolding {
+                    if block == BlockTexture::Scaffolding {
                         self.move_drone(world, [0, 0, 1], world_task_manager);
                     }
                     else {
@@ -426,7 +426,7 @@ impl Drone {
     pub fn tik_drone(&mut self, world: &World, world_task_manager: &mut WorldTaskManager) {
         // If dead set drone
         if self.health == 0 {
-            world_task_manager.mod_block(self.cords, BlockType::DroneDead.id_as_u16());
+            world_task_manager.mod_block(self.cords, BlockTexture::DroneDead.id_as_u16());
             return;
         }
         
@@ -447,7 +447,7 @@ impl Drone {
             // Make drone fall of no solid blocks below
             let mut block_below_drone = self.cords;
             block_below_drone[2] -= 1;
-            let block_bellow_drone = BlockType::from_id(world.get_world_value(block_below_drone));
+            let block_bellow_drone = BlockTexture::from_id(world.get_world_value(block_below_drone));
             if !block_bellow_drone.is_solid() {
                 world_task_manager.mod_block(self.cords, 0); // Clear drone before movement
                 self.cords[2] -= 1; // Move drone down one

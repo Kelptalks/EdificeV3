@@ -98,9 +98,9 @@ impl LevelSelectMenu {
 
 
 
-        self.button_back.render_button(texture_manager);
+        self.button_back.render_button(texture_manager, screen_data);
         for button in &mut self.buttons_levels {
-            button.render_button(texture_manager);
+            button.render_button(texture_manager, screen_data);
         }
     }
 
@@ -108,12 +108,7 @@ impl LevelSelectMenu {
     // Controls
     //=====================================
     pub fn handle_mouse_motion_input(&mut self, screen_data: &ScreenData) {
-        self.button_back.handle_mouse_motion_input(screen_data);
-
-
-        for button in &mut self.buttons_levels {
-            button.handle_mouse_motion_input(screen_data);
-        }
+        
     }
 
     pub fn handle_mouse_button_down(&mut self, event_manager: &mut GameEventManager, screen_data: &mut ScreenData, mouse_button: MouseButton) {

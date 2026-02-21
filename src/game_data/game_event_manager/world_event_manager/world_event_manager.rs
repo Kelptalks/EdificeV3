@@ -1,6 +1,6 @@
 use rand::rand_core::le;
 
-use crate::game_data::{World, game_event_manager::game_event_manager::EventTools, level_manager::level_manager::LevelManager, screen::menus::world_creation_menu::world_config::WorldConfig, types::BlockType, world_gen::WorldGenManager};
+use crate::game_data::{World, game_event_manager::game_event_manager::EventTools, level_manager::level_manager::LevelManager, screen::menus::world_creation_menu::world_config::WorldConfig, types::BlockTexture, world_gen::WorldGenManager};
 
 /*
 #################
@@ -13,7 +13,7 @@ pub enum WorldEvent {
     Clear,                     // No Data
     GenWorld(WorldConfig),     // World Config
     GenLevel(u32),             // Level Id
-    ModBlock([i32; 3], BlockType)
+    ModBlock([i32; 3], BlockTexture)
 }
 
 impl WorldEvent {

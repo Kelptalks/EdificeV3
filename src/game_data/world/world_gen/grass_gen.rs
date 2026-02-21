@@ -1,8 +1,8 @@
-use crate::game_data::{types::BlockType, World};
+use crate::game_data::{types::BlockTexture, World};
 use rand::{random_bool, rngs::ThreadRng, Rng};
 
 struct GroundItem {
-    block_type: BlockType,
+    block_type: BlockTexture,
     weight: u32,
 }
 
@@ -26,11 +26,11 @@ impl PlantType {
       ## Tree Generation ##
       #####################*/
     fn generate_leaves(world: &mut World, cords: [i32; 3]) {
-        world.set_world_value(BlockType::Leaves.id_as_u16(), [cords[0] - 1, cords[1], cords[2]]);
-        world.set_world_value(BlockType::Leaves.id_as_u16(), [cords[0] + 1, cords[1], cords[2]]);
-        world.set_world_value(BlockType::Leaves.id_as_u16(), [cords[0], cords[1] - 1, cords[2]]);
-        world.set_world_value(BlockType::Leaves.id_as_u16(), [cords[0], cords[1] + 1, cords[2]]);
-        world.set_world_value(BlockType::Leaves.id_as_u16(), [cords[0], cords[1], cords[2] + 1]);
+        world.set_world_value(BlockTexture::Leaves.id_as_u16(), [cords[0] - 1, cords[1], cords[2]]);
+        world.set_world_value(BlockTexture::Leaves.id_as_u16(), [cords[0] + 1, cords[1], cords[2]]);
+        world.set_world_value(BlockTexture::Leaves.id_as_u16(), [cords[0], cords[1] - 1, cords[2]]);
+        world.set_world_value(BlockTexture::Leaves.id_as_u16(), [cords[0], cords[1] + 1, cords[2]]);
+        world.set_world_value(BlockTexture::Leaves.id_as_u16(), [cords[0], cords[1], cords[2] + 1]);
     }
 
     fn generate_branch(world: &mut World, rng: &mut ThreadRng, cords: [i32; 3]){
@@ -61,7 +61,7 @@ impl PlantType {
                 cords[1] + (y_branch_direction_mod * i),
                 cords[2]
             ]; 
-            world.set_world_value(BlockType::Leaves.id_as_u16(), current_cords);
+            world.set_world_value(BlockTexture::Leaves.id_as_u16(), current_cords);
             if i == branch_length {
                 Self::generate_leaves(world, current_cords);
             }
@@ -71,9 +71,9 @@ impl PlantType {
     fn generate_tree(rng: &mut ThreadRng, world: &mut World, cords: [i32; 3]) {
         // Decide if tree is purple
         let purple_tree_likleyhood = 0.05;
-        let mut block_type = BlockType::BrownTrunk.id_as_u16();
+        let mut block_type = BlockTexture::BrownTrunk.id_as_u16();
         if rng.random_bool(purple_tree_likleyhood) {
-            block_type = BlockType::PurpleTrunk.id_as_u16();
+            block_type = BlockTexture::PurpleTrunk.id_as_u16();
         }
         
         // Tree generation propertys
@@ -117,7 +117,7 @@ impl PlantType {
                     let distance = ((x * x + y * y) as f64).sqrt();
                     if distance < stem_radius as f64 {
                         world.set_world_value(
-                            BlockType::MushroomStem.id_as_u16(),
+                            BlockTexture::MushroomStem.id_as_u16(),
                             [cords[0] + x, cords[1] + y, cords[2] + z]
                         );
                     }
@@ -127,9 +127,9 @@ impl PlantType {
 
         // Choose block type (blue or pink mushroom)
         let block_type = if rng.gen_range(0..2) == 0 {
-            BlockType::BlueMushroom.id_as_u16()
+            BlockTexture::BlueMushroom.id_as_u16()
         } else {
-            BlockType::PinkMushroomBlock.id_as_u16()
+            BlockTexture::PinkMushroomBlock.id_as_u16()
         };
 
         let mut top_radius = stem_radius + 8 + rng.gen_range(0..5);
@@ -164,7 +164,7 @@ impl PlantType {
                     let distance = ((x * x + y * y) as f64).sqrt();
                     if distance < stem_radius as f64 {
                         world.set_world_value(
-                            BlockType::DandiStem.id_as_u16(),
+                            BlockTexture::DandiStem.id_as_u16(),
                             [cords[0] + x, cords[1] + y, cords[2] + z]
                         );
                     }
@@ -190,7 +190,7 @@ impl PlantType {
                         // 80% chance to place a block (creating a fluffy appearance)
                         if rng.gen_range(0..5) != 0 {
                             world.set_world_value(
-                                BlockType::PinkCloud.id_as_u16(),
+                                BlockTexture::PinkCloud.id_as_u16(),
                                 [cords[0] + x, cords[1] + y, cords[2] + z + puff_top]
                             );
                         }
@@ -229,12 +229,12 @@ impl GrassGenManager {
     pub fn new() -> Self {
         // Setup Ground item generation probabilitys
         let ground_items:Vec<GroundItem> = vec![
-            GroundItem {block_type: BlockType::white_flowers, weight: 20},
-            GroundItem {block_type: BlockType::yellow_flowers, weight: 20},
-            GroundItem {block_type: BlockType::flungle, weight: 1},
-            GroundItem {block_type: BlockType::mushroom, weight: 3},
-            GroundItem {block_type: BlockType::log, weight: 2},
-            GroundItem {block_type: BlockType::rock, weight: 3},
+            GroundItem {block_type: BlockTexture::white_flowers, weight: 20},
+            GroundItem {block_type: BlockTexture::yellow_flowers, weight: 20},
+            GroundItem {block_type: BlockTexture::flungle, weight: 1},
+            GroundItem {block_type: BlockTexture::mushroom, weight: 3},
+            GroundItem {block_type: BlockTexture::log, weight: 2},
+            GroundItem {block_type: BlockTexture::rock, weight: 3},
         ];
         // Setup Plant generation probabilitys
         let plants:Vec<Plant> = vec![
@@ -273,7 +273,7 @@ impl GrassGenManager {
 
 
     pub fn gen_grass(&mut self, cords: [i32; 3], world : &mut World) {
-        world.set_world_value(BlockType::Grass.id_as_u16(), cords);
+        world.set_world_value(BlockTexture::Grass.id_as_u16(), cords);
 
         // Get cords to generate item
         let mut above_grass = cords;
@@ -310,7 +310,7 @@ impl GrassGenManager {
     
         for item in &self.ground_items {
             if roll < item.weight {
-                if world.get_world_value(cords) == BlockType::Air.id_as_u16() {
+                if world.get_world_value(cords) == BlockTexture::Air.id_as_u16() {
                     world.set_world_value(item.block_type.id() as u16, cords);
                 }
                 return;
