@@ -1,4 +1,7 @@
-use crate::game_data::{TextureManager, screen::{Button, ScreenData, render_centered_string_at_ndc, ui_elements::{block_selection::BlockSelection, panel::Panel}}, types::{FontType, UITextures}};
+use miniquad::MouseButton;
+use rand::rand_core::block;
+
+use crate::game_data::{TextureManager, game_event_manager::game_event_manager::GameEventManager, screen::{Button, ScreenData, render_centered_string_at_ndc, ui_elements::{block_selection::BlockSelection, panel::Panel}}, types::{FontType, UITextures}};
 
 pub struct BuildingGUIManager {
     panel: Panel,
@@ -68,11 +71,24 @@ impl BuildingGUIManager {
         let panel_center = self.panel.get_panel_ndc_center();
         let panel_start_cords = self.panel.get_ndc();
         
+
+        // Block Selection Button
+        let block_selection_ndc = [panel_center[0] -(button_scale / 2.0), panel_start_cords[1] + (button_scale)];
+
         self.button_block_select.set_scale(button_scale);
-        self.button_block_select.set_ndc([panel_center[0] -(button_scale / 2.0), panel_start_cords[1] + (button_scale)]);
+        self.button_block_select.set_ndc(block_selection_ndc);
         self.button_block_select.set_text("Block Selection".to_string());
         self.button_block_select.set_block(crate::game_data::types::BlockTexture::selector);
 
+
+        // Block selection GUI
+        let block_selection_ndc = [
+            block_selection_ndc[0] + button_scale,
+            block_selection_ndc[1],
+        ];
+
+        self.block_selection.set_ndc(block_selection_ndc);
+        self.block_selection.set_scale([0.5, 0.5]);
 
         // Set GUI values
         self.gui_scale = [
@@ -110,11 +126,26 @@ impl BuildingGUIManager {
 
         // Render buttons
         self.button_block_select.render_button(texture_manager, screen_data);
+
+        // Render block selection
+        if self.block_selection_visible {
+            self.block_selection.render(texture_manager, screen_data);
+        }
     }
 
     //=====================================
     // Controls
     //=====================================
 
+    pub fn mouse_button_down_event(&mut self, event_manager: &mut GameEventManager, screen_data: &ScreenData, button: MouseButton) {
+        if MouseButton::Left == button {
+            if self.button_block_select.is_mouse_on_button() {
+                self.block_selection_visible = !self.block_selection_visible; 
+            }
+            if self.block_selection_visible {
+                self.button_block_select.set_block(self.block_selection.get_block_of_mouse());
+            }
+        }
+    }
 
 }

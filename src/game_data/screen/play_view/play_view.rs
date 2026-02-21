@@ -13,7 +13,7 @@ any other low level block interactions
 */
 pub struct PlayView {
     play_world_renderer: PlayWorldRender,
-    gui_manager: BuildingGUIManager,
+    building_gui_manager: BuildingGUIManager,
 
     
 }
@@ -22,7 +22,7 @@ impl PlayView {
     pub fn new() -> PlayView {
         PlayView {
             play_world_renderer: PlayWorldRender::new(),
-            gui_manager: BuildingGUIManager::new(),
+            building_gui_manager: BuildingGUIManager::new(),
 
 
 
@@ -37,9 +37,9 @@ impl PlayView {
 
     pub fn window_resize_update(&mut self, screen_data: &ScreenData) {
         // Resize GUI
-        self.gui_manager.window_resize_update(screen_data);
+        self.building_gui_manager.window_resize_update(screen_data);
 
-        let gui_width_ocupied = self.gui_manager.get_gui_pos()[2];
+        let gui_width_ocupied = self.building_gui_manager.get_gui_pos()[2];
         let screen_width_remaining = 1.0 - gui_width_ocupied;
 
         let center_of_remaining_space = [
@@ -62,7 +62,7 @@ impl PlayView {
         
         
         self.play_world_renderer.render_view(screen_data, texture_manager, world);    
-        self.gui_manager.render_view(screen_data, texture_manager);
+        self.building_gui_manager.render_view(screen_data, texture_manager);
 
     }
 
@@ -94,6 +94,7 @@ impl PlayView {
 
     pub fn mouse_button_down_event(&mut self, event_manager: &mut GameEventManager, screen_data: &ScreenData, button: MouseButton) {
         self.play_world_renderer.mouse_button_down_event(event_manager, screen_data, button);
+        self.building_gui_manager.mouse_button_down_event(event_manager, screen_data, button);
     }
 
     pub fn mouse_button_up_event(&mut self, event_manager: &mut GameEventManager, screen_data: &ScreenData, button: MouseButton) {
