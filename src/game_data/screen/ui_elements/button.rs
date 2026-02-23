@@ -14,6 +14,7 @@ pub struct Button {
     button_type: UITextures,
     block_type: Option<BlockTexture>,
     text: Option<String>,
+    text_scale: f32,
 
 }
 
@@ -38,6 +39,7 @@ impl Button {
             button_type: button_type,
             block_type: None,
             text: None,
+            text_scale: 0.0,
             
         }
     }
@@ -56,6 +58,7 @@ impl Button {
             button_type: button_type,
             block_type: None,
             text: None,
+            text_scale: 0.0,
         }
     }
 
@@ -88,6 +91,7 @@ impl Button {
         self.block_type = Some(block);
     }
     pub fn set_text(&mut self, text: String) {
+        self.text_scale = (self.scale / text.len() as f32 * 1.5);
         self.text = Some(text);
     }
 
@@ -144,7 +148,7 @@ impl Button {
                 render_centered_string_at_ndc(texture_manager, 
                     string.to_string(), 
                     FontType::Basic, 
-                    self.scale / 4.0, 
+                    self.text_scale, 
                     ndc
                 );
             }

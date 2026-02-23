@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use miniquad::{KeyCode, MouseButton};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, screen::{ScreenData, play_view::{gui::{building_gui_manager::BuildingGUIManager, drone_gui_manager::DroneGUIManager}, play_view_data::PlayViewData, world_rendering::play_world_renderer::PlayWorldRender}, screen_data}, texture_manager, types::UITextures, world};
+use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, screen::{ScreenData, play_view::{gui::{building_gui_manager::BuildingGUIManager, drone_gui_manager::DroneGUIManager}, play_view_data::{PlayMode, PlayViewData}, world_rendering::play_world_renderer::PlayWorldRender}, screen_data}, texture_manager, types::UITextures, world};
 /*
 ##############
 ## PlayView ##
@@ -33,11 +33,46 @@ impl PlayView {
         }
     }
 
+    //=====================================
+    // Getters / Setters
+    //=====================================
 
+    pub fn toggle_play_mode(&mut self) {
+        let current_play_mode = self.play_view_data.get_play_mode();
+        if current_play_mode == PlayMode::Build {
+            self.play_view_data.set_play_mode(PlayMode::DroneSpectate);
+
+        }
+        else if current_play_mode == PlayMode::DroneSpectate {
+            self.play_view_data.set_play_mode(PlayMode::Build);
+        }
+        self.re_center_play_world_rendering();
+    }
 
     //=====================================
     // Rendering
     //=====================================
+
+    pub fn re_center_play_world_rendering(&mut self) {
+        let mut gui_width_ocupied = 0.0;
+        let current_play_mode = self.play_view_data.get_play_mode();
+        if current_play_mode == PlayMode::Build {
+            gui_width_ocupied = self.building_gui_manager.get_gui_pos()[2];
+        }
+        else if current_play_mode == PlayMode::DroneSpectate {
+            gui_width_ocupied = self.drone_gui_manager.get_gui_pos()[2];
+        }
+        
+
+        let screen_width_remaining = 1.0 - gui_width_ocupied;
+        
+        let center_of_remaining_space = [
+            gui_width_ocupied + (screen_width_remaining / 2.0),
+            0.0,
+        ];
+
+        self.play_world_renderer.set_ndc_center_cords(center_of_remaining_space);
+    }
 
     pub fn window_resize_update(&mut self, screen_data: &ScreenData) {
         // Resize GUI
@@ -90,12 +125,11 @@ impl PlayView {
                 event_manager.add_render_event(RenderEvent::ChangeMenu(screen_data::CurrentMenu::Camera));
             }
             KeyCode::Tab => {
-                self.play_view_data.toggle_play_mode();
+                self.toggle_play_mode();
             }
             _ => {
             }
         }
-
     }
 
     pub fn mouse_wheel_event(&mut self, _x: f32, _y: f32) {

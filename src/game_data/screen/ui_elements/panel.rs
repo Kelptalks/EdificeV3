@@ -102,7 +102,7 @@ impl Panel {
 
         // Panel
         let panel_x_scale = (screen_end_ndc[0] - screen_start_ndc[1]) * scale;
-        let panel_y_scale = (screen_end_ndc[1] - screen_start_ndc[1]) * 0.9;
+        let panel_y_scale = (screen_end_ndc[1] - screen_start_ndc[1]) - (padding * 3.0);
 
         let panel_x_ndc_cor = screen_start_ndc[0] + (padding);
         let panel_y_ndc_cor = screen_start_ndc[1] + (padding);

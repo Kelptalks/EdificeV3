@@ -106,13 +106,8 @@ impl PlayViewData {
         return self.play_mode;
     }
 
-    pub fn toggle_play_mode(&mut self) {
-        if self.play_mode == PlayMode::Build {
-            self.play_mode = PlayMode::DroneSpectate;
-        }
-        else if self.play_mode == PlayMode::DroneSpectate {
-            self.play_mode = PlayMode::Build;
-        }
+    pub fn set_play_mode(&mut self, play_mode: PlayMode) {
+        self.play_mode = play_mode;
     }
 
     pub fn get_block_selected(&self) -> BlockTexture{
@@ -122,6 +117,7 @@ impl PlayViewData {
     pub fn set_block_selected(&mut self, new_block: BlockTexture) {
         self.block_selected = new_block;
     }
+
 
 
     //=====================================

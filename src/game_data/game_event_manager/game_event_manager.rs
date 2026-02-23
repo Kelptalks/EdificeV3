@@ -9,19 +9,32 @@ use crate::game_data::{World, game_event_manager::{render_event_manager::render_
 
 */
 
-pub struct EventTools {
+pub struct EventData {
+    // Events
+    world_events: Vec<WorldEvent>,
+    render_events: Vec<RenderEvent>,
+
+    // Tools
     world_gen_manager: WorldGenManager,
     level_manager: LevelManager,
 }
 
-impl EventTools {
-    pub fn new() -> EventTools {
-        EventTools {
+impl EventData {
+    pub fn new() -> EventData {
+        EventData {
+            // Events
+            world_events: Vec::new(),
+            render_events: Vec::new(),
+
+            // Tools
             world_gen_manager: WorldGenManager::new(),
             level_manager: LevelManager::new(),
         }
     }
 
+    //=====================================
+    // Tools
+    //=====================================
 
     pub fn get_mut_world_gen_manager(&mut self) -> &mut WorldGenManager {
         return &mut self.world_gen_manager;
@@ -39,6 +52,19 @@ impl EventTools {
         return &self.level_manager;
     }
 
+
+    //=====================================
+    // Events
+    //=====================================
+
+    pub fn add_world_event(&mut self, world_event: WorldEvent) {
+        self.world_events.push(world_event);
+    }
+
+    pub fn add_render_event(&mut self, render_event: RenderEvent) {
+        self.render_events.push(render_event);
+    }
+
 }
 
 /*
@@ -49,23 +75,15 @@ impl EventTools {
 */
 
 pub struct GameEventManager {
-    // Event
-    world_events: Vec<WorldEvent>,
-    render_events: Vec<RenderEvent>,
-
     // Event tools
-    event_tools: EventTools,
+    event_data: EventData,
 }
 
 impl GameEventManager {
     pub fn new() -> GameEventManager {
         GameEventManager {
-            // Events
-            world_events: Vec::new(),
-            render_events: Vec::new(),
-
             // Event tools
-            event_tools: EventTools::new(),
+            event_data: EventData::new(),
             
         }
     }
@@ -73,8 +91,8 @@ impl GameEventManager {
     //=====================================
     // Getters and setters
     //=====================================
-    pub fn get_event_tools(&self) -> &EventTools {
-        return &self.event_tools;
+    pub fn get_event_tools(&self) -> &EventData {
+        return &self.event_data;
     }
 
     //=====================================
@@ -83,16 +101,16 @@ impl GameEventManager {
 
     pub fn init_world(&mut self, world_config: WorldConfig) {
         let range = world_config.get_chunk_rendering_range();
-        self.render_events.push(RenderEvent::InitWorldRender(range));
-        self.world_events.push(WorldEvent::GenWorld(world_config));
+        self.event_data.render_events.push(RenderEvent::InitWorldRender(range));
+        self.event_data.world_events.push(WorldEvent::GenWorld(world_config));
     }
 
     pub fn add_world_event(&mut self, world_event: WorldEvent) {
-        self.world_events.push(world_event);
+        self.event_data.world_events.push(world_event);
     }
 
     pub fn add_render_event(&mut self, render_event: RenderEvent) {
-        self.render_events.push(render_event);
+        self.event_data.render_events.push(render_event);
     }
 
     //=====================================
@@ -100,14 +118,14 @@ impl GameEventManager {
     //=====================================
 
     pub fn execute_world_events(&mut self, world: &mut World) {
-        while let Some(world_event) = self.world_events.pop() {
-            world_event.execute_world_event(world, &mut self.event_tools);
+        while let Some(world_event) = self.event_data.world_events.pop() {
+            world_event.execute_world_event(world, &mut self.event_data);
         }
     }
 
     pub fn execute_render_events(&mut self, screen_mananager: &mut ScreenManager, world: &Arc<RwLock<World>>) {
-        while let Some(render_event) = self.render_events.pop() {
-            render_event.execute_render_event(&mut self.event_tools, screen_mananager, world);
+        while let Some(render_event) = self.event_data.render_events.pop() {
+            render_event.execute_render_event(&mut self.event_data, screen_mananager, world);
         }
     }
 }

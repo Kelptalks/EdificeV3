@@ -1,7 +1,13 @@
 use miniquad::MouseButton;
 use rand::rand_core::block;
 
-use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::GameEventManager, world_event_manager::world_event_manager::WorldEvent}, screen::{Button, ScreenData, play_view::play_view_data::{self, PlayViewData}, render_centered_string_at_ndc, ui_elements::{block_selection::BlockSelection, panel::Panel}}, types::{BlockTexture, FontType, UITextures}};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::GameEventManager, world_event_manager::world_event_manager::WorldEvent}, screen::{Button, ScreenData, play_view::{gui::area_selection_gui::AreaSelectionGUI, play_view_data::{self, PlayViewData}}, render_centered_string_at_ndc, ui_elements::{block_selection::BlockSelection, panel::Panel}}, types::{BlockTexture, FontType, UITextures}};
+
+
+enum BuildMode {
+    SingleBlock,
+    SelectionMode,
+}
 
 pub struct BuildingGUIManager {
     panel: Panel,
@@ -13,13 +19,20 @@ pub struct BuildingGUIManager {
     button_block_select: Button,
     block_selection: BlockSelection,
     block_selection_visible: bool,
+
+    button_toggle_build_mode: Button,
+    button_select_area_mode: Button,
+
+    // Area Selection
+    area_selection_gui: AreaSelectionGUI,
+
 }
 
 impl BuildingGUIManager {
     pub fn new() -> BuildingGUIManager {
         BuildingGUIManager {
             panel: Panel::new_blank(),
-            panal_padding_ndc_scale: 0.05,
+            panal_padding_ndc_scale: 0.025,
             gui_scale: [0.0, 0.0],
             ndc_pos: [0.0, 0.0, 0.0, 0.0],
 
@@ -28,6 +41,12 @@ impl BuildingGUIManager {
             block_selection: BlockSelection::new(),
             block_selection_visible: false,
 
+            // Build mode
+            button_toggle_build_mode: Button::new_blank(UITextures::ButtonCircle),
+            button_select_area_mode: Button::new_blank(UITextures::ButtonCircle),
+
+            // Area Secltion
+            area_selection_gui: AreaSelectionGUI::new(),
         }
     }
 
@@ -43,6 +62,15 @@ impl BuildingGUIManager {
         return self.ndc_pos;
     }
 
+    pub fn get_buttons_mut(&mut self) -> [&mut Button; 3] {
+        [
+            &mut self.button_block_select,
+            &mut self.button_toggle_build_mode,
+            &mut self.button_select_area_mode,
+            
+        ]
+    }
+
 
     //=====================================
     // Rendering
@@ -56,35 +84,50 @@ impl BuildingGUIManager {
         
 
         // Panel
-        self.panel.scale_to_fill_screen_left(screen_data, 0.025, 0.2);
+        self.panel.scale_to_fill_screen_left(screen_data, 0.025, 0.15);
         self.panel.set_title("Building".to_string());
         let panel_center = self.panel.get_panel_ndc_center();
         let panel_start_cords = self.panel.get_ndc();
         let panel_ndc_scale = self.panel.get_ndc_scale();
 
-        // Buttons
-        let button_scale = self.panel.get_tile_ndc_scale() * 3.0;
+
         
 
-        // Block Selection Button
-        let block_selection_ndc = [panel_center[0] -(button_scale / 2.0), panel_start_cords[1] + (button_scale)];
+        // Buttons
+        let button_scale = self.panel.get_tile_ndc_scale() * 3.0;
+        let mut current_button_ndc = [panel_center[0] -(button_scale / 2.0), panel_start_cords[1] + (button_scale)];
+        let button_spacing = button_scale + (button_scale * 0.5);
 
         self.button_block_select.set_scale(button_scale);
-        self.button_block_select.set_ndc(block_selection_ndc);
-        self.button_block_select.set_text("Block Selection".to_string());
-        self.button_block_select.set_block(crate::game_data::types::BlockTexture::selector);
+        self.button_block_select.set_ndc(current_button_ndc);
+        self.button_block_select.set_text("Block Type".to_string());
+        self.button_block_select.set_block(crate::game_data::types::BlockTexture::Debug);
+        current_button_ndc[1] += button_spacing;
 
 
-        // Block selection GUI
-        let block_selection_ndc = [
-            block_selection_ndc[0] + button_scale,
-            block_selection_ndc[1],
-        ];
+        self.button_toggle_build_mode.set_scale(button_scale);
+        self.button_toggle_build_mode.set_ndc(current_button_ndc);
+        self.button_toggle_build_mode.set_text("Toggle Build Mode".to_string());
+        self.button_toggle_build_mode.set_block(crate::game_data::types::BlockTexture::Grass);
+        current_button_ndc[1] += button_spacing;
 
+        
+        self.button_select_area_mode.set_scale(button_scale);
+        self.button_select_area_mode.set_ndc(current_button_ndc);
+        self.button_select_area_mode.set_text("Single Block Mode".to_string());
+        self.button_select_area_mode.set_block(crate::game_data::types::BlockTexture::selector);
+        current_button_ndc[1] += button_spacing;
+
+
+
+        // Block selection Menu
         let block_selection_scale = [panel_ndc_scale[0], panel_ndc_scale[1]];
-
         self.block_selection.set_scale(block_selection_scale);
         self.block_selection.set_ndc(panel_start_cords);
+
+        // Area selection GUI
+        self.area_selection_gui.set_ndc([panel_center[0] - (button_scale), current_button_ndc[1]]);
+        self.area_selection_gui.set_x_scale(button_scale * 2.0);
 
         // Set GUI values
         self.gui_scale = [
@@ -109,12 +152,17 @@ impl BuildingGUIManager {
         self.panel.render(texture_manager);
 
         // Render buttons
-        self.button_block_select.render_button(texture_manager, screen_data);
+        let buttons = self.get_buttons_mut();
+        for button in buttons {
+            button.render_button(texture_manager, screen_data);
+        }
 
         // Render block selection
         if self.block_selection_visible {
             self.block_selection.render(texture_manager, screen_data);
         }
+
+        self.area_selection_gui.render_view(screen_data, texture_manager);
     }
 
     //=====================================
@@ -122,10 +170,8 @@ impl BuildingGUIManager {
     //=====================================
 
     pub fn mouse_button_down_event(&mut self, event_manager: &mut GameEventManager, play_view_data: &mut PlayViewData, screen_data: &ScreenData, button: MouseButton) {
-        
         // If on GUI
         if screen_data.mouse_on_ndc_pos(self.ndc_pos) {
-            print!("test");
             if MouseButton::Left == button {
                 if self.button_block_select.is_mouse_on_button() {
                     self.block_selection_visible = !self.block_selection_visible; 

@@ -5,53 +5,8 @@ use miniquad::{KeyCode, MouseButton};
 
 use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, game_event_manager::{game_event_manager::{self, GameEventManager}, world_event_manager::world_event_manager::WorldEvent}, screen::{ScreenData, camera_data::Direction, iso_cord_tool, play_view::play_view_data::{self, PlayViewData}, screen_data, text}, types::BlockTexture};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[repr(u8)]
-enum ViewDirection {
-    North = 0,
-    South = 1,
-    East = 2,
-    West = 3,
-}
-
-impl ViewDirection {
-    pub fn offsets(&self) -> [i32; 3] {
-        match self {
-            ViewDirection::North => [1, 1, 1],
-            ViewDirection::South => [1, -1, 1],
-            ViewDirection::East => [-1, -1, 1],
-            ViewDirection::West => [-1, 1, 1],
-        }
-    }
-
-    pub fn from_id(id: u8) -> Self {
-        match id {
-            0 => ViewDirection::North,
-            1 => ViewDirection::South,
-            2 => ViewDirection::East,
-            3 => ViewDirection::West,
-            _ => ViewDirection::North,
-        }
-    }
-
-    pub fn id(&self) -> u8 {
-        *self as u8
-    }
-
-    pub fn to_string(&self) -> String {
-        match self {
-            ViewDirection::North => "North".to_string(),
-            ViewDirection::South => "South".to_string(),
-            ViewDirection::East => "East".to_string(),
-            ViewDirection::West => "West".to_string(),
-        }
-    }
-}
-
-
-
 static MAX_VIEW_DISTANCE: i32 = 20;
-static MIN_VIEW_DISTANCE: i32 = 1;
+static MIN_VIEW_DISTANCE: i32 = 0;
 
 pub struct PlayWorldRender {
     ndc_cords: [f32; 2],

@@ -4,7 +4,7 @@ This is where I track progress through time worked and other metrics
 
 ## Week 1
 
-**Hours: 23**
+**Hours: 23.0**
 - 1/5/26 = 5
 - 1/6/26 = 4
 - 1/7/26 = 5
@@ -44,7 +44,7 @@ This is where I track progress through time worked and other metrics
 ---------------------------------------------------------------
 ## Week 3
 
-**Hours: 1**
+**Hours: 1.0**
 1/23/26 = 1
 
 **Notes:**
@@ -57,7 +57,7 @@ Low due to Chile vacation
 ---------------------------------------------------------------
 ## Week 4
 
-**Hours: 10**
+**Hours: 10.0**
 - 1/30/26 = 4
 - 1/31/26 = 6
 
@@ -76,7 +76,7 @@ Low due to Chile vacation
 ---------------------------------------------------------------
 ## Week 5
 
-**Hours: 19**
+**Hours: 19.0**
 - 2/1/26 = 6
 - 2/2/26 = 1.5
 - 2/3/26 = 7.5
@@ -101,7 +101,7 @@ Low due New Girl
 
 
 ---------------------------------------------------------------
-## Week template
+## Week 6
 
 **Hours: 7.0**
 - 2/9/26 = 3.5
@@ -122,26 +122,42 @@ Low due to Dog Sitting and new girl
 + Completed quarry scripts
 
 ---------------------------------------------------------------
-## Week 
+## Week 7
 
-**Hours:**
+**Hours: 11.0**
 - 2/15/26 = 1.5
 - 2/16/26 = 2
 - 2/17/26 = 1.5
 - 2/19/26 = 3
+- 2/21/26 = 3
 
 
 **Lines**
 - 2/15/26 = 10962 
 - 2/16/26 = 11146
 - 2/18/26 = 11412
+- 2/21/26 = 12008
 
 **Notes:**
 
 ***Additions***
 + Started on Player View Camera
     + Basic World Rendering
+    + World building crosshair
+    + Block selection Menu
 
++ Other rendering / event arcutecture reworks
+
+---------------------------------------------------------------
+## Week 8
+
+**Hours:**
+- 2/23/26 = 2
+
+**Lines**
+
+**Notes:**
++ Area selection
 
 ---------------------------------------------------------------
 ## Week NUM

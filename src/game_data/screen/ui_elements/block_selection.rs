@@ -52,15 +52,22 @@ impl BlockSelection {
 
         // Re calculate block dimentions based of asspect racio
         let total_blocks = BlockTexture::get_total_blocks();
-        let x_to_y_racio = self.scale[0] / self.scale[1];
+        let x_to_y_ratio = self.scale[0] / self.scale[1];
 
-        let square_root_of_total_blocks = (total_blocks as f32).sqrt();
-        self.blocks_per_row = (x_to_y_racio * square_root_of_total_blocks) as u32;
-        
-        let spacing_racio = 0.1;
-        self.block_ndc_spacing = self.scale[0] / self.blocks_per_row as f32;
-        self.block_ndc_scale = self.block_ndc_spacing * (1.0 - spacing_racio);
-        self.block_ndc_gap = self.block_ndc_spacing * spacing_racio;
+        // Correct formula: sqrt(total * ratio), then ceil so all blocks fit
+        // This ensures cell_width ≈ cell_height (square blocks)
+        self.blocks_per_row = ((total_blocks as f32 * x_to_y_ratio).sqrt()).ceil() as u32;
+
+        // Clamp to avoid division by zero or degenerate layouts
+        self.blocks_per_row = self.blocks_per_row.max(1);
+
+        // Cell size is the same in both axes (blocks are square)
+        let cell_size = self.scale[0] / self.blocks_per_row as f32;
+
+        let spacing_ratio = 0.1;
+        self.block_ndc_spacing = cell_size;
+        self.block_ndc_scale  = cell_size * (1.0 - spacing_ratio);
+        self.block_ndc_gap    = cell_size * spacing_ratio;
 
     }
 
@@ -133,12 +140,18 @@ impl BlockSelection {
             mouse_ndc[1] - self.ndc[1]
         ];
 
-        let block_indexes = [
-            (relative_mouse_cor[0] / self.block_ndc_spacing) as u32,
-            (relative_mouse_cor[1] / self.block_ndc_spacing ) as u32
-        ];
+        // Mouse not on window 
+        if relative_mouse_cor[0] > self.scale[0] || relative_mouse_cor[1] > self.scale[1] {
+            return;
+        } 
+        else {
+            let block_indexes = [
+                (relative_mouse_cor[0] / self.block_ndc_spacing) as u32,
+                (relative_mouse_cor[1] / self.block_ndc_spacing ) as u32
+            ];
 
-        self.mouse_on_block = (block_indexes[0] + (block_indexes[1] * self.blocks_per_row)) as u16;
+            self.mouse_on_block = (block_indexes[0] + (block_indexes[1] * self.blocks_per_row)) as u16;
+        }
 
 
     }
