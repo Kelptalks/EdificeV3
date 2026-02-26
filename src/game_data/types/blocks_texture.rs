@@ -81,7 +81,7 @@ pub enum BlockTexture {
     conveyor3 = 72,
     conveyor4 = 73,
     conveyor5 = 74,
-    selector = 75,
+    Selector = 75,
     translucent_green = 76,
     translucent_red = 77,
 
@@ -93,6 +93,8 @@ pub enum BlockTexture {
 
     SelectorVertical = 82,
     SelectorVerticalRed = 83,
+
+    Dot = 84,
 
 }
 
@@ -108,7 +110,7 @@ pub struct BlockProperties {
     pub item_quantity: u32,
 }
 
-static BLOCK_PROPERTIES: [BlockProperties; 84] = [
+static BLOCK_PROPERTIES: [BlockProperties; 85] = [
     BlockProperties { transparent: true,  translucent: true,  solid: false, hardness: 0,   friction: 1,   item: DroneItem::Ash,          item_quantity: 1},      // Air
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 100, friction: 5,   item: DroneItem::Stone,        item_quantity: 1},    // Stone
     BlockProperties { transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 30,  item: DroneItem::PlantMatter,  item_quantity: 2},     // Grass
@@ -193,6 +195,7 @@ static BLOCK_PROPERTIES: [BlockProperties; 84] = [
     BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Selector Bar Right Red
     BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Selector Vertical
     BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Selector Vertical Red
+    BlockProperties { transparent: false, translucent: true,  solid: false,  hardness: 0, friction: 0,  item: DroneItem::PlantMatter,   item_quantity: 1 },     // Dot
 ];
 
 impl BlockTexture {
@@ -246,7 +249,7 @@ impl BlockTexture {
     }
 
     pub fn from_id(id: u16) -> BlockTexture {
-        if id <= BlockTexture::SelectorVerticalRed as u16 {
+        if id <= BlockTexture::Dot as u16 {
             unsafe { std::mem::transmute(id) }
         } else {
             BlockTexture::Air

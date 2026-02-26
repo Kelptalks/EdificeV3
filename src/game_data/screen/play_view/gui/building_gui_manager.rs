@@ -21,7 +21,7 @@ pub struct BuildingGUIManager {
     block_selection_visible: bool,
 
     button_toggle_build_mode: Button,
-    button_select_area_mode: Button,
+    create_location: Button,
 
     // Area Selection
     area_selection_gui: AreaSelectionGUI,
@@ -43,7 +43,7 @@ impl BuildingGUIManager {
 
             // Build mode
             button_toggle_build_mode: Button::new_blank(UITextures::ButtonCircle),
-            button_select_area_mode: Button::new_blank(UITextures::ButtonCircle),
+            create_location: Button::new_blank(UITextures::ButtonCircle),
 
             // Area Secltion
             area_selection_gui: AreaSelectionGUI::new(),
@@ -66,7 +66,7 @@ impl BuildingGUIManager {
         [
             &mut self.button_block_select,
             &mut self.button_toggle_build_mode,
-            &mut self.button_select_area_mode,
+            &mut self.create_location,
             
         ]
     }
@@ -90,9 +90,6 @@ impl BuildingGUIManager {
         let panel_start_cords = self.panel.get_ndc();
         let panel_ndc_scale = self.panel.get_ndc_scale();
 
-
-        
-
         // Buttons
         let button_scale = self.panel.get_tile_ndc_scale() * 3.0;
         let mut current_button_ndc = [panel_center[0] -(button_scale / 2.0), panel_start_cords[1] + (button_scale)];
@@ -104,21 +101,17 @@ impl BuildingGUIManager {
         self.button_block_select.set_block(crate::game_data::types::BlockTexture::Debug);
         current_button_ndc[1] += button_spacing;
 
-
         self.button_toggle_build_mode.set_scale(button_scale);
         self.button_toggle_build_mode.set_ndc(current_button_ndc);
         self.button_toggle_build_mode.set_text("Toggle Build Mode".to_string());
         self.button_toggle_build_mode.set_block(crate::game_data::types::BlockTexture::Grass);
         current_button_ndc[1] += button_spacing;
-
         
-        self.button_select_area_mode.set_scale(button_scale);
-        self.button_select_area_mode.set_ndc(current_button_ndc);
-        self.button_select_area_mode.set_text("Single Block Mode".to_string());
-        self.button_select_area_mode.set_block(crate::game_data::types::BlockTexture::selector);
+        self.create_location.set_scale(button_scale);
+        self.create_location.set_ndc(current_button_ndc);
+        self.create_location.set_text("Create Location".to_string());
+        self.create_location.set_block(crate::game_data::types::BlockTexture::Selector);
         current_button_ndc[1] += button_spacing;
-
-
 
         // Block selection Menu
         let block_selection_scale = [panel_ndc_scale[0], panel_ndc_scale[1]];
@@ -126,8 +119,11 @@ impl BuildingGUIManager {
         self.block_selection.set_ndc(panel_start_cords);
 
         // Area selection GUI
-        self.area_selection_gui.set_ndc([panel_center[0] - (button_scale), current_button_ndc[1]]);
-        self.area_selection_gui.set_x_scale(button_scale * 2.0);
+        let area_selection_x_scale = panel_ndc_scale[0] / 2.0;
+        let area_selection_ndc = [panel_center[0] - (area_selection_x_scale / 2.0), current_button_ndc[1]];
+
+        self.area_selection_gui.set_ndc(area_selection_ndc);
+        self.area_selection_gui.set_x_scale(area_selection_x_scale);
 
         // Set GUI values
         self.gui_scale = [
@@ -151,30 +147,36 @@ impl BuildingGUIManager {
         // Render background
         self.panel.render(texture_manager);
 
-        // Render buttons
-        let buttons = self.get_buttons_mut();
-        for button in buttons {
-            button.render_button(texture_manager, screen_data);
-        }
+        
 
         // Render block selection
         if self.block_selection_visible {
             self.block_selection.render(texture_manager, screen_data);
         }
-
-        self.area_selection_gui.render_view(screen_data, texture_manager);
+        else {
+            // Render buttons
+            let buttons = self.get_buttons_mut();
+            for button in buttons {
+                button.render_button(texture_manager, screen_data);
+            }
+            self.area_selection_gui.render_view(screen_data, texture_manager);
+        }
     }
+
 
     //=====================================
     // Controls
     //=====================================
-
     pub fn mouse_button_down_event(&mut self, event_manager: &mut GameEventManager, play_view_data: &mut PlayViewData, screen_data: &ScreenData, button: MouseButton) {
         // If on GUI
         if screen_data.mouse_on_ndc_pos(self.ndc_pos) {
+            self.area_selection_gui.mouse_button_down_event(event_manager, play_view_data, screen_data, button);
             if MouseButton::Left == button {
                 if self.button_block_select.is_mouse_on_button() {
                     self.block_selection_visible = !self.block_selection_visible; 
+                }
+                else if self.create_location.is_mouse_on_button() {
+                    play_view_data.add_area(self.area_selection_gui.get_world_area().clone());
                 }
                 else if self.block_selection_visible {
                     self.block_selection_visible = false;
@@ -186,7 +188,7 @@ impl BuildingGUIManager {
         // If on Render
         else {
             if button == MouseButton::Left {
-            event_manager.add_world_event(WorldEvent::ModBlock(play_view_data.get_world_cords(), BlockTexture::Air));
+                event_manager.add_world_event(WorldEvent::ModBlock(play_view_data.get_world_cords(), BlockTexture::Air));
             }
             else if button == MouseButton::Right {
                 event_manager.add_world_event(WorldEvent::ModBlock(play_view_data.get_world_cords(), play_view_data.get_block_selected()));

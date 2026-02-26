@@ -1,4 +1,4 @@
-use crate::game_data::{debuging::debug_data::DebugData, types::BlockTexture};
+use crate::game_data::{debuging::debug_data::DebugData, locations::world_area::WorldArea, types::BlockTexture};
 
 
 /*
@@ -84,17 +84,23 @@ pub struct PlayViewData {
     world_cords: [i32; 3],
     view_direction: ViewDirection,
 
+    // World
+    areas_selected: Vec<WorldArea>,
 }
 
 impl PlayViewData {
     pub fn new() -> PlayViewData {
         PlayViewData {
+            // Controls
             play_mode: PlayMode::Build,
             block_selected: BlockTexture::Air,
 
             // Camera
             world_cords: [0, 0, 0],
             view_direction: ViewDirection::North,
+
+            // World
+            areas_selected: Vec::new(),
         }
     }
 
@@ -163,6 +169,19 @@ impl PlayViewData {
         else {
             self.view_direction = ViewDirection::from_id(3);
         }
+    }
+
+    //=====================================
+    // World
+    //=====================================
+
+
+    pub fn add_area(&mut self, area: WorldArea) {
+        self.areas_selected.push(area);
+    }
+
+    pub fn get_areas_selected(&self) -> &Vec<WorldArea> {
+        return &self.areas_selected;
     }
 
     //=====================================

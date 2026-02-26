@@ -3,14 +3,15 @@ use std::sync::{Arc, RwLock};
 use image::flat::View;
 use miniquad::{KeyCode, MouseButton};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, game_event_manager::{game_event_manager::{self, GameEventManager}, world_event_manager::world_event_manager::WorldEvent}, screen::{ScreenData, camera_data::Direction, iso_cord_tool, play_view::play_view_data::{self, PlayViewData}, screen_data, text}, types::BlockTexture};
+use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, game_event_manager::{game_event_manager::{self, GameEventManager}, world_event_manager::world_event_manager::WorldEvent}, screen::{ScreenData, camera_data::Direction, iso_cord_tool, play_view::{gui::building_gui_manager::{self, BuildingGUIManager}, play_view_data::{self, PlayViewData}, world_rendering::play_block::{self, PlayBlock}}, screen_data, text}, types::BlockTexture};
 
 static MAX_VIEW_DISTANCE: i32 = 20;
 static MIN_VIEW_DISTANCE: i32 = 0;
 
 pub struct PlayWorldRender {
     ndc_cords: [f32; 2],
-    
+
+
     // World
     zoom: i32,
     camera_ndc_offset: [f32; 2],
@@ -31,7 +32,6 @@ impl PlayWorldRender {
             // Rendering
             zoom: 10,
             camera_ndc_offset: [0.0, 0.0],
-
             render_scale: 0.5,
 
             ndc_block_scale: 0.0,
@@ -66,7 +66,12 @@ impl PlayWorldRender {
         self.ndc_tile_half_scale = self.ndc_tile_scale / 2.0;
     }
 
-    pub fn render_view(&mut self, screen_data: &ScreenData, play_view_data: &mut PlayViewData, texture_manager: &mut TextureManager, world: &Arc<RwLock<World>>) {
+    pub fn render_view(&mut self, 
+        screen_data: &ScreenData, 
+        play_view_data: &mut PlayViewData,
+        texture_manager: &mut TextureManager,
+        world: &Arc<RwLock<World>>
+    ) {
         self.update_rendering_scales();
         self.handle_camera_panning(play_view_data, screen_data);
 
@@ -77,6 +82,7 @@ impl PlayWorldRender {
         let direction_offsets = play_view_data.get_view_direction_offsets();
 
         let camera_cords = play_view_data.get_world_cords();
+
         // Loop through blocks in zoom
         for z in -self.zoom..=self.zoom {
             for y in -self.zoom..=self.zoom {
@@ -98,43 +104,27 @@ impl PlayWorldRender {
                     draw_cords[1] += self.camera_ndc_offset[1];
 
 
-                    texture_manager.render_block(block_type_at_cord, draw_cords, self.ndc_block_scale);
+                    // Create play block
+                    let mut play_block = PlayBlock::new_blank();
 
-                    // Render Selector if at center
-                    if x == 0 && y == 0 && z == 0 {
-                        if block_type_at_cord != BlockTexture::Air {
-                            texture_manager.render_block(BlockTexture::translucent_red, draw_cords, self.ndc_block_scale);
-                        }
-                        texture_manager.render_block(BlockTexture::selector, draw_cords, self.ndc_block_scale);
+                    // World
+                    play_block.block_type = block_type_at_cord;
+                    play_block.block_world_cords = world_block_cords;
+
+                    // Rendering
+                    play_block.rendering_block_cords = [x, y, z];
+                    play_block.draw_cords = draw_cords;
+                    play_block.ndc_block_scale = self.ndc_block_scale;
+
+
+                    play_block.render_block(texture_manager);
+                    play_block.render_cursor(texture_manager);
+                    
+                    for area in play_view_data.get_areas_selected() {
+                        play_block.render_area_selection(texture_manager, area);
                     }
-                    // Render Selector bars
-                    else if !block_type_at_cord.is_solid(){
-                        
-                        if block_type_at_cord == BlockTexture::Air {
-                            if z == 0 {
-                                if x == 0 {
-                                    texture_manager.render_block(BlockTexture::SelectorBarRight, draw_cords, self.ndc_block_scale);
-                                }
-                                else if y == 0 {
-                                    texture_manager.render_block(BlockTexture::SelectorBarLeft, draw_cords, self.ndc_block_scale);
-                                }
-                            }
-                            else if x == 0 && y == 0 {
-                                texture_manager.render_block(BlockTexture::SelectorVertical, draw_cords, self.ndc_block_scale);
-                            }
-                        }
-                        else if z == 0 {
-                            if x == 0 {
-                                texture_manager.render_block(BlockTexture::SelectorBarRightRed, draw_cords, self.ndc_block_scale);
-                            }
-                            else if y == 0 {
-                                texture_manager.render_block(BlockTexture::SelectorBarLeftRed, draw_cords, self.ndc_block_scale);
-                            }
-                        }
-                        else if x == 0 && y == 0 {
-                            texture_manager.render_block(BlockTexture::SelectorVerticalRed, draw_cords, self.ndc_block_scale);
-                        }
-                    }
+
+
                 }
             }
         }
@@ -237,12 +227,7 @@ impl PlayWorldRender {
     }
 
     pub fn mouse_button_down_event(&mut self, event_manager: &mut GameEventManager, play_view_data: &PlayViewData, screen_data: &ScreenData, button: MouseButton) {
-        if button == MouseButton::Left {
-            event_manager.add_world_event(WorldEvent::ModBlock(play_view_data.get_world_cords(), BlockTexture::Air));
-        }
-        else if button == MouseButton::Right {
-            event_manager.add_world_event(WorldEvent::ModBlock(play_view_data.get_world_cords(), play_view_data.get_block_selected()));
-        }
+        
     }
 
     pub fn mouse_button_up_event(&mut self, event_manager: &mut GameEventManager, screen_data: &ScreenData, button: MouseButton) {

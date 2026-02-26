@@ -1,25 +1,12 @@
-use crate::game_data::{TextureManager, screen::{Button, ScreenData}};
+use miniquad::MouseButton;
+
+use crate::game_data::{TextureManager, game_event_manager::game_event_manager::GameEventManager, locations::world_area::WorldArea, screen::{Button, ScreenData, play_view::play_view_data::{self, PlayViewData}}, types::UITextures};
 
 
-
-struct WorldPointerButtonSetter {
-    button: Button,
-    world_cords: [i32; 3],
-    is_set: bool,
-}
-
-impl WorldPointerButtonSetter {
-    fn new() -> WorldPointerButtonSetter {
-        WorldPointerButtonSetter {
-            button: Button::new_blank(crate::game_data::types::UITextures::ButtonCircle),
-            world_cords: [0, 0, 0],
-            is_set: false,
-        }
-    }
-}
 
 pub struct AreaSelectionGUI {
-    world_points: [WorldPointerButtonSetter; 3],
+    area: WorldArea,
+    buttons: [Button; 2],
     ndc: [f32; 2],
     scale: [f32; 2],
 
@@ -27,14 +14,11 @@ pub struct AreaSelectionGUI {
 
 impl AreaSelectionGUI {
     pub fn new() -> AreaSelectionGUI{
-        let world_points = [
-            WorldPointerButtonSetter::new(),
-            WorldPointerButtonSetter::new(),
-            WorldPointerButtonSetter::new(),
-        ];
-        
+
+
         AreaSelectionGUI {
-            world_points,
+            area: WorldArea::new_blank(),
+            buttons: [Button::new_blank(UITextures::ButtonCircle), Button::new_blank(UITextures::ButtonCircle)],
             ndc: [0.0, 0.0],
             scale: [0.0, 0.0],
         }
@@ -45,16 +29,16 @@ impl AreaSelectionGUI {
     //=====================================
 
     fn resize_world_points(&mut self) {
-        let button_scale = (3.0 * self.scale[0] / 11.0).min(self.scale[1]);
-        let stride = button_scale + button_scale / 3.0;
+        let button_scale = self.scale[0] / 2.0;
+        let stride = button_scale;
 
-        for (index, world_points) in self.world_points.iter_mut().enumerate() {
+        for (index, button) in self.buttons.iter_mut().enumerate() {
             let button_ndc = [
                 self.ndc[0] + (index as f32 * stride),
                 self.ndc[1],
             ];
-            world_points.button.set_ndc(button_ndc);
-            world_points.button.set_scale(button_scale);
+            button.set_ndc(button_ndc);
+            button.set_scale(button_scale);
         }
 
     }
@@ -70,6 +54,10 @@ impl AreaSelectionGUI {
         self.resize_world_points();
     }
 
+    pub fn get_world_area(&self) -> &WorldArea {
+        return &self.area;
+    }
+
     //=====================================
     // Rendering
     //=====================================
@@ -77,10 +65,32 @@ impl AreaSelectionGUI {
     pub fn render_view(
         &mut self, 
         screen_data: &ScreenData, 
-        texture_manager: &mut TextureManager, 
+        texture_manager: &mut TextureManager,
     ) {
-        for world_points in &mut self.world_points {
-            world_points.button.render_button(texture_manager, screen_data);
+        for button in &mut self.buttons {
+            button.render_button(texture_manager, screen_data);
+        }
+    }
+
+
+    pub fn mouse_button_down_event(&mut self, 
+        event_manager: &mut GameEventManager, 
+        play_view_data: &mut PlayViewData, 
+        screen_data: &ScreenData, 
+        button: MouseButton
+    ) {
+        if MouseButton::Left == button {
+
+            if self.buttons[0].is_mouse_on_button() {
+                self.area.set_point_1(play_view_data.get_world_cords());
+                let text = format!("{:?}", play_view_data.get_world_cords());
+                self.buttons[0].set_text(text);
+            }
+            else if self.buttons[1].is_mouse_on_button() {
+                self.area.set_point_2(play_view_data.get_world_cords());
+                let text = format!("{:?}", play_view_data.get_world_cords());
+                self.buttons[1].set_text(text);
+            }
         }
     }
 }

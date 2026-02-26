@@ -101,7 +101,11 @@ impl PlayView {
         texture_manager.render_ui_element_with_pos(UITextures::VoidBackground, screen_data.get_viewport_uv());
         
         
-        self.play_world_renderer.render_view(screen_data, &mut self.play_view_data, texture_manager, world);    
+        self.play_world_renderer.render_view(screen_data, 
+            &mut self.play_view_data,
+            texture_manager, 
+            world
+        );    
         match self.play_view_data.get_play_mode() {
             super::play_view_data::PlayMode::Build => {
                 self.building_gui_manager.render(screen_data, texture_manager);
