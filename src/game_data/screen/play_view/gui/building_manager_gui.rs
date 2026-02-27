@@ -78,39 +78,42 @@ impl BuildingGUIManager {
         // Panel
         let panel_padding_scale = play_view_data.get_panel_padding_scale();
 
-        self.panel.scale_to_fill_screen_left(screen_data, panel_padding_scale, 0.15);
+        self.panel.scale_to_fill_screen_left(screen_data, panel_padding_scale, 0.10);
         self.panel.set_title("Building".to_string());
         self.panel.set_tile_ndc_scale(play_view_data.get_panel_tile_scale());
 
         let panel_center = self.panel.get_panel_ndc_center();
-        let panel_start_cords = self.panel.get_ndc();
+        let panel_start_cords = self.panel.get_text_ending_ndc();
         let panel_ndc_scale = self.panel.get_ndc_scale();
 
         // Buttons
-        let button_scale = self.panel.get_tile_ndc_scale() * 3.0;
-        let mut current_button_ndc = [panel_center[0] -(button_scale / 2.0), panel_start_cords[1] + (button_scale)];
-        let button_spacing = button_scale + (button_scale * 0.5);
+        let button_scale = panel_ndc_scale[0] * 0.6;
+        let button_spacing = button_scale * 0.2;
+        let button_step = button_scale + button_spacing;
+        let mut current_button_ndc = [panel_center[0] -(button_scale / 2.0), panel_start_cords[1] + button_spacing];
+        
 
         self.button_block_select.set_scale(button_scale);
         self.button_block_select.set_ndc(current_button_ndc);
         self.button_block_select.set_text("Block Type".to_string());
         self.button_block_select.set_block(crate::game_data::types::BlockTexture::Debug);
-        current_button_ndc[1] += button_spacing;
+        current_button_ndc[1] += button_step;
 
         self.button_toggle_build_mode.set_scale(button_scale);
         self.button_toggle_build_mode.set_ndc(current_button_ndc);
         self.button_toggle_build_mode.set_text("Toggle Build Mode".to_string());
         self.button_toggle_build_mode.set_block(crate::game_data::types::BlockTexture::Grass);
-        current_button_ndc[1] += button_spacing;
+        current_button_ndc[1] += button_step;
         
         self.create_location.set_scale(button_scale);
         self.create_location.set_ndc(current_button_ndc);
         self.create_location.set_text("Create Location".to_string());
         self.create_location.set_block(crate::game_data::types::BlockTexture::Selector);
-        current_button_ndc[1] += button_spacing;
+        current_button_ndc[1] += button_step;
 
         // Block selection Menu
         let block_selection_scale = [panel_ndc_scale[0], panel_ndc_scale[1]];
+        self.block_selection.get_mut_panel().set_tile_ndc_scale(play_view_data.get_panel_tile_scale());
         self.block_selection.set_scale(block_selection_scale);
         self.block_selection.set_ndc(panel_start_cords);
 
@@ -156,17 +159,20 @@ impl BuildingGUIManager {
     // Controls
     //=====================================
     pub fn mouse_button_down_event(&mut self, event_manager: &mut GameEventManager, play_view_data: &mut PlayViewData, screen_data: &ScreenData, button: MouseButton) {
+        
+        // Block selection updates
+        if self.block_selection_visible {
+            self.block_selection_visible = false;
+            play_view_data.set_block_selected(self.block_selection.get_block_of_mouse());
+            self.button_block_select.set_block(self.block_selection.get_block_of_mouse());
+            self.block_selection_visible = !self.block_selection_visible; 
+        }
+        
         // If on GUI
         if screen_data.mouse_on_ndc_pos(self.ndc_pos) {
-            
             if MouseButton::Left == button {
                 if self.button_block_select.is_mouse_on_button() {
                     self.block_selection_visible = !self.block_selection_visible; 
-                }
-                else if self.block_selection_visible {
-                    self.block_selection_visible = false;
-                    play_view_data.set_block_selected(self.block_selection.get_block_of_mouse());
-                    self.button_block_select.set_block(self.block_selection.get_block_of_mouse());
                 }
             }
         }

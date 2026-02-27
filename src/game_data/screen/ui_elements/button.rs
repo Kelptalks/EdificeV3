@@ -1,6 +1,6 @@
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndc}, types::{BlockTexture, FontType, UITextures}};
+use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndc, text::render_string_at_ndc, ui_elements::panel::Panel}, types::{BlockTexture, FontType, UITextures}};
 
 pub struct Button { 
     // Rendering
@@ -13,8 +13,13 @@ pub struct Button {
     // Apearence
     button_type: UITextures,
     block_type: Option<BlockTexture>,
+
+    // Text
     text: Option<String>,
+    text_panel: Panel,
+    text_panel_padding: f32,
     text_scale: f32,
+    text_font: FontType,
 
 }
 
@@ -23,8 +28,6 @@ impl Button {
     //=====================================
     // Constructors
     //=====================================
-
-    
     // Create button at a location
     pub fn new(cords: [f32; 2], scale: f32, button_type: UITextures) -> Button {
         Button {
@@ -38,8 +41,13 @@ impl Button {
             // Apearence
             button_type: button_type,
             block_type: None,
+            
+            // Text
             text: None,
-            text_scale: 0.0,
+            text_panel: Panel::new_blank(),
+            text_panel_padding: 0.015,
+            text_scale: 0.025,
+            text_font: FontType::Basic,
             
         }
     }
@@ -57,8 +65,13 @@ impl Button {
             // Apearence
             button_type: button_type,
             block_type: None,
+
+            // Text
             text: None,
-            text_scale: 0.0,
+            text_panel: Panel::new_blank(),
+            text_panel_padding: 0.015,
+            text_scale: 0.025,
+            text_font: FontType::Basic,
         }
     }
 
@@ -91,7 +104,15 @@ impl Button {
         self.block_type = Some(block);
     }
     pub fn set_text(&mut self, text: String) {
-        self.text_scale = (self.scale / text.len() as f32 * 1.5);
+        self.text_scale = 0.025;
+
+
+        self.text_panel.set_ndc_scale([
+            (self.text_scale * (text.len() + 1) as f32) + (self.text_panel_padding * 2.0), 
+            (self.text_panel_padding * 2.0) + self.text_scale,
+        ]);
+        self.text_panel.set_tile_ndc_scale(self.text_scale / 6.0);
+
         self.text = Some(text);
     }
 
@@ -140,14 +161,21 @@ impl Button {
         // If has text and mouse is on button render text above button
         if let Some(string) = &self.text {
             if self.is_mouse_on {
-                let ndc = [
-                    self.ndc[0] + self.scale / 2.0,
-                    self.ndc[1] - self.scale / 4.0,
-                ];
+                let mut ndc = screen_data.get_mouse_ndc();
+                ndc[0] += self.text_panel_padding * 2.0;
+                ndc[1] -= self.text_scale / 2.0;
 
-                render_centered_string_at_ndc(texture_manager, 
+                let panel_ndc = [
+                    ndc[0] - self.text_panel_padding,
+                    ndc[1] - self.text_panel_padding,
+                ];
+                self.text_panel.set_ndc(panel_ndc);
+                self.text_panel.render(texture_manager);
+
+                render_string_at_ndc(
+                    texture_manager, 
                     string.to_string(), 
-                    FontType::Basic, 
+                    self.text_font, 
                     self.text_scale, 
                     ndc
                 );

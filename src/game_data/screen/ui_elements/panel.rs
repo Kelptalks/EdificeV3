@@ -85,6 +85,12 @@ impl Panel {
     pub fn get_ndc(&self) -> [f32; 2] {
         return self.ndc;
     }
+    pub fn get_text_ending_ndc(&mut self) -> [f32; 2] {
+        return [
+            self.ndc[0],
+            self.ndc[1] + self.text_scale * 1.5,
+        ]
+    }
     pub fn get_ending_ndc(&self) -> [f32; 2] {
         return [
             self.ndc[0] + self.ndc_scale[0],
@@ -103,7 +109,6 @@ impl Panel {
     pub fn get_ndc_scale(&self) -> [f32; 2] {
         return self.ndc_scale;
     }
-
     pub fn set_title(&mut self, title: String) {
         self.text = title;
         self.recalulate_rendering_values();
@@ -143,7 +148,7 @@ impl Panel {
 
         // Panel
         let panel_x_scale = (screen_end_ndc[0] - screen_start_ndc[1]) * scale;
-        let panel_y_scale = (screen_end_ndc[1] - screen_start_ndc[1]) - (padding * 3.0);
+        let panel_y_scale = (screen_end_ndc[1] - screen_start_ndc[1]) - (padding * 2.0);
 
         let panel_x_ndc_cor = screen_start_ndc[0] + (padding);
         let panel_y_ndc_cor = screen_start_ndc[1] + (padding);

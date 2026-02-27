@@ -82,7 +82,7 @@ impl LocationManagerGUI {
         let panel_padding_scale = play_view_data.get_panel_padding_scale();
 
         // Panel
-        self.panel.scale_to_fill_screen_left(screen_data, panel_padding_scale, 0.4);
+        self.panel.scale_to_fill_screen_left(screen_data, panel_padding_scale, 0.5);
         self.panel.set_tile_ndc_scale(play_view_data.get_panel_tile_scale());
 
         self.panel.set_title("Location Manager".to_string());

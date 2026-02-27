@@ -84,7 +84,6 @@ impl BlockSelection {
     pub fn set_scale(&mut self, scale: [f32; 2]) {
         self.scale = scale;
         self.panel.set_ndc_scale(scale);
-        self.panel.set_tile_ndc_scale(0.025);
         self.re_calculate_ndc_end_cords();
     }
 
@@ -102,6 +101,9 @@ impl BlockSelection {
 
     pub fn get_panel(&self) -> &Panel {
         return &self.panel;
+    }
+    pub fn get_mut_panel(&mut self) -> &mut Panel {
+        return &mut self.panel;
     }
 
     pub fn get_block_of_mouse(&self) -> BlockTexture {

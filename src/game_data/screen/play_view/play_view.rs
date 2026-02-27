@@ -103,12 +103,12 @@ impl PlayView {
         // Fix button locatoin
         let screen_start_ndc = screen_data.get_viewport_starting_ndc();
 
-        let button_scale = 0.05;
+        let button_scale = 0.075;
         let button_spacing = button_scale / 4.0;
         let button_step = button_scale + button_spacing;
 
         let mut button_ndc = [
-            gui_width_ocupied + button_spacing, 
+            gui_width_ocupied,
             screen_start_ndc[1] + button_spacing + self.play_view_data.get_panel_padding_scale()
         ];
         

@@ -102,7 +102,7 @@ impl PlayViewData {
 
             // UI rendering
             panel_padding_ndc_scale: 0.025,
-            panel_tile_scale: 0.025,
+            panel_tile_scale: 0.01,
 
             // Camera
             world_cords: [0, 0, 0],
