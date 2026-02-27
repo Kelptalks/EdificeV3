@@ -60,8 +60,9 @@ impl ViewDirection {
 */
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PlayMode {
-    Build, 
-    DroneSpectate,
+    BuildManager, 
+    DroneManager,
+    LocationManager,
 }
 
 impl PlayMode {
@@ -80,27 +81,35 @@ pub struct PlayViewData {
     play_mode: PlayMode,
     block_selected: BlockTexture,
 
+    // UI rendering
+    panel_padding_ndc_scale: f32,
+    panel_tile_scale: f32,
+
     // Camera
     world_cords: [i32; 3],
     view_direction: ViewDirection,
 
     // World
-    areas_selected: Vec<WorldArea>,
+    area_selected: WorldArea,
 }
 
 impl PlayViewData {
     pub fn new() -> PlayViewData {
         PlayViewData {
             // Controls
-            play_mode: PlayMode::Build,
+            play_mode: PlayMode::BuildManager,
             block_selected: BlockTexture::Air,
+
+            // UI rendering
+            panel_padding_ndc_scale: 0.025,
+            panel_tile_scale: 0.025,
 
             // Camera
             world_cords: [0, 0, 0],
             view_direction: ViewDirection::North,
 
             // World
-            areas_selected: Vec::new(),
+            area_selected: WorldArea::new_blank(),
         }
     }
 
@@ -124,7 +133,17 @@ impl PlayViewData {
         self.block_selected = new_block;
     }
 
+    //=====================================
+    // UI rendering
+    //=====================================
 
+    pub fn get_panel_padding_scale(&self) -> f32 {
+        return self.panel_padding_ndc_scale;
+    }
+
+    pub fn get_panel_tile_scale(&self) -> f32 {
+        return self.panel_tile_scale;
+    }
 
     //=====================================
     // Camera 
@@ -177,11 +196,11 @@ impl PlayViewData {
 
 
     pub fn add_area(&mut self, area: WorldArea) {
-        self.areas_selected.push(area);
+        self.area_selected = area;
     }
 
-    pub fn get_areas_selected(&self) -> &Vec<WorldArea> {
-        return &self.areas_selected;
+    pub fn get_area_selected(&self) -> WorldArea {
+        return self.area_selected;
     }
 
     //=====================================

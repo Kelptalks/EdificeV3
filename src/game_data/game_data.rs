@@ -6,6 +6,7 @@ use std::time::SystemTime;
 
 use crate::game_data::debuging::debug_data::DebugData;
 use crate::game_data::game_event_manager::game_event_manager::GameEventManager;
+use crate::game_data::player_data::player_data::PlayerData;
 use crate::game_data::{log_indent, log_init, log_unindent};
 use crate::game_data::screen::screen_task_manager::rendering_task_manager::RenderingTaskManager;
 use crate::game_data::screen::screen_mananager::ScreenManager;
@@ -19,6 +20,7 @@ pub struct GameData {
     // Other
     debug_data: DebugData,
     event_manager: GameEventManager,
+    player_data: PlayerData,
 
     // World
     world : Arc<RwLock<World>>,
@@ -58,6 +60,7 @@ impl GameData {
             // Other
             debug_data: DebugData::new(),
             event_manager: GameEventManager::new(),
+            player_data: PlayerData::new(),
 
             // World
             world: world,
@@ -165,7 +168,9 @@ impl GameData {
             self.world.clone(), 
             &mut self.drone_rendering_task_manager, 
             &self.tik_manager,
-            ctx);
+            &mut self.player_data,
+            ctx
+        );
         
         // Tik managing
         self.tik_manager.update_tik_manager(&mut self.world_task_manager, &mut self.drone_rendering_task_manager);

@@ -1,7 +1,7 @@
 use miniquad::MouseButton;
 use rand::rand_core::block;
 
-use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::GameEventManager, world_event_manager::world_event_manager::WorldEvent}, screen::{Button, ScreenData, play_view::{gui::area_selection_gui::AreaSelectionGUI, play_view_data::{self, PlayViewData}}, render_centered_string_at_ndc, ui_elements::{block_selection::BlockSelection, panel::Panel}}, types::{BlockTexture, FontType, UITextures}};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::GameEventManager, world_event_manager::world_event_manager::WorldEvent}, screen::{Button, ScreenData, play_view::{gui::location_manager_gui::LocationManagerGUI, play_view_data::{self, PlayViewData}}, render_centered_string_at_ndc, ui_elements::{block_selection::BlockSelection, panel::Panel}}, types::{BlockTexture, FontType, UITextures}};
 
 
 enum BuildMode {
@@ -22,10 +22,6 @@ pub struct BuildingGUIManager {
 
     button_toggle_build_mode: Button,
     create_location: Button,
-
-    // Area Selection
-    area_selection_gui: AreaSelectionGUI,
-
 }
 
 impl BuildingGUIManager {
@@ -44,9 +40,6 @@ impl BuildingGUIManager {
             // Build mode
             button_toggle_build_mode: Button::new_blank(UITextures::ButtonCircle),
             create_location: Button::new_blank(UITextures::ButtonCircle),
-
-            // Area Secltion
-            area_selection_gui: AreaSelectionGUI::new(),
         }
     }
 
@@ -76,16 +69,19 @@ impl BuildingGUIManager {
     // Rendering
     //=====================================
 
-    pub fn window_resize_update(&mut self, screen_data: &ScreenData) {
+    pub fn window_resize_update(&mut self, screen_data: &ScreenData, play_view_data: &PlayViewData) {
         let screen_end_ndc = screen_data.get_viewport_ending_ndc();
         let screen_start_ndc = screen_data.get_viewport_starting_ndc();
 
-        // Free Buttons
         
 
         // Panel
-        self.panel.scale_to_fill_screen_left(screen_data, 0.025, 0.15);
+        let panel_padding_scale = play_view_data.get_panel_padding_scale();
+
+        self.panel.scale_to_fill_screen_left(screen_data, panel_padding_scale, 0.15);
         self.panel.set_title("Building".to_string());
+        self.panel.set_tile_ndc_scale(play_view_data.get_panel_tile_scale());
+
         let panel_center = self.panel.get_panel_ndc_center();
         let panel_start_cords = self.panel.get_ndc();
         let panel_ndc_scale = self.panel.get_ndc_scale();
@@ -117,13 +113,6 @@ impl BuildingGUIManager {
         let block_selection_scale = [panel_ndc_scale[0], panel_ndc_scale[1]];
         self.block_selection.set_scale(block_selection_scale);
         self.block_selection.set_ndc(panel_start_cords);
-
-        // Area selection GUI
-        let area_selection_x_scale = panel_ndc_scale[0] / 2.0;
-        let area_selection_ndc = [panel_center[0] - (area_selection_x_scale / 2.0), current_button_ndc[1]];
-
-        self.area_selection_gui.set_ndc(area_selection_ndc);
-        self.area_selection_gui.set_x_scale(area_selection_x_scale);
 
         // Set GUI values
         self.gui_scale = [
@@ -159,7 +148,6 @@ impl BuildingGUIManager {
             for button in buttons {
                 button.render_button(texture_manager, screen_data);
             }
-            self.area_selection_gui.render_view(screen_data, texture_manager);
         }
     }
 
@@ -170,13 +158,10 @@ impl BuildingGUIManager {
     pub fn mouse_button_down_event(&mut self, event_manager: &mut GameEventManager, play_view_data: &mut PlayViewData, screen_data: &ScreenData, button: MouseButton) {
         // If on GUI
         if screen_data.mouse_on_ndc_pos(self.ndc_pos) {
-            self.area_selection_gui.mouse_button_down_event(event_manager, play_view_data, screen_data, button);
+            
             if MouseButton::Left == button {
                 if self.button_block_select.is_mouse_on_button() {
                     self.block_selection_visible = !self.block_selection_visible; 
-                }
-                else if self.create_location.is_mouse_on_button() {
-                    play_view_data.add_area(self.area_selection_gui.get_world_area().clone());
                 }
                 else if self.block_selection_visible {
                     self.block_selection_visible = false;

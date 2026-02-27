@@ -2,17 +2,19 @@ use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_stri
 
 pub struct Panel {
     // Panel Rendering Data
-    panel_ndc_scale: [f32; 2],
-    panel_ndc: [f32; 2],
-    panel_ndc_center: [f32; 2],
+    ndc_scale: [f32; 2],
+    ndc: [f32; 2],
+    ndc_center: [f32; 2],
 
 
     // Tile rendering data
     tile_ndc_scale: f32,
     tile_dimensions: [u32; 2],
 
-    // 
-    title: String,
+    // Text
+    text: String,
+    text_scale: f32,
+    text_ndc: [f32; 2],
 }
 
 
@@ -25,16 +27,18 @@ impl Panel {
     pub fn new_blank() -> Panel{
         Panel {
             // Panel Rendering data
-            panel_ndc_scale: [0.0, 0.0], 
-            panel_ndc: [0.0, 0.0],
-            panel_ndc_center: [0.0, 0.0],
+            ndc_scale: [0.0, 0.0], 
+            ndc: [0.0, 0.0],
+            ndc_center: [0.0, 0.0],
 
             // Tile rendering data
             tile_ndc_scale: 0.0,
             tile_dimensions: [0, 0],
 
             // 
-            title: "".to_string(),
+            text: "".to_string(),
+            text_scale: 0.0,
+            text_ndc: [0.0, 0.0],
         }
     }
 
@@ -49,44 +53,49 @@ impl Panel {
         self.tile_ndc_scale = scale;
 
         self.tile_dimensions = [
-            (self.panel_ndc_scale[0] / scale) as u32,
-            (self.panel_ndc_scale[1] / scale) as u32,
+            (self.ndc_scale[0] / scale) as u32,
+            (self.ndc_scale[1] / scale) as u32,
         ];
 
-        self.panel_ndc_center = [
-            self.panel_ndc[0] + (self.panel_ndc_scale[0] / 2.0),
-            self.panel_ndc[1] + (self.panel_ndc_scale[1] / 2.0),
+        self.ndc_center = [
+            self.ndc[0] + (self.ndc_scale[0] / 2.0),
+            self.ndc[1] + (self.ndc_scale[1] / 2.0),
         ];
     }
 
     pub fn set_ndc(&mut self, ndc: [f32; 2]) {
-        self.panel_ndc = ndc;
+        self.ndc = ndc;
     }
 
     pub fn set_ndc_scale(&mut self, scale: [f32; 2]) {
-        self.panel_ndc_scale = scale;
+        self.ndc_scale = scale;
     }
     pub fn get_ndc_scale(&self) -> [f32; 2] {
-        return self.panel_ndc_scale;
+        return self.ndc_scale;
     }
 
     pub fn get_ndc(&self) -> [f32; 2] {
-        return self.panel_ndc;
+        return self.ndc;
     }
 
     pub fn get_ending_ndc(&self) -> [f32; 2] {
         return [
-            self.panel_ndc[0] + self.panel_ndc_scale[0],
-            self.panel_ndc[1] + self.panel_ndc_scale[1],
+            self.ndc[0] + self.ndc_scale[0],
+            self.ndc[1] + self.ndc_scale[1],
         ];
     }
 
     pub fn get_panel_ndc_center(&self) -> [f32; 2] {
-        self.panel_ndc_center
+        self.ndc_center
     }
 
     pub fn set_title(&mut self, title: String) {
-        self.title = title;
+        self.text = title;
+        self.text_scale = (self.ndc_scale[0] / self.text.len() as f32) / 1.5;
+        self.text_ndc = [
+            self.ndc_center[0], 
+            self.ndc[1] + (self.text_scale * 1.5)
+        ];
     }
 
     //=====================================
@@ -139,32 +148,53 @@ impl Panel {
         }
     }
 
+
     pub fn render(&self, texture_manager: &mut TextureManager) {
+
+        let s = self.tile_ndc_scale;
+        let [x1, y1] = self.ndc;
+        let x2 = x1 + self.ndc_scale[0];
+        let y2 = y1 + self.ndc_scale[1];
+
+        let corners = [
+            [x1,     y1,     x1 + s, y1 + s],  // top_left
+            [x2 - s, y1,     x2,     y1 + s],  // top_right
+            [x1,     y2 - s, x1 + s, y2    ],  // bot_left
+            [x2 - s, y2 - s, x2,     y2    ],  // bot_right
+        ];
+
+        let sides = [
+            [x1 + s, y1,     x2 - s, y1 + s],  // top
+            [x1 + s, y2 - s, x2 - s, y2    ],  // bot
+            [x1,     y1 + s, x1 + s, y2 - s],  // left
+            [x2 - s, y1 + s, x2,     y2 - s],  // right
+        ];
+
+        let center = [x1 + s, y1 + s, x2 - s, y2 - s];
+
 
         for x in 0..=self.tile_dimensions[0] {
             for y in 0..=self.tile_dimensions[1] as usize {
                 let ndc_cords = [
-                    self.panel_ndc[0] + (x as f32 * self.tile_ndc_scale),
-                    self.panel_ndc[1] + (y as f32 * self.tile_ndc_scale),
+                    self.ndc[0] + (x as f32 * self.tile_ndc_scale),
+                    self.ndc[1] + (y as f32 * self.tile_ndc_scale),
                 ];
 
                 let texture = self.tile_cords_to_texture([x as i32, y as i32]);
 
 
                 texture_manager.render_ui_element(texture, ndc_cords, self.tile_ndc_scale);
-            
             }
         }
 
-        let text_scale = self.get_tile_ndc_scale();
         let panel_center = self.get_panel_ndc_center();
         let panel_start_cords = self.get_ndc();
         render_centered_string_at_ndc(
             texture_manager, 
-            self.title.clone(), 
+            self.text.clone(), 
             FontType::Basic, 
-            text_scale, 
-            [panel_center[0], panel_start_cords[1] + text_scale]
+            self.text_scale, 
+            self.text_ndc,
         );
 
     }

@@ -1,3 +1,3 @@
-pub mod building_gui_manager;
-pub mod drone_gui_manager;
-mod area_selection_gui;
+pub mod building_manager_gui;
+pub mod drone_manager_gui;
+pub mod location_manager_gui;

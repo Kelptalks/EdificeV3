@@ -36,6 +36,7 @@ This is where I track progress through time worked and other metrics
 - 1/17/2026 = 8274
 
 **Notes:**
+
 ***Additions***
 + Finished part 1 of devblog
 + Drone tools, crafting, and inventorys
@@ -48,8 +49,6 @@ This is where I track progress through time worked and other metrics
 1/23/26 = 1
 
 **Notes:**
-***Life Circumstances***
-Low due to Chile vacation
 
 ***Additions***
 + Progress Tracker
@@ -66,8 +65,6 @@ Low due to Chile vacation
 - 1/31/26 = 9071
 
 **Notes:**
-***Life Circumstances***
-Low due to Chile vacation
 
 ***Additions***
 + Tik speed controls
@@ -89,8 +86,6 @@ Low due to Chile vacation
 - 2/4/26 = 10223
 
 **Notes:**
-***Life Circumstances***
-Low due New Girl
 
 ***Additions***
 + Drone tree chopping script
@@ -113,8 +108,6 @@ Low due New Girl
 - 2/10/26 = 10585
 
 **Notes:**
-***Life Circumstances***
-Low due to Dog Sitting and new girl
 
 ***Additions***
 + Lower due to pet sitting at moms house
@@ -153,11 +146,16 @@ Low due to Dog Sitting and new girl
 
 **Hours:**
 - 2/23/26 = 2
+- 2/26/26 = 3
 
 **Lines**
+- 2/26/26 = 12361
 
 **Notes:**
+
+***Additions***
 + Area selection
++ Area selcetion rendering
 
 ---------------------------------------------------------------
 ## Week NUM
@@ -167,4 +165,6 @@ Low due to Dog Sitting and new girl
 **Lines**
 
 **Notes:**
+
+***Additions***
 
