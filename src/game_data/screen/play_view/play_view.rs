@@ -38,13 +38,13 @@ impl PlayView {
             
             // UI
             building_manager_gui: BuildingGUIManager::new(),
-            button_building_gui_manager: Button::new_blank(UITextures::ButtonCircle),
+            button_building_gui_manager: Button::new_blank(),
 
             drone_manager_gui: DroneGUIManager::new(),
-            button_drone_manager_gui: Button::new_blank(UITextures::ButtonCircle),
+            button_drone_manager_gui: Button::new_blank(),
 
             location_manager_gui: LocationManagerGUI::new(),
-            button_location_manager_gui: Button::new_blank(UITextures::ButtonCircle),
+            button_location_manager_gui: Button::new_blank(),
         }
     }
 
@@ -134,9 +134,9 @@ impl PlayView {
 
         // Button appearance Setup
         // Blocks
-        self.button_building_gui_manager.set_block(BlockTexture::Grass);
+        self.button_building_gui_manager.set_icon(UITextures::BlockSelectionIcon);
         self.button_drone_manager_gui.set_block(BlockTexture::DroneBotRight);
-        self.button_location_manager_gui.set_block(BlockTexture::Selector);
+        self.button_location_manager_gui.set_icon(UITextures::AreaIcon);
 
         // Text
         self.button_building_gui_manager.set_text("Building Manager".to_string());

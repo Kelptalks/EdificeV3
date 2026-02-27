@@ -21,7 +21,7 @@ impl LevelSelectMenu {
     pub fn new() -> LevelSelectMenu {
         LevelSelectMenu {
             buttons_levels: Vec::new(),
-            button_back: Button::new_blank(UITextures::ButtonLeftArrow)
+            button_back: Button::new_blank()
         }
     }
 

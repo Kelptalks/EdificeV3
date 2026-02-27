@@ -28,11 +28,11 @@ impl CameraButtons {
     pub fn new() -> CameraButtons {
         CameraButtons {
             // buttons
-            button_toggle_drone_ui: Button::new_blank(UITextures::ButtonCircle),
-            button_rebuild_lua_script: Button::new_blank(UITextures::ButtonCircle),
-            button_kill_all_drones: Button::new_blank(UITextures::ButtonCircle),
-            button_spawn_drone: Button::new_blank(UITextures::ButtonCircle),
-            button_reset_world: Button::new_blank(UITextures::ButtonCircle),
+            button_toggle_drone_ui: Button::new_blank(),
+            button_rebuild_lua_script: Button::new_blank(),
+            button_kill_all_drones: Button::new_blank(),
+            button_spawn_drone: Button::new_blank(),
+            button_reset_world: Button::new_blank(),
 
             // data
             drone_ui_visible: true,

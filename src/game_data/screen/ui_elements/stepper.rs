@@ -34,8 +34,8 @@ impl Stepper {
             text_scale: 0.0,
             ndc: [0.0, 0.0],
             text: "".to_string(), 
-            decrease_button: Button::new_blank(UITextures::ButtonLeftArrow),
-            increase_button: Button::new_blank(UITextures::ButtonRightArrow),
+            decrease_button: Button::new_blank_with_texture(UITextures::ButtonLeftArrow),
+            increase_button: Button::new_blank_with_texture(UITextures::ButtonRightArrow),
         }
     }
 

@@ -13,6 +13,8 @@ pub struct Button {
     // Apearence
     button_type: UITextures,
     block_type: Option<BlockTexture>,
+    icon_type: Option<UITextures>,
+
 
     // Text
     text: Option<String>,
@@ -41,6 +43,7 @@ impl Button {
             // Apearence
             button_type: button_type,
             block_type: None,
+            icon_type: None,
             
             // Text
             text: None,
@@ -52,8 +55,7 @@ impl Button {
         }
     }
 
-    // Create a button that has no cords or scale
-    pub fn new_blank(button_type: UITextures) -> Button {
+    pub fn new_blank_with_texture(button_type: UITextures) -> Button {
         Button {
             // Rendering
             ndc: [0.0, 0.0], 
@@ -65,6 +67,31 @@ impl Button {
             // Apearence
             button_type: button_type,
             block_type: None,
+            icon_type: None,
+
+            // Text
+            text: None,
+            text_panel: Panel::new_blank(),
+            text_panel_padding: 0.015,
+            text_scale: 0.025,
+            text_font: FontType::Basic,
+        }
+    }
+
+    // Create a button that has no cords or scale
+    pub fn new_blank() -> Button {
+        Button {
+            // Rendering
+            ndc: [0.0, 0.0], 
+            scale: 0.0, 
+
+            // Controls
+            is_mouse_on: false, 
+
+            // Apearence
+            button_type: UITextures::ButtonCircle,
+            block_type: None,
+            icon_type: None,
 
             // Text
             text: None,
@@ -102,6 +129,9 @@ impl Button {
     // Apearence
     pub fn set_block(&mut self, block: BlockTexture) {
         self.block_type = Some(block);
+    }
+    pub fn set_icon(&mut self, icon: UITextures) {
+        self.icon_type = Some(icon);
     }
     pub fn set_text(&mut self, text: String) {
         self.text_scale = 0.025;
@@ -156,6 +186,12 @@ impl Button {
                 self.ndc[1] - offset
             ];
             texture_manager.render_block(block, draw_location, scale);
+        }
+
+        // Render icon on top if assigned one
+        if let Some(icon) = self.icon_type {
+
+            texture_manager.render_ui_element(icon, self.ndc, self.scale);
         }
 
         // If has text and mouse is on button render text above button

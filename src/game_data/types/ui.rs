@@ -85,6 +85,13 @@ pub const UI_TEXTURES: &[UITextureData] = &[
     UITextureData { id: 43, name: "PanelBotCenterDark", rect: [640, 160, 16, 16], pressed_variant: None },
     UITextureData { id: 44, name: "PanelBotRightDark", rect: [656, 160, 16, 16], pressed_variant: None },
 
+    // Icons (32x32) - Row 1
+    UITextureData { id: 45, name: "BluePrintIcon",      rect: [32,  64, 32, 32], pressed_variant: None },
+    UITextureData { id: 46, name: "BlockSelectionIcon", rect: [64,  64, 32, 32], pressed_variant: None },
+    UITextureData { id: 47, name: "AreaIcon",           rect: [96,  64, 32, 32], pressed_variant: None },
+    UITextureData { id: 48, name: "MapIcon",            rect: [128, 64, 32, 32], pressed_variant: None },
+    UITextureData { id: 49, name: "XIcon",              rect: [32,  96, 32, 32], pressed_variant: None },
+
 ];
 
 // Keep enum for type safety if you want
@@ -142,6 +149,13 @@ pub enum UITextures {
     PanelBotLeftDark = 42,
     PanelBotCenterDark = 43,
     PanelBotRightDark = 44,
+
+    // Icons
+    BluePrintIcon = 45,
+    BlockSelectionIcon = 46,
+    AreaIcon = 47,
+    MapIcon = 48,
+    XIcon = 49,
 }
 
 impl UITextures {

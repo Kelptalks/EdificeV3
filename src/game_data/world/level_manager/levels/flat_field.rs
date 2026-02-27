@@ -31,7 +31,7 @@ impl Level for FlatField {
     }
     
     fn get_level_select_button(&self) -> Button {
-        let mut button = Button::new_blank(UITextures::ButtonCircle);
+        let mut button = Button::new_blank();
         button.set_block(BlockTexture::Grass);
         button.set_text(self.name.clone());
 

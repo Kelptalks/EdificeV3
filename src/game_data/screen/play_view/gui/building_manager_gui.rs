@@ -35,13 +35,13 @@ impl BuildingGUIManager {
             is_mouse_on: false,
 
             // Block selection
-            button_block_select: Button::new_blank(UITextures::ButtonCircle),
+            button_block_select: Button::new_blank(),
             block_selection: BlockSelection::new(),
             block_selection_visible: false,
 
             // Build mode
-            button_toggle_build_mode: Button::new_blank(UITextures::ButtonCircle),
-            create_location: Button::new_blank(UITextures::ButtonCircle),
+            button_toggle_build_mode: Button::new_blank(),
+            create_location: Button::new_blank(),
         }
     }
 

@@ -36,7 +36,7 @@ impl WorldCreationMenu {
         create_world_button.set_text("Create World!".to_string());
 
         Self {
-            button_back: Button::new_blank(UITextures::ButtonLeftArrow),
+            button_back: Button::new_blank_with_texture(UITextures::ButtonLeftArrow),
             button_create_world: create_world_button,
             
             stepper_world_size: Stepper::new_blank(),
