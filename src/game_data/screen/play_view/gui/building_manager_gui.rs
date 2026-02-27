@@ -14,6 +14,7 @@ pub struct BuildingGUIManager {
     panal_padding_ndc_scale: f32,
     gui_scale: [f32; 2],
     ndc_pos: [f32; 4],
+    is_mouse_on: bool,
 
     // Block selection
     button_block_select: Button,
@@ -31,6 +32,7 @@ impl BuildingGUIManager {
             panal_padding_ndc_scale: 0.025,
             gui_scale: [0.0, 0.0],
             ndc_pos: [0.0, 0.0, 0.0, 0.0],
+            is_mouse_on: false,
 
             // Block selection
             button_block_select: Button::new_blank(UITextures::ButtonCircle),
@@ -55,6 +57,10 @@ impl BuildingGUIManager {
         return self.ndc_pos;
     }
 
+    pub fn get_is_mouse_on(&self) -> bool {
+        return self.is_mouse_on;
+    }
+
     pub fn get_buttons_mut(&mut self) -> [&mut Button; 3] {
         [
             &mut self.button_block_select,
@@ -72,8 +78,6 @@ impl BuildingGUIManager {
     pub fn window_resize_update(&mut self, screen_data: &ScreenData, play_view_data: &PlayViewData) {
         let screen_end_ndc = screen_data.get_viewport_ending_ndc();
         let screen_start_ndc = screen_data.get_viewport_starting_ndc();
-
-        
 
         // Panel
         let panel_padding_scale = play_view_data.get_panel_padding_scale();
@@ -132,10 +136,12 @@ impl BuildingGUIManager {
         
     }
 
-    pub fn render(&mut self, 
-        screen_data: &ScreenData, 
+    pub fn render(&mut self,
+        screen_data: &ScreenData,
         texture_manager: &mut TextureManager,
     ) {
+        self.is_mouse_on = screen_data.mouse_on_ndc_pos(self.ndc_pos);
+
         // Render background
         self.panel.render(texture_manager);
 

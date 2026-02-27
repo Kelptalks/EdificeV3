@@ -1,5 +1,53 @@
 use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndc, screen_data}, types::{FontType, UITextures}};
 
+pub enum PanelColor {
+    Light,
+    Dark,
+}
+
+impl PanelColor {
+    pub fn get_panel_corner_textures(&self) -> [UITextures; 4] {
+        match self {
+            PanelColor::Light => [
+                UITextures::PanelTopLeftLight,   // top_left
+                UITextures::PanelTopRightLight,  // top_right
+                UITextures::PanelBotLeftLight,   // bot_left
+                UITextures::PanelBotRightLight,  // bot_right
+            ],
+            PanelColor::Dark => [
+                UITextures::PanelTopLeftDark,    // top_left
+                UITextures::PanelTopRightDark,   // top_right
+                UITextures::PanelBotLeftDark,    // bot_left
+                UITextures::PanelBotRightDark,   // bot_right
+            ],
+        }
+    }
+
+    pub fn get_panel_side_textures(&self) -> [UITextures; 4] {
+        match self {
+            PanelColor::Light => [
+                UITextures::PanelTopCenterLight,  // top
+                UITextures::PanelBotCenterLight,  // bot
+                UITextures::PanelMidLeftLight,    // left
+                UITextures::PanelMidRightLight,   // right
+            ],
+            PanelColor::Dark => [
+                UITextures::PanelTopCenterDark,   // top
+                UITextures::PanelBotCenterDark,   // bot
+                UITextures::PanelMidLeftDark,     // left
+                UITextures::PanelMidRightDark,    // right
+            ],
+        }
+    }
+
+    pub fn get_panel_center_texture(&self) -> UITextures {
+        match self {
+            PanelColor::Light => UITextures::PanelMidCenterLight,
+            PanelColor::Dark  => UITextures::PanelMidCenterDark,
+        }
+    }
+}
+
 pub struct Panel {
     // Panel Rendering Data
     ndc_scale: [f32; 2],
@@ -17,6 +65,9 @@ pub struct Panel {
     text: String,
     text_scale: f32,
     text_ndc: [f32; 2],
+
+    // Color
+    color: PanelColor,
 }
 
 
@@ -29,7 +80,7 @@ impl Panel {
     pub fn new_blank() -> Panel{
         Panel {
             // Panel Rendering data
-            ndc_scale: [0.0, 0.0], 
+            ndc_scale: [0.0, 0.0],
             ndc: [0.0, 0.0],
             ndc_center: [0.0, 0.0],
 
@@ -39,10 +90,13 @@ impl Panel {
             tile_side_pos: [[0.0; 4]; 4],
             tile_center_pos: [0.0; 4],
 
-            // 
+            //
             text: "".to_string(),
             text_scale: 0.0,
             text_ndc: [0.0; 2],
+
+            // Color
+            color: PanelColor::Light,
         }
     }
 
@@ -60,7 +114,7 @@ impl Panel {
         // Text
         self.text_scale = (self.ndc_scale[0] / self.text.len() as f32) / 1.5;
         self.text_ndc = [
-            self.ndc_center[0], 
+            self.ndc_center[0],
             self.ndc[1] + (self.text_scale * 1.5)
         ];
 
@@ -114,6 +168,11 @@ impl Panel {
         self.recalulate_rendering_values();
     }
 
+    // Color
+    pub fn set_color(&mut self, color: PanelColor) {
+        self.color = color;
+    }
+
     //=====================================
     // Sizing
     //=====================================
@@ -130,7 +189,7 @@ impl Panel {
             [x1,     y2 - s, x1 + s, y2    ],  // bot_left
             [x2 - s, y2 - s, x2,     y2    ],  // bot_right
         ];
-        
+
 
         self.tile_side_pos = [
             [x1 + s, y1,     x2 - s, y1 + s],  // top
@@ -164,39 +223,37 @@ impl Panel {
 
 
     pub fn render(&self, texture_manager: &mut TextureManager) {
-        let s = self.tile_ndc_scale;
-        let [x1, y1] = self.ndc;
-        let x2 = x1 + self.ndc_scale[0];
-        let y2 = y1 + self.ndc_scale[1];
+        let corners = self.tile_corner_pos;
+        let sides = self.tile_side_pos;
+        let center = self.tile_center_pos;
+
+        let corner_textures = self.color.get_panel_corner_textures();
+        let side_textures = self.color.get_panel_side_textures();
+        let center_texture = self.color.get_panel_center_texture();
 
         // Corners
-        let corners = self.tile_corner_pos;
-        texture_manager.render_ui_element_with_pos(UITextures::PanelTopLeft, corners[0]);
-        texture_manager.render_ui_element_with_pos(UITextures::PanelTopRight, corners[1]);
-        texture_manager.render_ui_element_with_pos(UITextures::PanelBotLeft, corners[2]);
-        texture_manager.render_ui_element_with_pos(UITextures::PanelBotRight, corners[3]);
+        texture_manager.render_ui_element_with_pos(corner_textures[0], corners[0]);
+        texture_manager.render_ui_element_with_pos(corner_textures[1], corners[1]);
+        texture_manager.render_ui_element_with_pos(corner_textures[2], corners[2]);
+        texture_manager.render_ui_element_with_pos(corner_textures[3], corners[3]);
 
         // Sides
-        let sides = self.tile_side_pos;
-        texture_manager.render_ui_element_with_pos(UITextures::PanelTopCenter, sides[0]);
-        texture_manager.render_ui_element_with_pos(UITextures::PanelBotCenter, sides[1]);
-        texture_manager.render_ui_element_with_pos(UITextures::PanelMidLeft, sides[2]);
-        texture_manager.render_ui_element_with_pos(UITextures::PanelMidRight, sides[3]);
+        texture_manager.render_ui_element_with_pos(side_textures[0], sides[0]);
+        texture_manager.render_ui_element_with_pos(side_textures[1], sides[1]);
+        texture_manager.render_ui_element_with_pos(side_textures[2], sides[2]);
+        texture_manager.render_ui_element_with_pos(side_textures[3], sides[3]);
 
-        let center = [x1 + s, y1 + s, x2 - s, y2 - s];
-        texture_manager.render_ui_element_with_pos(UITextures::PanelMidCenter, center);
-        
+        // Center
+        texture_manager.render_ui_element_with_pos(center_texture, center);
 
-        let panel_center = self.get_panel_ndc_center();
-        let panel_start_cords = self.get_ndc();
         render_centered_string_at_ndc(
-            texture_manager, 
-            self.text.clone(), 
-            FontType::Basic, 
-            self.text_scale, 
+            texture_manager,
+            self.text.clone(),
+            FontType::Basic,
+            self.text_scale,
             self.text_ndc,
         );
 
     }
-    
+
 }

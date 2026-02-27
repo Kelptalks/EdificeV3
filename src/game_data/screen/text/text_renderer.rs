@@ -9,7 +9,7 @@ pub fn render_string(screen_data: &ScreenData, texture_manager: &mut TextureMana
     for c in chars.iter() {
         let char_type = CharType::from_char(*c);
         texture_manager.render_char(font, char_type, ndi_cords, scale);
-        ndi_cords[0] += scale + (scale * 0.05); // Advance position for next character
+        ndi_cords[0] += scale; // Advance position for next character
     }
 }
 
@@ -20,14 +20,14 @@ pub fn render_string_at_ndc(texture_manager: &mut TextureManager, string: String
     for c in chars.iter() {
         let char_type = CharType::from_char(*c);
         texture_manager.render_char(font, char_type, current_ndi_cords, scale);
-        current_ndi_cords[0] += scale + (scale * 0.05); // Advance position for next character
+        current_ndi_cords[0] += scale; // Advance position for next character
     }
 }
 
 pub fn render_centered_string_at_ndc(texture_manager: &mut TextureManager, string: String, font: FontType, scale: f32, ndc_cords: [f32; 2]) {
     // Calculate the total width of the string
     let char_count = string.chars().count();
-    let total_width = (char_count as f32) * (scale + (scale * 0.05)) - (scale * 0.05); // Subtract the last spacing
+    let total_width = (char_count as f32) * (scale); // Subtract the last spacing
     
     // Calculate the starting position to center the string
     let start_x = ndc_cords[0] - (total_width / 2.0);
@@ -38,6 +38,6 @@ pub fn render_centered_string_at_ndc(texture_manager: &mut TextureManager, strin
     for c in chars.iter() {
         let char_type = CharType::from_char(*c);
         texture_manager.render_char(font, char_type, current_ndi_cords, scale);
-        current_ndi_cords[0] += scale + (scale * 0.05); // Advance position for next character
+        current_ndi_cords[0] += scale; // Advance position for next character
     }
 }

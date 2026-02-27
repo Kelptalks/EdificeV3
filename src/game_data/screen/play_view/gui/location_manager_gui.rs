@@ -1,6 +1,6 @@
-use miniquad::MouseButton;
+use miniquad::{KeyCode, MouseButton};
 
-use crate::game_data::{TextureManager, game_event_manager::game_event_manager::GameEventManager, locations::world_area::WorldArea, screen::{Button, ScreenData, play_view::play_view_data::{self, PlayViewData}, ui_elements::panel::Panel}, types::UITextures};
+use crate::game_data::{TextureManager, game_event_manager::game_event_manager::GameEventManager, locations::world_area::WorldArea, screen::{Button, ScreenData, play_view::{play_view_data::{self, PlayViewData}}, ui_elements::{panel::Panel, text_bar::TextBar}}, types::UITextures};
 
 
 
@@ -10,12 +10,13 @@ pub struct LocationManagerGUI {
     
     // UI
     panel: Panel,
+    text_bar: TextBar,
 
     // Rendering
     ndc: [f32; 2],
     gui_scale: [f32; 2],
     ndc_pos: [f32; 4],
-
+    is_mouse_on: bool,
 }
 
 impl LocationManagerGUI {
@@ -27,12 +28,14 @@ impl LocationManagerGUI {
             area: WorldArea::new_blank(),
             
             // UI
-            panel: Panel::new_blank(),            
+            panel: Panel::new_blank(),
+            text_bar: TextBar::new_blank(),
 
             // Rendering
             ndc: [0.0, 0.0],
             gui_scale: [0.0, 0.0],
             ndc_pos: [0.0, 0.0, 0.0, 0.0],
+            is_mouse_on: false,
         }
     }
 
@@ -71,6 +74,10 @@ impl LocationManagerGUI {
         return self.ndc_pos;
     }
 
+    pub fn get_is_mouse_on(&self) -> bool {
+        return self.is_mouse_on;
+    }
+
     //=====================================
     // Rendering
     //=====================================
@@ -95,22 +102,38 @@ impl LocationManagerGUI {
         ];
 
         self.ndc_pos = [
-            screen_start_ndc[0], 
+            screen_start_ndc[0],
             screen_start_ndc[1],
             screen_start_ndc[0] + self.gui_scale[0],
             screen_start_ndc[1] + self.gui_scale[1],
-        ]
-        
+        ];
+
+        // Text bar
+        self.text_bar.set_ndc_y_scale(0.05);
+        let panel_center = self.panel.get_panel_ndc_center();
+        let bar_scale = self.text_bar.get_ndc_scale();
+        self.text_bar.set_ndc([
+            panel_center[0] - bar_scale[0] / 2.0,
+            panel_center[1] - bar_scale[1] / 2.0,
+        ]);
+
     }
 
     pub fn render(
-        &mut self, 
-        screen_data: &ScreenData, 
+        &mut self,
+        screen_data: &ScreenData,
         texture_manager: &mut TextureManager,
     ) {
+        self.is_mouse_on = screen_data.mouse_on_ndc_pos(self.ndc_pos);
+
         self.panel.render(texture_manager);
+        self.text_bar.render(texture_manager, screen_data);
     }
 
+
+    pub fn key_down_event(&mut self, keycode: KeyCode) {
+        self.text_bar.handle_keydown(keycode);
+    }
 
     pub fn mouse_button_down_event(&mut self, 
         event_manager: &mut GameEventManager, 
@@ -118,8 +141,6 @@ impl LocationManagerGUI {
         screen_data: &ScreenData, 
         button: MouseButton
     ) {
-        if MouseButton::Left == button {
-
-        }
+        self.text_bar.handle_mouse_button_down(button, screen_data);
     }
 }

@@ -9,3 +9,5 @@ pub mod stepper;
 pub mod panel;
 
 pub mod block_selection;
+
+pub mod text_bar;

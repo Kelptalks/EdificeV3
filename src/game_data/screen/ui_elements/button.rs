@@ -108,7 +108,7 @@ impl Button {
 
 
         self.text_panel.set_ndc_scale([
-            (self.text_scale * (text.len() + 1) as f32) + (self.text_panel_padding * 2.0), 
+            (self.text_scale * (text.len()) as f32) + (self.text_panel_padding * 2.0), 
             (self.text_panel_padding * 2.0) + self.text_scale,
         ]);
         self.text_panel.set_tile_ndc_scale(self.text_scale / 6.0);

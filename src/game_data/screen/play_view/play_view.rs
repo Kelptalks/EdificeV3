@@ -190,13 +190,28 @@ impl PlayView {
     //=====================================
 
     pub fn key_down_event(&mut self, event_manager: &mut GameEventManager, keycode: KeyCode) {
-        self.play_world_renderer.key_down_event(&mut self.play_view_data, keycode);
-        
-        match keycode {
-            KeyCode::M => {
-                event_manager.add_render_event(RenderEvent::ChangeMenu(screen_data::CurrentMenu::Camera));
+        let mouse_on_gui;
+        match self.play_view_data.get_play_mode() {
+            super::play_view_data::PlayMode::BuildManager => {
+                mouse_on_gui = self.building_manager_gui.get_is_mouse_on();
             }
-            _ => {
+            super::play_view_data::PlayMode::DroneManager => {
+                mouse_on_gui = self.drone_manager_gui.get_is_mouse_on();
+            }
+            PlayMode::LocationManager => {
+                mouse_on_gui = self.location_manager_gui.get_is_mouse_on();
+                self.location_manager_gui.key_down_event(keycode);
+            }
+        }
+
+        if !mouse_on_gui {
+            self.play_world_renderer.key_down_event(&mut self.play_view_data, keycode);
+            match keycode {
+                KeyCode::M => {
+                    event_manager.add_render_event(RenderEvent::ChangeMenu(screen_data::CurrentMenu::Camera));
+                }
+                _ => {
+                }
             }
         }
     }
@@ -212,6 +227,7 @@ impl PlayView {
     pub fn mouse_button_down_event(&mut self, event_manager: &mut GameEventManager, screen_data: &ScreenData, button: MouseButton) {
         self.play_world_renderer.mouse_button_down_event(event_manager, &self.play_view_data, screen_data, button);
 
+        // Menu Selection Buttons
         if button == MouseButton::Left {
             if self.button_building_gui_manager.is_mouse_on_button() {
                 self.set_play_mode(screen_data, PlayMode::BuildManager);
@@ -224,16 +240,16 @@ impl PlayView {
             }
         }
 
-
+        // Mouse Button Down
         match self.play_view_data.get_play_mode() {
             super::play_view_data::PlayMode::BuildManager => {
                 self.building_manager_gui.mouse_button_down_event(event_manager, &mut self.play_view_data, screen_data, button);       
             },
             super::play_view_data::PlayMode::DroneManager => {
-    
+                
             },
             PlayMode::LocationManager => {
-
+                self.location_manager_gui.mouse_button_down_event(event_manager, &mut self.play_view_data, screen_data, button);
             },
         }
     }

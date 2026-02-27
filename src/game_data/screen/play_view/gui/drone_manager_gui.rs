@@ -5,6 +5,7 @@ pub struct DroneGUIManager {
 
     gui_scale: [f32; 2],
     ndc_pos: [f32; 4],
+    is_mouse_on: bool,
 }
 
 impl DroneGUIManager {
@@ -14,7 +15,7 @@ impl DroneGUIManager {
 
             gui_scale: [0.0, 0.0],
             ndc_pos: [0.0, 0.0, 0.0, 0.0],
-
+            is_mouse_on: false,
         }
     }
 
@@ -28,6 +29,10 @@ impl DroneGUIManager {
 
     pub fn get_gui_pos(&self) -> [f32; 4] {
         return self.ndc_pos;
+    }
+
+    pub fn get_is_mouse_on(&self) -> bool {
+        return self.is_mouse_on;
     }
 
     //=====================================
@@ -62,10 +67,12 @@ impl DroneGUIManager {
         
     }
 
-    pub fn render(&mut self, 
-        screen_data: &ScreenData, 
+    pub fn render(&mut self,
+        screen_data: &ScreenData,
         texture_manager: &mut TextureManager,
     ) {
+        self.is_mouse_on = screen_data.mouse_on_ndc_pos(self.ndc_pos);
+
         // Render background
         self.panel.render(texture_manager);
 

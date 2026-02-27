@@ -1,3 +1,5 @@
+use miniquad::KeyCode;
+
 #[repr(u16)]
 #[derive(Copy, Clone, PartialEq)]
 pub enum FontType {
@@ -137,6 +139,56 @@ impl CharType {
             '/' => CharType::CharForwardSlash,
             '-' => CharType::CharMinus,
             _ => CharType::CharSpace,  // Default to 'Space' if no match found
+        }
+    }
+
+    /// Convert a miniquad KeyCode to a char. Returns space for non-printable keys.
+    pub fn keycode_to_char(keycode: KeyCode) -> char {
+        match keycode {
+            KeyCode::A => 'a',
+            KeyCode::B => 'b',
+            KeyCode::C => 'c',
+            KeyCode::D => 'd',
+            KeyCode::E => 'e',
+            KeyCode::F => 'f',
+            KeyCode::G => 'g',
+            KeyCode::H => 'h',
+            KeyCode::I => 'i',
+            KeyCode::J => 'j',
+            KeyCode::K => 'k',
+            KeyCode::L => 'l',
+            KeyCode::M => 'm',
+            KeyCode::N => 'n',
+            KeyCode::O => 'o',
+            KeyCode::P => 'p',
+            KeyCode::Q => 'q',
+            KeyCode::R => 'r',
+            KeyCode::S => 's',
+            KeyCode::T => 't',
+            KeyCode::U => 'u',
+            KeyCode::V => 'v',
+            KeyCode::W => 'w',
+            KeyCode::X => 'x',
+            KeyCode::Y => 'y',
+            KeyCode::Z => 'z',
+            KeyCode::Key0 => '0',
+            KeyCode::Key1 => '1',
+            KeyCode::Key2 => '2',
+            KeyCode::Key3 => '3',
+            KeyCode::Key4 => '4',
+            KeyCode::Key5 => '5',
+            KeyCode::Key6 => '6',
+            KeyCode::Key7 => '7',
+            KeyCode::Key8 => '8',
+            KeyCode::Key9 => '9',
+            KeyCode::Period => '.',
+            KeyCode::Slash => '/',
+            KeyCode::Minus => '-',
+            KeyCode::Semicolon => ';',
+            KeyCode::Space => ' ',
+            KeyCode::LeftBracket => '[',
+            KeyCode::RightBracket => ']',
+            _ => '\0',
         }
     }
 }

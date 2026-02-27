@@ -69,6 +69,22 @@ pub const UI_TEXTURES: &[UITextureData] = &[
     UITextureData { id: 34, name: "PanelBotCenter", rect: [688, 160, 16, 16], pressed_variant: None },
     UITextureData { id: 35, name: "PanelBotRight", rect: [704, 160, 16, 16], pressed_variant: None },
 
+    // Dark Panels
+    // Row 1
+    UITextureData { id: 36, name: "PanelTopLeftDark", rect: [624, 128, 16, 16], pressed_variant: None },
+    UITextureData { id: 37, name: "PanelTopCenterDark", rect: [640, 128, 16, 16], pressed_variant: None },
+    UITextureData { id: 38, name: "PanelTopRightDark", rect: [656, 128, 16, 16], pressed_variant: None },
+
+    // Row 2
+    UITextureData { id: 39, name: "PanelMidLeftDark", rect: [624, 144, 16, 16], pressed_variant: None },
+    UITextureData { id: 40, name: "PanelMidCenterDark", rect: [640, 144, 16, 16], pressed_variant: None },
+    UITextureData { id: 41, name: "PanelMidRightDark", rect: [656, 144, 16, 16], pressed_variant: None },
+
+    // Row 3
+    UITextureData { id: 42, name: "PanelBotLeftDark", rect: [624, 160, 16, 16], pressed_variant: None },
+    UITextureData { id: 43, name: "PanelBotCenterDark", rect: [640, 160, 16, 16], pressed_variant: None },
+    UITextureData { id: 44, name: "PanelBotRightDark", rect: [656, 160, 16, 16], pressed_variant: None },
+
 ];
 
 // Keep enum for type safety if you want
@@ -106,15 +122,26 @@ pub enum UITextures {
     MirrorBackground = 26,
 
     // Panels
-    PanelTopLeft = 27,
-    PanelTopCenter = 28,
-    PanelTopRight = 29,
-    PanelMidLeft = 30,
-    PanelMidCenter = 31,
-    PanelMidRight = 32,
-    PanelBotLeft = 33,
-    PanelBotCenter = 34,
-    PanelBotRight = 35,
+    PanelTopLeftLight = 27,
+    PanelTopCenterLight = 28,
+    PanelTopRightLight = 29,
+    PanelMidLeftLight = 30,
+    PanelMidCenterLight = 31,
+    PanelMidRightLight = 32,
+    PanelBotLeftLight = 33,
+    PanelBotCenterLight = 34,
+    PanelBotRightLight = 35,
+
+    // Dark Panels
+    PanelTopLeftDark = 36,
+    PanelTopCenterDark = 37,
+    PanelTopRightDark = 38,
+    PanelMidLeftDark = 39,
+    PanelMidCenterDark = 40,
+    PanelMidRightDark = 41,
+    PanelBotLeftDark = 42,
+    PanelBotCenterDark = 43,
+    PanelBotRightDark = 44,
 }
 
 impl UITextures {
