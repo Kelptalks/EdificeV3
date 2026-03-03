@@ -2,17 +2,18 @@ use crate::game_data::locations::world_area::WorldArea;
 
 pub struct Location {
     area: WorldArea,
-    name: String
-
+    name: String,
+    id: u32
 }
 
 impl Location {
-    pub fn new(name: String, area: WorldArea) -> Location {
+    pub fn new(name: String, area: WorldArea, id: u32) -> Location {
         println!("Created Location: {}", name);
         
         Location {
             area: area,
-            name: name
+            name: name,
+            id: id,
         }
     }
 
@@ -24,13 +25,20 @@ impl Location {
     pub fn get_name(&self) -> &str {
         return &self.name;
     }
-    pub fn set_name(&mut self, name: String) {
-        self.name = name;
+    pub fn get_id(&self) -> u32 {
+        return self.id;
     }
-
     // Area
     pub fn get_mut_area(&mut self) -> &mut WorldArea {
         return &mut self.area;
+    }
+
+    /// Set the name 
+    /// 
+    /// Why (crate)?
+    /// to prevent renaming messing up name hashmap in location manager
+    pub(crate) fn set_name(&mut self, name: String) {
+        self.name = name;
     }
 
 

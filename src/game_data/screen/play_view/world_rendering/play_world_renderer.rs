@@ -99,12 +99,10 @@ impl PlayWorldRender {
                     // Draw Cords
                     let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, [x - z, y - z]);
                     draw_cords[0] -= ndc_x_draw_center_offset;
-
                     draw_cords[0] += self.camera_ndc_offset[0];
                     draw_cords[1] += self.camera_ndc_offset[1];
 
-
-                    // Create play block
+                    // Create a play block if block needs to be rendered
                     let mut play_block = PlayBlock::new_blank();
 
                     // World
@@ -122,7 +120,6 @@ impl PlayWorldRender {
                     
                     // render the selected area
                     play_block.render_area_selection(texture_manager, &play_view_data.get_area_selected());
-
 
 
 
