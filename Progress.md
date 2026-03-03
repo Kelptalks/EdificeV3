@@ -160,6 +160,19 @@ This is where I track progress through time worked and other metrics
 + Area selcetion rendering
 
 ---------------------------------------------------------------
+## Week 9
+
+**Hours:**
+- 3/2/26 = 1.5
+
+**Lines**
+- 1/2/26 = 13006
+
+**Notes:**
+
+***Additions***
+
+---------------------------------------------------------------
 ## Week NUM
 
 **Hours:**
