@@ -79,7 +79,7 @@ impl PlayWorldRender {
 
         let ndc_x_draw_center_offset = self.ndc_block_scale - self.ndc_cords[0];
 
-        let direction_offsets = play_view_data.get_view_direction_offsets();
+        let rot = play_view_data.get_rotation_matrix();
 
         let camera_cords = play_view_data.get_world_cords();
 
@@ -88,8 +88,8 @@ impl PlayWorldRender {
             for y in -self.zoom..=self.zoom {
                 for x in -self.zoom..=self.zoom {
                     let world_block_cords = [
-                        camera_cords[0] + (x * direction_offsets[0]),
-                        camera_cords[1] + (y * direction_offsets[1]),
+                        camera_cords[0] + (rot[0][0] * x + rot[0][1] * y),
+                        camera_cords[1] + (rot[1][0] * x + rot[1][1] * y),
                         camera_cords[2] + z,
                     ];
 

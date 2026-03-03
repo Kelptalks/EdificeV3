@@ -20,12 +20,12 @@ enum ViewDirection {
 }
 
 impl ViewDirection {
-    pub fn offsets(&self) -> [i32; 3] {
+    pub fn rotation_matrix(&self) -> [[i32; 2]; 2] {
         match self {
-            ViewDirection::North => [1, 1, 1],
-            ViewDirection::South => [1, -1, 1],
-            ViewDirection::East => [-1, -1, 1],
-            ViewDirection::West => [-1, 1, 1],
+            ViewDirection::North => [[ 1,  0], [ 0,  1]],
+            ViewDirection::East  => [[ 0,  1], [-1,  0]],
+            ViewDirection::South => [[-1,  0], [ 0, -1]],
+            ViewDirection::West  => [[ 0, -1], [ 1,  0]],
         }
     }
 
@@ -259,15 +259,15 @@ impl PlayViewData {
         return self.world_cords;
     }
 
-    pub fn get_view_direction_offsets(&self) -> [i32; 3] {
-        return self.view_direction.offsets();
+    pub fn get_rotation_matrix(&self) -> [[i32; 2]; 2] {
+        return self.view_direction.rotation_matrix();
     }
 
     pub fn mod_world_cords(&mut self, cord_mods: [i32; 3]) {
-        let direction_offsets = self.view_direction.offsets();
-        for i in 0..self.world_cords.len() {
-            self.world_cords[i] += cord_mods[i] * direction_offsets[i];
-        }
+        let rot = self.view_direction.rotation_matrix();
+        self.world_cords[0] += rot[0][0] * cord_mods[0] + rot[0][1] * cord_mods[1];
+        self.world_cords[1] += rot[1][0] * cord_mods[0] + rot[1][1] * cord_mods[1];
+        self.world_cords[2] += cord_mods[2];
     }
 
     pub fn set_world_cords(&mut self, cords: [i32; 3]) {
