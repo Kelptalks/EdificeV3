@@ -11,3 +11,4 @@ pub mod panel;
 pub mod block_selection;
 
 pub mod text_bar;
+pub mod selection_menu;

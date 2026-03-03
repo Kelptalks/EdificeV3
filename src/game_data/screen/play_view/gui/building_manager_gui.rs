@@ -1,7 +1,7 @@
 use miniquad::MouseButton;
 use rand::rand_core::block;
 
-use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::GameEventManager, world_event_manager::world_event_manager::WorldEvent}, screen::{Button, ScreenData, play_view::{gui::location_manager_gui::LocationManagerGUI, play_view_data::{self, PlayViewData}}, render_centered_string_at_ndc, ui_elements::{block_selection::BlockSelection, panel::Panel}}, types::{BlockTexture, FontType, UITextures}};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::GameEventManager, world_event_manager::world_event_manager::WorldEvent}, screen::{Button, ScreenData, play_view::{gui::{location_manager_gui::LocationManagerGUI, ui_element::button_slot::ButtonSlot}, play_view_data::{self, PlayViewData}}, render_centered_string_at_ndc, ui_elements::{block_selection::{self, BlockSelection}, panel::Panel}}, types::{BlockTexture, FontType, UITextures}};
 
 
 enum BuildMode {
@@ -18,15 +18,22 @@ pub struct BuildingGUIManager {
 
     // Block selection
     button_block_select: Button,
-    block_selection: BlockSelection,
-    block_selection_visible: bool,
 
     button_toggle_build_mode: Button,
     create_location: Button,
+
+    // Block slots
+    block_slots: Vec<ButtonSlot>,
 }
 
 impl BuildingGUIManager {
-    pub fn new() -> BuildingGUIManager {
+    pub fn new(play_view_data: &mut PlayViewData) -> BuildingGUIManager {
+        
+        let mut block_slots = Vec::new();
+        for i in 0..6 {
+            block_slots.push(ButtonSlot::new_blank(play_view_data));
+        }
+
         BuildingGUIManager {
             panel: Panel::new_blank(),
             panal_padding_ndc_scale: 0.025,
@@ -36,12 +43,13 @@ impl BuildingGUIManager {
 
             // Block selection
             button_block_select: Button::new_blank(),
-            block_selection: BlockSelection::new(),
-            block_selection_visible: false,
 
             // Build mode
             button_toggle_build_mode: Button::new_blank(),
             create_location: Button::new_blank(),
+
+            // block slots
+            block_slots: block_slots
         }
     }
 
@@ -115,11 +123,12 @@ impl BuildingGUIManager {
         self.create_location.set_block(crate::game_data::types::BlockTexture::Selector);
         current_button_ndc[1] += button_step;
 
-        // Block selection Menu
-        let block_selection_scale = [panel_ndc_scale[0], panel_ndc_scale[1]];
-        self.block_selection.get_mut_panel().set_tile_ndc_scale(play_view_data.get_panel_tile_scale());
-        self.block_selection.set_scale(block_selection_scale);
-        self.block_selection.set_ndc(panel_start_cords);
+        for (i, blockslot) in self.block_slots.iter_mut().enumerate() {
+            blockslot.set_ndc(current_button_ndc);
+            blockslot.set_scale(button_scale);
+
+            current_button_ndc[1] += button_step;
+        }
 
         // Set GUI values
         self.gui_scale = [
@@ -139,6 +148,7 @@ impl BuildingGUIManager {
     pub fn render(&mut self,
         screen_data: &ScreenData,
         texture_manager: &mut TextureManager,
+        play_view_data: &mut PlayViewData
     ) {
         self.is_mouse_on = screen_data.mouse_on_ndc_pos(self.ndc_pos);
 
@@ -146,39 +156,51 @@ impl BuildingGUIManager {
         self.panel.render(texture_manager);
 
         
-
-        // Render block selection
-        if self.block_selection_visible {
-            self.block_selection.render(texture_manager, screen_data);
+        // Render buttons
+        let buttons = self.get_buttons_mut();
+        for button in buttons {
+            button.render_button(texture_manager, screen_data);
         }
-        else {
-            // Render buttons
-            let buttons = self.get_buttons_mut();
-            for button in buttons {
-                button.render_button(texture_manager, screen_data);
+
+        for block_slot in &mut self.block_slots {
+            block_slot.render(texture_manager, screen_data, play_view_data);
+        }
+
+
+        // Handle input
+        let inputs = screen_data.get_inputs();
+        for input in inputs {
+            match input {
+                crate::game_data::screen::input_data::Input::MouseButtonDown(mouse_button) => {
+                    if *mouse_button == MouseButton::Left {
+                        for slot in &mut self.block_slots {
+                            if let Some(button) = slot.get_button() {
+                                if button.is_mouse_on_button() {
+                                    play_view_data.set_block_selected(button.get_block_texture());
+                                }
+                            }
+                            
+                        }
+                    }
+                },
+                _ => {
+
+                }
             }
         }
+
     }
 
 
     //=====================================
     // Controls
     //=====================================
-    pub fn mouse_button_down_event(&mut self, event_manager: &mut GameEventManager, play_view_data: &mut PlayViewData, screen_data: &ScreenData, button: MouseButton) {
-        
-        // Block selection updates
-        if self.block_selection_visible {
-            self.block_selection_visible = false;
-            play_view_data.set_block_selected(self.block_selection.get_block_of_mouse());
-            self.button_block_select.set_block(self.block_selection.get_block_of_mouse());
-            self.block_selection_visible = !self.block_selection_visible; 
-        }
-        
+    pub fn mouse_button_down_event(&mut self, event_manager: &mut GameEventManager, play_view_data: &mut PlayViewData, screen_data: &ScreenData, button: MouseButton) {    
         // If on GUI
         if screen_data.mouse_on_ndc_pos(self.ndc_pos) {
             if MouseButton::Left == button {
                 if self.button_block_select.is_mouse_on_button() {
-                    self.block_selection_visible = !self.block_selection_visible; 
+                    play_view_data.open_selection_menu(play_view_data::SelectionMenuType::BlockSelection);
                 }
             }
         }

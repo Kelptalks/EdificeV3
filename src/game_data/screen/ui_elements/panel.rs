@@ -1,5 +1,6 @@
 use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndc, screen_data}, types::{FontType, UITextures}};
 
+#[derive(Clone)]
 pub enum PanelColor {
     Light,
     Dark,
@@ -48,12 +49,13 @@ impl PanelColor {
     }
 }
 
+#[derive(Clone)]
 pub struct Panel {
     // Panel Rendering Data
     ndc_scale: [f32; 2],
     ndc: [f32; 2],
     ndc_center: [f32; 2],
-
+    ndc_pos: [f32; 4],
 
     // Tile rendering data
     tile_ndc_scale: f32,
@@ -83,6 +85,7 @@ impl Panel {
             ndc_scale: [0.0, 0.0],
             ndc: [0.0, 0.0],
             ndc_center: [0.0, 0.0],
+            ndc_pos: [0.0; 4],
 
             // Tile rendering data
             tile_ndc_scale: 0.0,
@@ -116,6 +119,13 @@ impl Panel {
         self.text_ndc = [
             self.ndc_center[0],
             self.ndc[1] + (self.text_scale * 1.5)
+        ];
+
+        self.ndc_pos = [
+            self.ndc[0],
+            self.ndc[1],
+            self.ndc[0] + self.ndc_scale[0],
+            self.ndc[1] + self.ndc_scale[1],
         ];
 
         // Tile rendering
@@ -153,6 +163,9 @@ impl Panel {
     }
     pub fn get_panel_ndc_center(&self) -> [f32; 2] {
         self.ndc_center
+    }
+    pub fn get_ndc_pos(&self) -> [f32; 4] {
+        self.ndc_pos
     }
 
     // Scale

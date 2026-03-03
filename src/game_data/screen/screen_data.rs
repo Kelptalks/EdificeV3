@@ -1,6 +1,6 @@
 use miniquad::{GlContext, RenderingBackend};
 
-use crate::game_data::{World, screen::{camera_data::CameraData, iso_cord_tool}};
+use crate::game_data::{World, screen::{camera_data::CameraData, input_data::{Input, InputData}, iso_cord_tool}};
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum CurrentMenu {
@@ -12,6 +12,8 @@ pub enum CurrentMenu {
 }
 
 pub struct ScreenData {
+    input_data: InputData,
+    
     // Menu
     current_menu: CurrentMenu,
     debug_visible: bool,
@@ -44,6 +46,9 @@ pub struct ScreenData {
 impl ScreenData {
     pub fn new() -> ScreenData {
         ScreenData {
+            // Input Data, 
+            input_data: InputData::new(),
+
             // Menu
             current_menu: CurrentMenu::MainMenu,
             debug_visible: false,
@@ -73,6 +78,22 @@ impl ScreenData {
             quit_game: false,
         }
     }
+
+    //=====================================
+    // Inputs
+    //=====================================
+    
+    pub fn add_input(&mut self, input: Input) {
+        self.input_data.add_input(input);
+    }
+
+    pub fn clear_inputs(&mut self) {
+        self.input_data.clear_inputs();
+    }
+
+    pub fn get_inputs(&self) -> &Vec<Input> {
+       return &self.input_data.get_inputs();
+    } 
 
     //=====================================
     // Menu

@@ -118,7 +118,7 @@ impl PlayWorldRender {
 
 
                     play_block.render_block(texture_manager);
-                    play_block.render_cursor(texture_manager);
+                    play_block.render_cursor(texture_manager, play_view_data);
                     
                     // render the selected area
                     play_block.render_area_selection(texture_manager, &play_view_data.get_area_selected());

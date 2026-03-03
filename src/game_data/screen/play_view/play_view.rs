@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use miniquad::{KeyCode, MouseButton};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, player_data::{self, locations::location_manager::LocationManager, player_data::PlayerData}, screen::{Button, ScreenData, play_view::{gui::{building_manager_gui::BuildingGUIManager, drone_manager_gui::DroneGUIManager, location_manager_gui::LocationManagerGUI}, play_view_data::{PlayMode, PlayViewData}, world_rendering::play_world_renderer::PlayWorldRender}, screen_data}, texture_manager, types::{BlockTexture, UITextures}, world};
+use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, player_data::{self, locations::location_manager::LocationManager, player_data::PlayerData}, screen::{Button, ScreenData, play_view::{gui::{building_manager_gui::{self, BuildingGUIManager}, drone_manager_gui::DroneGUIManager, location_manager_gui::LocationManagerGUI}, play_view_data::{self, PlayMode, PlayViewData}, world_rendering::play_world_renderer::PlayWorldRender}, screen_data}, texture_manager, types::{BlockTexture, UITextures}, world};
 /*
 ##############
 ## PlayView ##
@@ -29,15 +29,18 @@ pub struct PlayView {
 
 impl PlayView {
     pub fn new() -> PlayView {
+        let mut play_view_data = PlayViewData::new();
+        let building_manager_gui = BuildingGUIManager::new(&mut play_view_data);
+
         PlayView {
 
-            play_view_data: PlayViewData::new(),
+            play_view_data: play_view_data,
             
             // Rendering
             play_world_renderer: PlayWorldRender::new(),
             
             // UI
-            building_manager_gui: BuildingGUIManager::new(),
+            building_manager_gui: building_manager_gui,
             button_building_gui_manager: Button::new_blank(),
 
             drone_manager_gui: DroneGUIManager::new(),
@@ -125,11 +128,12 @@ impl PlayView {
     }
 
     pub fn window_resize_update(&mut self, screen_data: &ScreenData) {
+
+        self.play_view_data.window_resize_update(screen_data);
         // GUI
         self.building_manager_gui.window_resize_update(screen_data, &self.play_view_data);
         self.drone_manager_gui.window_resize_update(screen_data, &self.play_view_data);
         self.location_manager_gui.window_resize_update(screen_data, &self.play_view_data);
-
         self.re_center_play_view(screen_data);
 
         // Button appearance Setup
@@ -156,7 +160,6 @@ impl PlayView {
         // Render background
         texture_manager.render_ui_element_with_pos(UITextures::VoidBackground, screen_data.get_viewport_uv());
         
-        
         // Render world
         self.play_world_renderer.render_view(screen_data, 
             &mut self.play_view_data,
@@ -173,7 +176,7 @@ impl PlayView {
         // Render ui
         match self.play_view_data.get_play_mode() {
             super::play_view_data::PlayMode::BuildManager => {
-                self.building_manager_gui.render(screen_data, texture_manager);
+                self.building_manager_gui.render(screen_data, texture_manager, &mut self.play_view_data);
             },
             super::play_view_data::PlayMode::DroneManager => {
                 self.drone_manager_gui.render(screen_data, texture_manager);
@@ -182,6 +185,8 @@ impl PlayView {
                 self.location_manager_gui.render(screen_data, texture_manager);
             },
         }
+
+        self.play_view_data.render(screen_data, texture_manager);
     }
 
     //=====================================

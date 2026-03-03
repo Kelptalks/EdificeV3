@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use image::imageops::FilterType::Triangle;
 use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, game_event_manager::game_event_manager::GameEventManager, log_init, player_data::player_data::PlayerData, screen::{self, Camera, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, iso_cord_tool, menus::{level_select_menu::{self, level_select_menu::LevelSelectMenu}, main_menu::main_menu::MainMenu, world_creation_menu::world_creation::WorldCreationMenu}, play_view::play_view::PlayView, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
+use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, game_event_manager::game_event_manager::GameEventManager, log_init, player_data::player_data::PlayerData, screen::{self, Camera, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, input_data::Input, iso_cord_tool, menus::{level_select_menu::{self, level_select_menu::LevelSelectMenu}, main_menu::main_menu::MainMenu, world_creation_menu::world_creation::WorldCreationMenu}, play_view::play_view::PlayView, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
 
 
 
@@ -111,6 +111,8 @@ impl ScreenManager {
             }
         }
 
+        self.screen_data.clear_inputs();
+
         
     }
 
@@ -120,6 +122,7 @@ impl ScreenManager {
 
     // handle mouse movment
     pub fn mouse_motion_event(&mut self, x_cor: f32, y_cor: f32) {
+        self.screen_data.add_input(Input::MouseMotion(x_cor, y_cor));
         self.screen_data.set_mouse_pixel_cords([x_cor as i32, y_cor as i32]);
     
         match self.screen_data.get_current_menu() {
@@ -144,15 +147,16 @@ impl ScreenManager {
     }
 
     // Handle mouse button press
-    pub fn mouse_button_down_event(&mut self, 
-        button: MouseButton, 
+    pub fn mouse_button_down_event(&mut self,
+        button: MouseButton,
         tik_manager: &mut TikManager,
         world_task_manager: &mut WorldTaskManager,
         event_manager: &mut GameEventManager,
     ) {
+        self.screen_data.add_input(Input::MouseButtonDown(button));
         let camera_data = &self.get_camera_data().clone();
         self.screen_data.re_calculate_mouse_cords(camera_data);
-();
+
         if button == MouseButton::Middle {
             self.screen_data.set_middle_mouse_held(true);
         }
@@ -179,10 +183,11 @@ impl ScreenManager {
 
     // Handle mouse button release
     pub fn mouse_button_up_event(
-        &mut self, 
+        &mut self,
         event_manager: &mut GameEventManager,
         button: MouseButton,
     ) {
+        self.screen_data.add_input(Input::MouseButtonUp(button));
         let camera_data = &self.get_camera_data().clone();
         self.screen_data.re_calculate_mouse_cords(camera_data);
         
@@ -207,13 +212,14 @@ impl ScreenManager {
     }
 
     // Handle key press
-    pub fn key_down_event(&mut self, 
-        event_manager: &mut GameEventManager, 
-        tik_manager: &mut TikManager, 
-        keycode: KeyCode, 
-        keymods: KeyMods, 
+    pub fn key_down_event(&mut self,
+        event_manager: &mut GameEventManager,
+        tik_manager: &mut TikManager,
+        keycode: KeyCode,
+        keymods: KeyMods,
         repeat: bool
     ) {
+        self.screen_data.add_input(Input::KeyDown(keycode));
         let camera_data = &self.get_camera_data().clone();
         self.screen_data.re_calculate_mouse_cords(camera_data);
 
@@ -247,8 +253,9 @@ impl ScreenManager {
         }
     }
 
-    // Handle mouse wheel 
+    // Handle mouse wheel
     pub fn mouse_wheel_event(&mut self, _x: f32, _y: f32) {
+        self.screen_data.add_input(Input::MouseWheel(_x, _y));
         let camera_data = &self.get_camera_data().clone();
         self.screen_data.re_calculate_mouse_cords(camera_data);
         if self.screen_data.get_current_menu() == CurrentMenu::MainMenu {

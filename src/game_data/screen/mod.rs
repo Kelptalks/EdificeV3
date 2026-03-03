@@ -22,6 +22,9 @@ pub use ui_elements::Button;
 
 pub mod screen_data;
 pub use screen_data::ScreenData;
+pub mod input_data;
+
+
 
 pub mod menus;
 

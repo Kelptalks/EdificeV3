@@ -2,7 +2,8 @@ use miniquad::MouseButton;
 
 use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndc, text::render_string_at_ndc, ui_elements::panel::Panel}, types::{BlockTexture, FontType, UITextures}};
 
-pub struct Button { 
+#[derive(Clone)]
+pub struct Button {
     // Rendering
     ndc: [f32; 2],
     scale: f32,
@@ -103,7 +104,7 @@ impl Button {
     }
 
     //=====================================
-    // Getters and setters
+    // Rendering Getters and setters
     //=====================================
 
     pub fn is_mouse_on_button(&self) -> bool {
@@ -126,7 +127,9 @@ impl Button {
         self.scale = scale;
     }
 
-    // Apearence
+    //=====================================
+    // Aperence Getters and setters
+    //=====================================
     pub fn set_block(&mut self, block: BlockTexture) {
         self.block_type = Some(block);
     }
@@ -135,8 +138,6 @@ impl Button {
     }
     pub fn set_text(&mut self, text: String) {
         self.text_scale = 0.025;
-
-
         self.text_panel.set_ndc_scale([
             (self.text_scale * (text.len()) as f32) + (self.text_panel_padding * 2.0), 
             (self.text_panel_padding * 2.0) + self.text_scale,
@@ -145,6 +146,15 @@ impl Button {
 
         self.text = Some(text);
     }
+    pub fn get_block_texture(&self) -> BlockTexture {
+        if let Some(block_texture) = self.block_type {
+            return block_texture;
+        }
+        else {
+            return BlockTexture::Air;
+        }
+    }
+
 
     //=====================================
     // Rendering

@@ -1,4 +1,6 @@
-use crate::game_data::{debuging::debug_data::DebugData, locations::world_area::WorldArea, types::BlockTexture};
+use miniquad::{KeyCode, MouseButton};
+
+use crate::game_data::{TextureManager, debuging::debug_data::DebugData, locations::world_area::WorldArea, screen::{Button, ScreenData, input_data::Input, ui_elements::{block_selection::BlockSelection, selection_menu}}, types::BlockTexture};
 
 
 /*
@@ -65,8 +67,11 @@ pub enum PlayMode {
     LocationManager,
 }
 
-impl PlayMode {
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SelectionMenuType {
+    None,
+    BlockSelection
 }
 
 /*
@@ -82,7 +87,7 @@ pub struct PlayViewData {
     block_selected: BlockTexture,
 
     // UI rendering
-    panel_padding_ndc_scale: f32,
+    panel_padding_scale: f32,
     panel_tile_scale: f32,
 
     // Camera
@@ -91,6 +96,10 @@ pub struct PlayViewData {
 
     // World
     area_selected: WorldArea,
+
+    // Selection Menus
+    block_selection_menu: BlockSelection,
+    button_selected: Option<Button>,
 }
 
 impl PlayViewData {
@@ -101,7 +110,7 @@ impl PlayViewData {
             block_selected: BlockTexture::Air,
 
             // UI rendering
-            panel_padding_ndc_scale: 0.025,
+            panel_padding_scale: 0.025,
             panel_tile_scale: 0.01,
 
             // Camera
@@ -110,7 +119,103 @@ impl PlayViewData {
 
             // World
             area_selected: WorldArea::new_blank(),
+
+            // Selection menus
+            block_selection_menu: BlockSelection::new(),
+
+            button_selected: None,
         }
+    }
+
+    //=====================================
+    // Rendering
+    //=====================================
+
+    pub fn window_resize_update(&mut self, screen_data: &ScreenData) {
+        let screen_end_ndc = screen_data.get_viewport_ending_ndc();
+        let screen_start_ndc = screen_data.get_viewport_starting_ndc();
+
+        // Block selection Menu
+        let block_selection_scale = [
+            0.3,
+            (screen_end_ndc[1] - screen_start_ndc[1]) - (self.panel_padding_scale * 2.0),
+        ];
+        self.block_selection_menu.set_scale(block_selection_scale);
+
+        let block_selection_ndc = [
+            screen_end_ndc[0] - (block_selection_scale[0] + self.panel_padding_scale),
+            screen_start_ndc[1] + self.panel_padding_scale,
+        ];
+        self.block_selection_menu.set_ndc(block_selection_ndc);
+    }
+
+    pub fn render(&mut self,
+        screen_data: &ScreenData,
+        texture_manager: &mut TextureManager,
+    ) {
+        self.block_selection_menu.render(texture_manager, screen_data);
+
+        if let Some(button) = &mut self.button_selected {
+            // Center button on mouse
+            let mouse_cords = screen_data.get_mouse_ndc();
+            let button_half_scale = button.get_scale() / 2.0;
+            let button_cords = [
+                mouse_cords[0] - button_half_scale,
+                mouse_cords[1] - button_half_scale
+            ];
+            button.set_ndc(button_cords);
+            button.render_button(texture_manager, screen_data);
+        }
+
+        // Handle inputs
+        let inputs = screen_data.get_inputs();
+        for input in inputs {
+            match input {
+                Input::MouseButtonDown(mouse_button) => {
+                    if *mouse_button == MouseButton::Left{
+                        if self.block_selection_menu.is_visible() {
+                            self.button_selected = self.block_selection_menu.get_selected_button_clone();
+                        }
+                    }
+                },
+                Input::MouseButtonUp(mouse_button) => {
+                    if *mouse_button == MouseButton::Left{
+                        self.button_selected = None;
+                    }
+                },
+                Input::KeyDown(key_code) => {
+                    if *key_code == KeyCode::B {
+                        self.open_selection_menu(SelectionMenuType::BlockSelection);
+                    }
+                }
+                _ => {
+                    
+                }
+            }
+        }
+    }
+
+    //=====================================
+    // Selection Menus
+    //=====================================
+
+    pub fn open_selection_menu(&mut self, selection_menu: SelectionMenuType) {
+        match selection_menu {
+            SelectionMenuType::None => {
+                self.block_selection_menu.set_visible(false);
+            },
+            SelectionMenuType::BlockSelection => {
+                self.block_selection_menu.set_visible(true);
+            },
+        }
+    }
+
+    pub fn get_button_selected(&mut self) -> &mut Option<Button> {
+        return &mut self.button_selected;
+    }
+
+    pub fn get_button_selected_clone(&mut self) -> Option<Button> {
+        return self.button_selected.clone();
     }
 
     //=====================================
@@ -138,7 +243,7 @@ impl PlayViewData {
     //=====================================
 
     pub fn get_panel_padding_scale(&self) -> f32 {
-        return self.panel_padding_ndc_scale;
+        return self.panel_padding_scale;
     }
 
     pub fn get_panel_tile_scale(&self) -> f32 {

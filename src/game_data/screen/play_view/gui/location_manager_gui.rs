@@ -30,6 +30,8 @@ impl LocationManagerGUI {
             // UI
             panel: Panel::new_blank(),
             text_bar: TextBar::new_blank(),
+            
+
 
             // Rendering
             ndc: [0.0, 0.0],

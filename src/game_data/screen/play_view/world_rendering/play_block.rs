@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, locations::world_area::{self, WorldArea}, types::BlockTexture};
+use crate::game_data::{TextureManager, locations::world_area::{self, WorldArea}, screen::play_view::play_view_data::{self, PlayViewData}, types::BlockTexture};
 
 #[derive(Clone, Copy)]
 pub struct PlayBlock {
@@ -34,16 +34,18 @@ impl PlayBlock {
         }
     }
 
-    pub fn render_cursor(&self, texture_manager: &mut TextureManager) {
+    pub fn render_cursor(&self, texture_manager: &mut TextureManager, play_view_data: &mut PlayViewData) {
         // Render Selector if at center
         let x = self.rendering_block_cords[0];
         let y = self.rendering_block_cords[1];
         let z = self.rendering_block_cords[2];
         if x == 0 && y == 0 && z == 0 {
+            texture_manager.render_block(play_view_data.get_block_selected(), self.draw_cords, self.ndc_block_scale);
+            texture_manager.render_block(BlockTexture::Selector, self.draw_cords, self.ndc_block_scale);
             if self.block_type != BlockTexture::Air {
                 texture_manager.render_block(BlockTexture::translucent_red, self.draw_cords, self.ndc_block_scale);
             }
-            texture_manager.render_block(BlockTexture::Selector, self.draw_cords, self.ndc_block_scale);
+            
         }
         // Render Selector bars
         else if !self.block_type.is_solid(){
