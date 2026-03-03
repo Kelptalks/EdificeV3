@@ -97,6 +97,9 @@ impl SelectionMenu {
         let button_padding = 0.1 * btn_step;
         let btn_scale = btn_step - button_padding;
 
+        // Center the button block horizontally within the grid
+        let total_row_width = self.buttons_per_row as f32 * btn_step;
+        let x_center_offset = (grid_w - total_row_width) / 2.0;
 
         // Position every button by its index within its page
         for (i, button) in self.selection_buttons.iter_mut().enumerate() {
@@ -105,7 +108,7 @@ impl SelectionMenu {
             let col = page_local % self.buttons_per_row;
             button.set_scale(btn_scale);
             button.set_ndc([
-                grid_x + col as f32 * btn_step + button_padding,
+                grid_x + x_center_offset + col as f32 * btn_step + button_padding / 2.0,
                 grid_y + row as f32 * btn_step,
             ]);
         }
