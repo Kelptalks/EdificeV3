@@ -44,7 +44,9 @@ impl Font {
         let splicing_start_cords = self.splicing_start_cords;
         let atlas_start_cords = self.atlas_start_cords;
         let buffered_spacing = self.font_pixel_scale[0] + self.buffer_space;
-
+        let char_w = self.font_pixel_scale[0] as u32;
+        let char_h = self.font_pixel_scale[1] as u32;
+        let border: u32 = 1;
 
         // Loop through each letter
         for current_char in 0..CharType::get_total_chars() {
@@ -52,28 +54,48 @@ impl Font {
             // Calculate cords to splice from fonts_image
             let char_x_splicing_offset = ((current_char as f32 * (self.font_pixel_scale[0])) + splicing_start_cords[0]) as u32;
             let char_y_splicing_offset = (splicing_start_cords[1]) as u32;
-        
+
             // Calculate atlas draw location with buffered spacing
             let char_x_atlas_offset = (current_char as f32 * (buffered_spacing) + atlas_start_cords[0]) as u32;
             let char_y_atlas_offset = (atlas_start_cords[1]) as u32;
 
-
-
             // Loop through each pixel in char
-            for x_char_pixel_index in 0..self.font_pixel_scale[0] as u32 {
-                for y_char_pixel_index in 0..self.font_pixel_scale[1] as u32 {
-                    
-                    // Calculate Exact pixel to copy from
-                    let char_x_splicing_cor = x_char_pixel_index + char_x_splicing_offset;
-                    let char_y_splicing_cor = y_char_pixel_index + char_y_splicing_offset;
-                    
-                    // Calculate Exact pixel to paste too
-                    let char_x_atlas_cor = x_char_pixel_index + char_x_atlas_offset;
-                    let char_y_atlas_cor = y_char_pixel_index + char_y_atlas_offset;
+            for x in 0..char_w {
+                for y in 0..char_h {
+                    let spliced_pixel = fonts_image.get_pixel(char_x_splicing_offset + x, char_y_splicing_offset + y);
+                    atlas_image.put_pixel(char_x_atlas_offset + x, char_y_atlas_offset + y, *spliced_pixel);
+                }
+            }
 
-                    // Update the pixel on the atlas
-                    let spliced_pixel = fonts_image.get_pixel(char_x_splicing_cor, char_y_splicing_cor);
-                    atlas_image.put_pixel(char_x_atlas_cor, char_y_atlas_cor, *spliced_pixel);
+            // Extend left edge pixels into buffer
+            for bx in 1..=border {
+                for y in 0..char_h {
+                    let edge_pixel = fonts_image.get_pixel(char_x_splicing_offset, char_y_splicing_offset + y);
+                    atlas_image.put_pixel(char_x_atlas_offset - bx, char_y_atlas_offset + y, *edge_pixel);
+                }
+            }
+
+            // Extend right edge pixels into buffer
+            for bx in 0..border {
+                for y in 0..char_h {
+                    let edge_pixel = fonts_image.get_pixel(char_x_splicing_offset + char_w - 1, char_y_splicing_offset + y);
+                    atlas_image.put_pixel(char_x_atlas_offset + char_w + bx, char_y_atlas_offset + y, *edge_pixel);
+                }
+            }
+
+            // Extend top edge pixels into buffer
+            for by in 1..=border {
+                for x in 0..char_w {
+                    let edge_pixel = fonts_image.get_pixel(char_x_splicing_offset + x, char_y_splicing_offset);
+                    atlas_image.put_pixel(char_x_atlas_offset + x, char_y_atlas_offset - by, *edge_pixel);
+                }
+            }
+
+            // Extend bottom edge pixels into buffer
+            for by in 0..border {
+                for x in 0..char_w {
+                    let edge_pixel = fonts_image.get_pixel(char_x_splicing_offset + x, char_y_splicing_offset + char_h - 1);
+                    atlas_image.put_pixel(char_x_atlas_offset + x, char_y_atlas_offset + char_h + by, *edge_pixel);
                 }
             }
         }
@@ -95,13 +117,14 @@ impl Font {
 
     pub fn get_char_uv(&mut self, char: CharType, atlas_dimensions: f32) -> [f32; 4] {
         let src_rect = self.get_char_src_rect(char);
+        let texel = 0.5 / atlas_dimensions;
         let mut uv = [0.0, 0.0, 0.0, 0.0];
 
-        // Create uv
-        uv[0] = src_rect[0] / atlas_dimensions;
-        uv[1] = src_rect[1] / atlas_dimensions;
-        uv[2] = src_rect[2] / atlas_dimensions;
-        uv[3] = src_rect[3] / atlas_dimensions;
+        // Create uv with half-texel inset to prevent texture bleed
+        uv[0] = src_rect[0] / atlas_dimensions + texel;
+        uv[1] = src_rect[1] / atlas_dimensions + texel;
+        uv[2] = src_rect[2] / atlas_dimensions - texel;
+        uv[3] = src_rect[3] / atlas_dimensions - texel;
 
         return uv;
     }

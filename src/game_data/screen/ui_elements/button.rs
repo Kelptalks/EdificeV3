@@ -1,6 +1,6 @@
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndc, text::render_string_at_ndc, ui_elements::panel::Panel}, types::{BlockTexture, FontType, UITextures}};
+use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndc, ui_elements::panel::Panel}, types::{BlockTexture, FontType, UITextures}};
 
 #[derive(Clone)]
 pub struct Button {
@@ -204,26 +204,33 @@ impl Button {
             texture_manager.render_ui_element(icon, self.ndc, self.scale);
         }
 
-        // If has text and mouse is on button render text above button
+        // If has text and mouse is on button render text centered at bottom of button
         if let Some(string) = &self.text {
             if self.is_mouse_on {
-                let mut ndc = screen_data.get_mouse_ndc();
-                ndc[0] += self.text_panel_padding * 2.0;
-                ndc[1] -= self.text_scale / 2.0;
+                let render_scale = self.scale / string.len() as f32;
+                let center_x = self.ndc[0] + self.scale / 2.0;
+                let center_y = self.ndc[1];
 
+                let text_width = render_scale * string.len() as f32;
+                let scaled_padding = render_scale / 4.0;
+                self.text_panel.set_ndc_scale([
+                    text_width + self.text_panel_padding * 2.0,
+                    scaled_padding * 2.0 + render_scale,
+                ]);
+                self.text_panel.set_tile_ndc_scale(render_scale / 6.0);
                 let panel_ndc = [
-                    ndc[0] - self.text_panel_padding,
-                    ndc[1] - self.text_panel_padding,
+                    center_x - text_width / 2.0 - self.text_panel_padding,
+                    center_y - render_scale / 2.0 - scaled_padding,
                 ];
                 self.text_panel.set_ndc(panel_ndc);
                 self.text_panel.render(texture_manager);
 
-                render_string_at_ndc(
-                    texture_manager, 
-                    string.to_string(), 
-                    self.text_font, 
-                    self.text_scale, 
-                    ndc
+                render_centered_string_at_ndc(
+                    texture_manager,
+                    string.to_string(),
+                    self.text_font,
+                    render_scale,
+                    [center_x, center_y]
                 );
             }
         }
