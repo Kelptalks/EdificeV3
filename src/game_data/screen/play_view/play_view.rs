@@ -1,8 +1,9 @@
 use std::sync::{Arc, RwLock};
 
+use image::imageops::FilterType::Gaussian;
 use miniquad::{KeyCode, MouseButton};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, player_data::{self, locations::location_manager::LocationManager, player_data::PlayerData}, screen::{Button, ScreenData, play_view::{gui::{building_manager_gui::{self, BuildingGUIManager}, drone_manager_gui::DroneGUIManager, location_manager_gui::LocationManagerGUI}, play_view_data::{self, PlayMode, PlayViewData}, world_rendering::play_world_renderer::PlayWorldRender}, screen_data}, texture_manager, types::{BlockTexture, UITextures}, world};
+use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, game_event_manager::{self, game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, player_data::{self, locations::location_manager::LocationManager, player_data::PlayerData}, screen::{Button, ScreenData, play_view::{gui::{building_manager_gui::{self, BuildingGUIManager}, drone_manager_gui::DroneGUIManager, location_manager_gui::LocationManagerGUI}, play_view_data::{self, PlayMode, PlayViewData}, world_rendering::play_world_renderer::PlayWorldRender}, screen_data}, texture_manager, types::{BlockTexture, UITextures}, world};
 /*
 ##############
 ## PlayView ##
@@ -156,16 +157,10 @@ impl PlayView {
         texture_manager: &mut TextureManager, 
         world: &Arc<RwLock<World>>,
         player_data: &mut PlayerData,
+        game_event_manager: &mut GameEventManager,
     ) {
         // Render background
-        texture_manager.render_ui_element_with_pos(UITextures::VoidBackground, screen_data.get_viewport_uv());
-        
-        // Render world
-        self.play_world_renderer.render_view(screen_data, 
-            &mut self.play_view_data,
-            texture_manager, 
-            world
-        );    
+        texture_manager.render_ui_element_with_pos(UITextures::VoidBackground, screen_data.get_viewport_uv());    
 
         // Render ui selection buttons
         let buttons = self.get_menu_selection_buttons();
@@ -176,7 +171,7 @@ impl PlayView {
         // Render ui
         match self.play_view_data.get_play_mode() {
             super::play_view_data::PlayMode::BuildManager => {
-                self.building_manager_gui.render(screen_data, texture_manager, &mut self.play_view_data);
+                self.building_manager_gui.render(screen_data, texture_manager, game_event_manager, &mut self.play_view_data);
             },
             super::play_view_data::PlayMode::DroneManager => {
                 self.drone_manager_gui.render(screen_data, texture_manager);
@@ -185,6 +180,13 @@ impl PlayView {
                 self.location_manager_gui.render(screen_data, texture_manager);
             },
         }
+
+        // Render world
+        self.play_world_renderer.render_view(screen_data, 
+            &mut self.play_view_data,
+            texture_manager, 
+            world
+        );
 
         self.play_view_data.render(screen_data, texture_manager);
     }

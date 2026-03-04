@@ -1,4 +1,4 @@
-use miniquad::{GlContext, RenderingBackend};
+use miniquad::{GlContext, MouseButton, RenderingBackend};
 
 use crate::game_data::{World, screen::{camera_data::CameraData, input_data::{Input, InputData}, iso_cord_tool}};
 
@@ -36,6 +36,9 @@ pub struct ScreenData {
 
     // Button held states
     middle_mouse_held: bool,
+    left_mouse_held: bool,
+    right_mouse_held: bool,
+
     starting_mouse_ndc_on_middle_down: [f32; 2],
     ending_mouse_ndc_on_middle_down: [f32; 2],
 
@@ -69,8 +72,11 @@ impl ScreenData {
             // Last mouse cords 
             last_mouse_ndc_cords: [0.0, 0.0],
 
-            // Middle Mouse Dragging
+            // Mouse holding
             middle_mouse_held: false,
+            left_mouse_held: false,
+            right_mouse_held: false,
+
             starting_mouse_ndc_on_middle_down: [0.0, 0.0],
             ending_mouse_ndc_on_middle_down: [0.0, 0.0],
 
@@ -85,6 +91,32 @@ impl ScreenData {
     
     pub fn add_input(&mut self, input: Input) {
         self.input_data.add_input(input);
+    }
+
+    pub fn update_inputs(&mut self) {
+        for input in self.input_data.get_inputs() {
+            match input {
+                Input::MouseButtonDown(mouse_button) => {
+                    if *mouse_button == MouseButton::Left {
+                        self.left_mouse_held = true;
+                    } 
+                    else if *mouse_button == MouseButton::Right {
+                        self.right_mouse_held = true;
+                    }
+                },
+                Input::MouseButtonUp(mouse_button) => {
+                    if *mouse_button == MouseButton::Left {
+                        self.left_mouse_held = false;
+                    } 
+                    else if *mouse_button == MouseButton::Right {
+                        self.right_mouse_held = false;
+                    }
+                },
+                _ => {
+
+                }
+            }
+        }
     }
 
     pub fn clear_inputs(&mut self) {
@@ -266,7 +298,7 @@ impl ScreenData {
     }
 
     //=====================================
-    // Mouse Dragging
+    // Mouse Holding
     //=====================================
 
     pub fn is_middle_mouse_held(&self) -> bool {
@@ -295,6 +327,14 @@ impl ScreenData {
             self.last_mouse_ndc_cords[0] - self.mouse_ndc_cords[0],
             self.last_mouse_ndc_cords[1] - self.mouse_ndc_cords[1],
         ]
+    }
+
+    pub fn is_left_mouse_held(&self) -> bool {
+        return self.left_mouse_held;
+    }
+
+    pub fn is_right_mouse_held(&self) -> bool {
+        return self.right_mouse_held;
     }
 
     //=====================================

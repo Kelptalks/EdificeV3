@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use image::flat::View;
 use miniquad::{KeyCode, MouseButton};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, game_event_manager::{game_event_manager::{self, GameEventManager}, world_event_manager::world_event_manager::WorldEvent}, screen::{ScreenData, camera_data::Direction, iso_cord_tool, play_view::{gui::building_manager_gui::{self, BuildingGUIManager}, play_view_data::{self, PlayViewData}, world_rendering::play_block::{self, PlayBlock}}, screen_data, text}, types::BlockTexture};
+use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, game_event_manager::{game_event_manager::{self, GameEventManager}, world_event_manager::world_event_manager::WorldEvent}, screen::{ScreenData, camera_data::Direction, input_data::Input, iso_cord_tool, play_view::{gui::building_manager_gui::{self, BuildingGUIManager}, play_view_data::{self, PlayViewData}, world_rendering::play_block::{self, PlayBlock}}, screen_data, text}, types::BlockTexture};
 
 static MAX_VIEW_DISTANCE: i32 = 20;
 static MIN_VIEW_DISTANCE: i32 = 0;
@@ -80,7 +80,7 @@ impl PlayWorldRender {
         let ndc_x_draw_center_offset = self.ndc_block_scale - self.ndc_cords[0];
 
         let rot = play_view_data.get_rotation_matrix();
-
+        
         let camera_cords = play_view_data.get_world_cords();
 
         // Loop through blocks in zoom
@@ -119,13 +119,24 @@ impl PlayWorldRender {
                     play_block.render_cursor(texture_manager, play_view_data);
                     
                     // render the selected area
-                    play_block.render_area_selection(texture_manager, &play_view_data.get_area_selected());
+                    play_block.render_area_selection(texture_manager, &play_view_data.get_mut_cursor_area());
 
 
 
                 }
             }
         }
+
+
+        if screen_data.is_left_mouse_held() || screen_data.is_right_mouse_held() {
+            play_view_data.get_mut_cursor_area().set_point_1(camera_cords);
+        }
+        else {
+            play_view_data.get_mut_cursor_area().set_point_1(camera_cords);
+            play_view_data.get_mut_cursor_area().set_point_2(camera_cords);
+        }
+
+
     }
 
     //=====================================

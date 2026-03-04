@@ -1,16 +1,16 @@
 use crate::game_data::locations::world_area::WorldArea;
 
-pub struct Location {
+pub struct WorldLocation {
     area: WorldArea,
     name: String,
     id: u32
 }
 
-impl Location {
-    pub fn new(name: String, area: WorldArea, id: u32) -> Location {
+impl WorldLocation {
+    pub fn new(name: String, area: WorldArea, id: u32) -> WorldLocation {
         println!("Created Location: {}", name);
         
-        Location {
+        WorldLocation {
             area: area,
             name: name,
             id: id,

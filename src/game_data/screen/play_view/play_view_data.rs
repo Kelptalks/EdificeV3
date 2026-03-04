@@ -1,6 +1,8 @@
+use std::panic::Location;
+
 use miniquad::{KeyCode, MouseButton};
 
-use crate::game_data::{TextureManager, debuging::debug_data::DebugData, locations::world_area::WorldArea, screen::{Button, ScreenData, input_data::Input, ui_elements::{block_selection::BlockSelection, selection_menu}}, types::BlockTexture};
+use crate::game_data::{TextureManager, debuging::debug_data::DebugData, locations::world_area::WorldArea, player_data::locations::location::WorldLocation, screen::{Button, ScreenData, input_data::Input, ui_elements::{block_selection::BlockSelection, selection_menu}}, types::BlockTexture};
 
 
 /*
@@ -91,7 +93,8 @@ pub struct PlayViewData {
     panel_tile_scale: f32,
 
     // Camera
-    world_cords: [i32; 3],
+    cursor_world_cords: [i32; 3],
+    cursor_area: WorldArea,
     view_direction: ViewDirection,
 
     // World
@@ -114,7 +117,8 @@ impl PlayViewData {
             panel_tile_scale: 0.01,
 
             // Camera
-            world_cords: [0, 0, 0],
+            cursor_world_cords: [0, 0, 0],
+            cursor_area: WorldArea::new_blank(),
             view_direction: ViewDirection::North,
 
             // World
@@ -251,12 +255,19 @@ impl PlayViewData {
     }
 
     //=====================================
+    // Cursor
+    //=====================================
+    pub fn get_mut_cursor_area(&mut self) -> &mut WorldArea{
+        return &mut self.cursor_area;
+    }
+
+    //=====================================
     // Camera 
     //=====================================
 
     // Add / Subtract cords 
     pub fn get_world_cords(&self) -> [i32; 3] {
-        return self.world_cords;
+        return self.cursor_world_cords;
     }
 
     pub fn get_rotation_matrix(&self) -> [[i32; 2]; 2] {
@@ -265,13 +276,13 @@ impl PlayViewData {
 
     pub fn mod_world_cords(&mut self, cord_mods: [i32; 3]) {
         let rot = self.view_direction.rotation_matrix();
-        self.world_cords[0] += rot[0][0] * cord_mods[0] + rot[0][1] * cord_mods[1];
-        self.world_cords[1] += rot[1][0] * cord_mods[0] + rot[1][1] * cord_mods[1];
-        self.world_cords[2] += cord_mods[2];
+        self.cursor_world_cords[0] += rot[0][0] * cord_mods[0] + rot[0][1] * cord_mods[1];
+        self.cursor_world_cords[1] += rot[1][0] * cord_mods[0] + rot[1][1] * cord_mods[1];
+        self.cursor_world_cords[2] += cord_mods[2];
     }
 
     pub fn set_world_cords(&mut self, cords: [i32; 3]) {
-        self.world_cords = cords;
+        self.cursor_world_cords = cords;
     }
 
     // Camera Direction
@@ -313,7 +324,7 @@ impl PlayViewData {
     //=====================================
 
     pub fn collect_debug_data(&self, debug_data: &mut DebugData) {
-        debug_data.set_camera_cords(self.world_cords);
+        debug_data.set_camera_cords(self.cursor_world_cords);
         debug_data.set_direction(self.view_direction.to_string());
     }
 }

@@ -169,7 +169,8 @@ impl GameData {
             &mut self.drone_rendering_task_manager, 
             &self.tik_manager,
             &mut self.player_data,
-            ctx
+            &mut self.event_manager,
+            ctx,
         );
         
         // Tik managing

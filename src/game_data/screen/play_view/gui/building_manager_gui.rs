@@ -1,7 +1,7 @@
 use miniquad::MouseButton;
 use rand::rand_core::block;
 
-use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::GameEventManager, world_event_manager::world_event_manager::WorldEvent}, screen::{Button, ScreenData, play_view::{gui::{location_manager_gui::LocationManagerGUI, ui_element::button_slot::ButtonSlot}, play_view_data::{self, PlayViewData}}, render_centered_string_at_ndc, ui_elements::{block_selection::{self, BlockSelection}, panel::Panel}}, types::{BlockTexture, FontType, UITextures}};
+use crate::game_data::{TextureManager, game_event_manager::{self, game_event_manager::GameEventManager, world_event_manager::world_event_manager::WorldEvent}, screen::{Button, ScreenData, input_data::Input, play_view::{gui::{location_manager_gui::LocationManagerGUI, ui_element::button_slot::ButtonSlot}, play_view_data::{self, PlayViewData}}, render_centered_string_at_ndc, ui_elements::{block_selection::{self, BlockSelection}, panel::Panel}}, types::{BlockTexture, FontType, UITextures}};
 
 
 enum BuildMode {
@@ -148,6 +148,7 @@ impl BuildingGUIManager {
     pub fn render(&mut self,
         screen_data: &ScreenData,
         texture_manager: &mut TextureManager,
+        game_event_manager: &mut GameEventManager,
         play_view_data: &mut PlayViewData
     ) {
         self.is_mouse_on = screen_data.mouse_on_ndc_pos(self.ndc_pos);
@@ -168,10 +169,11 @@ impl BuildingGUIManager {
 
 
         // Handle input
+        let block_selection = play_view_data.get_block_selected();
         let inputs = screen_data.get_inputs();
         for input in inputs {
             match input {
-                crate::game_data::screen::input_data::Input::MouseButtonDown(mouse_button) => {
+                Input::MouseButtonDown(mouse_button) => {
                     if *mouse_button == MouseButton::Left {
                         for slot in &mut self.block_slots {
                             if let Some(button) = slot.get_button() {
@@ -183,6 +185,15 @@ impl BuildingGUIManager {
                         }
                     }
                 },
+                Input::MouseButtonUp(mouse_button) => {
+                    if *mouse_button == MouseButton::Right {
+                        play_view_data.get_mut_cursor_area().fill_area(game_event_manager, block_selection);
+                    }
+                    else if *mouse_button == MouseButton::Left {
+                        play_view_data.get_mut_cursor_area().fill_area(game_event_manager, BlockTexture::Air);
+                    }
+                    
+                }
                 _ => {
 
                 }
@@ -195,24 +206,9 @@ impl BuildingGUIManager {
     //=====================================
     // Controls
     //=====================================
-    pub fn mouse_button_down_event(&mut self, event_manager: &mut GameEventManager, play_view_data: &mut PlayViewData, screen_data: &ScreenData, button: MouseButton) {    
+    pub fn mouse_button_down_event(&mut self, game_event_manager: &mut GameEventManager, play_view_data: &mut PlayViewData, screen_data: &ScreenData, button: MouseButton) {    
         // If on GUI
-        if screen_data.mouse_on_ndc_pos(self.ndc_pos) {
-            if MouseButton::Left == button {
-                if self.button_block_select.is_mouse_on_button() {
-                    play_view_data.open_selection_menu(play_view_data::SelectionMenuType::BlockSelection);
-                }
-            }
-        }
-        // If on Render
-        else {
-            if button == MouseButton::Left {
-                event_manager.add_world_event(WorldEvent::ModBlock(play_view_data.get_world_cords(), BlockTexture::Air));
-            }
-            else if button == MouseButton::Right {
-                event_manager.add_world_event(WorldEvent::ModBlock(play_view_data.get_world_cords(), play_view_data.get_block_selected()));
-            }
-        }
+
 
     }
 

@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use image::imageops::FilterType::Triangle;
 use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, game_event_manager::game_event_manager::GameEventManager, log_init, player_data::player_data::PlayerData, screen::{self, Camera, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, input_data::Input, iso_cord_tool, menus::{level_select_menu::{self, level_select_menu::LevelSelectMenu}, main_menu::main_menu::MainMenu, world_creation_menu::world_creation::WorldCreationMenu}, play_view::play_view::PlayView, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
+use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, game_event_manager::{self, game_event_manager::GameEventManager}, log_init, player_data::player_data::PlayerData, screen::{self, Camera, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, input_data::Input, iso_cord_tool, menus::{level_select_menu::{self, level_select_menu::LevelSelectMenu}, main_menu::main_menu::MainMenu, world_creation_menu::world_creation::WorldCreationMenu}, play_view::play_view::PlayView, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
 
 
 
@@ -80,12 +80,14 @@ impl ScreenManager {
         world_rendering_task_manager: &mut RenderingTaskManager,
         tik_manager: &TikManager,
         player_data: &mut PlayerData,
+        game_event_manager: &mut GameEventManager,
         ctx : &mut GlContext
     ){
         // If quit
         if self.screen_data.should_quit() {
             window::order_quit();
         }
+        self.screen_data.update_inputs();
 
         // Update screen cords
         let camera_data = &self.get_camera_data().clone();
@@ -107,7 +109,7 @@ impl ScreenManager {
                 world_rendering_task_manager.execute_render_updates_drone(&mut self.camera, texture_manager);
             }
             CurrentMenu::PlayView => {
-                self.play_view.render_view(&self.screen_data, texture_manager, &world, player_data);
+                self.play_view.render_view(&self.screen_data, texture_manager, &world, player_data, game_event_manager);
             }
         }
 
