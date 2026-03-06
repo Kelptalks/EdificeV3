@@ -29,3 +29,5 @@ pub mod input_data;
 pub mod menus;
 
 pub mod camera_ui;
+
+pub mod widget;
