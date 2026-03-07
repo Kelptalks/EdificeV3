@@ -10,6 +10,7 @@ Enum and logic for executing events pertaining
 to modifications to the world
 */
 
+#[derive(Clone)]
 pub enum WorldEvent {
     Clear,                     // No Data
     GenWorld(WorldConfig),     // World Config

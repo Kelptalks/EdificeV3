@@ -38,6 +38,9 @@ pub struct ScreenData {
     middle_mouse_held: bool,
     left_mouse_held: bool,
     right_mouse_held: bool,
+    was_left_pressed: bool,
+    was_right_pressed: bool,
+
 
     starting_mouse_ndc_on_middle_down: [f32; 2],
     ending_mouse_ndc_on_middle_down: [f32; 2],
@@ -72,10 +75,12 @@ impl ScreenData {
             // Last mouse cords 
             last_mouse_ndc_cords: [0.0, 0.0],
 
-            // Mouse holding
+            // Mouse
             middle_mouse_held: false,
             left_mouse_held: false,
             right_mouse_held: false,
+            was_left_pressed: false,
+            was_right_pressed: false,
 
             starting_mouse_ndc_on_middle_down: [0.0, 0.0],
             ending_mouse_ndc_on_middle_down: [0.0, 0.0],
@@ -107,9 +112,12 @@ impl ScreenData {
                 Input::MouseButtonUp(mouse_button) => {
                     if *mouse_button == MouseButton::Left {
                         self.left_mouse_held = false;
+                        self.was_left_pressed = true;
+                        
                     } 
                     else if *mouse_button == MouseButton::Right {
                         self.right_mouse_held = false;
+                        self.was_right_pressed = true;
                     }
                 },
                 _ => {
@@ -121,6 +129,8 @@ impl ScreenData {
 
     pub fn clear_inputs(&mut self) {
         self.input_data.clear_inputs();
+        self.was_left_pressed = false;
+        self.was_right_pressed = false;
     }
 
     pub fn get_inputs(&self) -> &Vec<Input> {
@@ -335,6 +345,14 @@ impl ScreenData {
 
     pub fn is_right_mouse_held(&self) -> bool {
         return self.right_mouse_held;
+    }
+
+    pub fn was_left_pressed(&self) -> bool {
+        return self.was_left_pressed;
+    }
+
+    pub fn was_right_pressed(&self) -> bool {
+        return self.was_right_pressed;
     }
 
     //=====================================

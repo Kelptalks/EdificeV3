@@ -9,6 +9,12 @@ use crate::game_data::{World, game_event_manager::{render_event_manager::render_
 
 */
 
+#[derive(Clone)]
+pub enum Event  {
+    WorldEvent(WorldEvent),
+    RenderEvent(RenderEvent),
+}
+
 pub struct EventData {
     // Events
     world_events: Vec<WorldEvent>,
@@ -111,6 +117,17 @@ impl GameEventManager {
 
     pub fn add_render_event(&mut self, render_event: RenderEvent) {
         self.event_data.render_events.push(render_event);
+    }
+
+    pub fn add_event(&mut self, event: Event) {
+        match event {
+            Event::WorldEvent(world_event) => {
+                self.add_world_event(world_event);
+            },
+            Event::RenderEvent(render_event) => {
+                self.add_render_event(render_event);
+            },
+        }
     }
 
     //=====================================

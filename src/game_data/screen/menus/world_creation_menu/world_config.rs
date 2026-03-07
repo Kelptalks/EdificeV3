@@ -5,7 +5,7 @@ use miniquad::GlContext;
 use crate::game_data::{TextureManager, World, screen::{ScreenData, render_centered_string_at_ndc, renderer::{camera, casted_block_manager::casted_block_manager::CastedChunkManager}}, types::{FontType, UITextures}};
 
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 enum LoadingState {
     ShowLoading,
     GenerateTerrain,
@@ -35,6 +35,7 @@ impl LoadingState {
     }
 }
 
+#[derive(Clone)]
 pub struct WorldConfig {
     scale: u32,
     height_variation: u32,

@@ -9,6 +9,7 @@ use crate::game_data::{World, game_event_manager::game_event_manager::EventData,
 Events relating to rendering of menus / game camera
 
 */
+#[derive(Clone, PartialEq)]
 pub enum RenderEvent {
     // Camera
     InitWorldRender(u32),               // Range 
@@ -17,6 +18,9 @@ pub enum RenderEvent {
     // Menu
     ChangeMenu(CurrentMenu),    // Current menu
     Clear,                    // None
+
+    // Testing
+    TestEvent,
 }
 
 impl RenderEvent {
@@ -44,6 +48,9 @@ impl RenderEvent {
             }
             RenderEvent::Clear => {
                 
+            }
+            RenderEvent::TestEvent => {
+                println!("Test Render Event");
             }
         }
     }

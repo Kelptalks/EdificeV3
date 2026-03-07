@@ -1,2 +1,3 @@
-pub mod widget_trait;
+pub mod widget;
 pub mod panel;
+pub mod button;

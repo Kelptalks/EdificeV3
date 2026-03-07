@@ -124,6 +124,11 @@ impl TextureManager {
         self.get_texture_renderer().add_quad(pos, uv);
     }
 
+    pub fn render_block_with_pos(&mut self, block : BlockTexture, pos : [f32; 4]) {
+        let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_block_uv(block);
+        self.get_texture_renderer().add_quad(pos, uv);
+    }
+
     //=====================================
     // Shader Rendering
     //=====================================

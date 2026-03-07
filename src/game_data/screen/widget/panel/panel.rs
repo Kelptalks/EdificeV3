@@ -1,56 +1,13 @@
-use crate::game_data::{TextureManager, screen::{ScreenData, widget::widget_trait::Widget}, texture_manager, types::UITextures};
+use crate::game_data::{TextureManager, game_event_manager::{self, game_event_manager::{Event, GameEventManager}}, screen::{ScreenData, widget::{button::button::Button, panel::panel_color::PanelColor, widget::{Widget, WidgetType}}}, texture_manager, types::UITextures};
 
+/*
+###########
+## Panel ##
+###########
+Panels are the main widget and act as a container for orginizing the
+layout, rendering, and input handling for components contained within
 
-#[derive(Clone)]
-pub enum PanelColor {
-    Light,
-    Dark,
-}
-
-impl PanelColor {
-    pub fn get_panel_corner_textures(&self) -> [UITextures; 4] {
-        match self {
-            PanelColor::Light => [
-                UITextures::PanelTopLeftLight,   // top_left
-                UITextures::PanelTopRightLight,  // top_right
-                UITextures::PanelBotLeftLight,   // bot_left
-                UITextures::PanelBotRightLight,  // bot_right
-            ],
-            PanelColor::Dark => [
-                UITextures::PanelTopLeftDark,    // top_left
-                UITextures::PanelTopRightDark,   // top_right
-                UITextures::PanelBotLeftDark,    // bot_left
-                UITextures::PanelBotRightDark,   // bot_right
-            ],
-        }
-    }
-
-    pub fn get_panel_side_textures(&self) -> [UITextures; 4] {
-        match self {
-            PanelColor::Light => [
-                UITextures::PanelTopCenterLight,  // top
-                UITextures::PanelBotCenterLight,  // bot
-                UITextures::PanelMidLeftLight,    // left
-                UITextures::PanelMidRightLight,   // right
-            ],
-            PanelColor::Dark => [
-                UITextures::PanelTopCenterDark,   // top
-                UITextures::PanelBotCenterDark,   // bot
-                UITextures::PanelMidLeftDark,     // left
-                UITextures::PanelMidRightDark,    // right
-            ],
-        }
-    }
-
-    pub fn get_panel_center_texture(&self) -> UITextures {
-        match self {
-            PanelColor::Light => UITextures::PanelMidCenterLight,
-            PanelColor::Dark  => UITextures::PanelMidCenterDark,
-        }
-    }
-}
-
-
+*/
 
 pub struct Panel {
     // Panel
@@ -69,7 +26,7 @@ pub struct Panel {
     // Aperence
     color: PanelColor,
     section_dimentions: [u32; 2],
-    section_widgets: Vec<Option<Box<dyn Widget>>>,
+    section_widgets: Vec<Option<WidgetType>>,
     
 }
 
@@ -147,9 +104,10 @@ impl Panel {
     //=====================================
     // Sections
     //=====================================
+    // The panel is split into even sections based off
+    // Selection Dimentions. 
 
     fn get_section_ndc(&self, section: [u32; 2]) -> [f32; 4] {
-        
         if section[0] >= self.section_dimentions[0] && section[1] >= self.section_dimentions[1] {
             panic!(
                 "Cannot assign to section ({:?}), in panel of section dimentions ({:?})", 
@@ -176,10 +134,23 @@ impl Panel {
             section_ndc_offset[1] + section_scale[1],
 
         ]; 
-
         return section_ndc;
     }
     
+    fn get_section_buffered_ndc(&self, section: [u32; 2]) -> [f32; 4] {
+        let section_ndc = self.get_section_ndc(section);
+
+        let buffered_section_ndc = [
+            section_ndc[0] + self.internal_buffers[0],
+            section_ndc[1] + self.internal_buffers[1],
+            section_ndc[2] - self.internal_buffers[2],
+            section_ndc[3] - self.internal_buffers[3],
+        ];
+
+        return buffered_section_ndc;
+
+    }
+
     fn get_section_index(&self, section: [u32; 2]) -> usize {
         let section_index = (section[0] + section[1]) as usize;
         if section_index < self.section_widgets.len() {
@@ -202,18 +173,86 @@ impl Panel {
 
     }
 
-    pub fn get_mut_section(&mut self, section: [u32; 2]) -> &mut Option<Box<dyn Widget>> {
-        let index: usize = self.get_section_index(section);
-        &mut self.section_widgets[index]  // panics if out of bounds
+    pub fn get_mut_section(&mut self, section: [u32; 2]) -> &mut Option<WidgetType> {
+        let index = self.get_section_index(section);
+        &mut self.section_widgets[index]
     }
 
-    pub fn add_sub_panel(&mut self, section: [u32; 2]) {
+    //=====================================
+    // Widget Additions
+    //=====================================
+    // Tools for adding widgets to the panel
+    // at specific panel cords
+
+    pub fn add_sub_panel(&mut self, section: [u32; 2]) -> &mut Panel {
         let parent_pos = self.get_section_ndc(section);
+        let section_index = self.get_section_index(section);
 
-        let panel = Box::new(Self::new(parent_pos, self.internal_buffers));
-        self.section_widgets.push(Some(panel));
+        let panel = Self::new(parent_pos, self.internal_buffers);
+        self.section_widgets.insert(section_index, Some(WidgetType::Panel(panel)));
+
+        if let Some(WidgetType::Panel(panel)) = self.section_widgets.get_mut(section_index).unwrap() {
+            return panel;
+        }
+        else {
+            panic!("Sub Panel was just inserted but could not be retrieved in Panel");
+        }
     }
 
+    pub fn add_button(&mut self, section: [u32; 2], event: Event) -> &mut Button {
+        let parent_pos = self.get_section_buffered_ndc(section);
+        let section_index = self.get_section_index(section);
+
+        let button = Button::new(parent_pos, event);
+        self.section_widgets.insert(section_index, Some(WidgetType::Button(button)));
+        
+
+        // Unwrap Option, then unpack the enum variant
+        if let Some(WidgetType::Button(button)) = self.section_widgets.get_mut(section_index).unwrap() {
+            return button;
+        }
+        else {
+            panic!("Button was just inserted but could not be retrieved in Panel");
+        }
+    }
+
+
+    //=====================================
+    // Rendering 
+    //=====================================
+    // rendering of the panel texture using  
+    // the propper tile textures
+
+    fn set_internal_buffers(&mut self, buffer: [f32; 4]) {
+        self.internal_buffers = buffer;
+    }
+
+    fn render_panel(&self, texture_manager: &mut TextureManager) {
+        if self.color != PanelColor::Clear {
+            let corners = self.tile_corner_pos;
+            let sides = self.tile_side_pos;
+            let center = self.tile_center_pos;
+
+            let corner_textures = self.color.get_panel_corner_textures();
+            let side_textures = self.color.get_panel_side_textures();
+            let center_texture = self.color.get_panel_center_texture();
+
+            // Corners
+            texture_manager.render_ui_element_with_pos(corner_textures[0], corners[0]);
+            texture_manager.render_ui_element_with_pos(corner_textures[1], corners[1]);
+            texture_manager.render_ui_element_with_pos(corner_textures[2], corners[2]);
+            texture_manager.render_ui_element_with_pos(corner_textures[3], corners[3]);
+
+            // Sides
+            texture_manager.render_ui_element_with_pos(side_textures[0], sides[0]);
+            texture_manager.render_ui_element_with_pos(side_textures[1], sides[1]);
+            texture_manager.render_ui_element_with_pos(side_textures[2], sides[2]);
+            texture_manager.render_ui_element_with_pos(side_textures[3], sides[3]);
+
+            // Center
+            texture_manager.render_ui_element_with_pos(center_texture, center);
+        }
+    }
 
 
 
@@ -224,10 +263,6 @@ impl Panel {
 // Widget trait
 //=====================================
 impl Widget for Panel {
-    //=====================================
-    // Setters / Getters
-    //=====================================
-
     // Getters
     fn get_pos(&self) -> [f32; 4] {
         return self.pos;
@@ -236,39 +271,14 @@ impl Widget for Panel {
         return self.ndc_scale;
     }
 
-    fn set_internal_buffers(&mut self, buffer: [f32; 4]) {
-        self.internal_buffers = buffer;
-    }
-
-    fn render(&self, texture_manager: &mut TextureManager, screen_data: &ScreenData) {
-        let corners = self.tile_corner_pos;
-        let sides = self.tile_side_pos;
-        let center = self.tile_center_pos;
-
-        let corner_textures = self.color.get_panel_corner_textures();
-        let side_textures = self.color.get_panel_side_textures();
-        let center_texture = self.color.get_panel_center_texture();
-
-        // Corners
-        texture_manager.render_ui_element_with_pos(corner_textures[0], corners[0]);
-        texture_manager.render_ui_element_with_pos(corner_textures[1], corners[1]);
-        texture_manager.render_ui_element_with_pos(corner_textures[2], corners[2]);
-        texture_manager.render_ui_element_with_pos(corner_textures[3], corners[3]);
-
-        // Sides
-        texture_manager.render_ui_element_with_pos(side_textures[0], sides[0]);
-        texture_manager.render_ui_element_with_pos(side_textures[1], sides[1]);
-        texture_manager.render_ui_element_with_pos(side_textures[2], sides[2]);
-        texture_manager.render_ui_element_with_pos(side_textures[3], sides[3]);
-
-        // Center
-        texture_manager.render_ui_element_with_pos(center_texture, center);
-
+    fn render(&self, texture_manager: &mut TextureManager, screen_data: &ScreenData, game_event_manager: &mut GameEventManager) {
+        // Render the panel
+        self.render_panel(texture_manager);
 
         // Render all the widgets
         for widget in &self.section_widgets {
-            if let Some(_widget) = widget {
-                _widget.render(texture_manager, screen_data);
+            if let Some(widget) = widget {
+                widget.render(texture_manager, screen_data, game_event_manager);
             }
         }
     }

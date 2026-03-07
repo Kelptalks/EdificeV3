@@ -200,7 +200,6 @@ impl Button {
 
         // Render icon on top if assigned one
         if let Some(icon) = self.icon_type {
-
             texture_manager.render_ui_element(icon, self.ndc, self.scale);
         }
 
