@@ -51,6 +51,10 @@ pub struct Panel {
     // Sections
     panel_type: PanelType,
     section_widgets: Vec<Option<WidgetType>>,
+    
+    
+    // New Sections
+    section_space_remaining: f32,
     sections: Vec<PanelSection>,
 
     widget_scale: f32,
@@ -93,7 +97,10 @@ impl Panel {
             // Sections 
             panel_type: panel_type,
             section_widgets: Vec::new(),
+            
+            // New Sections
             sections: Vec::new(),
+            section_space_remaining: 1.0,
 
             widget_scale: 0.0,
             
@@ -116,7 +123,7 @@ impl Panel {
         ];
 
         self.calculate_tile_pos();
-        self.resize_widgets();
+        self.resize_section();
     }
 
     fn calculate_tile_pos(&mut self) {
@@ -142,6 +149,19 @@ impl Panel {
         self.tile_center_pos = [x1 + s, y1 + s, x2 - s, y2 - s];
     }
 
+    //=====================================
+    // Section Resizing
+    //=====================================
+
+    fn resize_section(&mut self) {
+
+        let x_scale = self.buffered_scale[0];
+
+        for section in &mut self.sections {
+            section.get_section_prefered_size();
+        }
+
+    }
 
     //=====================================
     // Widget Resizing
@@ -301,12 +321,11 @@ impl Panel {
 
     pub fn add_sub_panel(&mut self, panel_type: PanelType) -> &mut Panel {
         let panel = Self::new(panel_type, self.buffered_pos, self.internal_buffers);
-        self.section_widgets.push(Some(WidgetType::Panel(panel)));
-        //self.sections.push(PanelSection::new());
+        self.sections.push(PanelSection::new(WidgetType::Panel(panel)));
+        self.resize_section();
 
-        self.resize_widgets();
 
-        if let Some(WidgetType::Panel(panel)) = self.section_widgets.last_mut().unwrap() {
+        if let WidgetType::Panel(panel) = self.sections.last_mut().unwrap().get_mut_widget() {
             return panel;
         }
         else {
@@ -317,13 +336,11 @@ impl Panel {
 
     pub fn add_button(&mut self, event: Event) -> &mut Button {
         let button = Button::new(event, self.internal_buffers);
-        self.section_widgets.push(Some(WidgetType::Button(button)));
-        
-        //self.sections.push(PanelSection::new(WidgetType::Button(button)));
-        self.resize_widgets();
+        self.sections.push(PanelSection::new(WidgetType::Button(button)));
+        self.resize_section();
 
         // Unwrap Option, then unpack the enum variant
-        if let Some(WidgetType::Button(button)) = self.section_widgets.last_mut().unwrap() {
+        if let WidgetType::Button(button) = self.sections.last_mut().unwrap().get_mut_widget() {
             return button;
         }
         else {
@@ -404,10 +421,9 @@ impl Widget for Panel {
         self.render_panel(texture_manager);
 
         // Render all the widgets
-        for widget in &self.section_widgets {
-            if let Some(widget) = widget {
-                widget.render(texture_manager, screen_data, game_event_manager);
-            }
+        for section in &self.sections {
+            section.get_widget().render(texture_manager, screen_data, game_event_manager);
+
         }
     }
 }
