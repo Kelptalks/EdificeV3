@@ -1,4 +1,21 @@
-use crate::game_data::{TextureManager, game_event_manager::{self, game_event_manager::{Event, GameEventManager}}, screen::{ScreenData, widget::{button::button::Button, panel::panel_color::PanelColor, widget::{Widget, WidgetType}}}, texture_manager, types::UITextures};
+use crate::game_data::{TextureManager, game_event_manager::{self, game_event_manager::{Event, GameEventManager}}, screen::{ScreenData, ui_elements::panel, widget::{self, button::button::Button, panel::{panel_color::PanelColor, panel_section::PanelSection}, widget::{Widget, WidgetType}}}, texture_manager, types::UITextures};
+
+pub enum HorizontalAlignment {
+    Left,
+    Right,
+    Center,
+}
+
+pub enum VerticalAlignment {
+    Top,
+    Bot,
+    Center,
+}
+
+pub enum PanelType {
+    Vertical(VerticalAlignment),
+    Horizontal(HorizontalAlignment),
+}
 
 /*
 ###########
@@ -8,14 +25,19 @@ Panels are the main widget and act as a container for orginizing the
 layout, rendering, and input handling for components contained within
 
 */
-
 pub struct Panel {
+    // Parent
+    parent_scale: [f32; 2],
+
     // Panel
     external_buffers: [f32; 4],
     internal_buffers: [f32; 4],
-    pos: [f32; 4],
-    ndc_scale: [f32; 2],
     
+    
+    pos: [f32; 4],
+    buffered_pos: [f32; 4],
+    buffered_scale: [f32; 2],
+    prefered_scale: [f32; 2],
 
     // Panel Tile Rendering
     tile_ndc_scale: f32,
@@ -25,9 +47,15 @@ pub struct Panel {
 
     // Aperence
     color: PanelColor,
-    section_dimentions: [u32; 2],
+
+    // Sections
+    panel_type: PanelType,
     section_widgets: Vec<Option<WidgetType>>,
+    sections: Vec<PanelSection>,
+
+    widget_scale: f32,
     
+
 }
 
 //=====================================
@@ -38,28 +66,23 @@ impl Panel {
     //=====================================
     // Constructor
     //=====================================
-    pub fn new(parent_pos: [f32; 4], side_buffers: [f32; 4]) -> Self {
+    pub fn new(panel_type: PanelType, parent_pos: [f32; 4], buffers: [f32; 4]) -> Self {
         
-        let pos = [
-            parent_pos[0] + side_buffers[0],
-            parent_pos[1] + side_buffers[1],
-            parent_pos[2] - side_buffers[2],
-            parent_pos[3] - side_buffers[3],
-        ];
+        let panel = Panel {
+            // Parent Pos
+            parent_scale: [parent_pos[2] - parent_pos[0], parent_pos[3] - parent_pos[1]],
 
-        let ndc_scale = [
-            pos[2] - pos[0],
-            pos[3] - pos[1],
-        ];
-
-        let mut panel = Panel {
-            external_buffers: side_buffers,
+            // Panel Pos
+            external_buffers: buffers,
             internal_buffers: [0.01; 4],
-            pos: pos,
-            ndc_scale: ndc_scale,
+            
+            pos: parent_pos,
+            buffered_pos: [0.0; 4],
+            buffered_scale: [0.0; 2],
+            prefered_scale: [0.1; 2],
 
             // Tile rendering data
-            tile_ndc_scale: 0.025,
+            tile_ndc_scale: 0.005,
             tile_corner_pos: [[0.0; 4]; 4],
             tile_side_pos: [[0.0; 4]; 4],
             tile_center_pos: [0.0; 4],
@@ -68,21 +91,39 @@ impl Panel {
             color: PanelColor::Light,
 
             // Sections 
-            section_dimentions: [0, 0],
+            panel_type: panel_type,
             section_widgets: Vec::new(),
-        };
+            sections: Vec::new(),
 
-        panel.set_sections([1, 1]);
-        panel.calculate_tile_pos();
+            widget_scale: 0.0,
+            
+        };
 
         return panel;
     }
 
+    pub fn resize(&mut self) {
+        self.buffered_pos = [
+            self.pos[0] + self.external_buffers[0],
+            self.pos[1] + self.external_buffers[1],
+            self.pos[2] - self.external_buffers[2],
+            self.pos[3] - self.external_buffers[3],
+        ];
+
+        self.buffered_scale = [
+            self.buffered_pos[2] - self.buffered_pos[0],
+            self.buffered_pos[3] - self.buffered_pos[1],
+        ];
+
+        self.calculate_tile_pos();
+        self.resize_widgets();
+    }
+
     fn calculate_tile_pos(&mut self) {
         let s = self.tile_ndc_scale;
-        let [x1, y1] = [self.pos[0], self.pos[1]];
-        let x2 = x1 + self.ndc_scale[0];
-        let y2 = y1 + self.ndc_scale[1];
+        let [x1, y1] = [self.buffered_pos[0], self.buffered_pos[1]];
+        let x2 = x1 + self.buffered_scale[0];
+        let y2 = y1 + self.buffered_scale[1];
         self.tile_corner_pos = [
             [x1,     y1,     x1 + s, y1 + s],  // top_left
             [x2 - s, y1,     x2,     y1 + s],  // top_right
@@ -101,81 +142,155 @@ impl Panel {
         self.tile_center_pos = [x1 + s, y1 + s, x2 - s, y2 - s];
     }
 
-    //=====================================
-    // Sections
-    //=====================================
-    // The panel is split into even sections based off
-    // Selection Dimentions. 
 
-    fn get_section_ndc(&self, section: [u32; 2]) -> [f32; 4] {
-        if section[0] >= self.section_dimentions[0] && section[1] >= self.section_dimentions[1] {
-            panic!(
-                "Cannot assign to section ({:?}), in panel of section dimentions ({:?})", 
-                section, 
-                self.section_dimentions
-            );
+    //=====================================
+    // Widget Resizing
+    //=====================================
+    fn get_widget_starting_ndc(&mut self) -> [f32; 2] {
+        match &self.panel_type {
+            PanelType::Vertical(alignment) => {
+                match alignment {
+                    VerticalAlignment::Top => {
+                        return [
+                            self.buffered_pos[0],
+                            self.buffered_pos[1],
+                        ];
+                    },
+                    VerticalAlignment::Bot => {
+                        return [
+                            self.buffered_pos[0],
+                            self.buffered_pos[3] - self.widget_scale,
+                        ];
+                    },
+                    VerticalAlignment::Center => {
+                        let widget_padding = (self.buffered_scale[1] - self.widget_scale) / 2.0;
+                        return [
+                            self.buffered_pos[0],
+                            self.buffered_pos[1] + widget_padding,
+                        ];
+                    },
+                }
+            },
+            PanelType::Horizontal(alignment) => {
+                match alignment {
+                    HorizontalAlignment::Left => {
+                        return [
+                            self.buffered_pos[0],
+                            self.buffered_pos[1],
+                        ];
+                    },
+                    HorizontalAlignment::Right => {
+                        return [
+                            self.buffered_pos[2] - self.widget_scale,
+                            self.buffered_pos[1],
+                        ];
+                    },
+                    HorizontalAlignment::Center => {
+                        let widget_padding = (self.buffered_scale[0] - self.widget_scale) / 2.0;
+                        println!("widget_padding: {}", widget_padding);
+                        println!("buffered_pos: {:?}", self.buffered_pos);
+                        return [
+                            (self.buffered_pos[0] + widget_padding),
+                            self.buffered_pos[1],
+                        ];
+                    },
+                }
+            },
         }
-        
-        
-        let section_scale = [
-            self.ndc_scale[0] / self.section_dimentions[0] as f32,
-            self.ndc_scale[1] / self.section_dimentions[1] as f32,
-        ];
-        
-        let section_ndc_offset = [
-            self.pos[0] + (section[0] as f32 * section_scale[0]),
-            self.pos[1] + (section[1] as f32 * section_scale[1]),
-        ];
-
-        let section_ndc = [
-            section_ndc_offset[0],
-            section_ndc_offset[1],
-            section_ndc_offset[0] + section_scale[0],
-            section_ndc_offset[1] + section_scale[1],
-
-        ]; 
-        return section_ndc;
     }
     
-    fn get_section_buffered_ndc(&self, section: [u32; 2]) -> [f32; 4] {
-        let section_ndc = self.get_section_ndc(section);
+    fn calculate_widget_scale(&mut self) {
+        let mut widget_scale = 0.0;
+        match &self.panel_type {
+            PanelType::Vertical(alignment) => {
+                let mut largest_widget_x_scale = 0.0;
+                for widget in &self.section_widgets {
+                    if let Some(widget) = widget {
+                        let widget_prefered_scale = widget.get_prefered_scale();
 
-        let buffered_section_ndc = [
-            section_ndc[0] + self.internal_buffers[0],
-            section_ndc[1] + self.internal_buffers[1],
-            section_ndc[2] - self.internal_buffers[2],
-            section_ndc[3] - self.internal_buffers[3],
-        ];
+                        widget_scale += widget_prefered_scale[1];
 
-        return buffered_section_ndc;
+                        if widget_prefered_scale[0] > largest_widget_x_scale {
+                            largest_widget_x_scale = widget_prefered_scale[0];
+                        }
+                    }
+                }
+                self.prefered_scale = [
+                    largest_widget_x_scale + self.internal_buffers[0] * 2.0,
+                    self.parent_scale[1],
+                ];
+            },
+            PanelType::Horizontal(alignment) => {
+                let mut largest_widget_y_scale = 0.0;
+                
+                for widget in &self.section_widgets {
+                    if let Some(widget) = widget {
+                        let widget_prefered_scale = widget.get_prefered_scale();
+                        widget_scale += widget_prefered_scale[0];
 
-    }
+                        if widget_prefered_scale[1] > largest_widget_y_scale {
+                            largest_widget_y_scale = widget_prefered_scale[1];
+                        }
+                    }
+                }
 
-    fn get_section_index(&self, section: [u32; 2]) -> usize {
-        let section_index = (section[0] + section[1]) as usize;
-        if section_index < self.section_widgets.len() {
-            return section_index;
+                self.prefered_scale = [
+                    self.parent_scale[0],
+                    largest_widget_y_scale + self.internal_buffers[1] * 2.0,
+                ];
+            },
         }
-        else {
-            panic!("Section Index out of bounds for section ({:?})", section);
+        self.widget_scale = widget_scale;
+    }
+
+    fn resize_widgets(&mut self) {
+        // widget scale
+        self.calculate_widget_scale();
+        let mut widget_ndc = self.get_widget_starting_ndc();
+
+
+        match &self.panel_type {
+            PanelType::Vertical(vertical_alignment) => {
+                for widget in &mut self.section_widgets {
+                    if let Some(widget) = widget {
+                        let widget_scale = widget.get_prefered_scale();
+
+                        let widget_pos = [
+                            widget_ndc[0],
+                            widget_ndc[1],
+                            widget_ndc[0] + widget_scale[0],
+                            widget_ndc[1] + widget_scale[1],
+                        ];
+
+                        widget.set_pos(widget_pos);
+
+                        println!("Pos: {:?}", widget_pos);
+
+                        widget_ndc[1] += widget_scale[1]; // Add to y axis for Vertical
+                    }
+                }
+            },
+            
+            PanelType::Horizontal(_horizontal_alignment) => {
+                for widget in &mut self.section_widgets {
+                    if let Some(widget) = widget {
+                        let widget_scale = widget.get_prefered_scale();
+
+                        let widget_pos = [
+                            widget_ndc[0],
+                            widget_ndc[1],
+                            widget_ndc[0] + widget_scale[0],
+                            widget_ndc[1] + widget_scale[1],
+                        ];
+
+                        widget.set_pos(widget_pos);
+
+                        widget_ndc[0] += widget_scale[0]; // Add to x axis for Horizontal
+                    }
+                }     
+            },
         }
-    }
 
-    pub fn set_sections(&mut self, sections: [u32; 2]) {
-        self.section_dimentions = sections;
-
-        let total_sections = (sections[0] * sections[1]) as usize;
-
-        // Clear and set section widget size
-        self.section_widgets.clear();
-        self.section_widgets.resize_with(total_sections, || None);
-
-
-    }
-
-    pub fn get_mut_section(&mut self, section: [u32; 2]) -> &mut Option<WidgetType> {
-        let index = self.get_section_index(section);
-        &mut self.section_widgets[index]
     }
 
     //=====================================
@@ -184,31 +299,31 @@ impl Panel {
     // Tools for adding widgets to the panel
     // at specific panel cords
 
-    pub fn add_sub_panel(&mut self, section: [u32; 2]) -> &mut Panel {
-        let parent_pos = self.get_section_ndc(section);
-        let section_index = self.get_section_index(section);
+    pub fn add_sub_panel(&mut self, panel_type: PanelType) -> &mut Panel {
+        let panel = Self::new(panel_type, self.buffered_pos, self.internal_buffers);
+        self.section_widgets.push(Some(WidgetType::Panel(panel)));
+        //self.sections.push(PanelSection::new());
 
-        let panel = Self::new(parent_pos, self.internal_buffers);
-        self.section_widgets.insert(section_index, Some(WidgetType::Panel(panel)));
+        self.resize_widgets();
 
-        if let Some(WidgetType::Panel(panel)) = self.section_widgets.get_mut(section_index).unwrap() {
+        if let Some(WidgetType::Panel(panel)) = self.section_widgets.last_mut().unwrap() {
             return panel;
         }
         else {
             panic!("Sub Panel was just inserted but could not be retrieved in Panel");
         }
+
     }
 
-    pub fn add_button(&mut self, section: [u32; 2], event: Event) -> &mut Button {
-        let parent_pos = self.get_section_buffered_ndc(section);
-        let section_index = self.get_section_index(section);
-
-        let button = Button::new(parent_pos, event);
-        self.section_widgets.insert(section_index, Some(WidgetType::Button(button)));
+    pub fn add_button(&mut self, event: Event) -> &mut Button {
+        let button = Button::new(event, self.internal_buffers);
+        self.section_widgets.push(Some(WidgetType::Button(button)));
         
+        //self.sections.push(PanelSection::new(WidgetType::Button(button)));
+        self.resize_widgets();
 
         // Unwrap Option, then unpack the enum variant
-        if let Some(WidgetType::Button(button)) = self.section_widgets.get_mut(section_index).unwrap() {
+        if let Some(WidgetType::Button(button)) = self.section_widgets.last_mut().unwrap() {
             return button;
         }
         else {
@@ -268,7 +383,20 @@ impl Widget for Panel {
         return self.pos;
     }
     fn get_scale(&self) -> [f32; 2] {
-        return self.ndc_scale;
+        return self.buffered_scale;
+    }
+
+    fn set_pos(&mut self, pos: [f32; 4]) {
+        self.pos = pos;
+        self.resize();
+    }
+
+    fn has_prefered_scale(&self) -> bool {
+        return true;
+    }
+
+    fn get_prefered_scale(&self) -> [f32; 2] {
+        return self.prefered_scale;
     }
 
     fn render(&self, texture_manager: &mut TextureManager, screen_data: &ScreenData, game_event_manager: &mut GameEventManager) {

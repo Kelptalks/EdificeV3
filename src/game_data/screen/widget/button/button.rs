@@ -5,8 +5,12 @@ use crate::game_data::{TextureManager, game_event_manager::{self, game_event_man
 pub struct Button {
     // Rendering
     pos: [f32; 4],
+    buffered_pos: [f32; 4],
+    external_buffers: [f32; 4],
     scale: [f32; 2],
+    prefered_scale: [f32; 2],
 
+    
     // Input
     event: Event, // The event that will occer when the button is pressed
 
@@ -20,35 +24,22 @@ pub struct Button {
 }
 
 impl Button {
-    pub fn new(parent_pos: [f32; 4], event: Event) -> Button {
-        let scale = [
-            parent_pos[2] - parent_pos[0],
-            parent_pos[3] - parent_pos[1],
-        ];
-        
-        // Calculate aperence pos based of scale
-        let apearence_buffer = [
-            scale[0] * 0.8,
-            scale[1] * 0.8,
-        ];
-        let apearence_pos = [
-            parent_pos[0] + apearence_buffer[0],
-            parent_pos[1] + apearence_buffer[1],
-            parent_pos[2] - apearence_buffer[0],
-            parent_pos[3] - apearence_buffer[1],
-        ];
+    pub fn new(event: Event, buffers: [f32; 4]) -> Button {
 
         let button = Button {
             // Rendering
-            pos: parent_pos,
-            scale: scale,
+            pos: [0.0; 4],
+            buffered_pos: [0.0; 4],
+            external_buffers: buffers,
+            scale: [0.0; 2],
+            prefered_scale: [0.1; 2],
 
             // Input 
             event: event, 
 
             // Apearence
             button_type: UITextures::ButtonCircle, 
-            apearence_pos: apearence_pos,
+            apearence_pos: [0.0; 4],
 
             block_texture: None, 
             icon_type: None,
@@ -57,6 +48,33 @@ impl Button {
         return button;
     }
 
+    pub fn resize(&mut self) {
+
+        self.buffered_pos = [
+            self.pos[0] + self.external_buffers[0],
+            self.pos[1] + self.external_buffers[1],
+            self.pos[2] - self.external_buffers[2],
+            self.pos[3] - self.external_buffers[3],
+        ];
+
+        let buffered_scale = [
+            self.buffered_pos[2] - self.buffered_pos[0],
+            self.buffered_pos[3] - self.buffered_pos[1],
+        ];
+        
+        // Calculate aperence pos based of scale
+        let apearence_buffer = [
+            buffered_scale[0] * 0.8,
+            buffered_scale[1] * 0.8,
+        ];
+
+        self.apearence_pos = [
+            self.buffered_pos[0] + apearence_buffer[0],
+            self.buffered_pos[1] + apearence_buffer[1],
+            self.buffered_pos[2] - apearence_buffer[0],
+            self.buffered_pos[3] - apearence_buffer[1],
+        ];
+    }
 
     //=====================================
     // Apearence
@@ -95,6 +113,21 @@ impl Widget for Button {
         return self.scale;
     }
 
+    fn has_prefered_scale(&self) -> bool {
+        return true;
+    }
+
+    fn get_prefered_scale(&self) -> [f32; 2] {
+        return self.prefered_scale;
+    }
+
+    fn set_pos(&mut self, pos: [f32; 4]) {
+        self.pos = pos;
+        self.resize();
+    }
+
+    
+
     fn render(
         &self, 
         texture_manager: &mut TextureManager, 
@@ -103,7 +136,7 @@ impl Widget for Button {
     ) {
         let mut button_texture = self.button_type;
         // If mouse is on button
-        if screen_data.mouse_on_ndc_pos(self.pos) {
+        if screen_data.mouse_on_ndc_pos(self.buffered_pos) {
             button_texture = self.button_type.get_pressed_variant(); // Update texture
 
             // If button was clicked
@@ -113,7 +146,7 @@ impl Widget for Button {
         }
 
         // Render button 
-        texture_manager.render_ui_element_with_pos(button_texture, self.pos);
+        texture_manager.render_ui_element_with_pos(button_texture, self.buffered_pos);
 
         // Render aperence values
         self.render_apearence(texture_manager);
