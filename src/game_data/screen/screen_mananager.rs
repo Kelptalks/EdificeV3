@@ -82,12 +82,19 @@ impl ScreenManager {
         let mut panel = WidgetType::new_v_panel(parent_pos, buffers);
 
         if let WidgetType::VPanel(panel) = &mut panel {
-            // panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-            // panel.add_sub_panel();
+            
+            panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+            panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+            panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+            panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+            panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+
+
+
             
             let mut sub_panel =panel.add_sub_panel();
             sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-            sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+            //sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
             // sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
             // sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
 

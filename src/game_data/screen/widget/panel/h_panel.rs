@@ -44,7 +44,7 @@ impl VPanel {
             // Parent Rendering
             parent_pos: parent_pos,
             parent_scale: [0.0; 2],
-            prefered_scale: [0.08; 2],
+            prefered_scale: [0.2; 2],
 
             // Self Rendering
             needs_resizing: true,
@@ -95,8 +95,8 @@ impl VPanel {
 
             
             let section_scale = section.get_section_scale();
-            x_prefered_scale += section_scale[0];
             
+            x_prefered_scale += section_scale[0];
             let widget_y_scale = section_scale[1];
             if widget_y_scale > y_prefered_scale {
                 y_prefered_scale = widget_y_scale;
@@ -120,24 +120,25 @@ impl VPanel {
     // sections
     //=====================================
 
-
-
     pub fn add_section(&mut self, widget: WidgetType) {
         let mut section = PanelSection::new(widget);
+
+        section.set_internal_buffers(self.internal_buffers);
 
         let x_scale = section.get_section_prefered_width();
         let space_requested = x_scale / self.scale[0];
         
 
         let section_x_scale = self.scale[0] * space_requested;
-        let x_left_buffer = self.scale[0] * self.section_space_occupied as f32;
-        let x_right_buffer = self.scale[0] - (x_left_buffer + section_x_scale);
+
+        let x_left_buffer = (self.scale[0] * self.section_space_occupied as f32);
+        let x_right_buffer = (self.scale[0] - (x_left_buffer + section_x_scale));
 
         let section_buffers = [
-            self.internal_buffers[0] + x_left_buffer,
+            x_left_buffer + self.internal_buffers[0],
             self.internal_buffers[1],
 
-            self.internal_buffers[2] + x_right_buffer,
+            x_right_buffer + self.internal_buffers[2],
             self.internal_buffers[3],
         ];
 
@@ -208,12 +209,12 @@ impl Widget for VPanel {
 
     fn set_buffers(&mut self, buffers: [f32; 4]) {
         self.external_buffers = buffers;
-        self.needs_resizing = true;
+        self.size();
     }
 
     fn set_parent_pos(&mut self, pos: [f32; 4]) {
         self.parent_pos = pos;
-        self.needs_resizing = true;
+        self.size();
     }
 
     fn render(&mut self, texture_manager: &mut TextureManager, screen_data: &ScreenData, game_event_manager: &mut GameEventManager) {
