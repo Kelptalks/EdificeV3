@@ -158,7 +158,8 @@ impl Panel {
         let x_scale = self.buffered_scale[0];
 
         for section in &mut self.sections {
-            section.get_section_prefered_size();
+            section.get_section_prefered_width();
+            
         }
 
     }
@@ -282,7 +283,7 @@ impl Panel {
                             widget_ndc[1] + widget_scale[1],
                         ];
 
-                        widget.set_pos(widget_pos);
+                        widget.set_buffers(widget_pos);
 
                         println!("Pos: {:?}", widget_pos);
 
@@ -303,7 +304,7 @@ impl Panel {
                             widget_ndc[1] + widget_scale[1],
                         ];
 
-                        widget.set_pos(widget_pos);
+                        widget.set_buffers(widget_pos);
 
                         widget_ndc[0] += widget_scale[0]; // Add to x axis for Horizontal
                     }
@@ -403,26 +404,26 @@ impl Widget for Panel {
         return self.buffered_scale;
     }
 
-    fn set_pos(&mut self, pos: [f32; 4]) {
+    fn set_buffers(&mut self, pos: [f32; 4]) {
         self.pos = pos;
         self.resize();
-    }
-
-    fn has_prefered_scale(&self) -> bool {
-        return true;
     }
 
     fn get_prefered_scale(&self) -> [f32; 2] {
         return self.prefered_scale;
     }
 
-    fn render(&self, texture_manager: &mut TextureManager, screen_data: &ScreenData, game_event_manager: &mut GameEventManager) {
+    fn set_parent_pos(&mut self, pos: [f32; 4]) {
+        
+    }
+
+    fn render(&mut self, texture_manager: &mut TextureManager, screen_data: &ScreenData, game_event_manager: &mut GameEventManager) {
         // Render the panel
         self.render_panel(texture_manager);
 
         // Render all the widgets
-        for section in &self.sections {
-            section.get_widget().render(texture_manager, screen_data, game_event_manager);
+        for section in &mut self.sections {
+            section.get_mut_widget().render(texture_manager, screen_data, game_event_manager);
 
         }
     }

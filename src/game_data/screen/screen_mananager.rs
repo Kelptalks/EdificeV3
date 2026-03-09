@@ -77,37 +77,22 @@ impl ScreenManager {
 
         // Testing
         let parent_pos = self.screen_data.get_viewport_uv();
-        let side_buffers = [0.05, 0.05, 0.7, 0.05];
+        let buffers = [0.05, 0.05, 0.7, 0.05];
         
-        let mut panel = WidgetType::new_panel(PanelType::Horizontal(HorizontalAlignment::Left), parent_pos, side_buffers);
-        panel.set_pos(parent_pos);
+        let mut panel = WidgetType::new_v_panel(parent_pos, buffers);
 
-        if let WidgetType::Panel(_panel) = &mut panel {
-
+        if let WidgetType::VPanel(panel) = &mut panel {
+            // panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+            // panel.add_sub_panel();
             
-            let _sub_panel = _panel.add_sub_panel(PanelType::Vertical(VerticalAlignment::Top));
-            _sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-            _sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-            _sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-
-
-            let _sub_panel = _panel.add_sub_panel(PanelType::Vertical(VerticalAlignment::Top));
-            _sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-
-            let _sub_panel = _panel.add_sub_panel(PanelType::Horizontal(HorizontalAlignment::Center));
-            _sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-            _sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-            _sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-
-            let _sub_panel = _panel.add_sub_panel(PanelType::Horizontal(HorizontalAlignment::Center));
-            _sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-            _sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-            _sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+            let mut sub_panel =panel.add_sub_panel();
+            sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+            sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+            sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+            sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
 
 
             
-
-            _panel.resize();
         }
 
         self.panel = Some(panel);
@@ -153,6 +138,7 @@ impl ScreenManager {
             }
             CurrentMenu::PlayView => {
                 self.play_view.render_view(&self.screen_data, texture_manager, &world, player_data, game_event_manager);
+                
             }
         }
 
