@@ -88,8 +88,8 @@ impl ScreenManager {
             let mut sub_panel =panel.add_sub_panel();
             sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
             sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-            sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-            sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+            // sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+            // sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
 
 
             

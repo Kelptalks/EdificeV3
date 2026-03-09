@@ -103,10 +103,12 @@ impl VPanel {
             }
         }
 
-        self.prefered_scale = [
-            y_prefered_scale,
-            x_prefered_scale
-        ];
+        if x_prefered_scale > 0.08 {
+            self.prefered_scale[0] = x_prefered_scale;
+        }
+        if y_prefered_scale > 0.08 {
+            self.prefered_scale[1] = y_prefered_scale;
+        }
 
         println!("Prefered_Scale: {:?}", self.prefered_scale);
 
