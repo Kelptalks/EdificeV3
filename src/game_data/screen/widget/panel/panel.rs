@@ -1,13 +1,13 @@
 use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, widget::{self, button::button::Button, panel::{panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, widget::{Widget, WidgetType}, widget_calculations}}};
 
-pub enum HPanelAlignment {
+pub enum PanelAlignment {
     Top,
     Bot,
     Center,
 }
 
 
-pub struct VPanel {
+pub struct Panel {
     // Parent rendering
     parent_pos: [f32; 4],
     parent_scale: [f32; 2],
@@ -26,20 +26,20 @@ pub struct VPanel {
 
     // Sections
     sections: Vec<PanelSection>,
-    section_alignment: HPanelAlignment,
+    section_alignment: PanelAlignment,
 
 
 }
 
-impl VPanel {
+impl Panel {
 
     //=====================================
     // Init
     //=====================================
 
-    pub fn new(parent_pos: [f32; 4], buffers: [f32; 4]) -> VPanel {
+    pub fn new(parent_pos: [f32; 4], buffers: [f32; 4]) -> Panel {
         
-        let mut panel = VPanel {
+        let panel = Panel {
             // Parent Rendering
             parent_pos: parent_pos,
             parent_scale: [0.0; 2],
@@ -57,7 +57,7 @@ impl VPanel {
             rendering_manager: PanelTextureManager::new(),
             
             sections: Vec::new(),
-            section_alignment: HPanelAlignment::Top,
+            section_alignment: PanelAlignment::Top,
 
         };
 
@@ -79,10 +79,7 @@ impl VPanel {
         // Scale Sections
         let mut x_space_used_scale = 0.0;
         for section in &mut self.sections {
-            
-
             section.size(self.pos, x_space_used_scale, self.internal_buffers);
-            
 
             let section_scale = section.get_section_scale();
             x_space_used_scale += section_scale[0];
@@ -119,13 +116,13 @@ impl VPanel {
         self.sections.push(section);
     }
 
-    pub fn add_sub_panel(&mut self) -> &mut VPanel {
+    pub fn add_sub_panel(&mut self) -> &mut Panel {
         let panel = Self::new(self.pos, [0.0; 4]);
-        self.add_section(WidgetType::HPanel(panel));
+        self.add_section(WidgetType::Panel(panel));
 
         println!("added_panel");
 
-        if let WidgetType::HPanel(panel) = self.sections.last_mut().unwrap().get_mut_widget() {
+        if let WidgetType::Panel(panel) = self.sections.last_mut().unwrap().get_mut_widget() {
             return panel;
         }
         else {
@@ -151,7 +148,7 @@ impl VPanel {
 }
 
 
-impl Widget for VPanel {
+impl Widget for Panel {
     // Getters
     fn get_pos(&self) -> [f32; 4] {
         return self.pos;

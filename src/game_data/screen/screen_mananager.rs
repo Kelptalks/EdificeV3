@@ -81,7 +81,7 @@ impl ScreenManager {
         
         let mut panel = WidgetType::new_v_panel(parent_pos, buffers);
 
-        if let WidgetType::HPanel(panel) = &mut panel {
+        if let WidgetType::Panel(panel) = &mut panel {
             
             panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
 

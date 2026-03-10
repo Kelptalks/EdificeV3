@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, screen::widget::{self, panel::h_panel::HPanelAlignment, widget::{Widget, WidgetType}, widget_calculations}, texture_manager};
+use crate::game_data::{TextureManager, screen::widget::{self, panel::panel::PanelAlignment, widget::{Widget, WidgetType}, widget_calculations}, texture_manager};
 
 
 /*
@@ -11,7 +11,7 @@ of widgets within a panel
 */
 pub struct PanelSection {
     // Parent
-    alignment_type: HPanelAlignment,
+    alignment_type: PanelAlignment,
 
     pos: [f32; 4],
     scale: [f32; 2],
@@ -22,7 +22,7 @@ pub struct PanelSection {
 impl PanelSection {
     pub fn new(widget: WidgetType) -> PanelSection {
         PanelSection {
-            alignment_type: HPanelAlignment::Center,
+            alignment_type: PanelAlignment::Center,
 
 
             pos: [0.0; 4],
@@ -56,13 +56,13 @@ impl PanelSection {
         // Base widget is an H Panel base scale y off section scale
         
         let mut y_total_buffer_scale = self.scale[1] - y_scale;
-        if let WidgetType::HPanel(_panel) = &mut self.widget {
+        if let WidgetType::Panel(_panel) = &mut self.widget {
             y_total_buffer_scale = 0.0; 
         }
         
         let widget_buffers;
         match self.alignment_type {
-            HPanelAlignment::Top => {
+            PanelAlignment::Top => {
                 widget_buffers = [
                     external_buffers[0],
                     external_buffers[1],
@@ -70,7 +70,7 @@ impl PanelSection {
                     external_buffers[3] + y_total_buffer_scale,
                 ];
             },
-            HPanelAlignment::Bot => {
+            PanelAlignment::Bot => {
                 widget_buffers = [
                     external_buffers[0],
                     external_buffers[1] + y_total_buffer_scale,
@@ -78,7 +78,7 @@ impl PanelSection {
                     external_buffers[3],
                 ];
             },
-            HPanelAlignment::Center => {
+            PanelAlignment::Center => {
                 widget_buffers = [
                     external_buffers[0],
                     external_buffers[1] + y_total_buffer_scale / 2.0,

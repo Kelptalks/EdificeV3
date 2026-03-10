@@ -12,8 +12,6 @@ pub struct PanelTextureManager {
 }
 
 
-
-
 impl PanelTextureManager {
 
     pub fn new() -> PanelTextureManager {
