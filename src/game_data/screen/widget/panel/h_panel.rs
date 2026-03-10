@@ -25,7 +25,6 @@ pub struct VPanel {
     
 
     // Sections
-    section_space_occupied: f64,
     sections: Vec<PanelSection>,
     section_alignment: HPanelAlignment,
 
@@ -57,13 +56,10 @@ impl VPanel {
 
             rendering_manager: PanelTextureManager::new(),
             
-            section_space_occupied: 0.0,
             sections: Vec::new(),
             section_alignment: HPanelAlignment::Top,
 
         };
-
-        panel.size();
 
         return panel;
     }
@@ -78,22 +74,26 @@ impl VPanel {
         self.parent_scale = widget_calculations::pos_to_scale(self.parent_pos);
 
         self.pos = widget_calculations::buffer_pos(self.parent_pos, self.external_buffers);
-        self.scale = widget_calculations::pos_to_scale(self.pos);
+        self.scale = widget_calculations::pos_to_scale(self.pos);        
 
-        // println!("Panel Sizing :");
-        // println!("  - Sizing : external buffers {:?}", self.external_buffers);
-        // println!("  - Sized : pos({:?}), scale({:?})", self.pos, self.scale);
+        // Scale Sections
+        let mut x_space_used_scale = 0.0;
+        for section in &mut self.sections {
+            
 
-        self.rendering_manager.size(self.pos, self.scale);
+            section.size(self.pos, x_space_used_scale, self.internal_buffers);
+            
+
+            let section_scale = section.get_section_scale();
+            x_space_used_scale += section_scale[0];
 
 
-        // Update section pos
+        }
+
+        // Calculate prefered scale
         let mut y_prefered_scale = 0.0;
         let mut x_prefered_scale = 0.0;
         for section in &mut self.sections {
-            section.set_parent_pos(self.pos);
-
-            
             let section_scale = section.get_section_scale();
             
             x_prefered_scale += section_scale[0];
@@ -102,73 +102,30 @@ impl VPanel {
                 y_prefered_scale = widget_y_scale;
             }
         }
-
-        if x_prefered_scale > 0.08 {
-            self.prefered_scale[0] = x_prefered_scale;
-        }
-        if y_prefered_scale > 0.08 {
-            self.prefered_scale[1] = y_prefered_scale;
-        }
-
-        println!("Prefered_Scale: {:?}", self.prefered_scale);
-
+        self.prefered_scale[0] = x_prefered_scale;
+        self.prefered_scale[1] = y_prefered_scale;
+        
+        // Resize Texture
+        self.rendering_manager.size(self.pos, self.scale);
         self.needs_resizing = false;
     }
-
-
-    //=====================================
-    // sections
-    //=====================================
-
-    pub fn add_section(&mut self, widget: WidgetType) {
-        let mut section = PanelSection::new(widget);
-
-        section.set_internal_buffers(self.internal_buffers);
-
-        let x_scale = section.get_section_prefered_width();
-        let space_requested = x_scale / self.scale[0];
-        
-
-        let section_x_scale = self.scale[0] * space_requested;
-
-        let x_left_buffer = (self.scale[0] * self.section_space_occupied as f32);
-        let x_right_buffer = (self.scale[0] - (x_left_buffer + section_x_scale));
-
-        let section_buffers = [
-            x_left_buffer + self.internal_buffers[0],
-            self.internal_buffers[1],
-
-            x_right_buffer + self.internal_buffers[2],
-            self.internal_buffers[3],
-        ];
-
-        section.set_buffers(section_buffers);
-        section.set_parent_pos(self.pos);
-
-        self.sections.push(section);
-
-        // Update space ocupied
-        self.section_space_occupied += space_requested as f64;
-        if self.section_space_occupied > 1.0 {
-            todo!("need to resize all components to make space");
-        }
-
-        self.size();
-
-    }
-
 
     //=====================================
     // Constructors
     //=====================================
 
+    pub fn add_section(&mut self, widget: WidgetType) {
+        let section = PanelSection::new(widget);
+        self.sections.push(section);
+    }
+
     pub fn add_sub_panel(&mut self) -> &mut VPanel {
         let panel = Self::new(self.pos, [0.0; 4]);
-        self.add_section(WidgetType::VPanel(panel));
+        self.add_section(WidgetType::HPanel(panel));
 
         println!("added_panel");
 
-        if let WidgetType::VPanel(panel) = self.sections.last_mut().unwrap().get_mut_widget() {
+        if let WidgetType::HPanel(panel) = self.sections.last_mut().unwrap().get_mut_widget() {
             return panel;
         }
         else {
@@ -209,11 +166,13 @@ impl Widget for VPanel {
 
     fn set_buffers(&mut self, buffers: [f32; 4]) {
         self.external_buffers = buffers;
-        self.size();
     }
 
     fn set_parent_pos(&mut self, pos: [f32; 4]) {
         self.parent_pos = pos;
+    }
+
+    fn size(&mut self) {
         self.size();
     }
 
@@ -229,7 +188,7 @@ impl Widget for VPanel {
 
         // Render all the widgets
         for section in &mut self.sections {
-            section.test_render(texture_manager);
+            // section.test_render(texture_manager);
             section.get_mut_widget().render(texture_manager, screen_data, game_event_manager);
             
         }

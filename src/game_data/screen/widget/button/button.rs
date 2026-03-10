@@ -136,6 +136,9 @@ impl Widget for Button {
         self.needs_resizing = true;
     }
     
+    fn size(&mut self) {
+        self.size();
+    }
 
     fn render(
         &mut self, 

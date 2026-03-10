@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use image::imageops::FilterType::Triangle;
 use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, game_event_manager::{self, game_event_manager::{Event, GameEventManager}, render_event_manager::render_event_manager::RenderEvent}, log_init, player_data::player_data::PlayerData, screen::{self, Camera, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, input_data::Input, iso_cord_tool, menus::{level_select_menu::{self, level_select_menu::LevelSelectMenu}, main_menu::main_menu::MainMenu, world_creation_menu::world_creation::WorldCreationMenu}, play_view::play_view::PlayView, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager, widget::{panel::panel::{HorizontalAlignment, PanelType, VerticalAlignment}, widget::{Widget, WidgetType}}}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
+use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, game_event_manager::{self, game_event_manager::{Event, GameEventManager}, render_event_manager::render_event_manager::RenderEvent}, log_init, player_data::player_data::PlayerData, screen::{self, Camera, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, input_data::Input, iso_cord_tool, menus::{level_select_menu::{self, level_select_menu::LevelSelectMenu}, main_menu::main_menu::MainMenu, world_creation_menu::world_creation::WorldCreationMenu}, play_view::play_view::PlayView, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager, widget::{widget::{Widget, WidgetType}}}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
 
 
 
@@ -81,25 +81,32 @@ impl ScreenManager {
         
         let mut panel = WidgetType::new_v_panel(parent_pos, buffers);
 
-        if let WidgetType::VPanel(panel) = &mut panel {
+        if let WidgetType::HPanel(panel) = &mut panel {
             
             panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-            panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-            panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-            panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-            panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-
 
 
             
-            let mut sub_panel =panel.add_sub_panel();
+            let mut sub_panel = panel.add_sub_panel();
             sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-            //sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+            sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+            sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+
+            let mut sub_sub_panel = sub_panel.add_sub_panel();
+            sub_sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+            sub_sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+            sub_sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+
+            let mut sub_sub_panel = sub_panel.add_sub_panel();
+            sub_sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+            sub_sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+            sub_sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
+
             // sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
             // sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
 
 
-            
+            panel.size();
         }
 
         self.panel = Some(panel);

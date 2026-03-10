@@ -11,37 +11,23 @@ of widgets within a panel
 */
 pub struct PanelSection {
     // Parent
-    parent_pos: [f32; 4],
-    parent_scale: [f32; 4],
     alignment_type: HPanelAlignment,
-
-    // Self Rendering
-    external_buffers: [f32; 4],
-    internal_buffers: [f32; 4],
 
     pos: [f32; 4],
     scale: [f32; 2],
 
-    presentage_of_panel: f32,
     widget: WidgetType,
 }
 
 impl PanelSection {
     pub fn new(widget: WidgetType) -> PanelSection {
         PanelSection {
-            // Parent
-            parent_pos: [0.0; 4],
-            parent_scale: [0.0; 4],
             alignment_type: HPanelAlignment::Center,
 
-            // Self Rendering
-            external_buffers: [0.0; 4],
-            internal_buffers: [0.0; 4],
 
             pos: [0.0; 4],
             scale: [0.0; 2], 
 
-            presentage_of_panel: 0.0, 
             widget: widget
         }
     }
@@ -50,80 +36,68 @@ impl PanelSection {
     // Section Calculations
     //=====================================
 
-    pub fn size(&mut self) {
-        //Self
-        self.pos = widget_calculations::buffer_pos(self.parent_pos, self.external_buffers);
+    pub fn size(&mut self, parent_pos: [f32; 4], starting_x: f32, external_buffers: [f32; 4]) -> f32 {
+        self.widget.size();
+
+        let x_scale = self.widget.get_prefered_scale()[0] + external_buffers[0]  + external_buffers[2];
+        let y_scale = self.widget.get_prefered_scale()[1] + external_buffers[1]  + external_buffers[3];
+
+        // Calculate location
+        self.pos = [
+            parent_pos[0] + starting_x,
+            parent_pos[1],
+            parent_pos[0] + starting_x + x_scale,
+            parent_pos[3],
+        ];
+        self.widget.set_parent_pos(self.pos);
+
         self.scale = widget_calculations::pos_to_scale(self.pos);
 
-
-        let widget_prefered_y = self.widget.get_prefered_scale()[1];
-        let y_total_buffer_scale = self.scale[1] - widget_prefered_y; 
-
+        // Base widget is an H Panel base scale y off section scale
+        
+        let mut y_total_buffer_scale = self.scale[1] - y_scale;
+        if let WidgetType::HPanel(_panel) = &mut self.widget {
+            y_total_buffer_scale = 0.0; 
+        }
+        
         let widget_buffers;
         match self.alignment_type {
             HPanelAlignment::Top => {
                 widget_buffers = [
-                    self.internal_buffers[0],
-                    self.internal_buffers[1],
-                    self.internal_buffers[2],
-                    self.internal_buffers[3] + y_total_buffer_scale,
+                    external_buffers[0],
+                    external_buffers[1],
+                    external_buffers[2],
+                    external_buffers[3] + y_total_buffer_scale,
                 ];
             },
             HPanelAlignment::Bot => {
                 widget_buffers = [
-                    self.internal_buffers[0],
-                    self.internal_buffers[1] + y_total_buffer_scale,
-                    self.internal_buffers[2],
-                    self.internal_buffers[3],
+                    external_buffers[0],
+                    external_buffers[1] + y_total_buffer_scale,
+                    external_buffers[2],
+                    external_buffers[3],
                 ];
             },
             HPanelAlignment::Center => {
                 widget_buffers = [
-                    self.internal_buffers[0],
-                    self.internal_buffers[1] + y_total_buffer_scale / 2.0,
-                    self.internal_buffers[2],
-                    self.internal_buffers[3] + y_total_buffer_scale / 2.0,
+                    external_buffers[0],
+                    external_buffers[1] + y_total_buffer_scale / 2.0,
+                    external_buffers[2],
+                    external_buffers[3] + y_total_buffer_scale / 2.0,
                 ];
             },
         }
-        
 
-
-        self.widget.set_parent_pos(self.pos);
         self.widget.set_buffers(widget_buffers);
-        
-    }
+        self.widget.size();
 
-    //=====================================
-    // Parrent Setters
-    //=====================================
-
-    pub fn set_parent_pos(&mut self, pos: [f32; 4]) {
-        self.parent_pos = pos;
-        self.size();
-    }
-
-    pub fn set_buffers(&mut self, buffers: [f32; 4]) {
-        self.external_buffers = buffers;
-        self.size();
-    }
-
-    pub fn set_internal_buffers(&mut self, buffers: [f32; 4]) {
-        self.internal_buffers = buffers;
+        return x_scale;
     }
 
     //=====================================
     // Section Getters
     //=====================================
-
-    pub fn get_section_prefered_width(&self) -> f32 {
-        return self.widget.get_prefered_scale()[0] + self.internal_buffers[0]  + self.internal_buffers[2];
-    }
-
-    pub fn get_section_prefered_height(&self) -> f32 {
-        return self.widget.get_prefered_scale()[1] + self.internal_buffers[1]  + self.internal_buffers[3];
-    }
-
+    
     pub fn get_section_scale(&self) -> [f32; 2] {
         return self.scale;
     }
@@ -132,17 +106,13 @@ impl PanelSection {
     // Widget Getters
     //=====================================
 
-    pub fn get_widget(&self) -> &WidgetType {
-        return &self.widget;
-    } 
     pub fn get_mut_widget(&mut self) -> &mut WidgetType {
         return &mut self.widget;
     } 
 
-
-    pub fn test_render(&self, texture_manager: &mut TextureManager) {
+    pub fn _test_render(&self, texture_manager: &mut TextureManager) {
         texture_manager.render_ui_element_with_pos(
-            crate::game_data::types::UITextures::VoidBackground, 
+            crate::game_data::types::UITextures::FaceBackground, 
             self.pos
         );
 

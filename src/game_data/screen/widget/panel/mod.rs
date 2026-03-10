@@ -1,4 +1,3 @@
-pub mod panel;
 pub mod h_panel;
 
 pub mod panel_color;
