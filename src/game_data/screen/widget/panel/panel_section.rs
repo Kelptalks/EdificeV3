@@ -1,4 +1,6 @@
-use crate::game_data::{TextureManager, screen::widget::{self, panel::panel::PanelAlignment, widget::{Widget, WidgetType}, widget_calculations}, texture_manager};
+use std::fmt::Alignment;
+
+use crate::game_data::{TextureManager, screen::widget::{self, panel::panel::{PanelAlignment, PanelOrientation}, widget::{Widget, WidgetType}, widget_calculations}, texture_manager};
 
 
 /*
@@ -11,23 +13,29 @@ of widgets within a panel
 */
 pub struct PanelSection {
     // Parent
-    alignment_type: PanelAlignment,
-
+    orientation: PanelOrientation,
+    alignment: PanelAlignment,
+    
+    // Self 
     pos: [f32; 4],
     scale: [f32; 2],
 
+    // Children
     widget: WidgetType,
 }
 
 impl PanelSection {
-    pub fn new(widget: WidgetType) -> PanelSection {
+    pub fn new(widget: WidgetType, orientation: PanelOrientation, alignment: PanelAlignment) -> PanelSection {
         PanelSection {
-            alignment_type: PanelAlignment::Center,
+            // Parent
+            orientation: orientation,
+            alignment: alignment,
 
-
+            // Self
             pos: [0.0; 4],
             scale: [0.0; 2], 
 
+            // Children
             widget: widget
         }
     }
@@ -36,62 +44,82 @@ impl PanelSection {
     // Section Calculations
     //=====================================
 
-    pub fn size(&mut self, parent_pos: [f32; 4], starting_x: f32, external_buffers: [f32; 4]) -> f32 {
+    pub fn size(&mut self, parent_pos: [f32; 4], starting_stretch: f32, external_buffers: [f32; 4]) -> f32 {
         self.widget.size();
 
-        let x_scale = self.widget.get_prefered_scale()[0] + external_buffers[0]  + external_buffers[2];
-        let y_scale = self.widget.get_prefered_scale()[1] + external_buffers[1]  + external_buffers[3];
+        let indexing_mods = self.orientation.get_index_mods();
+
+        let stretch_scale = 
+            self.widget.get_prefered_scale()[indexing_mods[0]]
+            + external_buffers[indexing_mods[0]]
+            + external_buffers[indexing_mods[2]];
+        
+        let cross_scale = 
+            self.widget.get_prefered_scale()[indexing_mods[1]]
+            + external_buffers[indexing_mods[1]]
+            + external_buffers[indexing_mods[3]];
 
         // Calculate location
         self.pos = [
-            parent_pos[0] + starting_x,
+            parent_pos[0],
             parent_pos[1],
-            parent_pos[0] + starting_x + x_scale,
+            parent_pos[0],
             parent_pos[3],
         ];
+
+        self.pos[indexing_mods[0]] = parent_pos[indexing_mods[0]];
+        self.pos[indexing_mods[1]] = parent_pos[indexing_mods[1]];
+        self.pos[indexing_mods[2]] = parent_pos[indexing_mods[0]];
+        self.pos[indexing_mods[3]] = parent_pos[indexing_mods[1]] + cross_scale;
+
+        self.pos[indexing_mods[0]] += starting_stretch;
+        self.pos[indexing_mods[2]] += starting_stretch + stretch_scale;
+
         self.widget.set_parent_pos(self.pos);
 
         self.scale = widget_calculations::pos_to_scale(self.pos);
 
         // Base widget is an H Panel base scale y off section scale
         
-        let mut y_total_buffer_scale = self.scale[1] - y_scale;
+        let mut cross_total_buffer_scale = self.scale[indexing_mods[1]] - cross_scale;
         if let WidgetType::Panel(_panel) = &mut self.widget {
-            y_total_buffer_scale = 0.0; 
+            cross_total_buffer_scale = 0.0; 
         }
         
-        let widget_buffers;
-        match self.alignment_type {
-            PanelAlignment::Top => {
-                widget_buffers = [
-                    external_buffers[0],
-                    external_buffers[1],
-                    external_buffers[2],
-                    external_buffers[3] + y_total_buffer_scale,
-                ];
+        let mut widget_buffers= external_buffers;
+        match self.alignment {
+            PanelAlignment::TopLeft => {
+                widget_buffers[indexing_mods[3]] += cross_total_buffer_scale;
+            
             },
-            PanelAlignment::Bot => {
-                widget_buffers = [
-                    external_buffers[0],
-                    external_buffers[1] + y_total_buffer_scale,
-                    external_buffers[2],
-                    external_buffers[3],
-                ];
+            PanelAlignment::BotRight => {
+                widget_buffers[indexing_mods[1]] += cross_total_buffer_scale;
+
             },
             PanelAlignment::Center => {
-                widget_buffers = [
-                    external_buffers[0],
-                    external_buffers[1] + y_total_buffer_scale / 2.0,
-                    external_buffers[2],
-                    external_buffers[3] + y_total_buffer_scale / 2.0,
-                ];
+
+                widget_buffers[indexing_mods[1]] += cross_total_buffer_scale / 2.0;
+                widget_buffers[indexing_mods[3]] += cross_total_buffer_scale / 2.0;
+
             },
         }
 
         self.widget.set_buffers(widget_buffers);
         self.widget.size();
 
-        return x_scale;
+
+
+
+        return stretch_scale;
+    }
+
+    //=====================================
+    // Orientation
+    //=====================================
+
+    pub fn set_orientation(&mut self, orientation: PanelOrientation, alignment: PanelAlignment) {
+        self.orientation = orientation;
+        self.alignment = alignment;
     }
 
     //=====================================
@@ -112,7 +140,7 @@ impl PanelSection {
 
     pub fn _test_render(&self, texture_manager: &mut TextureManager) {
         texture_manager.render_ui_element_with_pos(
-            crate::game_data::types::UITextures::FaceBackground, 
+            crate::game_data::types::UITextures::ScallingIconMidCenter, 
             self.pos
         );
 

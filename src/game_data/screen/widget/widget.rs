@@ -82,7 +82,7 @@ impl Widget for WidgetType {
 
 impl WidgetType {
 
-    pub fn new_v_panel(parent_pos: [f32; 4], buffers: [f32; 4]) -> Self {
+    pub fn new_panel(parent_pos: [f32; 4], buffers: [f32; 4]) -> Self {
         return WidgetType::Panel(Panel::new(parent_pos, buffers));
     }
 

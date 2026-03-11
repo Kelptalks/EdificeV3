@@ -1,11 +1,27 @@
 use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, widget::{self, button::button::Button, panel::{panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, widget::{Widget, WidgetType}, widget_calculations}}};
 
+
+#[derive(Clone, Copy)]
 pub enum PanelAlignment {
-    Top,
-    Bot,
+    TopLeft,
+    BotRight,
     Center,
 }
 
+#[derive(Clone, Copy, PartialEq)]
+pub enum PanelOrientation {
+    Vertical,
+    Horizontal,
+}
+
+impl PanelOrientation {
+    pub fn get_index_mods(&self) -> [usize; 4] {
+        match self {
+            PanelOrientation::Vertical => [1, 0, 3, 2],
+            PanelOrientation::Horizontal => [0, 1, 2, 3],
+        }
+    }
+}
 
 pub struct Panel {
     // Parent rendering
@@ -26,7 +42,8 @@ pub struct Panel {
 
     // Sections
     sections: Vec<PanelSection>,
-    section_alignment: PanelAlignment,
+    orientation: PanelOrientation,
+    alignment: PanelAlignment,
 
 
 }
@@ -57,50 +74,70 @@ impl Panel {
             rendering_manager: PanelTextureManager::new(),
             
             sections: Vec::new(),
-            section_alignment: PanelAlignment::Top,
+            orientation: PanelOrientation::Horizontal,
+            alignment: PanelAlignment::Center,
 
         };
 
         return panel;
     }
 
+    //=====================================
+    // Positioning
+    //=====================================
+
+    pub fn set_orientation(&mut self, orientaiton: PanelOrientation, alignment: PanelAlignment) {
+        self.orientation = orientaiton;
+        self.alignment = alignment;
+
+        for section in &mut self.sections {
+            section.set_orientation(self.orientation, self.alignment);
+        }
+    }
 
     //=====================================
     // Sizing
     //=====================================
 
     pub fn size(&mut self) {
-        // Parent Rendering
+        // Parent Values
         self.parent_scale = widget_calculations::pos_to_scale(self.parent_pos);
-
         self.pos = widget_calculations::buffer_pos(self.parent_pos, self.external_buffers);
         self.scale = widget_calculations::pos_to_scale(self.pos);        
 
+        // Orientation
+        let indexing_mods = self.orientation.get_index_mods();
+
         // Scale Sections
-        let mut x_space_used_scale = 0.0;
+        let mut stretch_space_used_scale = 0.0;
         for section in &mut self.sections {
-            section.size(self.pos, x_space_used_scale, self.internal_buffers);
+            section.size(self.pos, stretch_space_used_scale, self.internal_buffers);
 
             let section_scale = section.get_section_scale();
-            x_space_used_scale += section_scale[0];
-
-
+            stretch_space_used_scale += section_scale[indexing_mods[0]];
         }
 
         // Calculate prefered scale
-        let mut y_prefered_scale = 0.0;
-        let mut x_prefered_scale = 0.0;
+        let mut cross_prefered_scale = 0.0;
+        let mut stretch_prefered_scale = 0.0;
+
         for section in &mut self.sections {
             let section_scale = section.get_section_scale();
             
-            x_prefered_scale += section_scale[0];
-            let widget_y_scale = section_scale[1];
-            if widget_y_scale > y_prefered_scale {
-                y_prefered_scale = widget_y_scale;
+            stretch_prefered_scale += section_scale[indexing_mods[0]];
+            let widget_cross_scale = section_scale[indexing_mods[1]];
+            if widget_cross_scale > cross_prefered_scale {
+                cross_prefered_scale = widget_cross_scale;
             }
         }
-        self.prefered_scale[0] = x_prefered_scale;
-        self.prefered_scale[1] = y_prefered_scale;
+
+        if self.orientation == PanelOrientation::Vertical {
+            println!("stretch_prefered_scale: {}", stretch_prefered_scale);
+            println!("cross_prefered_scale: {}", cross_prefered_scale);
+        }
+
+        self.prefered_scale[indexing_mods[0]] = stretch_prefered_scale;
+        self.prefered_scale[indexing_mods[1]] = cross_prefered_scale;
         
         // Resize Texture
         self.rendering_manager.size(self.pos, self.scale);
@@ -112,7 +149,7 @@ impl Panel {
     //=====================================
 
     pub fn add_section(&mut self, widget: WidgetType) {
-        let section = PanelSection::new(widget);
+        let section = PanelSection::new(widget, self.orientation, self.alignment);
         self.sections.push(section);
     }
 
@@ -185,7 +222,7 @@ impl Widget for Panel {
 
         // Render all the widgets
         for section in &mut self.sections {
-            // section.test_render(texture_manager);
+            // section._test_render(texture_manager);
             section.get_mut_widget().render(texture_manager, screen_data, game_event_manager);
             
         }
