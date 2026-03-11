@@ -13,3 +13,11 @@ pub fn buffer_pos(pos: [f32; 4], buffer: [f32; 4]) -> [f32; 4] {
         pos[3] - buffer[3],
     ];
 }
+
+pub fn get_button_scale() -> f32 {
+    return 0.05;
+}
+
+pub fn get_button_text_scale() -> f32 {
+    return 0.015;
+}

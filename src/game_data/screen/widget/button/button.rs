@@ -1,6 +1,6 @@
 use rand::rand_core::block;
 
-use crate::game_data::{TextureManager, game_event_manager::{self, game_event_manager::{Event, GameEventManager}}, screen::{ScreenData, widget::{self, widget::Widget, widget_calculations}}, types::{BlockTexture, UITextures}};
+use crate::game_data::{TextureManager, game_event_manager::{self, game_event_manager::{Event, GameEventManager}}, screen::{ScreenData, render_centered_string_at_ndc, screen_data, screen_mananager, widget::{self, widget::Widget, widget_calculations}}, types::{BlockTexture, FontType, UITextures}};
 
 pub struct Button {
     // Parent Rendering
@@ -23,7 +23,9 @@ pub struct Button {
     // Apearence
     button_type: UITextures,
     apearence_pos: [f32; 4],
+    text_ndc: [f32; 2],
     
+    text: Option<String>,
     block_texture: Option<BlockTexture>,
     icon_type: Option<UITextures>,
 
@@ -44,7 +46,7 @@ impl Button {
             pos: [0.0; 4],
             scale: [0.0; 2],
             
-            prefered_scale: [0.08; 2],
+            prefered_scale: [widget_calculations::get_button_scale(); 2],
 
             // Input 
             event: event, 
@@ -52,7 +54,9 @@ impl Button {
             // Apearence
             button_type: UITextures::ButtonCircle, 
             apearence_pos: [0.0; 4],
+            text_ndc: [0.0; 2],
 
+            text: None,
             block_texture: None, 
             icon_type: None,
         };
@@ -83,6 +87,10 @@ impl Button {
         ];
 
         self.apearence_pos = widget_calculations::buffer_pos(self.pos, apearence_buffer);
+        self.text_ndc = [
+            self.pos[0] + (self.scale[0] / 2.0),
+            self.pos[1] - (widget_calculations::get_button_text_scale() / 2.0),
+        ];
 
         self.needs_resizing = false;
     }
@@ -98,7 +106,11 @@ impl Button {
         self.icon_type = Some(icon);
     }
 
-    fn render_apearence(&self, texture_manager: &mut TextureManager ) {
+    pub fn set_text(&mut self, text: String) {
+        self.text = Some(text);
+    }
+
+    fn render_apearence(&self, texture_manager: &mut TextureManager, screen_data: &ScreenData) {
         // Render block
         if let Some(block_texture) = self.block_texture {
             texture_manager.render_block_with_pos(block_texture, self.apearence_pos);
@@ -107,6 +119,18 @@ impl Button {
         // Render icon
         if let Some(icon) = self.icon_type {
             texture_manager.render_ui_element_with_pos(icon, self.apearence_pos);
+        }
+
+        if let Some(text) = &self.text {
+            if screen_data.mouse_on_ndc_pos(self.pos) {
+                render_centered_string_at_ndc(
+                    texture_manager, 
+                    text.clone(), 
+                    FontType::Basic, 
+                    widget_calculations::get_button_text_scale(), 
+                    self.text_ndc
+                );            
+            }
         }
     }
 
@@ -166,7 +190,7 @@ impl Widget for Button {
         texture_manager.render_ui_element_with_pos(button_texture, self.pos);
 
         // Render aperence values
-        self.render_apearence(texture_manager);
+        self.render_apearence(texture_manager, screen_data);
     }
 
 }

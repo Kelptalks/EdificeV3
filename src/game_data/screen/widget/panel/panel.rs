@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, widget::{self, button::button::Button, panel::{panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, widget::{Widget, WidgetType}, widget_calculations}}};
+use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, widget::{button::button::Button, panel::{panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, widget::{Widget, WidgetType}, widget_calculations}}};
 
 
 #[derive(Clone, Copy)]
@@ -83,7 +83,7 @@ impl Panel {
     }
 
     //=====================================
-    // Positioning
+    // Apearence
     //=====================================
 
     pub fn set_orientation(&mut self, orientaiton: PanelOrientation, alignment: PanelAlignment) {
@@ -93,6 +93,10 @@ impl Panel {
         for section in &mut self.sections {
             section.set_orientation(self.orientation, self.alignment);
         }
+    }
+
+    pub fn set_color(&mut self, color: PanelColor) {
+        self.rendering_manager.set_color(color);
     }
 
     //=====================================
@@ -105,7 +109,7 @@ impl Panel {
         self.scale = widget_calculations::pos_to_scale(self.pos);
 
         let indexing_mods = self.orientation.get_index_mods();
-        let [stretch, cross, stretch_end, cross_end] = indexing_mods;
+        let [stretch, cross, _stretch_end, cross_end] = indexing_mods;
 
         // First pass: size sections to get preferred scales
         let mut stretch_space_used = 0.0;
@@ -178,8 +182,6 @@ impl Panel {
         let panel = Self::new(self.pos, [0.0; 4]);
         self.add_section(WidgetType::Panel(panel));
 
-        println!("added_panel");
-
         if let WidgetType::Panel(panel) = self.sections.last_mut().unwrap().get_mut_widget() {
             return panel;
         }
@@ -191,8 +193,6 @@ impl Panel {
     pub fn add_button(&mut self, event: Event) -> &mut Button { 
         let button = Button::new(event, [0.0; 4]);
         self.add_section(WidgetType::Button(button));
-
-        println!("added_button");
 
         if let WidgetType::Button(button) = self.sections.last_mut().unwrap().get_mut_widget() {
             return button;
@@ -238,14 +238,10 @@ impl Widget for Panel {
         
         // Render the panel
         self.rendering_manager.render(texture_manager);
-        
-        // testing
 
         // Render all the widgets
         for section in &mut self.sections {
-            section._test_render(texture_manager);
             section.get_mut_widget().render(texture_manager, screen_data, game_event_manager);
-            
         }
     }
 }

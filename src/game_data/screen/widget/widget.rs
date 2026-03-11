@@ -3,9 +3,8 @@ use crate::game_data::{TextureManager, game_event_manager::game_event_manager::G
 pub trait Widget {
     fn get_pos(&self) -> [f32; 4];
     fn get_scale(&self) -> [f32; 2];
-    
     fn get_prefered_scale(&self) -> [f32; 2];
-    
+
     fn set_buffers(&mut self, pos: [f32; 4]);
     fn set_parent_pos(&mut self, pos: [f32; 4]);
     fn size(&mut self);
