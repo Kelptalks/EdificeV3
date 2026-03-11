@@ -108,7 +108,7 @@ impl ScreenManager {
         
         let mut panel = WidgetType::new_panel(parent_pos, buffers);
         if let WidgetType::Panel(panel) = &mut panel {
-            panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+            panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
             panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
             panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
             panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));

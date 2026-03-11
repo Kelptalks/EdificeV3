@@ -100,46 +100,67 @@ impl Panel {
     //=====================================
 
     pub fn size(&mut self) {
-        // Parent Values
         self.parent_scale = widget_calculations::pos_to_scale(self.parent_pos);
         self.pos = widget_calculations::buffer_pos(self.parent_pos, self.external_buffers);
-        self.scale = widget_calculations::pos_to_scale(self.pos);        
+        self.scale = widget_calculations::pos_to_scale(self.pos);
 
-        // Orientation
         let indexing_mods = self.orientation.get_index_mods();
+        let [stretch, cross, stretch_end, cross_end] = indexing_mods;
 
-        // Scale Sections
-        let mut stretch_space_used_scale = 0.0;
+        // First pass: size sections to get preferred scales
+        let mut stretch_space_used = 0.0;
         for section in &mut self.sections {
-            section.size(self.pos, stretch_space_used_scale, self.internal_buffers);
-
-            let section_scale = section.get_section_scale();
-            stretch_space_used_scale += section_scale[indexing_mods[0]];
+            let used = section.size(self.pos, stretch_space_used, self.internal_buffers);
+            stretch_space_used += used;
         }
 
-        // Calculate prefered scale
-        let mut cross_prefered_scale = 0.0;
-        let mut stretch_prefered_scale = 0.0;
+        // Compute preferred scale from content
+        let mut cross_prefered_scale: f32 = 0.0;
+        let mut stretch_prefered_scale: f32 = 0.0;
 
         for section in &mut self.sections {
-            let section_scale = section.get_section_scale();
-            
-            stretch_prefered_scale += section_scale[indexing_mods[0]];
-            let widget_cross_scale = section_scale[indexing_mods[1]];
-            if widget_cross_scale > cross_prefered_scale {
-                cross_prefered_scale = widget_cross_scale;
+            let widget_prefered = section.get_mut_widget().get_prefered_scale();
+            stretch_prefered_scale += section.get_section_scale()[stretch];
+
+            let widget_cross = widget_prefered[cross]
+                + self.internal_buffers[cross]
+                + self.internal_buffers[cross_end];
+
+            cross_prefered_scale = cross_prefered_scale.max(widget_cross);
+        }
+
+        self.prefered_scale[stretch] = stretch_prefered_scale;
+        self.prefered_scale[cross] = cross_prefered_scale;
+
+        // Second pass: apply cross-axis alignment per section
+        let available_cross = self.scale[cross];
+
+        for section in &mut self.sections {
+            let widget_prefered = section.get_mut_widget().get_prefered_scale();
+            let needed_cross = widget_prefered[cross]
+                + self.internal_buffers[cross]
+                + self.internal_buffers[cross_end];
+
+            let extra = (available_cross - needed_cross).max(0.0);
+
+            let mut buffers = self.internal_buffers;
+            match self.alignment {
+                PanelAlignment::TopLeft => {
+                    buffers[cross_end] += extra;
+                }
+                PanelAlignment::BotRight => {
+                    buffers[cross] += extra;
+                }
+                PanelAlignment::Center => {
+                    buffers[cross] += extra / 2.0;
+                    buffers[cross_end] += extra / 2.0;
+                }
             }
+
+            section.get_mut_widget().set_buffers(buffers);
+            section.get_mut_widget().size();
         }
 
-        if self.orientation == PanelOrientation::Vertical {
-            println!("stretch_prefered_scale: {}", stretch_prefered_scale);
-            println!("cross_prefered_scale: {}", cross_prefered_scale);
-        }
-
-        self.prefered_scale[indexing_mods[0]] = stretch_prefered_scale;
-        self.prefered_scale[indexing_mods[1]] = cross_prefered_scale;
-        
-        // Resize Texture
         self.rendering_manager.size(self.pos, self.scale);
         self.needs_resizing = false;
     }
@@ -222,7 +243,7 @@ impl Widget for Panel {
 
         // Render all the widgets
         for section in &mut self.sections {
-            // section._test_render(texture_manager);
+            section._test_render(texture_manager);
             section.get_mut_widget().render(texture_manager, screen_data, game_event_manager);
             
         }

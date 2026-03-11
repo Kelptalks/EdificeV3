@@ -44,73 +44,26 @@ impl PanelSection {
     // Section Calculations
     //=====================================
 
-    pub fn size(&mut self, parent_pos: [f32; 4], starting_stretch: f32, external_buffers: [f32; 4]) -> f32 {
+    pub fn size(&mut self, parent_pos: [f32; 4], starting_stretch: f32, internal_buffers: [f32; 4]) -> f32 {
         self.widget.size();
 
-        let indexing_mods = self.orientation.get_index_mods();
+        let [stretch, cross, stretch_end, cross_end] = self.orientation.get_index_mods();
 
-        let stretch_scale = 
-            self.widget.get_prefered_scale()[indexing_mods[0]]
-            + external_buffers[indexing_mods[0]]
-            + external_buffers[indexing_mods[2]];
-        
-        let cross_scale = 
-            self.widget.get_prefered_scale()[indexing_mods[1]]
-            + external_buffers[indexing_mods[1]]
-            + external_buffers[indexing_mods[3]];
+        let stretch_scale =
+            self.widget.get_prefered_scale()[stretch]
+            + internal_buffers[stretch]
+            + internal_buffers[stretch_end];
 
-        // Calculate location
-        self.pos = [
-            parent_pos[0],
-            parent_pos[1],
-            parent_pos[0],
-            parent_pos[3],
-        ];
-
-        self.pos[indexing_mods[0]] = parent_pos[indexing_mods[0]];
-        self.pos[indexing_mods[1]] = parent_pos[indexing_mods[1]];
-        self.pos[indexing_mods[2]] = parent_pos[indexing_mods[0]];
-        self.pos[indexing_mods[3]] = parent_pos[indexing_mods[1]] + cross_scale;
-
-        self.pos[indexing_mods[0]] += starting_stretch;
-        self.pos[indexing_mods[2]] += starting_stretch + stretch_scale;
+        // Section spans full parent cross, stretch is content-sized
+        self.pos[stretch] = parent_pos[stretch] + starting_stretch;
+        self.pos[cross] = parent_pos[cross];
+        self.pos[stretch_end] = parent_pos[stretch] + starting_stretch + stretch_scale;
+        self.pos[cross_end] = parent_pos[cross_end];
 
         self.widget.set_parent_pos(self.pos);
-
         self.scale = widget_calculations::pos_to_scale(self.pos);
 
-        // Base widget is an H Panel base scale y off section scale
-        
-        let mut cross_total_buffer_scale = self.scale[indexing_mods[1]] - cross_scale;
-        if let WidgetType::Panel(_panel) = &mut self.widget {
-            cross_total_buffer_scale = 0.0; 
-        }
-        
-        let mut widget_buffers= external_buffers;
-        match self.alignment {
-            PanelAlignment::TopLeft => {
-                widget_buffers[indexing_mods[3]] += cross_total_buffer_scale;
-            
-            },
-            PanelAlignment::BotRight => {
-                widget_buffers[indexing_mods[1]] += cross_total_buffer_scale;
-
-            },
-            PanelAlignment::Center => {
-
-                widget_buffers[indexing_mods[1]] += cross_total_buffer_scale / 2.0;
-                widget_buffers[indexing_mods[3]] += cross_total_buffer_scale / 2.0;
-
-            },
-        }
-
-        self.widget.set_buffers(widget_buffers);
-        self.widget.size();
-
-
-
-
-        return stretch_scale;
+        stretch_scale
     }
 
     //=====================================
