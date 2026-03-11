@@ -31,3 +31,10 @@ pub fn get_button_text_scale() -> f32 {
 pub fn get_panel_tile_scale() -> f32 {
     return 0.01;
 }
+
+//=====================================
+// Text values
+//=====================================
+pub fn get_header_text_scale() -> f32 {
+    return 0.03;
+}

@@ -77,42 +77,17 @@ impl ScreenManager {
 
         // Testing
         let parent_pos = self.screen_data.get_viewport_uv();
-        let buffers = [0.05, 0.05, 1.05, 0.05];
-        
-        let mut panel = WidgetType::new_panel(parent_pos, buffers);
-        if let WidgetType::Panel(panel) = &mut panel {
-            panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center, );
-            panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-
-            let mut sub_panel = panel.add_sub_panel();
-            sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-            sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-
-            let mut sub_sub_panel = sub_panel.add_sub_panel();
-            sub_sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-            sub_sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-
-            let mut sub_sub_panel = sub_panel.add_sub_panel();
-            sub_sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-            sub_sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-
-            panel.size();
-        }
-
-        self.panel.push(Some(panel));
-
-
-        // Testing
-        let parent_pos = self.screen_data.get_viewport_uv();
-        let buffers = [1.05, 0.05, 0.05, 0.05];
+        let buffers = [0.05, 0.05, 0.05, 0.05];
         
         let mut panel = WidgetType::new_panel(parent_pos, buffers);
         if let WidgetType::Panel(panel) = &mut panel {
             panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-            for s in 0..10 {
+            panel.add_header("Test Header".to_string());
+            for s in 0..5 {
                 let mut sub_panel = panel.add_sub_panel();
+                sub_panel.add_header("Test Header".to_string());
                 sub_panel.set_color(screen::widget::panel::panel_color::PanelColor::Dark);
-                sub_panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Fill);
+                sub_panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
 
                 for i in 0..10 {
                     let mut button = sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));

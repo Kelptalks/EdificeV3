@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, widget::{button::button::Button, panel::{panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, widget::{Widget, WidgetType}, widget_calculations}}};
+use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, widget::{button::button::Button, panel::{panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, text::header::Header, widget::{Widget, WidgetType}, widget_calculations}}};
 
 
 #[derive(Clone, Copy)]
@@ -31,7 +31,6 @@ pub struct Panel {
     prefered_scale: [f32; 2],
 
     // Self Rendering
-    needs_resizing: bool,
     external_buffers: [f32; 4],  
     internal_buffers: [f32; 4],
 
@@ -40,7 +39,6 @@ pub struct Panel {
 
     rendering_manager: PanelTextureManager,
     
-
     // Sections
     sections: Vec<PanelSection>,
     orientation: PanelOrientation,
@@ -64,7 +62,6 @@ impl Panel {
             prefered_scale: [0.2; 2],
 
             // Self Rendering
-            needs_resizing: true,
             external_buffers: buffers, 
             internal_buffers: [0.01; 4],   
             pos: [0.0; 4],
@@ -169,7 +166,6 @@ impl Panel {
         }
 
         self.rendering_manager.size(self.pos, self.scale);
-        self.needs_resizing = false;
     }
 
     //=====================================
@@ -201,7 +197,19 @@ impl Panel {
             return button;
         }
         else {
-            panic!("Sub Panel was just inserted but could not be retrieved in Panel");
+            panic!("Button was just inserted but could not be retrieved in Panel");
+        }
+    }
+
+    pub fn add_header(&mut self, text: String) -> &mut Header { 
+        let header = Header::new(text);
+        self.add_section(WidgetType::Header(header));
+
+        if let WidgetType::Header(header) = self.sections.last_mut().unwrap().get_mut_widget() {
+            return header;
+        }
+        else {
+            panic!("Header was just inserted but could not be retrieved in Panel");
         }
     }
 
@@ -234,11 +242,7 @@ impl Widget for Panel {
         self.size();
     }
 
-    fn render(&mut self, texture_manager: &mut TextureManager, screen_data: &ScreenData, game_event_manager: &mut GameEventManager) {
-        if self.needs_resizing {
-            self.size();
-        }
-        
+    fn render(&mut self, texture_manager: &mut TextureManager, screen_data: &ScreenData, game_event_manager: &mut GameEventManager) {        
         // Render the panel
         self.rendering_manager.render(texture_manager);
 

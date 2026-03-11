@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, game_event_manager::game_event_manager::GameEventManager, screen::{ScreenData, screen_data, widget::{button::button::Button, panel::{panel::Panel}}}, texture_manager};
+use crate::game_data::{TextureManager, game_event_manager::game_event_manager::GameEventManager, screen::{ScreenData, screen_data, widget::{button::button::Button, panel::panel::Panel, text::header::Header}}, texture_manager};
 
 pub trait Widget {
     fn get_pos(&self) -> [f32; 4];
@@ -20,6 +20,7 @@ pub trait Widget {
 pub enum WidgetType {
     Panel(Panel),
     Button(Button),
+    Header(Header),
 }
 
 impl Widget for WidgetType {
@@ -27,6 +28,7 @@ impl Widget for WidgetType {
         match self {
             WidgetType::Panel(w) => w.get_pos(),
             WidgetType::Button(w) => w.get_pos(),
+            WidgetType::Header(w) => w.get_pos(),
         }
     }
 
@@ -34,6 +36,7 @@ impl Widget for WidgetType {
         match self {
             WidgetType::Panel(w) => w.get_scale(),
             WidgetType::Button(w) => w.get_scale(),
+            WidgetType::Header(w) => w.get_scale(),
         }
     }
 
@@ -41,8 +44,33 @@ impl Widget for WidgetType {
         match self {
             WidgetType::Panel(w) => w.get_prefered_scale(),
             WidgetType::Button(w) => w.get_prefered_scale(),
+            WidgetType::Header(w) => w.get_prefered_scale(),
         }
     }
+    
+    //=====================================
+    // Setters
+    //=====================================
+
+    fn set_buffers(&mut self, buffers: [f32; 4]) {
+        match self {
+            WidgetType::Panel(w) => w.set_buffers(buffers),
+            WidgetType::Button(w) => w.set_buffers(buffers),
+            WidgetType::Header(w) => w.set_buffers(buffers),
+        }
+    }
+
+    fn set_parent_pos(&mut self, pos: [f32; 4]) {
+        match self {
+            WidgetType::Panel(w) => w.set_parent_pos(pos),
+            WidgetType::Button(w) => w.set_parent_pos(pos),
+            WidgetType::Header(w) => w.set_parent_pos(pos),
+        }
+    }
+
+    //=====================================
+    // Rendering
+    //=====================================
 
     fn render(
         &mut self, 
@@ -53,20 +81,7 @@ impl Widget for WidgetType {
         match self {
             WidgetType::Panel(w) => w.render(texture_manager, screen_data, game_event_manager),
             WidgetType::Button(w) => w.render(texture_manager, screen_data, game_event_manager),
-        }
-    }
-    
-    fn set_buffers(&mut self, buffers: [f32; 4]) {
-        match self {
-            WidgetType::Panel(w) => w.set_buffers(buffers),
-            WidgetType::Button(w) => w.set_buffers(buffers),
-        }
-    }
-
-    fn set_parent_pos(&mut self, pos: [f32; 4]) {
-        match self {
-            WidgetType::Panel(w) => w.set_parent_pos(pos),
-            WidgetType::Button(w) => w.set_parent_pos(pos),
+            WidgetType::Header(w) => w.render(texture_manager, screen_data, game_event_manager),
         }
     }
 
@@ -74,6 +89,7 @@ impl Widget for WidgetType {
         match self {
             WidgetType::Panel(w) => w.size(),
             WidgetType::Button(w) => w.size(),
+            WidgetType::Header(w) => w.size(),
         }
     }
 
