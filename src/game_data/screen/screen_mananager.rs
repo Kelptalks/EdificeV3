@@ -84,7 +84,19 @@ impl ScreenManager {
             panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
             panel.add_header("Test Header".to_string());
             let bar_button = panel.add_bar_button("Start".to_string(), Event::RenderEvent(RenderEvent::TestEvent));
+            bar_button.set_text_scale(TextSize::ExtraSmall);
+
+            let bar_button = panel.add_bar_button("Start".to_string(), Event::RenderEvent(RenderEvent::TestEvent));
+            bar_button.set_text_scale(TextSize::Small);
+
+            let bar_button = panel.add_bar_button("Start".to_string(), Event::RenderEvent(RenderEvent::TestEvent));
             bar_button.set_text_scale(TextSize::Medium);
+
+            let bar_button = panel.add_bar_button("Start".to_string(), Event::RenderEvent(RenderEvent::TestEvent));
+            bar_button.set_text_scale(TextSize::Large);
+
+            let bar_button = panel.add_bar_button("Start".to_string(), Event::RenderEvent(RenderEvent::TestEvent));
+            bar_button.set_text_scale(TextSize::ExtraLarge);
             
 
             for s in 0..5 {
