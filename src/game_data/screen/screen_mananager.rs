@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use image::imageops::FilterType::Triangle;
 use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, game_event_manager::{self, game_event_manager::{Event, GameEventManager}, render_event_manager::render_event_manager::RenderEvent}, log_init, player_data::player_data::PlayerData, screen::{self, Camera, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, input_data::Input, iso_cord_tool, menus::{level_select_menu::{self, level_select_menu::LevelSelectMenu}, main_menu::main_menu::MainMenu, world_creation_menu::world_creation::WorldCreationMenu}, play_view::play_view::PlayView, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager, widget::{panel::panel::{PanelAlignment, PanelOrientation}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
+use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, game_event_manager::{self, game_event_manager::{Event, GameEventManager}, render_event_manager::render_event_manager::RenderEvent}, log_init, player_data::player_data::PlayerData, screen::{self, Camera, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, input_data::Input, iso_cord_tool, menus::{level_select_menu::{self, level_select_menu::LevelSelectMenu}, main_menu::main_menu::MainMenu, world_creation_menu::world_creation::WorldCreationMenu}, play_view::play_view::PlayView, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
 
 
 
@@ -79,43 +79,36 @@ impl ScreenManager {
         let parent_pos = self.screen_data.get_viewport_uv();
         let buffers = [0.0; 4];
         
+        
         let mut panel = WidgetType::new_panel(parent_pos, buffers);
         if let WidgetType::Panel(panel) = &mut panel {
             panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
-            panel.add_header("Test Header".to_string());
-            let bar_button = panel.add_bar_button("Start".to_string(), Event::RenderEvent(RenderEvent::TestEvent));
-            bar_button.set_text_scale(TextSize::ExtraSmall);
+            panel.set_color(PanelColor::Clear);
+            let header = panel.add_header("EDIFICE".to_string());
+            header.set_text_scale(TextSize::ExtraLarge);
 
-            let bar_button = panel.add_bar_button("Start".to_string(), Event::RenderEvent(RenderEvent::TestEvent));
-            bar_button.set_text_scale(TextSize::Small);
 
-            let bar_button = panel.add_bar_button("Start".to_string(), Event::RenderEvent(RenderEvent::TestEvent));
-            bar_button.set_text_scale(TextSize::Medium);
-
-            let bar_button = panel.add_bar_button("Start".to_string(), Event::RenderEvent(RenderEvent::TestEvent));
+            let bar_button = panel.add_bar_button("Play".to_string(), Event::RenderEvent(RenderEvent::TestEvent));
             bar_button.set_text_scale(TextSize::Large);
 
-            let bar_button = panel.add_bar_button("Start".to_string(), Event::RenderEvent(RenderEvent::TestEvent));
-            bar_button.set_text_scale(TextSize::ExtraLarge);
+            let bar_button = panel.add_bar_button("BluePrints".to_string(), Event::RenderEvent(RenderEvent::TestEvent));
+            bar_button.set_text_scale(TextSize::Large);
             
+            let bar_button = panel.add_bar_button("Settings".to_string(), Event::RenderEvent(RenderEvent::TestEvent));
+            bar_button.set_text_scale(TextSize::Large);
+            
+            let bar_button = panel.add_bar_button("Exit".to_string(), Event::RenderEvent(RenderEvent::TestEvent));
+            bar_button.set_text_scale(TextSize::Large);
 
-            for s in 0..5 {
-                let mut sub_panel = panel.add_sub_panel();
-                sub_panel.add_header("Test Header".to_string());
-                sub_panel.set_color(screen::widget::panel::panel_color::PanelColor::Dark);
-                sub_panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
-
-                for i in 0..10 {
-                    let mut button = sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
-                    button.set_text("test_text".to_string());
-                }
-            }
+            
 
             
             panel.size();
         }
+        
 
         self.panel.push(Some(panel));
+        
 
     }
 

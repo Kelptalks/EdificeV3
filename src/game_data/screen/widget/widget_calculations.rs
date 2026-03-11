@@ -46,7 +46,7 @@ impl TextSize {
             TextSize::ExtraSmall => 0.015,
             TextSize::Small      => 0.022,
             TextSize::Medium     => 0.03,
-            TextSize::Large      => 0.07,
+            TextSize::Large      => 0.05,
             TextSize::ExtraLarge => 0.1,
         }
     }
