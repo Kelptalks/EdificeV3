@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cargo check:*)"
+      "Bash(cargo check:*)",
+      "Bash(find C:/Users/Spencer/EdificeV3/src -name \"widget*\" -o -name \"*widget*\" 2>/dev/null | head -20)"
     ]
   }
 }

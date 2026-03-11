@@ -95,6 +95,10 @@ impl Button {
         self.needs_resizing = false;
     }
 
+    pub fn set_text_scale(&mut self, size: widget_calculations::TextSize) {
+        self.prefered_scale[1] = size.get_scale();
+    }
+
     //=====================================
     // Apearence
     //=====================================

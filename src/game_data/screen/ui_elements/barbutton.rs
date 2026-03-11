@@ -1,6 +1,6 @@
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndc, ui_elements::button}, types::{FontType, UITextures}};
+use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndc, ui_elements::button, widget::widget_calculations::TextSize}, types::{FontType, UITextures}};
 
 pub struct BarButton {
     ndc: [f32; 2],
@@ -8,7 +8,8 @@ pub struct BarButton {
     length: u32,
 
     is_pressed: bool,
-    text : String,
+    text: String,
+    text_scale: f32,
 }
 
 impl BarButton {
@@ -21,8 +22,8 @@ impl BarButton {
             scale,
             length,
             is_pressed: false,
-
             text: String::new(),
+            text_scale: TextSize::Small.get_scale(),
         }
     }
 
@@ -33,16 +34,18 @@ impl BarButton {
             length: 0,
             is_pressed: false,
             text: String::new(),
+            text_scale: TextSize::Small.get_scale(),
         }
     }
 
-    pub fn new_with_text(cords: [f32; 2], scale: f32, length: u32, text: String) -> BarButton { 
+    pub fn new_with_text(cords: [f32; 2], scale: f32, length: u32, text: String) -> BarButton {
         BarButton {
             ndc: cords,
             scale,
             length,
             is_pressed: false,
             text: text,
+            text_scale: TextSize::Small.get_scale(),
         }
     }
 
@@ -78,7 +81,11 @@ impl BarButton {
         self.text = text;
     }
 
-    //=====================================
+    pub fn set_text_scale(&mut self, size: TextSize) {
+        self.text_scale = size.get_scale();
+    }
+
+//=====================================
     // Rendering
     //=====================================
     pub fn render_button(&self, texture_manager: &mut TextureManager) {
@@ -109,7 +116,7 @@ impl BarButton {
         // calculate string center cords
         let x_button_center_cor = self.ndc[0] + (self.get_x_scale() / 2.0);
         let y_button_center_cor = self.ndc[1] + (self.scale) / 2.0;
-        let button_text_scale = self.scale * 0.3;
+        let button_text_scale = self.text_scale;
         render_centered_string_at_ndc(texture_manager,
             self.text.to_string(),
             FontType::Basic,
