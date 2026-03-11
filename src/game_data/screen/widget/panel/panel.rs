@@ -6,6 +6,7 @@ pub enum PanelAlignment {
     TopLeft,
     BotRight,
     Center,
+    Fill
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -159,6 +160,8 @@ impl Panel {
                     buffers[cross] += extra / 2.0;
                     buffers[cross_end] += extra / 2.0;
                 }
+                PanelAlignment::Fill => {
+                }
             }
 
             section.get_mut_widget().set_buffers(buffers);
@@ -181,7 +184,7 @@ impl Panel {
     pub fn add_sub_panel(&mut self) -> &mut Panel {
         let panel = Self::new(self.pos, [0.0; 4]);
         self.add_section(WidgetType::Panel(panel));
-
+ 
         if let WidgetType::Panel(panel) = self.sections.last_mut().unwrap().get_mut_widget() {
             return panel;
         }

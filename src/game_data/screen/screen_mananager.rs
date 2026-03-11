@@ -112,6 +112,8 @@ impl ScreenManager {
             for s in 0..10 {
                 let mut sub_panel = panel.add_sub_panel();
                 sub_panel.set_color(screen::widget::panel::panel_color::PanelColor::Dark);
+                sub_panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Fill);
+
                 for i in 0..10 {
                     let mut button = sub_panel.add_button(Event::RenderEvent(RenderEvent::TestEvent));
                     button.set_text("test_text".to_string());

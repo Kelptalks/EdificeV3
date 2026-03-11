@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, screen::widget::panel::panel_color::PanelColor, texture_manager};
+use crate::game_data::{TextureManager, screen::widget::{panel::panel_color::PanelColor, widget_calculations}, texture_manager};
 
 pub struct PanelTextureManager {
     // Apearence
@@ -18,7 +18,7 @@ impl PanelTextureManager {
         PanelTextureManager {
             // Apearence
             color: PanelColor::Light,
-            tile_ndc_scale: 0.01,
+            tile_ndc_scale: widget_calculations::get_panel_tile_scale(),
 
             // Rendering 
             tile_corner_pos: [[0.0; 4]; 4],
