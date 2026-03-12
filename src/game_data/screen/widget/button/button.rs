@@ -79,14 +79,8 @@ impl Button {
         // println!("  - Sized : pos({:?}), scale({:?})", self.pos, self.scale);
 
         // Apearence
-        let apearence_buffer = [
-            self.scale[0] * 0.8,
-            self.scale[1] * 0.8,
-            self.scale[0] * 0.8,
-            self.scale[1] * 0.8,
-        ];
 
-        self.apearence_pos = widget_calculations::buffer_pos(self.pos, apearence_buffer);
+        self.apearence_pos = widget_calculations::buffer_pos(self.pos, [self.scale[0] / 5.0; 4]);
         self.text_ndc = [
             self.pos[0] + (self.scale[0] / 2.0),
             self.pos[1] - (widget_calculations::get_button_text_scale() / 2.0),

@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, game_event_manager::game_event_manager::EventData, screen::{screen_data::CurrentMenu, screen_mananager::ScreenManager}};
+use crate::game_data::{World, game_event_manager::{game_event_manager::EventData, render_event_manager}, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::widget::{Widget, WidgetType}}};
 
 /*
 ##################
@@ -26,7 +26,35 @@ pub enum RenderEvent {
     TestEvent,
 }
 
+
+
 impl RenderEvent {
+
+
+    pub fn construct_menu(current_menu: CurrentMenu, screen_mananager: &mut ScreenManager, event_tools: &mut EventData) -> WidgetType 
+    {
+        let mut menu_panel= WidgetType::new_panel([0.0; 4], [0.0; 4]);
+        match current_menu {
+            CurrentMenu::MainMenu => {
+                menu_panel = menu_constructors::main_menu::get_menu(&screen_mananager.get_mut_screen_data());
+            }
+            CurrentMenu::WorldCreationMenu => {
+                menu_panel =
+                    menu_constructors::world_creation_menu::get_menu(
+                        &screen_mananager.get_mut_screen_data(), 
+                        event_tools.get_mut_world_gen_manager().get_mut_world_config(
+                    )
+                );
+            }
+            _ => {
+
+            }
+        }
+
+        return menu_panel;
+    }
+    
+
     //=====================================
     // Execution
     //=====================================
@@ -50,7 +78,9 @@ impl RenderEvent {
                 camera.dirty_tiles_in_area(casted_tile_cords, 2);
             }
             RenderEvent::ChangeMenu(current_menu) => {
-                screen_mananager.set_current_menu(*current_menu);
+                let menu_panel: WidgetType = Self::construct_menu(*current_menu, screen_mananager, event_tools);
+                screen_mananager.set_menu_panel(menu_panel);
+                screen_mananager.get_mut_screen_data().set_current_menu(*current_menu);
             }
             RenderEvent::Clear => {
                 

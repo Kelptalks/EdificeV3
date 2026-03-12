@@ -201,6 +201,7 @@ impl GameData {
 
         self.event_manager.execute_world_events(&mut world_guard);
         self.event_manager.execute_render_events(screen_mananager, &self.world);
+        self.event_manager.execute_widget_events();
 
         // Update debug data
         self.debug_data.set_frame_time(frame_duration_ms as u32);

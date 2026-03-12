@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations}}, types::UITextures};
+use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations}}, types::UITextures};
 
 
 #[derive(Clone, Copy)]
@@ -224,6 +224,18 @@ impl Panel {
 
         if let WidgetType::BarButton(bar_button) = self.sections.last_mut().unwrap().get_mut_widget() {
             return bar_button;
+        }
+        else {
+            panic!("BarButton was just inserted but could not be retrieved in Panel");
+        }
+    }
+
+    pub fn add_toggle_button(&mut self) -> &mut ToggleButton {
+        let toggle_button = ToggleButton::new();
+        self.add_section(WidgetType::ToggleButton(toggle_button));
+
+        if let WidgetType::ToggleButton(toggle_button) = self.sections.last_mut().unwrap().get_mut_widget() {
+            return toggle_button;
         }
         else {
             panic!("BarButton was just inserted but could not be retrieved in Panel");

@@ -1,0 +1,22 @@
+use std::{cell::RefCell, rc::Rc};
+
+use crate::game_data::game_event_manager::{game_event_manager::EventData};
+
+#[derive(Clone)]
+pub enum WidgetEvent {
+    ToggleBoolEvent(Rc<RefCell<bool>>),
+    ToggleLinkEvent(Rc<RefCell<bool>>),
+}
+
+
+impl WidgetEvent {
+    pub fn execute_widget_event(&self, event_tools: &mut EventData) {
+        match self {
+            WidgetEvent::ToggleBoolEvent(toggle_button_event) => {
+                let current_state = *toggle_button_event.borrow();
+                *toggle_button_event.borrow_mut() = !current_state;
+            },
+            WidgetEvent::ToggleLinkEvent(ref_cell) => todo!(),
+        }
+    }
+}

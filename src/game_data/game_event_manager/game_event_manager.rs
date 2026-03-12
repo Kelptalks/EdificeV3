@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, game_event_manager::{render_event_manager::render_event_manager::RenderEvent, world_event_manager::{self, world_event_manager::{WorldEvent}}}, level_manager::level_manager::LevelManager, screen::{Camera, screen_mananager::{self, ScreenManager}}, world_gen::WorldGenManager};
+use crate::game_data::{World, game_event_manager::{render_event_manager::render_event_manager::RenderEvent, widget_event_manager::widget_event_manager::WidgetEvent, world_event_manager::{self, world_event_manager::WorldEvent}}, level_manager::level_manager::LevelManager, screen::{Camera, screen_mananager::{self, ScreenManager}}, world_gen::WorldGenManager};
 
 /*
 #######################
@@ -11,12 +11,14 @@ use crate::game_data::{World, game_event_manager::{render_event_manager::render_
 
 #[derive(Clone)]
 pub enum Event  {
+    WidgetEvent(WidgetEvent),
     WorldEvent(WorldEvent),
     RenderEvent(RenderEvent),
 }
 
 pub struct EventData {
     // Events
+    widget_events: Vec<WidgetEvent>,
     world_events: Vec<WorldEvent>,
     render_events: Vec<RenderEvent>,
 
@@ -29,6 +31,7 @@ impl EventData {
     pub fn new() -> EventData {
         EventData {
             // Events
+            widget_events: Vec::new(),
             world_events: Vec::new(),
             render_events: Vec::new(),
 
@@ -62,10 +65,6 @@ impl EventData {
     //=====================================
     // Events
     //=====================================
-
-    pub fn add_world_event(&mut self, world_event: WorldEvent) {
-        self.world_events.push(world_event);
-    }
 
     pub fn add_render_event(&mut self, render_event: RenderEvent) {
         self.render_events.push(render_event);
@@ -118,6 +117,10 @@ impl GameEventManager {
         self.event_data.render_events.push(render_event);
     }
 
+    pub fn add_widget_event(&mut self, widget_event: WidgetEvent) {
+        self.event_data.widget_events.push(widget_event);
+    }
+
     pub fn add_event(&mut self, event: Event) {
         match event {
             Event::WorldEvent(world_event) => {
@@ -126,6 +129,9 @@ impl GameEventManager {
             Event::RenderEvent(render_event) => {
                 self.add_render_event(render_event);
             },
+            Event::WidgetEvent(widget_event) => {
+                self.add_widget_event(widget_event);
+            }
         }
     }
 
@@ -142,6 +148,12 @@ impl GameEventManager {
     pub fn execute_render_events(&mut self, screen_mananager: &mut ScreenManager, world: &Arc<RwLock<World>>) {
         while let Some(render_event) = self.event_data.render_events.pop() {
             render_event.execute_render_event(&mut self.event_data, screen_mananager, world);
+        }
+    }
+
+    pub fn execute_widget_events(&mut self) {
+        while let Some(widget_event) = self.event_data.widget_events.pop() {
+            widget_event.execute_widget_event(&mut self.event_data);
         }
     }
 }

@@ -71,7 +71,7 @@ impl ScreenManager {
         self.set_screen_rez(screen_rez, ctx);
         self.camera.initialize_camera(ctx);
 
-        self.set_current_menu(CurrentMenu::MainMenu);
+        event_manager.add_render_event(RenderEvent::ChangeMenu(CurrentMenu::MainMenu));
     }
 
     //=====================================
@@ -284,30 +284,9 @@ impl ScreenManager {
 // Getters / Setters
  //=====================================
 
-    pub fn set_current_menu(&mut self, current_menu: CurrentMenu) {
-        // Clear old menu
-        self.screen_data.set_current_menu(current_menu);
+    pub fn set_menu_panel(&mut self, panel: WidgetType) {
         self.menu_panels.clear();
-
-        // Construct new menu
-        match self.screen_data.get_current_menu() {
-            CurrentMenu::MainMenu => {
-                self.menu_panels.push(menu_constructors::main_menu::get_menu(&self.screen_data));
-            }
-            CurrentMenu::WorldCreationMenu => {
-                self.menu_panels.push(menu_constructors::world_creation_menu::get_menu(&self.screen_data));
-            }
-            CurrentMenu::LevelSelectMenu => {
-                
-            }
-            CurrentMenu::Camera => {
-                
-            }
-            CurrentMenu::PlayView => {
-                
-            }
-        }
-
+        self.menu_panels.push(panel);
     }
 
     pub fn get_mut_camera(&mut self) -> &mut Camera {

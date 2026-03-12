@@ -99,12 +99,19 @@ impl WorldGenManager {
 
     pub fn generate_area(&self, world: &mut World) {
         let size = self.world_config.get_scale() as i32 / 2;
-        let start_cords = [-size, -size, -100];
-        let end_cords = [size, size, 100];
+        let start_cords = [-size, -size, -200];
+        let end_cords = [size, size, 200];
         
         
         let lair_rules_in_range = self.layer_manager.get_layer_rules_in_range(start_cords[2], end_cords[2]);
 
+        let terrain_height;
+        if self.world_config.world_flat() {
+            terrain_height = 1.0;
+        }
+        else {
+            terrain_height = 100.0;
+        }
         let terrain_noise = TerrainNoise::new(152452, 4, 500.0);
 
         println!("Generating Terrain");
@@ -121,7 +128,7 @@ impl WorldGenManager {
                     let current_cords = [x, y, z];
 
                     // Apply terrain noise modification
-                    let z_mod = terrain_noise.get_normalized(x as f32, y as f32) * 100.0;
+                    let z_mod = terrain_noise.get_normalized(x as f32, y as f32) * terrain_height;
                     let modded_cords = [x, y, (z as f32 - z_mod) as i32];
                         
                     for layer in &lair_rules_in_range {

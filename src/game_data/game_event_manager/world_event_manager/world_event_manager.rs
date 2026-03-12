@@ -17,9 +17,9 @@ pub enum WorldEvent {
     GenWorld(),              // World Config
     WorldConfigEvent(WorldConfigEvent),
     
+    // Modifcation
     GenLevel(u32),                      // Level Id
     ModBlock([i32; 3], BlockTexture)    // Block Cords, Block Type
-
 }
 
 impl WorldEvent {

@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, game_event_manager::game_event_manager::GameEventManager, screen::{ScreenData, screen_data, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::panel::Panel, text::header::TextDisplay}}, texture_manager};
+use crate::game_data::{TextureManager, game_event_manager::game_event_manager::GameEventManager, screen::{ScreenData, screen_data, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::panel::Panel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton}}, texture_manager};
 
 pub trait Widget {
     fn get_pos(&self) -> [f32; 4];
@@ -18,9 +18,15 @@ pub trait Widget {
 }
 
 pub enum WidgetType {
+    // Panels
     Panel(Panel),
+    
+    // Buttons
     Button(Button),
     BarButton(BarButtonWidget),
+    ToggleButton(ToggleButton),
+
+    // Text
     TextDisplay(TextDisplay),
 }
 
@@ -28,8 +34,11 @@ impl Widget for WidgetType {
     fn get_pos(&self) -> [f32; 4] {
         match self {
             WidgetType::Panel(w) => w.get_pos(),
+            
             WidgetType::Button(w) => w.get_pos(),
             WidgetType::BarButton(w) => w.get_pos(),
+            WidgetType::ToggleButton(w) => w.get_pos(),
+
             WidgetType::TextDisplay(w) => w.get_pos(),
         }
     }
@@ -37,8 +46,11 @@ impl Widget for WidgetType {
     fn get_scale(&self) -> [f32; 2] {
         match self {
             WidgetType::Panel(w) => w.get_scale(),
+            
             WidgetType::Button(w) => w.get_scale(),
             WidgetType::BarButton(w) => w.get_scale(),
+            WidgetType::ToggleButton(w) => w.get_scale(),
+
             WidgetType::TextDisplay(w) => w.get_scale(),
         }
     }
@@ -46,8 +58,11 @@ impl Widget for WidgetType {
     fn get_prefered_scale(&self) -> [f32; 2] {
         match self {
             WidgetType::Panel(w) => w.get_prefered_scale(),
+            
             WidgetType::Button(w) => w.get_prefered_scale(),
             WidgetType::BarButton(w) => w.get_prefered_scale(),
+            WidgetType::ToggleButton(w) => w.get_prefered_scale(),
+
             WidgetType::TextDisplay(w) => w.get_prefered_scale(),
         }
     }
@@ -59,8 +74,11 @@ impl Widget for WidgetType {
     fn set_buffers(&mut self, buffers: [f32; 4]) {
         match self {
             WidgetType::Panel(w) => w.set_buffers(buffers),
+            
             WidgetType::Button(w) => w.set_buffers(buffers),
+            WidgetType::ToggleButton(w) => w.set_buffers(buffers),
             WidgetType::BarButton(w) => w.set_buffers(buffers),
+            
             WidgetType::TextDisplay(w) => w.set_buffers(buffers),
         }
     }
@@ -68,8 +86,11 @@ impl Widget for WidgetType {
     fn set_parent_pos(&mut self, pos: [f32; 4]) {
         match self {
             WidgetType::Panel(w) => w.set_parent_pos(pos),
+            
             WidgetType::Button(w) => w.set_parent_pos(pos),
             WidgetType::BarButton(w) => w.set_parent_pos(pos),
+            WidgetType::ToggleButton(w) => w.set_parent_pos(pos),
+
             WidgetType::TextDisplay(w) => w.set_parent_pos(pos),
         }
     }
@@ -86,8 +107,11 @@ impl Widget for WidgetType {
     ) {
         match self {
             WidgetType::Panel(w) => w.render(texture_manager, screen_data, game_event_manager),
+            
             WidgetType::Button(w) => w.render(texture_manager, screen_data, game_event_manager),
             WidgetType::BarButton(w) => w.render(texture_manager, screen_data, game_event_manager),
+            WidgetType::ToggleButton(w) => w.render(texture_manager, screen_data, game_event_manager),
+
             WidgetType::TextDisplay(w) => w.render(texture_manager, screen_data, game_event_manager),
         }
     }
@@ -95,8 +119,11 @@ impl Widget for WidgetType {
     fn size(&mut self) {
         match self {
             WidgetType::Panel(w) => w.size(),
+            
             WidgetType::Button(w) => w.size(),
             WidgetType::BarButton(w) => w.size(),
+            WidgetType::ToggleButton(w) => w.size(),
+
             WidgetType::TextDisplay(w) => w.size(),
         }
     }
