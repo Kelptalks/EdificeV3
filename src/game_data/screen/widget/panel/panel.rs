@@ -194,8 +194,8 @@ impl Panel {
         }
     }
 
-    pub fn add_button(&mut self, event: Event) -> &mut Button { 
-        let button = Button::new(event, [0.0; 4]);
+    pub fn add_button(&mut self) -> &mut Button { 
+        let button = Button::new([0.0; 4]);
         self.add_section(WidgetType::Button(button));
 
         if let WidgetType::Button(button) = self.sections.last_mut().unwrap().get_mut_widget() {
@@ -206,7 +206,7 @@ impl Panel {
         }
     }
 
-    pub fn add_header(&mut self, text: String) -> &mut TextDisplay {
+    pub fn add_text_display(&mut self, text: String) -> &mut TextDisplay {
         let header = TextDisplay::new(text);
         self.add_section(WidgetType::TextDisplay(header));
 
@@ -218,8 +218,8 @@ impl Panel {
         }
     }
 
-    pub fn add_bar_button(&mut self, text: String, event: Event) -> &mut BarButtonWidget {
-        let bar_button = BarButtonWidget::new(text, event, [0.0; 4]);
+    pub fn add_bar_button(&mut self, text: String) -> &mut BarButtonWidget {
+        let bar_button = BarButtonWidget::new(text, [0.0; 4]);
         self.add_section(WidgetType::BarButton(bar_button));
 
         if let WidgetType::BarButton(bar_button) = self.sections.last_mut().unwrap().get_mut_widget() {

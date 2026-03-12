@@ -89,11 +89,20 @@ impl WorldGenManager {
         return &mut self.world_config;
     }
 
+    pub fn get_world_config(&self) -> &WorldConfig {
+        return &self.world_config;
+    }
+
     //=====================================
     // Terrain Generation
     //=====================================
 
-    pub fn generate_area(&self, world: &mut World, start_cords: [i32; 3], end_cords: [i32; 3]) {
+    pub fn generate_area(&self, world: &mut World) {
+        let size = self.world_config.get_scale() as i32 / 2;
+        let start_cords = [-size, -size, -100];
+        let end_cords = [size, size, 100];
+        
+        
         let lair_rules_in_range = self.layer_manager.get_layer_rules_in_range(start_cords[2], end_cords[2]);
 
         let terrain_noise = TerrainNoise::new(152452, 4, 500.0);

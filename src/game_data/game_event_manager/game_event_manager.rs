@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, game_event_manager::{render_event_manager::render_event_manager::RenderEvent, world_event_manager::{self, world_event_manager::{WorldEvent}}}, level_manager::level_manager::LevelManager, screen::{Camera, menus::world_creation_menu::world_config::WorldConfig, screen_mananager::{self, ScreenManager}}, world_gen::WorldGenManager};
+use crate::game_data::{World, game_event_manager::{render_event_manager::render_event_manager::RenderEvent, world_event_manager::{self, world_event_manager::{WorldEvent}}}, level_manager::level_manager::LevelManager, screen::{Camera, screen_mananager::{self, ScreenManager}}, world_gen::WorldGenManager};
 
 /*
 #######################
@@ -105,10 +105,9 @@ impl GameEventManager {
     // Event constructors
     //=====================================
 
-    pub fn init_world(&mut self, world_config: WorldConfig) {
-        let range = world_config.get_chunk_rendering_range();
-        self.event_data.render_events.push(RenderEvent::InitWorldRender(range));
-        self.event_data.world_events.push(WorldEvent::GenWorld(world_config));
+    pub fn init_world(&mut self) {
+        self.event_data.render_events.push(RenderEvent::InitWorldRender());
+        self.event_data.world_events.push(WorldEvent::GenWorld());
     }
 
     pub fn add_world_event(&mut self, world_event: WorldEvent) {

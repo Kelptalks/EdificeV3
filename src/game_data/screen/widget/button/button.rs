@@ -18,7 +18,7 @@ pub struct Button {
 
     
     // Input
-    event: Event, // The event that will occer when the button is pressed
+    events: Vec<Event>, // The event that will occer when the button is pressed
 
     // Apearence
     button_type: UITextures,
@@ -32,7 +32,7 @@ pub struct Button {
 }
 
 impl Button {
-    pub fn new(event: Event, buffers: [f32; 4]) -> Button {
+    pub fn new(buffers: [f32; 4]) -> Button {
 
         let mut button = Button {
             // Parent Rendering
@@ -49,7 +49,7 @@ impl Button {
             prefered_scale: [widget_calculations::get_button_scale(); 2],
 
             // Input 
-            event: event, 
+            events: Vec::new(), 
 
             // Apearence
             button_type: UITextures::ButtonCircle, 
@@ -98,6 +98,14 @@ impl Button {
     pub fn set_text_scale(&mut self, size: widget_calculations::TextSize) {
         self.prefered_scale[1] = size.get_scale();
     }
+
+    //=====================================
+    // Events
+    //=====================================
+
+    pub fn add_event(&mut self, event: Event) {
+        self.events.push(event);
+    } 
 
     //=====================================
     // Apearence
@@ -186,7 +194,9 @@ impl Widget for Button {
 
             // If button was clicked
             if screen_data.was_left_pressed(){
-                game_event_manager.add_event(self.event.clone());    
+                for event in &self.events {
+                    game_event_manager.add_event(event.clone());
+                }    
             }
         }
 

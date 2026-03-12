@@ -15,7 +15,7 @@ pub enum RenderEvent {
     QuitGame,
     
     // Camera
-    InitWorldRender(u32),               // Range 
+    InitWorldRender(),               // Range 
     ReRenderBlock([i32; 3]),    // Cords of block modified
 
     // Menu
@@ -37,10 +37,11 @@ impl RenderEvent {
             RenderEvent::QuitGame => {
                 screen_mananager.get_mut_screen_data().quit();
             }
-            RenderEvent::InitWorldRender(range) => {
+            RenderEvent::InitWorldRender() => {
+                let range = event_tools.get_world_gen_manager().get_world_config().get_chunk_rendering_range();
                 camera.dirty_chunks_in_area(
                     &camera_data, 
-                    *range as i32
+                    range as i32
                 );
                 camera.ray_cast_dirty_chunks(camera_data.clone().get_arc_ref(), world);
             },

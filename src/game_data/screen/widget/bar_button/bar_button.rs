@@ -26,7 +26,7 @@ pub struct BarButtonWidget {
     prefered_scale: [f32; 2],
 
     // Input
-    event: Event,
+    events: Vec<Event>,
 
     // Appearance
     texture_manager: BarButtonTextureManager,
@@ -37,7 +37,7 @@ pub struct BarButtonWidget {
 }
 
 impl BarButtonWidget {
-    pub fn new(text: String, event: Event, buffers: [f32; 4]) -> BarButtonWidget {
+    pub fn new(text: String, buffers: [f32; 4]) -> BarButtonWidget {
         BarButtonWidget {
             parent_pos: [0.0; 4],
             parent_scale: [0.0; 2],
@@ -50,7 +50,7 @@ impl BarButtonWidget {
 
             prefered_scale: [0.0; 2],
 
-            event,
+            events: Vec::new(),
 
             texture_manager: BarButtonTextureManager::new(),
             text,
@@ -62,10 +62,26 @@ impl BarButtonWidget {
 
     }
 
+    //=====================================
+    // Events
+    //=====================================
+    pub fn add_event(&mut self, event: Event) {
+        self.events.push(event);
+    }
+
+    //=====================================
+    // Aperence
+    //=====================================
+
     pub fn set_text_scale(&mut self, size: TextSize) {
         self.prefered_char_scale = size.get_scale();
         self.needs_resizing = true;
     }
+
+
+    //=====================================
+    // Sizing
+    //=====================================
 
     pub fn size(&mut self) {
         self.parent_scale = widget_calculations::pos_to_scale(self.parent_pos);
@@ -134,7 +150,9 @@ impl Widget for BarButtonWidget {
         let is_hovered = screen_data.mouse_on_ndc_pos(self.pos);
 
         if is_hovered && screen_data.was_left_pressed() {
-            game_event_manager.add_event(self.event.clone());
+            for event in &self.events {
+                game_event_manager.add_event(event.clone());
+            }
         }
 
         self.texture_manager.render(texture_manager, is_hovered);
