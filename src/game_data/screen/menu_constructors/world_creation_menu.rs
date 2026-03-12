@@ -34,6 +34,7 @@ pub fn get_menu(screen_data: &ScreenData, world_config: &mut WorldConfig) -> Wid
             // Create world button
             let button = config_panel.add_bar_button("Create World".to_string());
             button.add_event(Event::WorldEvent(WorldEvent::GenWorld()));
+            button.add_event(Event::RenderEvent(RenderEvent::InitWorldRender()));
             button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::PlayView)));
             button.set_text_scale(TextSize::Large);
 

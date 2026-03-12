@@ -31,7 +31,9 @@ impl WorldEvent {
                 world.clear();
             },
             WorldEvent::GenWorld() => {
+                let render_range = event_data.get_mut_world_gen_manager().get_world_config().get_chunk_rendering_range();
                 event_data.get_mut_world_gen_manager().generate_area(world);
+                
             },
             WorldEvent::GenLevel(level) => {
                 event_data.get_level_manager().get_level_at_index(level.clone() as usize).gen_level(world);
