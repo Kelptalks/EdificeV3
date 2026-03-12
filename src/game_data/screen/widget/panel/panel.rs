@@ -63,7 +63,7 @@ impl Panel {
 
             // Self Rendering
             external_buffers: buffers, 
-            internal_buffers: [0.01; 4],   
+            internal_buffers: [0.012; 4],   
             pos: [0.0; 4],
             scale: [0.0; 2],
             

@@ -11,38 +11,38 @@ pub fn get_menu(screen_data: &ScreenData, world_config: &mut WorldConfig) -> Wid
         panel.set_new_background(BackgroundType::Scrolling(UITextures::VoidBackground));
         panel.set_color(PanelColor::Clear);
 
-        // Back button
-        let button = panel.add_button();
-        button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::MainMenu)));
-        button.set_icon(crate::game_data::types::UITextures::XIcon);
-        button.set_text("Main Menu".to_string());
-
         // Menu Tittle
-        let text_display = panel.add_text_display("World Creation Menu".to_string());
-        text_display.set_text_scale(TextSize::Large);
+        let text_display = panel.add_text_display("World Creation".to_string());
+        text_display.set_text_scale(TextSize::ExtraLarge);
 
         // Config panel
         let config_panel = panel.add_sub_panel();
         config_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
         config_panel.set_color(PanelColor::Dark);
         
-        let text_display = config_panel.add_text_display("Toggle Plant Gen".to_string());
-        text_display.set_text_scale(TextSize::Medium);
+            let text_display = config_panel.add_text_display("World Settings".to_string());
+            text_display.set_text_scale(TextSize::Large);
 
-        let world_toggle_panel = config_panel.add_sub_panel();
-        world_toggle_panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
+            let world_toggle_panel = config_panel.add_sub_panel();
+            world_toggle_panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
 
-        let toggle_button = world_toggle_panel.add_toggle_button();
-        world_config.set_flat_world_toggle_link(toggle_button.get_toggle_ref());
-        toggle_button.set_block(BlockTexture::Grass);
-        toggle_button.set_text("World Flat".to_string());
+            let toggle_button = world_toggle_panel.add_toggle_button();
+            world_config.set_flat_world_toggle_link(toggle_button.get_toggle_ref());
+            toggle_button.set_block(BlockTexture::Grass);
+            toggle_button.set_text("World Flat".to_string());
 
-        // Create world button
-        let button = config_panel.add_bar_button("Create World".to_string());
-        button.add_event(Event::WorldEvent(WorldEvent::GenWorld()));
-        button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::PlayView)));
-        button.set_text_scale(TextSize::Medium);
+            // Create world button
+            let button = config_panel.add_bar_button("Create World".to_string());
+            button.add_event(Event::WorldEvent(WorldEvent::GenWorld()));
+            button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::PlayView)));
+            button.set_text_scale(TextSize::Large);
 
+        // Back button
+        let button = panel.add_button();
+        button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::MainMenu)));
+        button.set_icon(crate::game_data::types::UITextures::XIcon);
+        button.set_text("Main Menu".to_string());
+        
         panel.size();
     }
 
