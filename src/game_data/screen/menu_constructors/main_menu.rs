@@ -1,4 +1,4 @@
-use crate::game_data::{game_event_manager::{game_event_manager::Event, render_event_manager::render_event_manager::RenderEvent}, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}};
+use crate::game_data::{game_event_manager::{game_event_manager::Event, render_event_manager::render_event_manager::RenderEvent}, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}};
 
 
 pub fn get_menu(screen_data: &ScreenData) -> WidgetType {
@@ -7,7 +7,7 @@ pub fn get_menu(screen_data: &ScreenData) -> WidgetType {
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
         panel.set_color(PanelColor::Clear);
-        panel.set_background(crate::game_data::types::UITextures::FaceBackground);
+        panel.set_new_background(BackgroundType::Static(crate::game_data::types::UITextures::FaceBackground));
 
         let header = panel.add_text_display("EDIFICE V3".to_string());
         header.set_text_scale(TextSize::ExtraLarge);

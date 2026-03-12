@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations}}, types::UITextures};
+use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations}}, types::UITextures};
 
 
 #[derive(Clone, Copy)]
@@ -44,7 +44,7 @@ pub struct Panel {
     // Aprearence
     orientation: PanelOrientation,
     alignment: PanelAlignment,
-    background: Option<UITextures>,
+    new_background: Option<PanelBackground>,
 }
 
 impl Panel {
@@ -75,7 +75,7 @@ impl Panel {
             // Aprearence
             orientation: PanelOrientation::Horizontal,
             alignment: PanelAlignment::Center,
-            background: None,
+            new_background: None,
         };
 
         return panel;
@@ -97,9 +97,9 @@ impl Panel {
     pub fn set_color(&mut self, color: PanelColor) {
         self.rendering_manager.set_color(color);
     }
-
-    pub fn set_background(&mut self, background_texture: UITextures) {
-        self.background = Some(background_texture);
+    
+    pub fn set_new_background(&mut self, background_type: BackgroundType) {
+        self.new_background = Some(PanelBackground::new(background_type))
     }
 
     //=====================================
@@ -272,8 +272,8 @@ impl Widget for Panel {
     }
 
     fn render(&mut self, texture_manager: &mut TextureManager, screen_data: &ScreenData, game_event_manager: &mut GameEventManager) {        
-        if let Some(background) = self.background {
-            texture_manager.render_ui_element_with_pos(background, self.pos);
+        if let Some(background) = &mut self.new_background {
+            background.render_background(texture_manager, self.pos);
         } 
         
         // Render the panel

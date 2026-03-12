@@ -1,4 +1,4 @@
-use crate::game_data::{game_event_manager::{game_event_manager::Event, render_event_manager::render_event_manager::RenderEvent, world_event_manager::{world_config_event_manager::WorldConfigEvent, world_event_manager::WorldEvent}}, screen::{ScreenData, screen_data::CurrentMenu, widget::{button, panel::{panel::{PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::BlockTexture, world_gen::world_config::{self, WorldConfig}};
+use crate::game_data::{game_event_manager::{game_event_manager::Event, render_event_manager::render_event_manager::RenderEvent, world_event_manager::world_event_manager::WorldEvent}, screen::{ScreenData, screen_data::CurrentMenu, widget::{button, panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::{BlockTexture, UITextures}, world_gen::world_config::{self, WorldConfig}};
 
 
 pub fn get_menu(screen_data: &ScreenData, world_config: &mut WorldConfig) -> WidgetType {
@@ -6,8 +6,10 @@ pub fn get_menu(screen_data: &ScreenData, world_config: &mut WorldConfig) -> Wid
     
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-        panel.set_color(PanelColor::Dark);
-
+        
+        // panel.set_background(crate::game_data::types::UITextures::VoidBackground);
+        panel.set_new_background(BackgroundType::Scrolling(UITextures::VoidBackground));
+        panel.set_color(PanelColor::Clear);
 
         // Back button
         let button = panel.add_button();
@@ -22,6 +24,7 @@ pub fn get_menu(screen_data: &ScreenData, world_config: &mut WorldConfig) -> Wid
         // Config panel
         let config_panel = panel.add_sub_panel();
         config_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+        config_panel.set_color(PanelColor::Dark);
         
         let text_display = config_panel.add_text_display("Toggle Plant Gen".to_string());
         text_display.set_text_scale(TextSize::Medium);
@@ -33,7 +36,6 @@ pub fn get_menu(screen_data: &ScreenData, world_config: &mut WorldConfig) -> Wid
         world_config.set_flat_world_toggle_link(toggle_button.get_toggle_ref());
         toggle_button.set_block(BlockTexture::Grass);
         toggle_button.set_text("World Flat".to_string());
-        toggle_button.set_toggle(true);
 
         // Create world button
         let button = config_panel.add_bar_button("Create World".to_string());
