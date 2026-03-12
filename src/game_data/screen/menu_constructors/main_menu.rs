@@ -7,6 +7,8 @@ pub fn get_main_menu(screen_data: &ScreenData) -> WidgetType {
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
         panel.set_color(PanelColor::Clear);
+        panel.set_background(crate::game_data::types::UITextures::FaceBackground);
+
         let header = panel.add_header("EDIFICE".to_string());
         header.set_text_scale(TextSize::ExtraLarge);
 

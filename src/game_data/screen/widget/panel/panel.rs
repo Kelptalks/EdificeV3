@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations}}};
+use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations}}, types::UITextures};
 
 
 #[derive(Clone, Copy)]
@@ -33,7 +33,6 @@ pub struct Panel {
     // Self Rendering
     external_buffers: [f32; 4],  
     internal_buffers: [f32; 4],
-
     pos: [f32; 4],
     scale: [f32; 2],
 
@@ -41,10 +40,11 @@ pub struct Panel {
     
     // Sections
     sections: Vec<PanelSection>,
+
+    // Aprearence
     orientation: PanelOrientation,
     alignment: PanelAlignment,
-
-
+    background: Option<UITextures>,
 }
 
 impl Panel {
@@ -67,14 +67,15 @@ impl Panel {
             pos: [0.0; 4],
             scale: [0.0; 2],
             
-
-
             rendering_manager: PanelTextureManager::new(),
             
+            // Sections
             sections: Vec::new(),
+            
+            // Aprearence
             orientation: PanelOrientation::Horizontal,
             alignment: PanelAlignment::Center,
-
+            background: None,
         };
 
         return panel;
@@ -95,6 +96,10 @@ impl Panel {
 
     pub fn set_color(&mut self, color: PanelColor) {
         self.rendering_manager.set_color(color);
+    }
+
+    pub fn set_background(&mut self, background_texture: UITextures) {
+        self.background = Some(background_texture);
     }
 
     //=====================================
@@ -255,6 +260,10 @@ impl Widget for Panel {
     }
 
     fn render(&mut self, texture_manager: &mut TextureManager, screen_data: &ScreenData, game_event_manager: &mut GameEventManager) {        
+        if let Some(background) = self.background {
+            texture_manager.render_ui_element_with_pos(background, self.pos);
+        } 
+        
         // Render the panel
         self.rendering_manager.render(texture_manager);
 
