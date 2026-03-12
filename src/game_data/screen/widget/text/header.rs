@@ -1,6 +1,6 @@
 use crate::game_data::{screen::{text::render_string_at_ndc, widget::{widget::Widget, widget_calculations::{self, TextSize}}}, types::FontType};
 
-pub struct Header {
+pub struct TextDisplay {
     // Parent rendering
     parent_pos: [f32; 4],
     parent_scale: [f32; 2],
@@ -15,9 +15,9 @@ pub struct Header {
 
 }
 
-impl Header {
-    pub fn new(text: String) -> Header {
-        Header {
+impl TextDisplay {
+    pub fn new(text: String) -> TextDisplay {
+        TextDisplay {
             // Parent
             parent_pos: [0.0; 4],
             parent_scale: [0.0; 2],
@@ -53,7 +53,7 @@ impl Header {
 }
 
 
-impl Widget for Header {
+impl Widget for TextDisplay {
     fn get_pos(&self) -> [f32; 4] {
         return self.pos;
     }

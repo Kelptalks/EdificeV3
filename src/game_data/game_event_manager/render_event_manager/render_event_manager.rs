@@ -11,6 +11,9 @@ Events relating to rendering of menus / game camera
 */
 #[derive(Clone, PartialEq)]
 pub enum RenderEvent {
+    // Window
+    QuitGame,
+    
     // Camera
     InitWorldRender(u32),               // Range 
     ReRenderBlock([i32; 3]),    // Cords of block modified
@@ -31,6 +34,9 @@ impl RenderEvent {
         let camera = screen_mananager.get_mut_camera();
         let camera_data = &camera.get_camera_data().clone();
         match self {
+            RenderEvent::QuitGame => {
+                screen_mananager.get_mut_screen_data().quit();
+            }
             RenderEvent::InitWorldRender(range) => {
                 camera.dirty_chunks_in_area(
                     &camera_data, 
@@ -43,8 +49,7 @@ impl RenderEvent {
                 camera.dirty_tiles_in_area(casted_tile_cords, 2);
             }
             RenderEvent::ChangeMenu(current_menu) => {
-                let screen_data = screen_mananager.get_mut_screen_data();
-                screen_data.set_current_menu(*current_menu);
+                screen_mananager.set_current_menu(*current_menu);
             }
             RenderEvent::Clear => {
                 

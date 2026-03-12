@@ -1,4 +1,4 @@
-use crate::game_data::{World, types::BlockTexture, world::world_gen::{grass_gen::GrassGenManager, perlin_noise::TerrainNoise}};
+use crate::game_data::{World, types::BlockTexture, world_gen::{terrain_gen::{grass_gen::GrassGenManager, perlin_noise::TerrainNoise}, world_config::WorldConfig}};
 
 struct LayerRule {
     main_block_type: BlockTexture,
@@ -63,6 +63,7 @@ impl LayerManager {
 }
 
 pub struct WorldGenManager {
+    world_config: WorldConfig,
     layer_manager: LayerManager,
 }
 
@@ -75,9 +76,22 @@ impl WorldGenManager {
         layer_manager.add_lair(BlockTexture::Stone, -100, -4);
 
         Self {
+            world_config: WorldConfig::new(),
             layer_manager: layer_manager,
         }
     }
+
+    //=====================================
+    // Getters
+    //=====================================
+
+    pub fn get_mut_world_config(&mut self) -> &mut WorldConfig {
+        return &mut self.world_config;
+    }
+
+    //=====================================
+    // Terrain Generation
+    //=====================================
 
     pub fn generate_area(&self, world: &mut World, start_cords: [i32; 3], end_cords: [i32; 3]) {
         let lair_rules_in_range = self.layer_manager.get_layer_rules_in_range(start_cords[2], end_cords[2]);

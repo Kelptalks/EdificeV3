@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use image::imageops::FilterType::Triangle;
 use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, game_event_manager::{self, game_event_manager::{Event, GameEventManager}, render_event_manager::render_event_manager::RenderEvent}, log_init, player_data::player_data::PlayerData, screen::{self, Camera, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, input_data::Input, iso_cord_tool, menus::{level_select_menu::{self, level_select_menu::LevelSelectMenu}, main_menu::main_menu::MainMenu, world_creation_menu::world_creation::WorldCreationMenu}, play_view::play_view::PlayView, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
+use crate::game_data::{TextureManager, World, debuging::debug_data::{self, DebugData}, game_event_manager::{self, game_event_manager::{Event, GameEventManager}, render_event_manager::render_event_manager::RenderEvent}, log_init, player_data::player_data::PlayerData, screen::{self, Camera, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, input_data::Input, iso_cord_tool, menu_constructors, menus::{level_select_menu::{self, level_select_menu::LevelSelectMenu}, main_menu::main_menu::MainMenu, world_creation_menu::world_creation::WorldCreationMenu}, play_view::play_view::PlayView, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
 
 
 
@@ -32,7 +32,7 @@ pub struct ScreenManager {
     screen_data: ScreenData,
 
     // testing
-    panel: Vec<Option<WidgetType>>,
+    menu_panels: Vec<WidgetType>,
 }
 
 impl ScreenManager {
@@ -57,7 +57,7 @@ impl ScreenManager {
             screen_data: screen_data, 
 
             // testing
-            panel: Vec::new(),
+            menu_panels: Vec::new(),
         };
         
         
@@ -75,41 +75,7 @@ impl ScreenManager {
         self.set_screen_rez(screen_rez, ctx);
         self.camera.initialize_camera(ctx);
 
-        // Testing
-        let parent_pos = self.screen_data.get_viewport_uv();
-        let buffers = [0.0; 4];
-        
-        
-        let mut panel = WidgetType::new_panel(parent_pos, buffers);
-        if let WidgetType::Panel(panel) = &mut panel {
-            panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
-            panel.set_color(PanelColor::Clear);
-            let header = panel.add_header("EDIFICE".to_string());
-            header.set_text_scale(TextSize::ExtraLarge);
-
-
-            let bar_button = panel.add_bar_button("Play".to_string(), Event::RenderEvent(RenderEvent::TestEvent));
-            bar_button.set_text_scale(TextSize::Large);
-
-            let bar_button = panel.add_bar_button("BluePrints".to_string(), Event::RenderEvent(RenderEvent::TestEvent));
-            bar_button.set_text_scale(TextSize::Large);
-            
-            let bar_button = panel.add_bar_button("Settings".to_string(), Event::RenderEvent(RenderEvent::TestEvent));
-            bar_button.set_text_scale(TextSize::Large);
-            
-            let bar_button = panel.add_bar_button("Exit".to_string(), Event::RenderEvent(RenderEvent::TestEvent));
-            bar_button.set_text_scale(TextSize::Large);
-
-            
-
-            
-            panel.size();
-        }
-        
-
-        self.panel.push(Some(panel));
-        
-
+        self.set_current_menu(CurrentMenu::MainMenu);
     }
 
     //=====================================
@@ -137,7 +103,7 @@ impl ScreenManager {
         
         match self.screen_data.get_current_menu() {
             CurrentMenu::MainMenu => {
-                self.main_menu.render_main_menu(texture_manager, &self.screen_data);
+                // self.main_menu.render_main_menu(texture_manager, &self.screen_data);
             }
             CurrentMenu::WorldCreationMenu => {
                 self.world_creation_menu.render(texture_manager, &self.screen_data);
@@ -156,11 +122,8 @@ impl ScreenManager {
             }
         }
 
-        for _panel in &mut self.panel {
-            if let Some(panel) = _panel {
-                panel.render(texture_manager, &self.screen_data, game_event_manager);
-                
-            }
+        for panel in &mut self.menu_panels {
+            panel.render(texture_manager, &self.screen_data, game_event_manager);    
         }
 
         self.screen_data.clear_inputs();
@@ -324,6 +287,32 @@ impl ScreenManager {
 //=====================================
 // Getters / Setters
  //=====================================
+
+    pub fn set_current_menu(&mut self, current_menu: CurrentMenu) {
+        // Clear old menu
+        self.screen_data.set_current_menu(current_menu);
+        self.menu_panels.clear();
+
+        // Construct new menu
+        match self.screen_data.get_current_menu() {
+            CurrentMenu::MainMenu => {
+                self.menu_panels.push(menu_constructors::main_menu::get_main_menu(&self.screen_data));
+            }
+            CurrentMenu::WorldCreationMenu => {
+                
+            }
+            CurrentMenu::LevelSelectMenu => {
+                
+            }
+            CurrentMenu::Camera => {
+                
+            }
+            CurrentMenu::PlayView => {
+                
+            }
+        }
+
+    }
 
     pub fn get_mut_camera(&mut self) -> &mut Camera {
         return &mut self.camera;

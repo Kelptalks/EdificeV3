@@ -25,9 +25,9 @@ pub use screen_data::ScreenData;
 pub mod input_data;
 
 
-
-pub mod menus;
-
-pub mod camera_ui;
-
 pub mod widget;
+pub mod menu_constructors;
+
+// Old
+pub mod menus;
+pub mod camera_ui;

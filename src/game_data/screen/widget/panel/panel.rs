@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, text::header::Header, widget::{Widget, WidgetType}, widget_calculations}}};
+use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations}}};
 
 
 #[derive(Clone, Copy)]
@@ -201,11 +201,11 @@ impl Panel {
         }
     }
 
-    pub fn add_header(&mut self, text: String) -> &mut Header {
-        let header = Header::new(text);
-        self.add_section(WidgetType::Header(header));
+    pub fn add_header(&mut self, text: String) -> &mut TextDisplay {
+        let header = TextDisplay::new(text);
+        self.add_section(WidgetType::TextDisplay(header));
 
-        if let WidgetType::Header(header) = self.sections.last_mut().unwrap().get_mut_widget() {
+        if let WidgetType::TextDisplay(header) = self.sections.last_mut().unwrap().get_mut_widget() {
             return header;
         }
         else {

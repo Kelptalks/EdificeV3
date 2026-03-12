@@ -1,6 +1,6 @@
 use rand::rand_core::le;
 
-use crate::game_data::{World, game_event_manager::{game_event_manager::EventData, render_event_manager::render_event_manager::RenderEvent}, level_manager::level_manager::LevelManager, screen::menus::world_creation_menu::world_config::WorldConfig, types::BlockTexture, world_gen::WorldGenManager};
+use crate::game_data::{World, game_event_manager::{game_event_manager::EventData, render_event_manager::render_event_manager::RenderEvent, world_event_manager::world_config_event_manager::WorldConfigEvent}, level_manager::level_manager::LevelManager, screen::menus::world_creation_menu::world_config::WorldConfig, types::BlockTexture, world_gen::WorldGenManager};
 
 /*
 #################
@@ -12,10 +12,14 @@ to modifications to the world
 
 #[derive(Clone)]
 pub enum WorldEvent {
-    Clear,                     // No Data
-    GenWorld(WorldConfig),     // World Config
-    GenLevel(u32),             // Level Id
-    ModBlock([i32; 3], BlockTexture)
+    // Direct
+    Clear,                              // No Data
+    GenWorld(WorldConfig),              // World Config
+    WorldConfigEvent(WorldConfigEvent),
+    
+    GenLevel(u32),                      // Level Id
+    ModBlock([i32; 3], BlockTexture)    // Block Cords, Block Type
+
 }
 
 impl WorldEvent {
@@ -31,10 +35,15 @@ impl WorldEvent {
                 let size = world_config.get_scale() as i32 / 2;
                 let start_cords = [-size, -size, -100];
                 let end_cords = [size, size, 100];
-                        
+            
                 event_data.get_mut_world_gen_manager().generate_area(world, start_cords, end_cords);
+    
+            },
+            
+            WorldEvent::WorldConfigEvent(world_config_event) => {
                 
             },
+
             WorldEvent::GenLevel(level) => {
                 event_data.get_level_manager().get_level_at_index(level.clone() as usize).gen_level(world);
             },
