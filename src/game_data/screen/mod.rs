@@ -29,5 +29,4 @@ pub mod widget;
 pub mod menu_constructors;
 
 // Old
-pub mod menus;
 pub mod camera_ui;

@@ -12,7 +12,6 @@ pub fn get_menu(screen_data: &ScreenData) -> WidgetType {
         let header = panel.add_text_display("EDIFICE V3".to_string());
         header.set_text_scale(TextSize::ExtraLarge);
 
-
         // Play Button
         let bar_button = panel.add_bar_button("Play".to_string());
         bar_button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::WorldCreationMenu)));
@@ -20,7 +19,7 @@ pub fn get_menu(screen_data: &ScreenData) -> WidgetType {
         
         // Settings Button
         let bar_button = panel.add_bar_button("Settings".to_string());
-        bar_button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::WorldCreationMenu)));
+        bar_button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::SettingsMenu)));
         bar_button.set_text_scale(TextSize::Large);
         
         let bar_button = panel.add_bar_button("Exit".to_string());

@@ -46,6 +46,13 @@ impl RenderEvent {
                     )
                 );
             }
+            CurrentMenu::SettingsMenu => {
+                menu_panel = 
+                    menu_constructors::settings_menu::get_menu(
+                        &screen_mananager.get_mut_screen_data()
+                    );
+
+            }
             _ => {
 
             }

@@ -52,20 +52,6 @@ impl TextSize {
     }
 }
 
-pub fn get_preset_text_scale(text_size: usize) -> f32 {
-    match text_size {
-        0 => TextSize::ExtraSmall.get_scale(),
-        1 => TextSize::Small.get_scale(),
-        2 => TextSize::Medium.get_scale(),
-        3 => TextSize::Large.get_scale(),
-        _ => TextSize::ExtraLarge.get_scale(),
-    }
-}
-
 pub fn get_button_text_scale() -> f32 {
     return TextSize::ExtraSmall.get_scale();
-}
-
-pub fn get_header_text_scale() -> f32 {
-    return TextSize::Medium.get_scale();
 }

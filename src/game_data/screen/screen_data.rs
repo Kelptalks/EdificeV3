@@ -6,7 +6,7 @@ use crate::game_data::{World, screen::{camera_data::CameraData, input_data::{Inp
 pub enum CurrentMenu {
     MainMenu,
     WorldCreationMenu,
-    LevelSelectMenu,
+    SettingsMenu,
     Camera,
     PlayView,
 }
