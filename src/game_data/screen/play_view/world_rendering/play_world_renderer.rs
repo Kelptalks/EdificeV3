@@ -11,7 +11,6 @@ static MIN_VIEW_DISTANCE: i32 = 0;
 pub struct PlayWorldRender {
     ndc_cords: [f32; 2],
 
-
     // World
     zoom: i32,
     camera_ndc_offset: [f32; 2],

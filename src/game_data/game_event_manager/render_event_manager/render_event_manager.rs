@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, game_event_manager::{game_event_manager::EventData, render_event_manager}, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::widget::{Widget, WidgetType}}};
+use crate::game_data::{World, game_event_manager::{game_event_manager::EventData, render_event_manager}, player_data::{self, player_data::PlayerData}, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::widget::{Widget, WidgetType}}};
 
 /*
 ##################
@@ -31,7 +31,7 @@ pub enum RenderEvent {
 impl RenderEvent {
 
 
-    pub fn construct_menu(current_menu: CurrentMenu, screen_mananager: &mut ScreenManager, event_tools: &mut EventData) -> WidgetType 
+    pub fn construct_menu(current_menu: CurrentMenu, screen_mananager: &mut ScreenManager, event_tools: &mut EventData, player_data: &mut PlayerData) -> WidgetType 
     {
         let mut menu_panel= WidgetType::new_panel([0.0; 4], [0.0; 4]);
         match current_menu {
@@ -49,9 +49,15 @@ impl RenderEvent {
             CurrentMenu::SettingsMenu => {
                 menu_panel = 
                     menu_constructors::settings_menu::get_menu(
-                        &screen_mananager.get_mut_screen_data()
+                        &screen_mananager.get_mut_screen_data(),
+                        player_data
                     );
-
+            }
+            CurrentMenu::PlayView => {
+                menu_panel = menu_constructors::play_view_menu::get_menu(
+                    &screen_mananager.get_mut_screen_data(), 
+                    player_data
+                );
             }
             _ => {
 
@@ -65,9 +71,10 @@ impl RenderEvent {
     //=====================================
     // Execution
     //=====================================
-    pub fn execute_render_event(&self, event_tools: &mut EventData, screen_mananager: &mut ScreenManager, world:&Arc<RwLock<World>>) {
+    pub fn execute_render_event(&self, event_tools: &mut EventData, screen_mananager: &mut ScreenManager, player_data: &mut PlayerData) {
         let camera = screen_mananager.get_mut_camera();
         let camera_data = &camera.get_camera_data().clone();
+        let world = &player_data.get_world_ref();
         match self {
             RenderEvent::QuitGame => {
                 screen_mananager.get_mut_screen_data().quit();
@@ -85,7 +92,7 @@ impl RenderEvent {
                 camera.dirty_tiles_in_area(casted_tile_cords, 2);
             }
             RenderEvent::ChangeMenu(current_menu) => {
-                let menu_panel: WidgetType = Self::construct_menu(*current_menu, screen_mananager, event_tools);
+                let menu_panel: WidgetType = Self::construct_menu(*current_menu, screen_mananager, event_tools, player_data);
                 screen_mananager.set_menu_panel(menu_panel);
                 screen_mananager.get_mut_screen_data().set_current_menu(*current_menu);
             }

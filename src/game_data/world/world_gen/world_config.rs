@@ -14,7 +14,7 @@ pub struct WorldConfig {
 impl WorldConfig {
     pub fn new() -> Self {
         WorldConfig {
-            scale: 200,
+            scale: 75,
             height_variation: 100,
 
             flat_world: None,

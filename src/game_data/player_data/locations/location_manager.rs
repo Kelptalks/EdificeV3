@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::game_data::{locations::world_area::WorldArea, player_data::locations::location::WorldLocation};
 
@@ -11,6 +11,8 @@ Managers the retrival and creation of new locations
 
 */
 pub struct LocationManager {
+    player_cursor_location_cords: Rc<RefCell<[i32; 3]>>,
+    
     location_map: HashMap<u32, WorldLocation>,
     location_name_map: HashMap<String, u32>,
     next_id: u32,
@@ -24,6 +26,8 @@ impl LocationManager {
 
     pub fn new() -> LocationManager {
         LocationManager {
+            player_cursor_location_cords: Rc::new(RefCell::new([0; 3])),
+
             location_map: HashMap::new(),
             location_name_map: HashMap::new(),
             next_id: 0,
@@ -43,6 +47,10 @@ impl LocationManager {
     //=====================================
     // Getters / Setters
     //=====================================
+
+    pub fn get_player_cursor_location_cords_ref(&self) -> Rc<RefCell<[i32; 3]>> {
+        return self.player_cursor_location_cords.clone();
+    }
 
     pub fn name_to_id(&self, name: &str) -> Option<u32> {
         return self.location_name_map.get(name).cloned();

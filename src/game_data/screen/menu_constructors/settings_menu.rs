@@ -1,8 +1,8 @@
-use crate::game_data::{game_event_manager::{game_event_manager::Event, render_event_manager::render_event_manager::RenderEvent}, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, widget_calculations::TextSize}}};
+use crate::game_data::{game_event_manager::{game_event_manager::Event, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, widget_calculations::TextSize}}};
 
 
 
-pub fn get_menu(screen_data: &ScreenData) -> WidgetType {
+pub fn get_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> WidgetType {
     let mut panel = WidgetType::new_panel(screen_data.get_viewport_uv(), [0.0; 4]);
     
     if let WidgetType::Panel(panel) = &mut panel {

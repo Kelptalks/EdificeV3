@@ -60,7 +60,7 @@ impl GameData {
             // Other
             debug_data: DebugData::new(),
             event_manager: GameEventManager::new(),
-            player_data: PlayerData::new(),
+            player_data: PlayerData::new(world.clone()),
 
             // World
             world: world,
@@ -198,9 +198,11 @@ impl GameData {
                 poisoned.into_inner()
             }
         };
-
         self.event_manager.execute_world_events(&mut world_guard);
-        self.event_manager.execute_render_events(screen_mananager, &self.world);
+        drop(world_guard);
+
+
+        self.event_manager.execute_render_events(screen_mananager, &mut self.player_data);
         self.event_manager.execute_widget_events();
 
         // Update debug data

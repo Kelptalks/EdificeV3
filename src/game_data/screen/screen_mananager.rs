@@ -18,8 +18,6 @@ how those menus are rendered and how those controls are processed.
 
 pub struct ScreenManager {    
     // Camera
-    play_view: PlayView,
-
     camera : Camera,
     camera_ui_manager: CameraUIManager,
 
@@ -38,9 +36,6 @@ impl ScreenManager {
         let new_screen = ScreenManager{
 
             // Camera
-            play_view: PlayView::new(),
-
-
             camera: camera,
             camera_ui_manager: CameraUIManager::new(),
 
@@ -106,7 +101,7 @@ impl ScreenManager {
                 world_rendering_task_manager.execute_render_updates_drone(&mut self.camera, texture_manager);
             }
             CurrentMenu::PlayView => {
-                self.play_view.render_view(&self.screen_data, texture_manager, &world, player_data, game_event_manager);
+                // self.play_view.render_view(&self.screen_data, texture_manager, &world, player_data, game_event_manager);
                 
             }
         }
@@ -144,7 +139,7 @@ impl ScreenManager {
                 self.camera_ui_manager.handle_motion_event(&self.screen_data);
             },
             CurrentMenu::PlayView => {
-                self.play_view.mouse_motion_event(&self.screen_data);
+                // self.play_view.mouse_motion_event(&self.screen_data);
             },
         }
 
@@ -180,7 +175,7 @@ impl ScreenManager {
                 self.camera_ui_manager.handle_mouse_button_down(button, &self.screen_data, tik_manager, world_task_manager);
             },
             CurrentMenu::PlayView => {
-                self.play_view.mouse_button_down_event(event_manager, &self.screen_data, button);
+                // self.play_view.mouse_button_down_event(event_manager, &self.screen_data, button);
             }
         }
     }
@@ -210,7 +205,7 @@ impl ScreenManager {
                 self.camera_ui_manager.handle_mouse_button_up(button, &self.screen_data);
             },
             CurrentMenu::PlayView => {
-                self.play_view.mouse_button_up_event(event_manager, &self.screen_data, button);
+                // self.play_view.mouse_button_up_event(event_manager, &self.screen_data, button);
             },
         }
     }
@@ -252,7 +247,7 @@ impl ScreenManager {
                 self.camera_ui_manager.handle_key_down(event_manager, keycode, tik_manager);
             },
             CurrentMenu::PlayView => {
-                self.play_view.key_down_event(event_manager, keycode);
+                // self.play_view.key_down_event(event_manager, keycode);
             }
         }
     }
@@ -269,7 +264,7 @@ impl ScreenManager {
             camera_controls::mouse_wheel_event(self, _x, _y);
         }
         else if self.screen_data.get_current_menu() == CurrentMenu::PlayView {
-            self.play_view.mouse_wheel_event(_x, _y);
+            // self.play_view.mouse_wheel_event(_x, _y);
         }
     }
 
@@ -304,7 +299,7 @@ impl ScreenManager {
         // Update ui
         self.camera_ui_manager.window_resize_update(&self.screen_data);
         // self.level_select_menu.window_resize_update(&self.screen_data);
-        self.play_view.window_resize_update(&self.screen_data);
+        // self.play_view.window_resize_update(&self.screen_data);
     }
 
     pub fn get_screen_data(&self) -> &ScreenData {
@@ -342,7 +337,7 @@ impl ScreenManager {
 
     pub fn collect_debug_data(&self, debug_data: &mut DebugData) { 
         self.camera.collect_debug_data(debug_data);
-        self.play_view.collect_debug_data(debug_data);
+        // self.play_view.collect_debug_data(debug_data);
 
         debug_data.set_mouse_tile_cords(self.screen_data.get_mouse_iso_world_cords());
     }

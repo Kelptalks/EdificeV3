@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, game_event_manager::{render_event_manager::render_event_manager::RenderEvent, widget_event_manager::widget_event_manager::WidgetEvent, world_event_manager::{self, world_event_manager::WorldEvent}}, level_manager::level_manager::LevelManager, screen::{Camera, screen_mananager::{self, ScreenManager}}, world_gen::WorldGenManager};
+use crate::game_data::{World, game_event_manager::{render_event_manager::render_event_manager::RenderEvent, widget_event_manager::widget_event_manager::WidgetEvent, world_event_manager::{self, world_event_manager::WorldEvent}}, level_manager::level_manager::LevelManager, player_data::{self, player_data::PlayerData}, screen::{Camera, screen_mananager::{self, ScreenManager}}, world_gen::WorldGenManager};
 
 /*
 #######################
@@ -145,9 +145,9 @@ impl GameEventManager {
         }
     }
 
-    pub fn execute_render_events(&mut self, screen_mananager: &mut ScreenManager, world: &Arc<RwLock<World>>) {
+    pub fn execute_render_events(&mut self, screen_mananager: &mut ScreenManager, player_data: &mut PlayerData) {
         while let Some(render_event) = self.event_data.render_events.pop() {
-            render_event.execute_render_event(&mut self.event_data, screen_mananager, world);
+            render_event.execute_render_event(&mut self.event_data, screen_mananager, player_data);
         }
     }
 

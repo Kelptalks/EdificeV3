@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations}}, types::UITextures};
+use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, world_rendering::play_world_view_render::PlayWorldViewRender}}, types::UITextures};
 
 
 #[derive(Clone, Copy)]
@@ -173,14 +173,14 @@ impl Panel {
         self.rendering_manager.size(self.pos, self.scale);
     }
 
-    //=====================================
-    // Constructors
-    //=====================================
-
     pub fn add_section(&mut self, widget: WidgetType) {
         let section = PanelSection::new(widget, self.orientation, self.alignment);
         self.sections.push(section);
     }
+
+    //=====================================
+    // Panel Constructors
+    //=====================================
 
     pub fn add_sub_panel(&mut self) -> &mut Panel {
         let panel = Self::new(self.pos, [0.0; 4]);
@@ -194,6 +194,10 @@ impl Panel {
         }
     }
 
+    //=====================================
+    // Button Constructors
+    //=====================================
+
     pub fn add_button(&mut self) -> &mut Button { 
         let button = Button::new([0.0; 4]);
         self.add_section(WidgetType::Button(button));
@@ -203,18 +207,6 @@ impl Panel {
         }
         else {
             panic!("Button was just inserted but could not be retrieved in Panel");
-        }
-    }
-
-    pub fn add_text_display(&mut self, text: String) -> &mut TextDisplay {
-        let header = TextDisplay::new(text);
-        self.add_section(WidgetType::TextDisplay(header));
-
-        if let WidgetType::TextDisplay(header) = self.sections.last_mut().unwrap().get_mut_widget() {
-            return header;
-        }
-        else {
-            panic!("Header was just inserted but could not be retrieved in Panel");
         }
     }
 
@@ -239,6 +231,38 @@ impl Panel {
         }
         else {
             panic!("BarButton was just inserted but could not be retrieved in Panel");
+        }
+    }
+
+    //=====================================
+    // Text Constructors
+    //=====================================
+
+    pub fn add_text_display(&mut self, text: String) -> &mut TextDisplay {
+        let header = TextDisplay::new(text);
+        self.add_section(WidgetType::TextDisplay(header));
+
+        if let WidgetType::TextDisplay(header) = self.sections.last_mut().unwrap().get_mut_widget() {
+            return header;
+        }
+        else {
+            panic!("Header was just inserted but could not be retrieved in Panel");
+        }
+    }
+
+    //=====================================
+    // World Rendering Constructors
+    //=====================================
+
+    pub fn add_play_world_view_renderer(&mut self) -> &mut PlayWorldViewRender {
+        let header = PlayWorldViewRender::new(self.pos, self.internal_buffers);
+        self.add_section(WidgetType::PlayWorldViewRender(header));
+
+        if let WidgetType::PlayWorldViewRender(play_view) = self.sections.last_mut().unwrap().get_mut_widget() {
+            return play_view;
+        }
+        else {
+            panic!("Header was just inserted but could not be retrieved in Panel");
         }
     }
 
