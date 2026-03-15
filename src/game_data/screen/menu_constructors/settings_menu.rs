@@ -1,4 +1,4 @@
-use crate::game_data::{game_event_manager::{game_event_manager::Event, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, widget_calculations::TextSize}}};
+use crate::game_data::{game_event_manager::{game_event_manager::Event, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}};
 
 
 
@@ -21,8 +21,8 @@ pub fn get_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> Widge
             tab_sub_panel.add_bar_button("test_this_shit".to_string());
             tab_sub_panel.size();
         }
-
         tab_panel.add_panel(tab_sub_panel);
+        tab_panel.size();
 
         let header = panel.add_text_display("Settings".to_string());
         header.set_text_scale(TextSize::ExtraLarge);
