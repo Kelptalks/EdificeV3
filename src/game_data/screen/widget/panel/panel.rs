@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, world_rendering::play_world_view_render::PlayWorldViewRender}}, types::UITextures};
+use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, tab_panel::tab_panel::TabPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, world_rendering::play_world_view_render::PlayWorldViewRender}}, types::UITextures};
 
 
 #[derive(Clone, Copy)]
@@ -188,6 +188,18 @@ impl Panel {
  
         if let WidgetType::Panel(panel) = self.sections.last_mut().unwrap().get_mut_widget() {
             return panel;
+        }
+        else {
+            panic!("Sub Panel was just inserted but could not be retrieved in Panel");
+        }
+    }
+
+    pub fn add_tab_panel(&mut self) -> &mut TabPanel {
+        let tab_panel = TabPanel::new();
+        self.add_section(WidgetType::TabPanel(tab_panel));
+ 
+        if let WidgetType::TabPanel(tab_panel) = self.sections.last_mut().unwrap().get_mut_widget() {
+            return tab_panel;
         }
         else {
             panic!("Sub Panel was just inserted but could not be retrieved in Panel");

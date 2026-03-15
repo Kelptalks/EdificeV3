@@ -30,16 +30,24 @@ pub fn get_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> Widge
 
 
 
-        // Back button
-        let button = panel.add_button();
-        button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::MainMenu)));
-        button.set_icon(crate::game_data::types::UITextures::XIcon);
-        button.set_text("Main Menu".to_string());
+        let menu_nav_sub_panel = panel.add_sub_panel();
+        menu_nav_sub_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
 
-        let button = panel.add_button();
+        // Back button
+        let button = menu_nav_sub_panel.add_button();
+        button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::MapView)));
+        button.set_icon(crate::game_data::types::UITextures::MapIcon);
+        button.set_text("Map".to_string());
+
+        let button = menu_nav_sub_panel.add_button();
         button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::SettingsMenu)));
         button.set_icon(crate::game_data::types::UITextures::AreaIcon);
         button.set_text("Settings".to_string());
+
+        let button = menu_nav_sub_panel.add_button();
+        button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::MainMenu)));
+        button.set_icon(crate::game_data::types::UITextures::XIcon);
+        button.set_text("Main Menu".to_string());
 
         panel.size();
     }

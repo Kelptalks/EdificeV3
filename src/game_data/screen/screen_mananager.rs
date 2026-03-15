@@ -95,7 +95,7 @@ impl ScreenManager {
             CurrentMenu::SettingsMenu => {
                 // self.level_select_menu.render_menu(texture_manager, &self.screen_data);
             }
-            CurrentMenu::Camera => {
+            CurrentMenu::MapView => {
                 self.camera.render_camera(texture_manager, world.clone(), ctx);
                 self.camera_ui_manager.render_ui(&self.screen_data, texture_manager, self.camera.get_camera_data(), &world.clone(), tik_manager);
                 world_rendering_task_manager.execute_render_updates_drone(&mut self.camera, texture_manager);
@@ -134,7 +134,7 @@ impl ScreenManager {
             CurrentMenu::SettingsMenu => {
                 // self.level_select_menu.handle_mouse_motion_input(&self.screen_data);
             },
-            CurrentMenu::Camera => {
+            CurrentMenu::MapView => {
                 camera_controls::mouse_motion_event(self, x_cor, y_cor);
                 self.camera_ui_manager.handle_motion_event(&self.screen_data);
             },
@@ -170,7 +170,7 @@ impl ScreenManager {
             CurrentMenu::SettingsMenu => {
                 // self.level_select_menu.handle_mouse_button_down(event_manager, &mut self.screen_data, button);
             },
-            CurrentMenu::Camera => {
+            CurrentMenu::MapView => {
                 camera_controls::mouse_button_down_event(self, button);
                 self.camera_ui_manager.handle_mouse_button_down(button, &self.screen_data, tik_manager, world_task_manager);
             },
@@ -200,7 +200,7 @@ impl ScreenManager {
             CurrentMenu::MainMenu => {},
             CurrentMenu::WorldCreationMenu => {},
             CurrentMenu::SettingsMenu => {},
-            CurrentMenu::Camera => {
+            CurrentMenu::MapView => {
                 camera_controls::mouse_button_up_event(self, button);
                 self.camera_ui_manager.handle_mouse_button_up(button, &self.screen_data);
             },
@@ -242,7 +242,7 @@ impl ScreenManager {
             CurrentMenu::SettingsMenu => {
 
             },
-            CurrentMenu::Camera => {
+            CurrentMenu::MapView => {
                 camera_controls::key_down_event(event_manager, self,  keycode, keymods, repeat);
                 self.camera_ui_manager.handle_key_down(event_manager, keycode, tik_manager);
             },
@@ -260,7 +260,7 @@ impl ScreenManager {
         if self.screen_data.get_current_menu() == CurrentMenu::MainMenu {
             
         }
-        else if self.screen_data.get_current_menu() == CurrentMenu::Camera {
+        else if self.screen_data.get_current_menu() == CurrentMenu::MapView {
             camera_controls::mouse_wheel_event(self, _x, _y);
         }
         else if self.screen_data.get_current_menu() == CurrentMenu::PlayView {

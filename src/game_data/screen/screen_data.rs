@@ -7,7 +7,7 @@ pub enum CurrentMenu {
     MainMenu,
     WorldCreationMenu,
     SettingsMenu,
-    Camera,
+    MapView,
     PlayView,
 }
 

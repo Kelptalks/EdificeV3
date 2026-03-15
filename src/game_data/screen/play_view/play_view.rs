@@ -214,7 +214,7 @@ impl PlayView {
             self.play_world_renderer.key_down_event(&mut self.play_view_data, keycode);
             match keycode {
                 KeyCode::M => {
-                    event_manager.add_render_event(RenderEvent::ChangeMenu(screen_data::CurrentMenu::Camera));
+                    event_manager.add_render_event(RenderEvent::ChangeMenu(screen_data::CurrentMenu::MapView));
                 }
                 _ => {
                 }
