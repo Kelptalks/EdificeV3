@@ -1,10 +1,8 @@
-use crate::game_data::{screen::widget::{button::{self, button::Button}, panel::panel::Panel, widget::{Widget, WidgetType}, widget_calculations}, types::UITextures};
+use std::{cell::RefCell, rc::Rc};
+
+use crate::game_data::{game_event_manager::{game_event_manager::Event, widget_event_manager::widget_event_manager::WidgetEvent}, screen::widget::{button::{self, button::Button}, panel::panel::Panel, widget::{Widget, WidgetType}, widget_calculations}, types::UITextures};
 
 pub struct TabPanel {
-    button_panel: Panel,
-    
-    sub_panels: Vec<WidgetType>,
-
     // Parent 
     prefered_scale: [f32; 2],
     parent_pos: [f32; 4],
@@ -14,6 +12,11 @@ pub struct TabPanel {
     internal_buffers: [f32; 4],
     pos: [f32; 4],
     scale: [f32; 2],
+
+    // Sub Panel Managment
+    current_panel_index: Rc<RefCell<usize>>,
+    button_panel: Panel,
+    sub_panels: Vec<WidgetType>,
 }
 
 
@@ -21,24 +24,33 @@ pub struct TabPanel {
 impl TabPanel {
     pub fn new() -> TabPanel {
         TabPanel {
-            button_panel: Panel::new([0.0; 4], [0.0; 4]),
-            sub_panels: Vec::new(),
-
+            // Parent
             prefered_scale: [0.0; 2],
             parent_pos: [0.0; 4],
             external_buffers: [0.0; 4],
 
-
+            // Self
             pos: [0.0; 4],
             internal_buffers: [0.0; 4],
             scale: [0.0; 2],
+
+            // Sub Panel Management
+            current_panel_index: Rc::new(RefCell::new(0)),
+            button_panel: Panel::new([0.0; 4], [0.0; 4]),
+            sub_panels: Vec::new(),
         }
     }
 
 
     pub fn add_panel(&mut self, panel: WidgetType) -> &mut Button { 
         self.sub_panels.push(panel);
-        return self.button_panel.add_button();
+        let button =  self.button_panel.add_button();
+        
+        // Add Index modifyer event to button
+        button.add_event(
+            Event::WidgetEvent(WidgetEvent::SetUsizeEvent(self.current_panel_index.clone(), self.sub_panels.len() - 1)));
+
+        return button;
 
     }
 
@@ -97,8 +109,6 @@ impl Widget for TabPanel {
             self.internal_buffers[2],
             self.internal_buffers[3],
         ];
-
-
         for sub_panel in &mut self.sub_panels {
             sub_panel.set_parent_pos(self.pos);            
             sub_panel.set_buffers(sub_panel_buffer);
@@ -112,8 +122,10 @@ impl Widget for TabPanel {
         screen_data: &crate::game_data::screen::ScreenData, 
         game_event_manager: &mut crate::game_data::game_event_manager::game_event_manager::GameEventManager
     ) {
+        
+        let current_index = *self.current_panel_index.borrow();
         if self.sub_panels.len() > 0 {
-            self.sub_panels[0].render(texture_manager, screen_data, game_event_manager);
+            self.sub_panels[current_index].render(texture_manager, screen_data, game_event_manager);
         }
 
         self.button_panel.render(texture_manager, screen_data, game_event_manager);

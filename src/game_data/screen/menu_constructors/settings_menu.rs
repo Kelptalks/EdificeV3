@@ -24,6 +24,16 @@ pub fn get_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> Widge
         tab_panel.add_panel(tab_sub_panel);
         tab_panel.size();
 
+        let mut tab_sub_panel = WidgetType::new_panel(screen_data.get_viewport_uv(), [0.0; 4]);
+        if let WidgetType::Panel(tab_sub_panel) = &mut tab_sub_panel {
+            tab_sub_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+            tab_sub_panel.add_bar_button("Poopy Pee Pee".to_string());
+            tab_sub_panel.add_bar_button("test_this_shit".to_string());
+            tab_sub_panel.size();
+        }
+        tab_panel.add_panel(tab_sub_panel);
+        tab_panel.size();
+
         let header = panel.add_text_display("Settings".to_string());
         header.set_text_scale(TextSize::ExtraLarge);
 
