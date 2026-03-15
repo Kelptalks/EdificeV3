@@ -120,7 +120,7 @@ impl PlayWorldViewRender {
     }
 
     //=====================================
-    // Getters / Setters
+    // Controls
     //=====================================
     
     fn handle_camera_panning(&mut self, screen_data: &ScreenData) {
@@ -168,6 +168,16 @@ impl PlayWorldViewRender {
 
     }
 
+    fn zoom_in(&mut self) {
+        if self.zoom > 1 {
+            self.zoom-=1;
+        }
+    }
+
+    fn zoom_out(&mut self) {
+        self.zoom+=1;
+    }
+
     //=====================================
     // Rendering
     //=====================================
@@ -178,7 +188,7 @@ impl PlayWorldViewRender {
         self.scale = widget_calculations::pos_to_scale(self.pos);
         
         self.center_ndc = [
-            self.pos[0] + (self.scale[0] / 2.0),
+            self.pos[0] + (self.scale[0]),
             self.pos[1] + (self.scale[1] / 2.0),
         ];
 
@@ -329,39 +339,39 @@ impl Widget for PlayWorldViewRender {
         texture_manager: &mut TextureManager, 
         screen_data: &ScreenData, 
         game_event_manager: &mut GameEventManager
-    ) {
-        texture_manager.render_ui_element_with_pos(crate::game_data::types::UITextures::MirrorBackground, self.pos);
-        
+    ) {        
         self.render_view(screen_data, texture_manager);
 
 
-        if let Some(cords_ref) = &self.camera_cords_ref {
-            let inputs = screen_data.get_inputs();
-            for input in inputs {
-                match input {
-                    crate::game_data::screen::input_data::Input::KeyDown(key_code) => {
+        
+        let inputs = screen_data.get_inputs();
+        for input in inputs {
+            match input {
+                crate::game_data::screen::input_data::Input::KeyDown(key_code) => {
+                    if let Some(cords_ref) = &self.camera_cords_ref {
                         if *key_code == KeyCode::LeftShift {
                             cords_ref.borrow_mut()[2] -= 1;
                         }
                         else if *key_code == KeyCode::Space {
                             cords_ref.borrow_mut()[2] += 1;
                         }
-                    },
-                    crate::game_data::screen::input_data::Input::MouseWheel(x, y) => {
-                        if *y > 0.0 {
-                            self.zoom += 1;
-                        }
-                        else if *y < 0.0 { 
-                            self.zoom -= 1;
-                        }
-                    },
-                    _ => {
-
                     }
+                },
+                crate::game_data::screen::input_data::Input::MouseWheel(x, y) => {
+                    if *y > 0.0 {
+                        self.zoom_in();
+                    }
+                    else if *y < 0.0 { 
+                        self.zoom_out();
+                    }
+                },
+                _ => {
 
                 }
+
             }
         }
+        
 
     }
 }
