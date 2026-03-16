@@ -1,6 +1,6 @@
 use std::time::SystemTime;
 
-use crate::game_data::{log_init, screen::text, texture_manager::{texture_atlas::TextureAtlas, texture_renderer::TextureRenderingManager}, types::{BlockShaderType, BlockTriangle, BlockTexture, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
+use crate::game_data::{log_init, screen::text, texture_manager::{texture::Texture, texture_atlas::TextureAtlas, texture_renderer::TextureRenderingManager}, types::{BlockShader, BlockTexture, BlockTriangle, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
 use miniquad::*;
 
 // Expander tuning constants - adjust these to control gap prevention
@@ -94,6 +94,29 @@ impl TextureManager {
     }
 
     //=================================================
+    // Texture Type Rendering
+    //=================================================
+    pub fn render_texture_with_pos(&mut self, texture: Texture, pos: [f32; 4]) {
+        match texture {
+            Texture::BlockTexture(block_texture) => {
+                self.render_block_with_pos(block_texture, pos);
+            },
+            Texture::BlockTriangle(block_texture, block_triangle) => {
+                self.render_block_triangle_with_pos(block_texture, block_triangle, pos);
+            },
+            Texture::BlockShader(block_shader) => {
+                todo!("Texture Enum rendering for block shader not implemented");
+            },
+            Texture::DroneItemTexture(drone_item_texture) => {
+                self.render_drone_item_with_pos(drone_item_texture, pos);
+            },
+            Texture::UITexture(ui_texture) => {
+                self.render_ui_element_with_pos(ui_texture, pos);
+            },
+        }
+    }
+    
+    //=================================================
     // Block Rendering
     //=================================================
     pub fn render_block_triangle(&mut self, block : BlockTexture, triangle : BlockTriangle, draw_location : [f32; 2], scale : f32) {
@@ -105,6 +128,12 @@ impl TextureManager {
             draw_location[0] + (scale) + self.cached_expander, // x2 (right)
             draw_location[1] + (scale) + self.cached_expander, // y2 (bottom/top)
         ];
+
+        self.get_texture_renderer().add_quad(pos, uv);
+    }
+
+    pub fn render_block_triangle_with_pos(&mut self, block : BlockTexture, triangle : BlockTriangle, pos : [f32; 4]) {
+        let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_block_triangle_uv(triangle, block);
 
         self.get_texture_renderer().add_quad(pos, uv);
     }
@@ -132,7 +161,7 @@ impl TextureManager {
     //=====================================
     // Shader Rendering
     //=====================================
-    pub fn render_shader_triangle(&mut self, shader : BlockShaderType, triangle : ShaderTriangle, draw_location : [f32; 2], scale : f32) {
+    pub fn render_shader_triangle(&mut self, shader : BlockShader, triangle : ShaderTriangle, draw_location : [f32; 2], scale : f32) {
         let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_shader_triangle_uv(triangle, shader);
 
         let pos = [
@@ -165,7 +194,7 @@ impl TextureManager {
     }
 
     //=====================================
-    // UI rendering 
+    // UI element
     //=====================================
     
     // Main UI
@@ -190,6 +219,11 @@ impl TextureManager {
         let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_ui_uv(ui_texture);
         self.get_texture_renderer().add_quad(pos, uv);
     }
+
+
+    //=====================================
+    // Drone UI
+    //=====================================
 
     // Drone UI
     pub fn render_drone_ui_element(&mut self, drone_ui_texture: DroneUITexture, draw_location: [f32; 2], scale: f32) {
@@ -232,6 +266,11 @@ impl TextureManager {
         let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_drone_ui_uv(drone_ui_texture);
         self.get_texture_renderer().add_quad(pos, uv);
     }
+
+
+    //=====================================
+    // Drone Item
+    //=====================================
 
     // Drone Items
     pub fn render_drone_item(&mut self, drone_item_texure: DroneItemTexture, draw_location: [f32; 2], scale: f32) {

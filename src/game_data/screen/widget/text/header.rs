@@ -62,7 +62,7 @@ impl Widget for TextDisplay {
         return self.scale;
     }
 
-    fn get_prefered_scale(&self) -> [f32; 2] {
+    fn get_preffered_scale(&self) -> [f32; 2] {
         return self.prefered_scale;
     }
 

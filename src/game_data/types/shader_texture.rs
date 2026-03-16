@@ -45,7 +45,7 @@ impl ShaderTriangle {
 
 #[repr(u16)]
 #[derive(Copy, Clone)]  // Add these
-pub enum BlockShaderType {
+pub enum BlockShader {
     None = 0,
     Selector = 1,
     Grey = 2,
@@ -53,7 +53,7 @@ pub enum BlockShaderType {
     Red = 4,
 }
 
-impl BlockShaderType {
+impl BlockShader {
     pub fn id(&self) -> u32 {
         *self as u32
     }
@@ -66,12 +66,12 @@ impl BlockShaderType {
         *self as usize
     }
 
-    pub fn from_id(id: u16) -> BlockShaderType {
-        if id <= BlockShaderType::Red as u16 {
+    pub fn from_id(id: u16) -> BlockShader {
+        if id <= BlockShader::Red as u16 {
             return unsafe { std::mem::transmute(id) }
         }
         else {
-            return BlockShaderType::None;
+            return BlockShader::None;
         }
     }
 }

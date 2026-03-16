@@ -50,7 +50,7 @@ impl PanelSection {
         let [stretch, cross, stretch_end, cross_end] = self.orientation.get_index_mods();
 
         let stretch_scale =
-            self.widget.get_prefered_scale()[stretch]
+            self.widget.get_preffered_scale()[stretch]
             + internal_buffers[stretch]
             + internal_buffers[stretch_end];
 

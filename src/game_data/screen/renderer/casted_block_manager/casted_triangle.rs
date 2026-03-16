@@ -1,6 +1,6 @@
 use miniquad::ShaderType;
 
-use crate::game_data::{texture_manager, TextureManager, types::{BlockShaderType, BlockTriangle, BlockTexture, ShaderTriangle}};
+use crate::game_data::{texture_manager, TextureManager, types::{BlockShader, BlockTriangle, BlockTexture, ShaderTriangle}};
 
 #[derive(Clone)]
 pub struct CastedTriangle {
@@ -9,7 +9,7 @@ pub struct CastedTriangle {
     triangle_types : Vec<BlockTriangle>,
 
     shader_triangle : ShaderTriangle,
-    shader_type: BlockShaderType,
+    shader_type: BlockShader,
 
     // Where the casted ray struck
     translucent_block_struck_cor : [i32; 3],
@@ -25,7 +25,7 @@ impl CastedTriangle {
             triangle_types : Vec::new(),
 
             shader_triangle : ShaderTriangle::LeftTop,
-            shader_type: BlockShaderType::None,
+            shader_type: BlockShader::None,
 
 
             translucent_block_struck_cor : [0, 0, 0],
@@ -39,7 +39,7 @@ impl CastedTriangle {
         self.block_types.clear();
         self.triangle_types.clear();
         self.translucent_struck = false;
-        self.shader_type = BlockShaderType::None;
+        self.shader_type = BlockShader::None;
     }
 
     pub fn add_texture(&mut self, block : BlockTexture, triangle : BlockTriangle) {
@@ -60,7 +60,7 @@ impl CastedTriangle {
         self.solid_block_struck = cords;
     }
 
-    pub fn set_shader(&mut self, shader_triangle : ShaderTriangle, shader_type: BlockShaderType,) {
+    pub fn set_shader(&mut self, shader_triangle : ShaderTriangle, shader_type: BlockShader,) {
         self.shader_triangle = shader_triangle;
         self.shader_type = shader_type;
     }

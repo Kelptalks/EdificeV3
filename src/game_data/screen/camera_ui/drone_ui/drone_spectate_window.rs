@@ -147,7 +147,7 @@ impl SpectateWindow {
                             (start_ndc_cords[1] + (y_slot as f32 * self.item_slot_ndc_spacing_scale[1])) * self.y_scale + self.ndc_cords[1] + centering_offset,
                         ];
 
-                        texture_manager.render_drone_item(drone_item.to_texture_enum().unwrap(), draw_location, scale);
+                        texture_manager.render_drone_item(drone_item.to_texture_enum(), draw_location, scale);
 
                         let text_draw_location = [
                             draw_location[0] + text_offset,
@@ -170,7 +170,7 @@ impl SpectateWindow {
                     (start_ndc_cords[1] * self.y_scale) + self.ndc_cords[1] + centering_offset,
                 ];
 
-                texture_manager.render_drone_item(item.to_texture_enum().unwrap(), draw_location, scale);
+                texture_manager.render_drone_item(item.to_texture_enum(), draw_location, scale);
             }
             
         }

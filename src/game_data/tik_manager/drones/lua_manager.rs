@@ -162,9 +162,7 @@ impl LuaManager {
             let drone_manager = Self::get_drone_manager(lua)?;
             let mut amount = 0;
             if let Some(drone) = drone_manager.get_drone_with_id_mut(drone_id) {
-                if let Some(item) = DroneItem::from_id(item_id) {
-                    amount = drone.get_inventory().has_item_amount(item);
-                }
+                amount = drone.get_inventory().has_item_amount(DroneItem::from_id(item_id));
             }
 
             Ok(amount)
@@ -229,23 +227,19 @@ impl LuaManager {
         let use_item_for_fuel = self.lua.create_function(|lua, (drone_id, item_id, quantity): (u32, u32, i32)|{
             let drone_manager = Self::get_drone_manager(lua)?;
             if let Some(drone) = drone_manager.get_drone_with_id_mut(drone_id) {
-                if let Some(item) = DroneItem::from_id(item_id) {
-                    drone.use_item_for_fuel(item, quantity);
-                }
+                drone.use_item_for_fuel(DroneItem::from_id(item_id), quantity);
             }
 
             Ok(())
         })?;
         globals.set("rust_use_item_for_fuel", use_item_for_fuel)?;
-        
-        // Has quantity of item checked 
+
+        // Has quantity of item checked
         let get_item_quantity = self.lua.create_function(|lua, (drone_id, item_id): (u32, u32)|{
             let drone_manager = Self::get_drone_manager(lua)?;
             if let Some(drone) = drone_manager.get_drone_with_id_mut(drone_id) {
-                if let Some(item) = DroneItem::from_id(item_id) {
-                    let inventory = drone.get_inventory();
-                    return Ok(inventory.has_item_amount(item));
-                }
+                let inventory = drone.get_inventory();
+                return Ok(inventory.has_item_amount(DroneItem::from_id(item_id)));
             }
 
             Ok(0)
@@ -256,9 +250,7 @@ impl LuaManager {
         let craft_item = self.lua.create_function(|lua, (drone_id, item_id): (u32, u32)|{
             let drone_manager = Self::get_drone_manager(lua)?;
             if let Some(drone) = drone_manager.get_drone_with_id_mut(drone_id) {
-                if let Some(item) = DroneItem::from_id(item_id) {
-                    drone.craft_item(item);
-                }
+                drone.craft_item(DroneItem::from_id(item_id));
             }
 
             Ok(())

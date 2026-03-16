@@ -85,8 +85,8 @@ impl Widget for ToggleButton {
         self.button.get_scale()
     }
 
-    fn get_prefered_scale(&self) -> [f32; 2] {
-        self.button.get_prefered_scale()
+    fn get_preffered_scale(&self) -> [f32; 2] {
+        self.button.get_preffered_scale()
     }
 
     fn set_buffers(&mut self, buffers: [f32; 4]) {

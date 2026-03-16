@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, tab_panel::tab_panel::TabPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, world_rendering::play_world_view_render::PlayWorldViewRender}}, types::UITextures};
+use crate::game_data::{TextureManager, drone_programming::var::var_type::{VarType, VarTypeKind}, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::vars::{draggable_var::{self, DraggableVar}, var_slot::VarSlot}, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, tab_panel::tab_panel::TabPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, world_rendering::play_world_view_render::PlayWorldViewRender}}, types::UITextures};
 
 
 #[derive(Clone, Copy)]
@@ -126,7 +126,7 @@ impl Panel {
         let mut stretch_prefered_scale: f32 = 0.0;
 
         for section in &mut self.sections {
-            let widget_prefered = section.get_mut_widget().get_prefered_scale();
+            let widget_prefered = section.get_mut_widget().get_preffered_scale();
             stretch_prefered_scale += section.get_section_scale()[stretch];
 
             let widget_cross = widget_prefered[cross]
@@ -143,7 +143,7 @@ impl Panel {
         let available_cross = self.scale[cross];
 
         for section in &mut self.sections {
-            let widget_prefered = section.get_mut_widget().get_prefered_scale();
+            let widget_prefered = section.get_mut_widget().get_preffered_scale();
             let needed_cross = widget_prefered[cross]
                 + self.internal_buffers[cross]
                 + self.internal_buffers[cross_end];
@@ -278,6 +278,34 @@ impl Panel {
         }
     }
 
+    //=====================================
+    // Drone Programming Constructors
+    //=====================================
+
+    pub fn add_draggable_var(&mut self, var: VarType) -> &mut DraggableVar {
+        let draggable_var = DraggableVar::new(var);
+        self.add_section(WidgetType::DraggableVar(draggable_var));
+
+        if let WidgetType::DraggableVar(draggable_var) = self.sections.last_mut().unwrap().get_mut_widget() {
+            return draggable_var;
+        }
+        else {
+            panic!("DraggbleVar was just inserted but could not be retrieved in Panel");
+        }
+    }
+
+    pub fn add_var_slot(&mut self, var_kind_allowed: VarTypeKind) -> &mut VarSlot{
+        let var_slot = VarSlot::new(var_kind_allowed);
+        self.add_section(WidgetType::VarSlot(var_slot));
+
+        if let WidgetType::VarSlot(var_slot) = self.sections.last_mut().unwrap().get_mut_widget() {
+            return var_slot;
+        }
+        else {
+            panic!("VarSlot was just inserted but could not be retrieved in Panel");
+        }
+    }
+
 
 }
 
@@ -291,7 +319,7 @@ impl Widget for Panel {
         return self.scale;
     }
 
-    fn get_prefered_scale(&self) -> [f32; 2] {
+    fn get_preffered_scale(&self) -> [f32; 2] {
         return self.prefered_scale;
     }
 

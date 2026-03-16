@@ -91,7 +91,7 @@ impl MiniWindow {
                     (start_ndc_cords[1] * self.y_scale) + self.ndc_cords[1] + centering_offset,
                 ];
 
-                texture_manager.render_drone_item(item.to_texture_enum().unwrap(), draw_location, scale);
+                texture_manager.render_drone_item(item.to_texture_enum(), draw_location, scale);
             }
         }
 

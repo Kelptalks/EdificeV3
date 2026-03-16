@@ -1,4 +1,4 @@
-use crate::game_data::types::{BlockShaderType, ShaderTriangle};
+use crate::game_data::types::{BlockShader, ShaderTriangle};
 use image::{ImageBuffer, Rgba, RgbaImage};
 
 static BLOCK_PIXLE_REZ: u32 = 64;
@@ -156,7 +156,7 @@ impl ShaderTextureManager {
         }
     }
 
-    pub fn get_shader_triangle_src_rect(&self, triangle: ShaderTriangle, shader_type: BlockShaderType) -> [f32; 4] {
+    pub fn get_shader_triangle_src_rect(&self, triangle: ShaderTriangle, shader_type: BlockShader) -> [f32; 4] {
         let x_start_cor = self.start_cords[0] + ((self.buffer_space + self.sprite_pixel_scale[0]) * shader_type.id() as f32);
         
         let triangle_spacing = self.buffer_space + self.sprite_pixel_scale[1];
@@ -171,7 +171,7 @@ impl ShaderTextureManager {
         return [x_start_cor, y_start_cor, x_end_cor, y_end_cor];
     }
 
-    pub fn get_shader_triangle_uv(&self, triangle: ShaderTriangle, shader_type: BlockShaderType, atlas_dimensions: f32) -> [f32; 4] {
+    pub fn get_shader_triangle_uv(&self, triangle: ShaderTriangle, shader_type: BlockShader, atlas_dimensions: f32) -> [f32; 4] {
         let src_rect = self.get_shader_triangle_src_rect(triangle, shader_type);
         let mut uv = [0.0, 0.0, 0.0, 0.0];
 
@@ -193,7 +193,7 @@ impl ShaderTextureManager {
             for current_triangle in 0..self.triangles_per_shader {
                 let uv = self.get_shader_triangle_uv(
                     ShaderTriangle::from_id(current_triangle as u16),
-                    BlockShaderType::from_id(current_block_shader as u16),
+                    BlockShader::from_id(current_block_shader as u16),
                     atlas_dimensions
                 );
                 block_triangles[current_triangle as usize] = uv;

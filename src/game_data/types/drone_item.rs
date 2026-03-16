@@ -38,44 +38,98 @@ pub enum DroneItem {
     GoldIngot = 33,
 }
 
+#[derive(Copy, Clone)]
+pub struct DroneItemProperties {
+    pub name: &'static str,
+    pub fuel_value: u32,
+    pub is_tool: bool,
+    pub mine_power: u32,
+    pub chop_power: u32,
+    pub is_craftable: bool,
+    pub craft_cost: &'static [(DroneItem, i32)],
+    pub craft_time: u32,
+}
+
+static STONE_DRILL_COST: [(DroneItem, i32); 1] = [(DroneItem::Stone,     10)];
+static STONE_SAW_COST:   [(DroneItem, i32); 1] = [(DroneItem::Stone,     10)];
+static IRON_DRILL_COST:  [(DroneItem, i32); 1] = [(DroneItem::IronIngot,  2)];
+static IRON_SAW_COST:    [(DroneItem, i32); 1] = [(DroneItem::IronIngot,  2)];
+
+static ITEM_PROPERTIES: [DroneItemProperties; 34] = [
+    DroneItemProperties { name: "Stone Drill",      fuel_value: 0,   is_tool: true,  mine_power: 5, chop_power: 2, is_craftable: true,  craft_cost: &STONE_DRILL_COST, craft_time: 100 },
+    DroneItemProperties { name: "Stone Saw",        fuel_value: 0,   is_tool: true,  mine_power: 2, chop_power: 5, is_craftable: true,  craft_cost: &STONE_SAW_COST,   craft_time: 100 },
+    DroneItemProperties { name: "Iron Drill",       fuel_value: 0,   is_tool: true,  mine_power: 5, chop_power: 2, is_craftable: true,  craft_cost: &IRON_DRILL_COST,  craft_time: 100 },
+    DroneItemProperties { name: "Iron Saw",         fuel_value: 0,   is_tool: true,  mine_power: 2, chop_power: 5, is_craftable: true,  craft_cost: &IRON_SAW_COST,    craft_time: 100 },
+    DroneItemProperties { name: "Iron Battery",     fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Iron Storage",     fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Iron Camera",      fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Titanium Drill",   fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Titanium Saw",     fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Titanium Battery", fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Titanium Storage", fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Titanium Camera",  fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "TNT",              fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Dirt",             fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Plant Matter",     fuel_value: 50,  is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Brown Log",        fuel_value: 500, is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Stone",            fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Stone Brick",      fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Clay Brick",       fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Iron Oar",         fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Iron Ingot",       fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Copper Oar",       fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Copper Ingot",     fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Sand",             fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Glass",            fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Titanium Oar",     fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Titanium Ingot",   fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Purple Lens",      fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Ash",              fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Sulfur",           fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Drone Chassis",    fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Purple Log",       fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Gold Oar",         fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Gold Ingot",       fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+];
+
 impl DroneItem {
-    pub fn from_id(id: u32) -> Option<DroneItem> {
+    pub fn from_id(id: u32) -> DroneItem {
         match id {
-            0 => Some(DroneItem::StoneDrill),
-            1 => Some(DroneItem::StoneSaw),
-            2 => Some(DroneItem::IronDrill),
-            3 => Some(DroneItem::IronSaw),
-            4 => Some(DroneItem::IronBattery),
-            5 => Some(DroneItem::IronStorage),
-            6 => Some(DroneItem::IronCamera),
-            7 => Some(DroneItem::TitaniumDrill),
-            8 => Some(DroneItem::TitaniumSaw),
-            9 => Some(DroneItem::TitaniumBattery),
-            10 => Some(DroneItem::TitaniumStorage),
-            11 => Some(DroneItem::TitaniumCamera),
-            12 => Some(DroneItem::TNT),
-            13 => Some(DroneItem::Dirt),
-            14 => Some(DroneItem::PlantMatter),
-            15 => Some(DroneItem::BrownLog),
-            16 => Some(DroneItem::Stone),
-            17 => Some(DroneItem::StoneBrick),
-            18 => Some(DroneItem::ClayBrick),
-            19 => Some(DroneItem::IronOar),
-            20 => Some(DroneItem::IronIngot),
-            21 => Some(DroneItem::CopperOar),
-            22 => Some(DroneItem::CopperIngot),
-            23 => Some(DroneItem::Sand),
-            24 => Some(DroneItem::Glass),
-            25 => Some(DroneItem::TitaniumOar),
-            26 => Some(DroneItem::TitaniumIngot),
-            27 => Some(DroneItem::PurpleLens),
-            28 => Some(DroneItem::Ash),
-            29 => Some(DroneItem::Sulfur),
-            30 => Some(DroneItem::DroneChassis),
-            31 => Some(DroneItem::PurpleLog),
-            32 => Some(DroneItem::GoldOar),
-            33 => Some(DroneItem::GoldIngot),            
-            _ => None,
+            0 => DroneItem::StoneDrill,
+            1 => DroneItem::StoneSaw,
+            2 => DroneItem::IronDrill,
+            3 => DroneItem::IronSaw,
+            4 => DroneItem::IronBattery,
+            5 => DroneItem::IronStorage,
+            6 => DroneItem::IronCamera,
+            7 => DroneItem::TitaniumDrill,
+            8 => DroneItem::TitaniumSaw,
+            9 => DroneItem::TitaniumBattery,
+            10 => DroneItem::TitaniumStorage,
+            11 => DroneItem::TitaniumCamera,
+            12 => DroneItem::TNT,
+            13 => DroneItem::Dirt,
+            14 => DroneItem::PlantMatter,
+            15 => DroneItem::BrownLog,
+            16 => DroneItem::Stone,
+            17 => DroneItem::StoneBrick,
+            18 => DroneItem::ClayBrick,
+            19 => DroneItem::IronOar,
+            20 => DroneItem::IronIngot,
+            21 => DroneItem::CopperOar,
+            22 => DroneItem::CopperIngot,
+            23 => DroneItem::Sand,
+            24 => DroneItem::Glass,
+            25 => DroneItem::TitaniumOar,
+            26 => DroneItem::TitaniumIngot,
+            27 => DroneItem::PurpleLens,
+            28 => DroneItem::Ash,
+            29 => DroneItem::Sulfur,
+            30 => DroneItem::DroneChassis,
+            31 => DroneItem::PurpleLog,
+            32 => DroneItem::GoldOar,
+            33 => DroneItem::GoldIngot,
+            _ => DroneItem::DroneChassis,
         }
     }
 
@@ -83,175 +137,44 @@ impl DroneItem {
         *self as u32
     }
 
-    pub fn to_texture_enum(self) -> Option<DroneItemTexture>{
-        return DroneItemTexture::from_id(self.get_id());
+    pub fn to_texture_enum(self) -> DroneItemTexture {
+        DroneItemTexture::from_id(self.get_id())
     }
 
-    //=====================================
-    // Fuel
-    //=====================================
+    pub fn properties(&self) -> &'static DroneItemProperties {
+        &ITEM_PROPERTIES[*self as usize]
+    }
 
     pub fn to_fuel_value(&self) -> u32 {
-        match self {
-            DroneItem::PlantMatter => {
-                return 50;
-            }
-            DroneItem::BrownLog => {
-                return 500;
-            }
-            _ => {
-                return 0;
-            }
-        }
+        ITEM_PROPERTIES[*self as usize].fuel_value
     }
 
-    //=====================================
-    // Tool managment
-    //=====================================
-
     pub fn is_tool(&self) -> bool {
-        match self {
-            DroneItem::StoneDrill => {
-                return true;
-            }
-            DroneItem::StoneSaw => {
-                return true;
-            }
-            DroneItem::IronSaw => {
-                return true;
-            }
-            DroneItem::IronDrill => {
-                return true;
-            }
-            _ => {
-                return false;
-            }
-        }
+        ITEM_PROPERTIES[*self as usize].is_tool
     }
 
     pub fn mine_power(&self) -> u32 {
-        if self.is_tool() {
-            match self {
-                DroneItem::StoneDrill => {
-                    return 5;
-                }
-                DroneItem::StoneSaw => {
-                    return 2;
-                }
-                DroneItem::IronSaw => {
-                    return 2;
-                }
-                DroneItem::IronDrill => {
-                    return 5;
-                }
-                _ => {
-                    return 1;
-                }
-            }
-        }
-        return 1;
+        ITEM_PROPERTIES[*self as usize].mine_power
     }
 
     pub fn chop_power(&self) -> u32 {
-        if self.is_tool() {
-            match self {
-                DroneItem::StoneDrill => {
-                    return 2;
-                }
-                DroneItem::StoneSaw => {
-                    return 5;
-                }
-                DroneItem::IronSaw => {
-                    return 5;
-                }
-                DroneItem::IronDrill => {
-                    return 2;
-                }
-                _ => {
-                    return 1;
-                }
-            }
-        }
-        return 1;
+        ITEM_PROPERTIES[*self as usize].chop_power
     }
-
-    //=====================================
-    // Crafting
-    //=====================================
 
     pub fn is_craftable(&self) -> bool {
-        match self {
-            DroneItem::StoneDrill => {
-                return true;
-            }
-            DroneItem::StoneSaw => {
-                return true;
-            }
-            DroneItem::IronSaw => {
-                return true;
-            }
-            DroneItem::IronDrill => {
-                return true;
-            }
-            _ => {
-                return false;
-            }
-        }
+        ITEM_PROPERTIES[*self as usize].is_craftable
     }
 
-    // get the craft cost of an item
     pub fn get_craft_cost(&self) -> Vec<InventorySlot> {
-        let mut craft_cost:Vec<InventorySlot> = Vec::new();
-        match self {
-            DroneItem::StoneDrill => {
-                let mut ingredient = InventorySlot::new();
-                ingredient.set_item(DroneItem::Stone);
-                ingredient.set_quantity(10);
-                craft_cost.push(ingredient);
-            }
-            DroneItem::StoneSaw => {
-                let mut ingredient = InventorySlot::new();
-                ingredient.set_item(DroneItem::Stone);
-                ingredient.set_quantity(10);
-                craft_cost.push(ingredient);
-            }
-            DroneItem::IronSaw => {
-                let mut ingredient = InventorySlot::new();
-                ingredient.set_item(DroneItem::IronIngot);
-                ingredient.set_quantity(2);
-                craft_cost.push(ingredient);
-            }
-            DroneItem::IronDrill => {
-                let mut ingredient = InventorySlot::new();
-                ingredient.set_item(DroneItem::IronIngot);
-                ingredient.set_quantity(2);
-                craft_cost.push(ingredient);
-            }
-            _ => {
-                
-            }
-        }
-
-        return craft_cost;
+        ITEM_PROPERTIES[*self as usize].craft_cost.iter().map(|(item, qty)| {
+            let mut slot = InventorySlot::new();
+            slot.set_item(*item);
+            slot.set_quantity(*qty);
+            slot
+        }).collect()
     }
 
     pub fn get_craft_time(&self) -> u32 {
-        match self {
-            DroneItem::StoneDrill => {
-                return 100;
-            }
-            DroneItem::StoneSaw => {
-                return 100;
-            }
-            DroneItem::IronSaw => {
-                return 100;
-            }
-            DroneItem::IronDrill => {
-                return 100;
-            }
-            _ => {
-                return 0;
-            }
-        }
+        ITEM_PROPERTIES[*self as usize].craft_time
     }
 }

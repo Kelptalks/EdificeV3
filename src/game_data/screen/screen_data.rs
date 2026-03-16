@@ -355,6 +355,16 @@ impl ScreenData {
         return self.was_right_pressed;
     }
 
+    pub fn get_mouse_centered_texture_rendering_pos(&self, scale: [f32; 2]) -> [f32; 4] {
+        let half_scale = [scale[0] / 2.0, scale[1] / 2.0];
+        return [
+            self.mouse_ndc_cords[0] - half_scale[0],
+            self.mouse_ndc_cords[1] - half_scale[1],
+            self.mouse_ndc_cords[0] + half_scale[0],
+            self.mouse_ndc_cords[1] + half_scale[1],
+        ];
+    }
+
     //=====================================
     // Quitting
     //=====================================

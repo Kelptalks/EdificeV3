@@ -1,4 +1,4 @@
-use crate::game_data::{World, screen::renderer::camera_data::{CameraData, Direction}, types::{BlockShaderType, BlockTriangle, BlockTexture, ShaderTriangle}};
+use crate::game_data::{World, screen::renderer::camera_data::{CameraData, Direction}, types::{BlockShader, BlockTriangle, BlockTexture, ShaderTriangle}};
 use super::super::casted_block_manager::casted_triangle::CastedTriangle;
 use super::super::casted_block_manager::casted_tile::CastedTile;
 
@@ -44,7 +44,7 @@ pub fn cast_right_shadow(camera_data: &CameraData, world: &World, right_triangle
             
             block = BlockTexture::from_id(world.get_world_value(current_cords));
             if block.is_opaque() {
-                right_triangle.set_shader(ShaderTriangle::TopRight, BlockShaderType::Grey);
+                right_triangle.set_shader(ShaderTriangle::TopRight, BlockShader::Grey);
                 break;
             }
             
@@ -56,22 +56,22 @@ pub fn cast_right_shadow(camera_data: &CameraData, world: &World, right_triangle
                 if *direction == Direction::South {
                     let current_shader = right_triangle.get_shader_triangle();
                     if current_shader == ShaderTriangle::TopBotRight {
-                        right_triangle.set_shader(ShaderTriangle::TopRight, BlockShaderType::Grey);
+                        right_triangle.set_shader(ShaderTriangle::TopRight, BlockShader::Grey);
                     } else {
-                        right_triangle.set_shader(ShaderTriangle::TopTopRight, BlockShaderType::Grey);
+                        right_triangle.set_shader(ShaderTriangle::TopTopRight, BlockShader::Grey);
                     }
                 }
                 // West
                 else if *direction == Direction::West {
-                    right_triangle.set_shader(ShaderTriangle::TopRight, BlockShaderType::Grey);
+                    right_triangle.set_shader(ShaderTriangle::TopRight, BlockShader::Grey);
                 }
                 // North
                 else {
                     let current_shader = right_triangle.get_shader_triangle();
                     if current_shader == ShaderTriangle::TopTopRight {
-                        right_triangle.set_shader(ShaderTriangle::TopRight, BlockShaderType::Grey);
+                        right_triangle.set_shader(ShaderTriangle::TopRight, BlockShader::Grey);
                     } else {
-                        right_triangle.set_shader(ShaderTriangle::TopBotRight, BlockShaderType::Grey);
+                        right_triangle.set_shader(ShaderTriangle::TopBotRight, BlockShader::Grey);
                     }
                 }
             }
@@ -82,15 +82,15 @@ pub fn cast_right_shadow(camera_data: &CameraData, world: &World, right_triangle
             if block.is_opaque() {
                 let current_shader = right_triangle.get_shader_triangle();
                 if current_shader == ShaderTriangle::TopBotRight {
-                    right_triangle.set_shader(ShaderTriangle::TopRight, BlockShaderType::Grey);
+                    right_triangle.set_shader(ShaderTriangle::TopRight, BlockShader::Grey);
                     break;
                 } else {
                     if *direction == Direction::South {
-                        right_triangle.set_shader(ShaderTriangle::TopBotRight, BlockShaderType::Grey);
+                        right_triangle.set_shader(ShaderTriangle::TopBotRight, BlockShader::Grey);
                     } else if *direction == Direction::West {
                         // Do nothing (commented out in original C code)
                     } else {
-                        right_triangle.set_shader(ShaderTriangle::TopTopRight, BlockShaderType::Grey);
+                        right_triangle.set_shader(ShaderTriangle::TopTopRight, BlockShader::Grey);
                     }
                 }
             }
@@ -99,7 +99,7 @@ pub fn cast_right_shadow(camera_data: &CameraData, world: &World, right_triangle
             current_cords[1] += 1;
             block = BlockTexture::from_id(world.get_world_value(current_cords));
             if block.is_opaque() {
-                right_triangle.set_shader(ShaderTriangle::TopRight, BlockShaderType::Grey);
+                right_triangle.set_shader(ShaderTriangle::TopRight, BlockShader::Grey);
                 break;
             }
         }
@@ -115,11 +115,11 @@ pub fn cast_right_shadow(camera_data: &CameraData, world: &World, right_triangle
             block = BlockTexture::from_id(world.get_world_value(current_cords));
             
             if block.is_opaque() {
-                right_triangle.set_shader(ShaderTriangle::LeftCenterLeft, BlockShaderType::Grey);
+                right_triangle.set_shader(ShaderTriangle::LeftCenterLeft, BlockShader::Grey);
                 current_cords[2] += 1;
                 block = BlockTexture::from_id(world.get_world_value(current_cords));
                 if block.is_opaque() {
-                    right_triangle.set_shader(ShaderTriangle::LeftTop, BlockShaderType::Grey);
+                    right_triangle.set_shader(ShaderTriangle::LeftTop, BlockShader::Grey);
                     break;
                 }
                 current_cords[2] -= 1;
@@ -150,7 +150,7 @@ pub fn cast_left_shadow(camera_data: &CameraData, world: &World, left_triangle: 
             current_cords[2] += 1;
             block = BlockTexture::from_id(world.get_world_value(current_cords));
             if block.is_opaque() {
-                left_triangle.set_shader(ShaderTriangle::TopLeft, BlockShaderType::Grey);
+                left_triangle.set_shader(ShaderTriangle::TopLeft, BlockShader::Grey);
                 break;
             }
             
@@ -161,18 +161,18 @@ pub fn cast_left_shadow(camera_data: &CameraData, world: &World, left_triangle: 
                 if *direction == Direction::South {
                     let current_shader = left_triangle.get_shader_triangle();
                     if current_shader == ShaderTriangle::TopBotLeft {
-                        left_triangle.set_shader(ShaderTriangle::TopLeft, BlockShaderType::Grey);
+                        left_triangle.set_shader(ShaderTriangle::TopLeft, BlockShader::Grey);
                     } else {
-                        left_triangle.set_shader(ShaderTriangle::TopTopLeft, BlockShaderType::Grey);
+                        left_triangle.set_shader(ShaderTriangle::TopTopLeft, BlockShader::Grey);
                     }
                 } else if *direction == Direction::West {
                     // Do nothing (commented out in original C code)
                 } else {
                     let current_shader = left_triangle.get_shader_triangle();
                     if current_shader == ShaderTriangle::TopTopLeft {
-                        left_triangle.set_shader(ShaderTriangle::TopLeft, BlockShaderType::Grey);
+                        left_triangle.set_shader(ShaderTriangle::TopLeft, BlockShader::Grey);
                     } else {
-                        left_triangle.set_shader(ShaderTriangle::TopBotLeft, BlockShaderType::Grey);
+                        left_triangle.set_shader(ShaderTriangle::TopBotLeft, BlockShader::Grey);
                     }
                 }
             }
@@ -183,15 +183,15 @@ pub fn cast_left_shadow(camera_data: &CameraData, world: &World, left_triangle: 
             if block.is_opaque() {
                 let current_shader = left_triangle.get_shader_triangle();
                 if current_shader == ShaderTriangle::TopBotLeft {
-                    left_triangle.set_shader(ShaderTriangle::TopLeft, BlockShaderType::Grey);
+                    left_triangle.set_shader(ShaderTriangle::TopLeft, BlockShader::Grey);
                     break;
                 } else {
                     if direction_mods[0] == -1 && direction_mods[1] == -1 {
-                        left_triangle.set_shader(ShaderTriangle::TopBotLeft, BlockShaderType::Grey);
+                        left_triangle.set_shader(ShaderTriangle::TopBotLeft, BlockShader::Grey);
                     } else if *direction == Direction::West {
-                        left_triangle.set_shader(ShaderTriangle::TopLeft, BlockShaderType::Grey);
+                        left_triangle.set_shader(ShaderTriangle::TopLeft, BlockShader::Grey);
                     } else {
-                        left_triangle.set_shader(ShaderTriangle::TopTopLeft, BlockShaderType::Grey);
+                        left_triangle.set_shader(ShaderTriangle::TopTopLeft, BlockShader::Grey);
                     }
                 }
             }
@@ -200,7 +200,7 @@ pub fn cast_left_shadow(camera_data: &CameraData, world: &World, left_triangle: 
             current_cords[1] += 1;
             block = BlockTexture::from_id(world.get_world_value(current_cords));
             if block.is_opaque() {
-                left_triangle.set_shader(ShaderTriangle::TopLeft, BlockShaderType::Grey);
+                left_triangle.set_shader(ShaderTriangle::TopLeft, BlockShader::Grey);
                 break;
             }
         }
@@ -215,11 +215,11 @@ pub fn cast_left_shadow(camera_data: &CameraData, world: &World, left_triangle: 
             block = BlockTexture::from_id(world.get_world_value(current_cords));
             
             if block.is_opaque() {
-                left_triangle.set_shader(ShaderTriangle::LeftCenterBot, BlockShaderType::Grey);
+                left_triangle.set_shader(ShaderTriangle::LeftCenterBot, BlockShader::Grey);
                 current_cords[2] += 1;
                 block = BlockTexture::from_id(world.get_world_value(current_cords));
                 if block.is_opaque() {
-                    left_triangle.set_shader(ShaderTriangle::LeftBot, BlockShaderType::Grey);
+                    left_triangle.set_shader(ShaderTriangle::LeftBot, BlockShader::Grey);
                     break;
                 }
                 current_cords[2] -= 1;
@@ -272,7 +272,7 @@ pub fn raycast_tile(camera_data : &CameraData, world : &World, casted_tile : &mu
                 // TODO : Add shader rendering later 
                 if (*direction == Direction::North || *direction == Direction::West) {
                     // Add Shader
-                    triangles[0].set_shader(ShaderTriangle::RightTop, BlockShaderType::Grey);
+                    triangles[0].set_shader(ShaderTriangle::RightTop, BlockShader::Grey);
                 }
                 triangles[0].struck_solid(left_cords);
                 left_face_struck = true;
@@ -337,7 +337,7 @@ pub fn raycast_tile(camera_data : &CameraData, world : &World, casted_tile : &mu
                 else {
                     if (*direction == Direction::North || *direction == Direction::West) {
                         // Add shader
-                        triangles[1].set_shader(ShaderTriangle::RightBot, BlockShaderType::Grey);
+                        triangles[1].set_shader(ShaderTriangle::RightBot, BlockShader::Grey);
                     }
                     triangles[1].struck_solid(current_cords);
                     right_face_struck = true;

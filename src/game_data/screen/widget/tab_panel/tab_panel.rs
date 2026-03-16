@@ -66,9 +66,8 @@ impl Widget for TabPanel {
         self.scale
     }
 
-    fn get_prefered_scale(&self) -> [f32; 2] {
+    fn get_preffered_scale(&self) -> [f32; 2] {
         return self.prefered_scale;
-
     }
 
     fn set_buffers(&mut self, buffers: [f32; 4]) {
@@ -84,11 +83,21 @@ impl Widget for TabPanel {
         self.scale = widget_calculations::pos_to_scale(self.pos);
 
         // Size button first
-        let button_prefred_scale = self.button_panel.get_prefered_scale();
-        let sub_panel_prefered_scale = self.sub_panels[0].get_prefered_scale();
+        let button_prefred_scale = self.button_panel.get_preffered_scale();
+        let mut sub_panels_largest_prefered_scale = [0.0; 4];
+        for sub_panel in &mut self.sub_panels {
+            let current_panel_prefered_scale = sub_panel.get_preffered_scale();
+            if sub_panels_largest_prefered_scale[0] < current_panel_prefered_scale[0] {
+                sub_panels_largest_prefered_scale[0] = current_panel_prefered_scale[0];
+            }
+            if sub_panels_largest_prefered_scale[1] < current_panel_prefered_scale[1] {
+                sub_panels_largest_prefered_scale[1] = current_panel_prefered_scale[1];
+            }
+        }
+        
         self.prefered_scale = [
-            button_prefred_scale[0] + sub_panel_prefered_scale[0],
-            button_prefred_scale[1] + sub_panel_prefered_scale[1],
+            button_prefred_scale[0] + sub_panels_largest_prefered_scale[0],
+            button_prefred_scale[1] + sub_panels_largest_prefered_scale[1],
         ];
 
 
@@ -128,6 +137,8 @@ impl Widget for TabPanel {
             self.sub_panels[current_index].render(texture_manager, screen_data, game_event_manager);
         }
 
+
+        
         self.button_panel.render(texture_manager, screen_data, game_event_manager);
         // texture_manager.render_ui_element_with_pos(UITextures::ScallingIconMidCenter, self.pos);
     }

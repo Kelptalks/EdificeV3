@@ -1,7 +1,6 @@
 mod triangle_texture;
 pub use triangle_texture::BlockTriangle;
 
-mod block_type;
 
 
 mod blocks_texture;
@@ -12,7 +11,7 @@ pub use char_texture::CharType;
 pub use char_texture::FontType;
 
 mod shader_texture;
-pub use shader_texture::BlockShaderType;
+pub use shader_texture::BlockShader;
 pub use shader_texture::ShaderTriangle;
 
 mod ui;

@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, game_event_manager::{render_event_manager::render_event_manager::RenderEvent, widget_event_manager::widget_event_manager::WidgetEvent, world_event_manager::{self, world_event_manager::WorldEvent}}, level_manager::level_manager::LevelManager, player_data::{self, player_data::PlayerData}, screen::{Camera, screen_mananager::{self, ScreenManager}}, world_gen::WorldGenManager};
+use crate::game_data::{World, game_event_manager::{render_event_manager::render_event_manager::RenderEvent, widget_event_manager::{mouse_action_manager::MouseWidgetData, widget_event_manager::WidgetEvent}, world_event_manager::{self, world_event_manager::WorldEvent}}, level_manager::level_manager::LevelManager, player_data::{self, player_data::PlayerData}, screen::{Camera, screen_mananager::{self, ScreenManager}}, world_gen::WorldGenManager};
 
 /*
 #######################
@@ -25,6 +25,7 @@ pub struct EventData {
     // Tools
     world_gen_manager: WorldGenManager,
     level_manager: LevelManager,
+    mouse_widget_data: MouseWidgetData,
 }
 
 impl EventData {
@@ -38,29 +39,38 @@ impl EventData {
             // Tools
             world_gen_manager: WorldGenManager::new(),
             level_manager: LevelManager::new(),
+            mouse_widget_data: MouseWidgetData::new(),
         }
     }
 
     //=====================================
-    // Tools
+    // Tools Getters
     //=====================================
 
+    // World Gen
     pub fn get_mut_world_gen_manager(&mut self) -> &mut WorldGenManager {
         return &mut self.world_gen_manager;
     }
-
-    pub fn get_mut_level_manager(&mut self) -> &mut LevelManager {
-        return &mut self.level_manager;
-    }
-
     pub fn get_world_gen_manager(&self) -> &WorldGenManager {
         return &self.world_gen_manager;
     }
 
+    // Level Gen
+    pub fn get_mut_level_manager(&mut self) -> &mut LevelManager {
+        return &mut self.level_manager;
+    }
     pub fn get_level_manager(&self) -> &LevelManager {
         return &self.level_manager;
     }
 
+    // mouse action
+    pub fn get_mut_mouse_widget_data(&mut self) -> &mut MouseWidgetData {
+        return &mut self.mouse_widget_data;
+    }
+
+    pub fn get_mouse_widget_data(&self) -> &MouseWidgetData {
+        return &self.mouse_widget_data;
+    }
 
     //=====================================
     // Events
@@ -98,6 +108,10 @@ impl GameEventManager {
     //=====================================
     pub fn get_event_tools(&self) -> &EventData {
         return &self.event_data;
+    }
+
+    pub fn get_mut_event_tools(&mut self) -> &mut EventData {
+        return &mut self.event_data;
     }
 
     //=====================================

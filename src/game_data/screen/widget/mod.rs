@@ -6,10 +6,16 @@ pub mod widget_calculations;
 pub mod panel;
 pub mod tab_panel;
 
+// Buttons
 pub mod button;
 pub mod bar_button;
 pub mod toggle_button;
 
+// Text
 pub mod text;
 
+// World Rendering
 pub mod world_rendering;
+
+// Drone Programming
+pub mod drone_programming;

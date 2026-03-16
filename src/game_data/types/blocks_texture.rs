@@ -259,6 +259,7 @@ static BLOCK_PROPERTIES: [BlockProperties; 400] = [
     BlockProperties { name: "SelectorVertical",   transparent: false, translucent: true,  solid: false, hardness: 0,   friction: 0,   item: DroneItem::PlantMatter,  item_quantity: 1   },
     BlockProperties { name: "SelectorVerticalRed",transparent: false, translucent: true,  solid: false, hardness: 0,   friction: 0,   item: DroneItem::PlantMatter,  item_quantity: 1   },
     BlockProperties { name: "Dot",                transparent: false, translucent: true,  solid: false, hardness: 0,   friction: 0,   item: DroneItem::PlantMatter,  item_quantity: 1   },
+    
     // Blank reserved slots (85-399)
     BlockProperties { name: "Blank", transparent: true, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank85
     BlockProperties { name: "Blank", transparent: true, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank86
