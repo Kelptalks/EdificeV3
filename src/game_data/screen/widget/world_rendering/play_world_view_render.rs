@@ -188,7 +188,7 @@ impl PlayWorldViewRender {
         self.scale = widget_calculations::pos_to_scale(self.pos);
         
         self.center_ndc = [
-            self.pos[0] + (self.scale[0]),
+            self.pos[0] + (self.scale[0] / 2.0),
             self.pos[1] + (self.scale[1] / 2.0),
         ];
 
@@ -215,7 +215,7 @@ impl PlayWorldViewRender {
         }
 
 
-        let ndc_x_draw_center_offset = self.center_ndc[0] + self.ndc_block_scale;
+        let ndc_x_draw_center_offset = self.center_ndc[0] - self.ndc_block_scale;
         let ndc_y_draw_center_offset = self.center_ndc[1] - self.ndc_block_scale;
 
         let rot = self.camera_direction.rotation_matrix();
@@ -245,7 +245,7 @@ impl PlayWorldViewRender {
                     // Draw Cords
                     let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, [x - z, y - z]);
                     
-                    draw_cords[0] -= ndc_x_draw_center_offset;
+                    draw_cords[0] += ndc_x_draw_center_offset;
                     draw_cords[1] += ndc_y_draw_center_offset;
                     
                     draw_cords[0] += self.camera_ndc_offset[0];
@@ -339,7 +339,7 @@ impl Widget for PlayWorldViewRender {
         texture_manager: &mut TextureManager, 
         screen_data: &ScreenData, 
         game_event_manager: &mut GameEventManager
-    ) {        
+    ) {
         self.render_view(screen_data, texture_manager);
 
 

@@ -8,8 +8,6 @@ pub use controls::camera_controls;
 pub mod renderer;
 pub use renderer::Camera;
 
-pub mod play_view;
-
 pub use renderer::camera_data;
 pub use renderer::iso_cord_tool;
 
