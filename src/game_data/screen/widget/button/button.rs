@@ -187,7 +187,7 @@ impl Widget for Button {
             button_texture = self.button_type.get_pressed_variant(); // Update texture
 
             // If button was clicked
-            if screen_data.was_left_pressed(){
+            if screen_data.was_left_released(){
                 for event in &self.events {
                     game_event_manager.add_event(event.clone());
                 }    

@@ -76,7 +76,7 @@ impl Widget for DraggableVar {
                 game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().set_var_held(self.var);
             }
         }
-        else if self.held && screen_data.was_right_pressed() {
+        else if self.held && screen_data.was_left_released() {
             self.held = false;
             game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().release_var_held();     
         }

@@ -38,6 +38,8 @@ pub struct ScreenData {
     middle_mouse_held: bool,
     left_mouse_held: bool,
     right_mouse_held: bool,
+    was_left_released: bool,
+    was_right_released: bool,
     was_left_pressed: bool,
     was_right_pressed: bool,
 
@@ -79,6 +81,8 @@ impl ScreenData {
             middle_mouse_held: false,
             left_mouse_held: false,
             right_mouse_held: false,
+            was_left_released: false,
+            was_right_released: false,
             was_left_pressed: false,
             was_right_pressed: false,
 
@@ -104,20 +108,22 @@ impl ScreenData {
                 Input::MouseButtonDown(mouse_button) => {
                     if *mouse_button == MouseButton::Left {
                         self.left_mouse_held = true;
+                        self.was_left_pressed = true;
                     } 
                     else if *mouse_button == MouseButton::Right {
                         self.right_mouse_held = true;
+                        self.was_right_pressed = true;
                     }
                 },
                 Input::MouseButtonUp(mouse_button) => {
                     if *mouse_button == MouseButton::Left {
                         self.left_mouse_held = false;
-                        self.was_left_pressed = true;
+                        self.was_left_released = true;
                         
                     } 
                     else if *mouse_button == MouseButton::Right {
                         self.right_mouse_held = false;
-                        self.was_right_pressed = true;
+                        self.was_right_released = true;
                     }
                 },
                 _ => {
@@ -129,6 +135,8 @@ impl ScreenData {
 
     pub fn clear_inputs(&mut self) {
         self.input_data.clear_inputs();
+        self.was_left_released = false;
+        self.was_right_released = false;
         self.was_left_pressed = false;
         self.was_right_pressed = false;
     }
@@ -345,6 +353,14 @@ impl ScreenData {
 
     pub fn is_right_mouse_held(&self) -> bool {
         return self.right_mouse_held;
+    }
+
+    pub fn was_left_released(&self) -> bool {
+        return self.was_left_released;
+    }
+
+    pub fn was_right_released(&self) -> bool {
+        return self.was_right_released;
     }
 
     pub fn was_left_pressed(&self) -> bool {

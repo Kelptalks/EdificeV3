@@ -23,6 +23,11 @@ pub struct TabPanel {
 
 impl TabPanel {
     pub fn new() -> TabPanel {
+        let mut button_panel = Panel::new([0.0; 4], [0.0; 4]);
+        button_panel.set_orientation(
+            crate::game_data::screen::widget::panel::panel::PanelOrientation::Horizontal, 
+            crate::game_data::screen::widget::panel::panel::PanelAlignment::Center
+        );
         TabPanel {
             // Parent
             prefered_scale: [0.0; 2],
@@ -36,7 +41,7 @@ impl TabPanel {
 
             // Sub Panel Management
             current_panel_index: Rc::new(RefCell::new(0)),
-            button_panel: Panel::new([0.0; 4], [0.0; 4]),
+            button_panel: button_panel,
             sub_panels: Vec::new(),
         }
     }

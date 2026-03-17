@@ -149,7 +149,7 @@ impl Widget for BarButtonWidget {
 
         let is_hovered = screen_data.mouse_on_ndc_pos(self.pos);
 
-        if is_hovered && screen_data.was_left_pressed() {
+        if is_hovered && screen_data.was_left_released() {
             for event in &self.events {
                 game_event_manager.add_event(event.clone());
             }

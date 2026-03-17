@@ -72,14 +72,14 @@ impl Widget for VarSlot {
 
         // Try and get var if mouse was released
         if screen_data.mouse_on_ndc_pos(self.pos) {
-            if screen_data.was_left_pressed() {
+            if screen_data.was_left_released() {
                 if let Some(var_held_by_mouse) = game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().get_var_held() {
                     if var_held_by_mouse.to_kind() == self.var_type_kind_allowed {
                         self.var = Some(*var_held_by_mouse);
                     }
                 }
             }
-            else if screen_data.was_right_pressed() {
+            else if screen_data.was_right_released() {
                 self.var = None;
             }
         }

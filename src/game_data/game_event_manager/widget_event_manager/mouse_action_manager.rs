@@ -46,7 +46,6 @@ impl MouseWidgetData {
                 screen_data.get_mouse_centered_texture_rendering_pos(self.mouse_data_rendering_scale)
             );
         }
-
     }
 
 }

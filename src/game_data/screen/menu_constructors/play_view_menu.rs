@@ -1,14 +1,79 @@
 use crate::game_data::{game_event_manager::{game_event_manager::Event, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, widget_calculations::TextSize}}, types::UITextures};
 
+pub fn get_location_panel() -> WidgetType {
+    let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
 
+    if let WidgetType::Panel(panel) = &mut panel {
+        panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+
+        // Header
+        let text_display = panel.add_text_display("Location Manager".to_string());
+        text_display.set_text_scale(TextSize::Medium);
+    }
+
+    return panel;
+}
+
+pub fn get_drone_panel() -> WidgetType {
+    let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
+
+    if let WidgetType::Panel(panel) = &mut panel {
+        panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+
+        // Header
+        let text_display = panel.add_text_display("Drone Controller".to_string());
+        text_display.set_text_scale(TextSize::Medium);
+    }
+
+    return panel;
+}
+
+pub fn get_building_panel() -> WidgetType {
+    let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
+
+    if let WidgetType::Panel(panel) = &mut panel {
+        panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+
+        // Header
+        let text_display = panel.add_text_display("Building".to_string());
+        text_display.set_text_scale(TextSize::Medium);
+
+        // 
+        let button = panel.add_button();
+    }
+
+    return panel;
+}
 
 pub fn add_control_panel(panel: &mut Panel, screen_data: &ScreenData, player_data: &mut PlayerData) {
     let controls_sub_panel = panel.add_sub_panel();
+    
     controls_sub_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
     
     // Header
     let text_display = controls_sub_panel.add_text_display("Controls".to_string());
-    text_display.set_text_scale(TextSize::Medium);
+    text_display.set_text_scale(TextSize::Large);
+
+
+    let tab_panel = controls_sub_panel.add_tab_panel();
+
+    // Add Drone Controls Tab
+    let button = tab_panel.add_panel(get_drone_panel());
+    button.set_text("drones".to_string());
+    button.set_block(crate::game_data::types::BlockTexture::DroneBotRight);
+
+
+    // Add Location Manager Tab
+    let button = tab_panel.add_panel(get_location_panel());
+    button.set_text("locations".to_string());
+    button.set_icon(UITextures::AreaIcon);
+
+
+    // Add Location Manager Tab
+    let button = tab_panel.add_panel(get_building_panel());
+    button.set_text("Building".to_string());
+    button.set_icon(UITextures::BluePrintIcon);
+
 
     controls_sub_panel.size();
     
