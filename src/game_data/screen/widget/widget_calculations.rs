@@ -14,6 +14,23 @@ pub fn buffer_pos(pos: [f32; 4], buffer: [f32; 4]) -> [f32; 4] {
     ];
 }
 
+pub fn is_pos_contained_within_pos(box_pos: [f32; 4], internal_pos: [f32; 4]) -> bool {
+    if box_pos[0] > internal_pos[0] {
+        return false;
+    }
+    else if box_pos[1] > internal_pos[1] {
+        return false;
+    }
+    else if box_pos[2] < internal_pos[2] {
+        return false;
+    }
+    else if box_pos[3] < internal_pos[3] {
+        return false;
+    }
+
+    return true;
+}
+
 //=====================================
 // Button values
 //=====================================

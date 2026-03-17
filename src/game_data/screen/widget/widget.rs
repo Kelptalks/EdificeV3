@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, game_event_manager::game_event_manager::GameEventManager, screen::{ScreenData, screen_data, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::vars::{draggable_var::DraggableVar, var_slot::VarSlot}, panel::panel::Panel, tab_panel::tab_panel::TabPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, world_rendering::play_world_view_render::PlayWorldViewRender}}, texture_manager};
+use crate::game_data::{TextureManager, game_event_manager::game_event_manager::GameEventManager, screen::{ScreenData, screen_data, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::vars::{draggable_var::DraggableVar, var_slot::VarSlot}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, tab_panel::tab_panel::TabPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, world_rendering::play_world_view_render::PlayWorldViewRender}}, texture_manager};
 
 pub trait Widget {
     fn get_pos(&self) -> [f32; 4];
@@ -21,6 +21,7 @@ pub enum WidgetType {
     // Panels
     Panel(Panel),
     TabPanel(TabPanel),
+    ScrollPanel(ScrollPanel),
 
     // Buttons
     Button(Button),
@@ -44,9 +45,10 @@ pub struct WidgetTypeProperties {
     pub draggable: bool,
 }
 
-static WIDGET_TYPE_PROPERTIES: [WidgetTypeProperties; 9] = [
+static WIDGET_TYPE_PROPERTIES: [WidgetTypeProperties; 10] = [
     WidgetTypeProperties { name: "Panel",                draggable: false },
     WidgetTypeProperties { name: "TabPanel",             draggable: false },
+    WidgetTypeProperties { name: "ScrollPanel",          draggable: false },
     WidgetTypeProperties { name: "Button",               draggable: false },
     WidgetTypeProperties { name: "BarButton",            draggable: false },
     WidgetTypeProperties { name: "ToggleButton",         draggable: false },
@@ -61,13 +63,14 @@ impl WidgetType {
         match self {
             WidgetType::Panel(_)               => 0,
             WidgetType::TabPanel(_)            => 1,
-            WidgetType::Button(_)              => 2,
-            WidgetType::BarButton(_)           => 3,
-            WidgetType::ToggleButton(_)        => 4,
-            WidgetType::TextDisplay(_)         => 5,
-            WidgetType::PlayWorldViewRender(_) => 6,
-            WidgetType::DraggableVar(_)        => 7,
-            WidgetType::VarSlot(_)             => 8,
+            WidgetType::ScrollPanel(_)         => 2,
+            WidgetType::Button(_)              => 3,
+            WidgetType::BarButton(_)           => 4,
+            WidgetType::ToggleButton(_)        => 5,
+            WidgetType::TextDisplay(_)         => 6,
+            WidgetType::PlayWorldViewRender(_) => 7,
+            WidgetType::DraggableVar(_)        => 8,
+            WidgetType::VarSlot(_)             => 9,
         }
     }
 
@@ -90,6 +93,7 @@ impl Widget for WidgetType {
             // Panels
             WidgetType::Panel(w) => w.get_pos(),
             WidgetType::TabPanel(w) => w.get_pos(),
+            WidgetType::ScrollPanel(w) => w.get_pos(),
 
             // Buttons
             WidgetType::Button(w) => w.get_pos(),
@@ -113,6 +117,7 @@ impl Widget for WidgetType {
             // Panels
             WidgetType::Panel(w) => w.get_scale(),
             WidgetType::TabPanel(w) => w.get_scale(),
+            WidgetType::ScrollPanel(w) => w.get_scale(),
 
             // Buttons
             WidgetType::Button(w) => w.get_scale(),
@@ -136,6 +141,7 @@ impl Widget for WidgetType {
             // Panels
             WidgetType::Panel(w) => w.get_preffered_scale(),
             WidgetType::TabPanel(w) => w.get_preffered_scale(),
+            WidgetType::ScrollPanel(w) => w.get_preffered_scale(),
 
             // Buttons
             WidgetType::Button(w) => w.get_preffered_scale(),
@@ -163,6 +169,7 @@ impl Widget for WidgetType {
             // Panels
             WidgetType::Panel(w) => w.set_buffers(buffers),
             WidgetType::TabPanel(w) => w.set_buffers(buffers),
+            WidgetType::ScrollPanel(w) => w.set_buffers(buffers),
 
             // Buttons
             WidgetType::Button(w) => w.set_buffers(buffers),
@@ -186,6 +193,7 @@ impl Widget for WidgetType {
             // Panels
             WidgetType::Panel(w) => w.set_parent_pos(pos),
             WidgetType::TabPanel(w) => w.set_parent_pos(pos),
+            WidgetType::ScrollPanel(w) => w.set_parent_pos(pos),
 
             // Buttons
             WidgetType::Button(w) => w.set_parent_pos(pos),
@@ -218,6 +226,7 @@ impl Widget for WidgetType {
             // Panels
             WidgetType::Panel(w) => w.render(texture_manager, screen_data, game_event_manager),
             WidgetType::TabPanel(w) => w.render(texture_manager, screen_data, game_event_manager),
+            WidgetType::ScrollPanel(w) => w.render(texture_manager, screen_data, game_event_manager),
 
             // Button
             WidgetType::Button(w) => w.render(texture_manager, screen_data, game_event_manager),
@@ -241,6 +250,7 @@ impl Widget for WidgetType {
             // Panels
             WidgetType::Panel(w) => w.size(),
             WidgetType::TabPanel(w) => w.size(),
+            WidgetType::ScrollPanel(w) => w.size(),
 
             // Buttons
             WidgetType::Button(w) => w.size(),

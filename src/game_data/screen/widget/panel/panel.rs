@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, drone_programming::var::var_type::{VarType, VarTypeKind}, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::vars::{draggable_var::{self, DraggableVar}, var_slot::VarSlot}, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, tab_panel::tab_panel::TabPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, world_rendering::play_world_view_render::PlayWorldViewRender}}, types::UITextures};
+use crate::game_data::{TextureManager, drone_programming::var::var_type::{VarType, VarTypeKind}, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::vars::{draggable_var::{self, DraggableVar}, var_slot::VarSlot}, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::{self, scroll_panel::ScrollPanel}, tab_panel::tab_panel::TabPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, world_rendering::play_world_view_render::PlayWorldViewRender}}, types::UITextures};
 
 
 #[derive(Clone, Copy)]
@@ -202,7 +202,20 @@ impl Panel {
             return tab_panel;
         }
         else {
-            panic!("Sub Panel was just inserted but could not be retrieved in Panel");
+            panic!("Tab Panel was just inserted but could not be retrieved in Panel");
+        }
+    }
+
+    pub fn add_scroll_panel(&mut self) -> &mut ScrollPanel {
+        let scroll_panel = ScrollPanel::new();
+        self.add_section(WidgetType::ScrollPanel(scroll_panel));
+ 
+        if let WidgetType::ScrollPanel(scroll_panel) = self.sections.last_mut().unwrap().get_mut_widget() {
+            return scroll_panel;
+        }
+        else {
+            panic!("Scroll
+             Panel was just inserted but could not be retrieved in Panel");
         }
     }
 
