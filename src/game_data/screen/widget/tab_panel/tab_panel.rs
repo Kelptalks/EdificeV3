@@ -89,20 +89,26 @@ impl Widget for TabPanel {
 
         // Size button first
         let button_prefred_scale = self.button_panel.get_preffered_scale();
-        let mut sub_panels_largest_prefered_scale = [0.0; 4];
+        let mut largest_prefered_scale = [0.0; 4];
         for sub_panel in &mut self.sub_panels {
             let current_panel_prefered_scale = sub_panel.get_preffered_scale();
-            if sub_panels_largest_prefered_scale[0] < current_panel_prefered_scale[0] {
-                sub_panels_largest_prefered_scale[0] = current_panel_prefered_scale[0];
+            // X needs to check button and sub panel prefered scale
+            if largest_prefered_scale[0] < current_panel_prefered_scale[0] {
+                largest_prefered_scale[0] = current_panel_prefered_scale[0];
             }
-            if sub_panels_largest_prefered_scale[1] < current_panel_prefered_scale[1] {
-                sub_panels_largest_prefered_scale[1] = current_panel_prefered_scale[1];
+            if largest_prefered_scale[0] < button_prefred_scale[0] {
+                largest_prefered_scale[0] = button_prefred_scale[0];
+            }
+
+            // Y just needs largest
+            if largest_prefered_scale[1] < current_panel_prefered_scale[1] {
+                largest_prefered_scale[1] = current_panel_prefered_scale[1];
             }
         }
         
         self.prefered_scale = [
-            button_prefred_scale[0] + sub_panels_largest_prefered_scale[0],
-            button_prefred_scale[1] + sub_panels_largest_prefered_scale[1],
+            largest_prefered_scale[0],
+            button_prefred_scale[1] + largest_prefered_scale[1],
         ];
 
 
