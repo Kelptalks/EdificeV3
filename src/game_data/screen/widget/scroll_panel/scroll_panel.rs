@@ -161,7 +161,7 @@ impl Widget for ScrollPanel {
         // Need to size every frame due to scrolling
         self.size();
 
-        texture_manager.render_ui_element_with_pos(crate::game_data::types::UITextures::MirrorBackground, self.pos);
+        //texture_manager.render_ui_element_with_pos(crate::game_data::types::UITextures::MirrorBackground, self.pos);
 
         for widget in &mut self.panels {
             if let WidgetType::Panel(panel) = widget {

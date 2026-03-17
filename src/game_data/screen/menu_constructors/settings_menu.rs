@@ -11,58 +11,15 @@ pub fn get_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> Widge
         panel.set_color(PanelColor::Clear);
         panel.set_new_background(BackgroundType::Scrolling(crate::game_data::types::UITextures::MirrorBackground));
 
-        let tab_panel = panel.add_tab_panel();
-        let mut tab_sub_panel = WidgetType::new_panel(screen_data.get_viewport_uv(), [0.0; 4]);
-        if let WidgetType::Panel(tab_sub_panel) = &mut tab_sub_panel {
-            tab_sub_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-
-            
-            let sub_panel = tab_sub_panel.add_sub_panel();
-            sub_panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
-            sub_panel.add_var_slot(VarTypeKind::Game(GameVarTypeKind::Block));
-            sub_panel.add_var_slot(VarTypeKind::Game(GameVarTypeKind::Block));
-            sub_panel.add_var_slot(VarTypeKind::Game(GameVarTypeKind::DroneItem));
-
-
-            let sub_panel = tab_sub_panel.add_sub_panel();
-            sub_panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
-            sub_panel.add_draggable_var(VarType::Game(GameVarType::Block(BlockTexture::Granite)));
-            sub_panel.add_draggable_var(VarType::Game(GameVarType::Block(BlockTexture::Grass)));
-            sub_panel.add_draggable_var(VarType::Game(GameVarType::Block(BlockTexture::Stone)));
-            sub_panel.add_draggable_var(VarType::Game(GameVarType::Block(BlockTexture::RedBrick)));
-
-            sub_panel.add_draggable_var(VarType::Game(GameVarType::DroneItem(DroneItem::Sand)));
-            sub_panel.add_draggable_var(VarType::Game(GameVarType::DroneItem(DroneItem::PlantMatter)));
-            sub_panel.add_draggable_var(VarType::Game(GameVarType::DroneItem(DroneItem::TitaniumDrill)));
-            sub_panel.add_draggable_var(VarType::Game(GameVarType::DroneItem(DroneItem::IronOar)));
-            sub_panel.add_draggable_var(VarType::Game(GameVarType::DroneItem(DroneItem::IronIngot)));
-
-
-
-            tab_sub_panel.size();
-        }
-        tab_panel.add_panel(tab_sub_panel);
-        tab_panel.size();
-
-        let mut tab_sub_panel = WidgetType::new_panel(screen_data.get_viewport_uv(), [0.0; 4]);
-        if let WidgetType::Panel(tab_sub_panel) = &mut tab_sub_panel {
-            tab_sub_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-            tab_sub_panel.add_bar_button("Poopy Pee Pee".to_string());
-            tab_sub_panel.add_bar_button("test_this_shit".to_string());
-            tab_sub_panel.size();
-        }
-        tab_panel.add_panel(tab_sub_panel);
-        tab_panel.size();
-
         let header = panel.add_text_display("Settings".to_string());
         header.set_text_scale(TextSize::ExtraLarge);
 
 
         // Back button
         let button = panel.add_button();
-        button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::MainMenu)));
+        button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(screen_data.get_current_menu())));
         button.set_icon(crate::game_data::types::UITextures::XIcon);
-        button.set_text("Main Menu".to_string());
+        button.set_text("Back".to_string());
 
         panel.size();
     }

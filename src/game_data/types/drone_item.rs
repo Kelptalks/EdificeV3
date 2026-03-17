@@ -93,6 +93,10 @@ static ITEM_PROPERTIES: [DroneItemProperties; 34] = [
 ];
 
 impl DroneItem {
+    pub fn get_total_items() -> usize {
+        return ITEM_PROPERTIES.len();
+    }
+
     pub fn from_id(id: u32) -> DroneItem {
         match id {
             0 => DroneItem::StoneDrill,

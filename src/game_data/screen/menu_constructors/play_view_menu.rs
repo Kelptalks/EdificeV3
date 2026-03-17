@@ -1,4 +1,4 @@
-use crate::game_data::{drone_programming::var::{game_vars::game_var_type::GameVarType, var_type::VarType}, game_event_manager::{game_event_manager::Event, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, widget_calculations::TextSize}}, types::{BlockTexture, UITextures}};
+use crate::game_data::{drone_programming::var::{game_vars::game_var_type::GameVarType, var_type::VarType}, game_event_manager::{game_event_manager::Event, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::{BlockTexture, UITextures, drone_item::DroneItem}};
 
 //=====================================
 // Selection Panel
@@ -6,25 +6,31 @@ use crate::game_data::{drone_programming::var::{game_vars::game_var_type::GameVa
 
 pub fn get_block_selection_panel() -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
-
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+        panel.set_color(PanelColor::Dark);
 
         // Header
         let text_display = panel.add_text_display("Blocks".to_string());
         text_display.set_text_scale(TextSize::Medium);
 
         let scroll_panel = panel.add_scroll_panel();
-        for i in 0..10 {
-            let mut block_selection_panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
-            if let WidgetType::Panel(test_panel) = &mut block_selection_panel {
-                test_panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
-                test_panel.add_draggable_var(VarType::Game(GameVarType::Block(BlockTexture::Grass)));
-                test_panel.add_draggable_var(VarType::Game(GameVarType::Block(BlockTexture::Stone)));
-                test_panel.add_draggable_var(VarType::Game(GameVarType::Block(BlockTexture::BrownTrunk)));
-                test_panel.add_draggable_var(VarType::Game(GameVarType::Block(BlockTexture::Sand)));
-                test_panel.add_draggable_var(VarType::Game(GameVarType::Block(BlockTexture::white_flowers)));
+        
 
+        
+        let blocks_per_row = 5;
+        for collumn_block_id in (0..BlockTexture::get_total_blocks()).step_by(blocks_per_row) {
+
+            let mut block_selection_panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
+            if let WidgetType::Panel(row_panel) = &mut block_selection_panel {
+                row_panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
+                row_panel.set_color(PanelColor::Clear);
+
+                for row_block_id in 0..blocks_per_row {
+                    
+                    let block_type = BlockTexture::from_id(collumn_block_id as u16 + row_block_id as u16);
+                    row_panel.add_draggable_var(VarType::Game(GameVarType::Block(block_type)));
+                }
             }
             scroll_panel.add_panel(block_selection_panel);
         }
@@ -38,13 +44,35 @@ pub fn get_block_selection_panel() -> WidgetType {
 
 pub fn get_item_selection_panel() -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
-
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+        panel.set_color(PanelColor::Dark);
 
         // Header
         let text_display = panel.add_text_display("Items".to_string());
         text_display.set_text_scale(TextSize::Medium);
+
+        let scroll_panel = panel.add_scroll_panel();
+        
+        let items_per_row = 5;
+        for collumn_item_id in (0..DroneItem::get_total_items()).step_by(items_per_row) {
+
+            let mut item_selection_panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
+            if let WidgetType::Panel(row_panel) = &mut item_selection_panel {
+                row_panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
+                row_panel.set_color(PanelColor::Clear);
+
+                for row_item_id in 0..items_per_row {
+                    
+                    let item_type = DroneItem::from_id(collumn_item_id as u32 + row_item_id as u32);
+                    row_panel.add_draggable_var(VarType::Game(GameVarType::DroneItem(item_type)));
+                }
+            }
+            scroll_panel.add_panel(item_selection_panel);
+        }
+
+        scroll_panel.set_prefered_scale(0.8);
+        panel.size();
     }
 
     return panel;
@@ -85,7 +113,7 @@ pub fn add_selection_menu(panel: &mut Panel, screen_data: &ScreenData, player_da
     selection_sub_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
 
     // Header
-    let text_display = selection_sub_panel.add_text_display("Controls".to_string());
+    let text_display = selection_sub_panel.add_text_display("Variables".to_string());
     text_display.set_text_scale(TextSize::Large);
 
 
@@ -126,12 +154,15 @@ pub fn get_location_panel() -> WidgetType {
         // Header
         let text_display = panel.add_text_display("Location Manager".to_string());
         text_display.set_text_scale(TextSize::Medium);
+        
+        panel.size();
     }
+
 
     return panel;
 }
 
-pub fn get_drone_panel() -> WidgetType {
+pub fn get_drone_panel(player_data: &mut PlayerData) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
 
     if let WidgetType::Panel(panel) = &mut panel {
@@ -140,6 +171,18 @@ pub fn get_drone_panel() -> WidgetType {
         // Header
         let text_display = panel.add_text_display("Drone Controller".to_string());
         text_display.set_text_scale(TextSize::Medium);
+
+
+        let play_view = panel.add_play_world_view_renderer();
+        let world_ref = player_data.get_world_ref();
+        play_view.link_world_ref(world_ref);
+        let cords_ref = player_data.get_mut_location_manager().get_player_cursor_location_cords_ref();
+        play_view.link_camera_world_cords_ref(cords_ref);
+
+        play_view.set_prefered_size(0.5);
+        
+
+        panel.size();
     }
 
     return panel;
@@ -157,6 +200,8 @@ pub fn get_building_panel() -> WidgetType {
 
         // 
         let button = panel.add_button();
+
+        panel.size();
     }
 
     return panel;
@@ -175,7 +220,7 @@ pub fn add_control_panel(panel: &mut Panel, screen_data: &ScreenData, player_dat
     let control_tab_panel = controls_sub_panel.add_tab_panel();
 
     // Add Drone Controls Tab
-    let button = control_tab_panel.add_panel(get_drone_selection_panel());
+    let button = control_tab_panel.add_panel(get_drone_panel(player_data));
     button.set_text("drones".to_string());
     button.set_block(crate::game_data::types::BlockTexture::DroneBotRight);
 
@@ -210,6 +255,7 @@ pub fn add_play_view_panel(panel: &mut Panel, screen_data: &ScreenData, player_d
     let cords_ref = player_data.get_mut_location_manager().get_player_cursor_location_cords_ref();
     play_view.link_camera_world_cords_ref(cords_ref);
 
+    play_view.set_prefered_size(0.5);
 }
 
 //=====================================

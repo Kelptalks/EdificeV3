@@ -304,7 +304,7 @@ impl PlayWorldViewRender {
     //=====================================
 
     pub fn set_prefered_size(&mut self, scale: f32) {
-        self.parent_scale = [scale; 2];
+        self.prefered_scale = [scale; 2];
     }
 
 }
