@@ -1,13 +1,10 @@
-use std::{cell::{Ref, RefCell}, rc::Rc};
+use std::{cell::{RefCell}, rc::Rc};
 
-use image::buffer;
-
-use crate::game_data::{game_event_manager::{game_event_manager::Event, widget_event_manager::widget_event_manager::WidgetEvent}, screen::widget::{self, bar_button::bar_button::BarButtonWidget, button::button::Button, widget::{Widget, WidgetType}, widget_calculations}};
+use crate::game_data::{game_event_manager::{game_event_manager::Event, widget_event_manager::widget_event_manager::WidgetEvent}, screen::widget::{bar_button::bar_button::BarButtonWidget, widget::{Widget, WidgetType}, widget_calculations}};
 
 pub struct ScrollPanel {
     // Parent rendering
     parent_pos: [f32; 4],
-    parent_scale: [f32; 2],
     prefered_scale: [f32; 2],
 
     // Self Rendering
@@ -20,7 +17,8 @@ pub struct ScrollPanel {
     panels: Vec<WidgetType>,
 
     // Scrolling
-    current_scroll: Rc<RefCell<f32>>,
+    scroll_value: Rc<RefCell<f32>>,
+    max_scroll_value: f32,
     buttons: [BarButtonWidget; 2],
 
 }
@@ -31,15 +29,14 @@ impl ScrollPanel {
         let scroll_interval = 0.05;
 
         let mut scroll_up_button = BarButtonWidget::new("".to_string(), [0.0; 4]);
-        scroll_up_button.add_event(Event::WidgetEvent(WidgetEvent::Modf32Event(scroll_ref.clone(), scroll_interval)));
+        scroll_up_button.add_event(Event::WidgetEvent(WidgetEvent::Modf32Event(scroll_ref.clone(), -scroll_interval)));
         
         let mut scroll_down_button = BarButtonWidget::new("".to_string(), [0.0; 4]);
-        scroll_down_button.add_event(Event::WidgetEvent(WidgetEvent::Modf32Event(scroll_ref.clone(), -scroll_interval)));
+        scroll_down_button.add_event(Event::WidgetEvent(WidgetEvent::Modf32Event(scroll_ref.clone(), scroll_interval)));
 
         ScrollPanel {
             // Parent Rendering
             parent_pos: [0.0; 4],
-            parent_scale: [0.0; 2],
             prefered_scale: [0.2; 2],
 
             // Self Rendering
@@ -52,8 +49,8 @@ impl ScrollPanel {
             panels: Vec::new(),
 
             // Scrolling
-            current_scroll: scroll_ref,
-
+            scroll_value: scroll_ref,
+            max_scroll_value: 0.0,
             buttons: [scroll_up_button, scroll_down_button],
         }
     }
@@ -63,8 +60,18 @@ impl ScrollPanel {
         self.panels.push(widget);
     }
 
-    pub fn set_prefered_scale(&mut self, scale: [f32; 2]) {
-        self.prefered_scale = scale;
+    pub fn set_prefered_scale(&mut self, scale: f32) {
+        self.prefered_scale[1] = scale;
+
+        let mut largest_widget_prefered_x_scale = 0.0;
+        for widget in &mut self.panels {
+            widget.size();
+            let widget_prefered_size = widget.get_preffered_scale();
+            if largest_widget_prefered_x_scale < widget_prefered_size[0] {
+                largest_widget_prefered_x_scale = widget_prefered_size[0];
+            }
+        }
+        self.prefered_scale[0] = largest_widget_prefered_x_scale + 0.001;
     }
 }
 
@@ -94,9 +101,8 @@ impl Widget for ScrollPanel {
         self.scale = widget_calculations::pos_to_scale(self.pos);
 
 
-        let mut current_widget_buffer_offset = *self.current_scroll.borrow();
+        let mut current_widget_buffer_offset = -*self.scroll_value.borrow();
         self.buttons[0].set_parent_pos(self.pos);
-
 
         // Size Up Button
         let mut button_buffer = self.internal_buffers;
@@ -109,7 +115,6 @@ impl Widget for ScrollPanel {
 
         for widget in &mut self.panels {
             let mut widget_buffer = self.internal_buffers;
-            
             let widget_prefered_size = widget.get_preffered_scale();
 
             // Calculate buffers based off widget size
@@ -124,7 +129,6 @@ impl Widget for ScrollPanel {
             widget.set_buffers(widget_buffer);
             widget.size();
 
-
             let widget_scale = widget.get_scale();
             current_widget_buffer_offset += widget_scale[1] + self.internal_buffers[1] + self.internal_buffers[3];
         }
@@ -136,6 +140,8 @@ impl Widget for ScrollPanel {
         self.buttons[1].set_buffers(button_buffer);
         self.buttons[1].size();
         
+
+        self.max_scroll_value = current_widget_buffer_offset;
     }
 
     fn render(
@@ -144,11 +150,18 @@ impl Widget for ScrollPanel {
         screen_data: &crate::game_data::screen::ScreenData,
         game_event_manager: &mut crate::game_data::game_event_manager::game_event_manager::GameEventManager
     ) {
-        
-        texture_manager.render_ui_element_with_pos(crate::game_data::types::UITextures::MirrorBackground, self.pos);
+        // Make sure scroll is within bounds 
+        if *self.scroll_value.borrow() < 0.0 {
+            *self.scroll_value.borrow_mut() = 0.0;
+        }
+        else if *self.scroll_value.borrow() > self.max_scroll_value {
+            *self.scroll_value.borrow_mut() = self.max_scroll_value;
+        }
 
         // Need to size every frame due to scrolling
         self.size();
+
+        texture_manager.render_ui_element_with_pos(crate::game_data::types::UITextures::MirrorBackground, self.pos);
 
         for widget in &mut self.panels {
             if let WidgetType::Panel(panel) = widget {
@@ -167,12 +180,12 @@ impl Widget for ScrollPanel {
             let inputs = screen_data.get_inputs();
             for input in inputs {
                 match input {
-                    crate::game_data::screen::input_data::Input::MouseWheel(x, y) => {
+                    crate::game_data::screen::input_data::Input::MouseWheel(_x, y) => {
                         if *y > 0.0 {
-                            game_event_manager.add_widget_event(WidgetEvent::Modf32Event(self.current_scroll.clone(), 0.01));
+                            game_event_manager.add_widget_event(WidgetEvent::Modf32Event(self.scroll_value.clone(), -0.03));
                         }
                         else if *y < 0.0 {
-                            game_event_manager.add_widget_event(WidgetEvent::Modf32Event(self.current_scroll.clone(), -0.01));
+                            game_event_manager.add_widget_event(WidgetEvent::Modf32Event(self.scroll_value.clone(), 0.03));
                         }
                     
                     },

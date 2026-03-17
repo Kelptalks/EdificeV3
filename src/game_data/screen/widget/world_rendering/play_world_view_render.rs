@@ -343,6 +343,10 @@ impl Widget for PlayWorldViewRender {
         self.render_view(screen_data, texture_manager);
 
 
+        // Don't handle input if mouse is not on render
+        if !screen_data.mouse_on_ndc_pos(self.pos) { 
+            return;
+        }
         
         let inputs = screen_data.get_inputs();
         for input in inputs {

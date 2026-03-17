@@ -1,4 +1,4 @@
-use crate::game_data::{game_event_manager::{game_event_manager::Event, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, widget_calculations::TextSize}}, types::UITextures};
+use crate::game_data::{drone_programming::var::{game_vars::game_var_type::GameVarType, var_type::VarType}, game_event_manager::{game_event_manager::Event, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, widget_calculations::TextSize}}, types::{BlockTexture, UITextures}};
 
 //=====================================
 // Selection Panel
@@ -15,18 +15,21 @@ pub fn get_block_selection_panel() -> WidgetType {
         text_display.set_text_scale(TextSize::Medium);
 
         let scroll_panel = panel.add_scroll_panel();
-        scroll_panel.set_prefered_scale([0.5, 0.7]);
         for i in 0..10 {
-            let mut test_panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
-            if let WidgetType::Panel(test_panel) = &mut test_panel {
+            let mut block_selection_panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
+            if let WidgetType::Panel(test_panel) = &mut block_selection_panel {
                 test_panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
-                test_panel.add_button();
-                test_panel.add_button();
-                test_panel.add_button();
+                test_panel.add_draggable_var(VarType::Game(GameVarType::Block(BlockTexture::Grass)));
+                test_panel.add_draggable_var(VarType::Game(GameVarType::Block(BlockTexture::Stone)));
+                test_panel.add_draggable_var(VarType::Game(GameVarType::Block(BlockTexture::BrownTrunk)));
+                test_panel.add_draggable_var(VarType::Game(GameVarType::Block(BlockTexture::Sand)));
+                test_panel.add_draggable_var(VarType::Game(GameVarType::Block(BlockTexture::white_flowers)));
 
             }
-            scroll_panel.add_panel(test_panel);
+            scroll_panel.add_panel(block_selection_panel);
         }
+
+        scroll_panel.set_prefered_scale(0.8);
         panel.size();
     }
 

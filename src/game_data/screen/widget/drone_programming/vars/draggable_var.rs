@@ -88,9 +88,6 @@ impl Widget for DraggableVar {
         else {
             rendering_pos = self.pos;
         }
-
-        texture_manager.render_ui_element_with_pos(UITextures::MirrorBackground, self.pos);
-
         texture_manager.render_texture_with_pos(self.var.get_texture(), rendering_pos);
     }
 }
