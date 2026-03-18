@@ -6,7 +6,8 @@ use crate::game_data::game_event_manager::{game_event_manager::EventData};
 pub enum WidgetEvent {
     ToggleBoolEvent(Rc<RefCell<bool>>),
     SetUsizeEvent(Rc<RefCell<usize>>, usize),
-    Modf32Event(Rc<RefCell<f32>>, f32)
+    Modf32Event(Rc<RefCell<f32>>, f32),
+    Modi32Event(Rc<RefCell<i32>>, i32),
 }
 
 
@@ -23,6 +24,9 @@ impl WidgetEvent {
             WidgetEvent::Modf32Event(ref_cell, value) => {
                 *ref_cell.borrow_mut() += *value;
             },
+            WidgetEvent::Modi32Event(ref_cell, value) => {
+                *ref_cell.borrow_mut() += *value;
+            }
         }
     }
 }

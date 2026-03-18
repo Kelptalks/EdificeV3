@@ -1,6 +1,8 @@
+use std::{cell::RefCell, rc::Rc};
+
 use rand::rand_core::le;
 
-use crate::game_data::{World, game_event_manager::{game_event_manager::EventData, render_event_manager::render_event_manager::RenderEvent}, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::{game_event_manager::EventData, render_event_manager::render_event_manager::RenderEvent}, locations::world_area::WorldArea, player_data::locations::location::WorldLocation, types::BlockTexture};
 
 /*
 #################
@@ -18,7 +20,8 @@ pub enum WorldEvent {
     
     // Modifcation
     GenLevel(u32),                      // Level Id
-    ModBlock([i32; 3], BlockTexture)    // Block Cords, Block Type
+    ModBlock([i32; 3], BlockTexture),    // Block Cords, Block Type
+    FillLocation(Rc<RefCell<WorldLocation>>, BlockTexture)
 }
 
 impl WorldEvent {
@@ -33,7 +36,7 @@ impl WorldEvent {
             WorldEvent::GenWorld() => {
                 let render_range = event_data.get_mut_world_gen_manager().get_world_config().get_chunk_rendering_range();
                 event_data.get_mut_world_gen_manager().generate_area(world);
-                
+    
             },
             WorldEvent::GenLevel(level) => {
                 event_data.get_level_manager().get_level_at_index(level.clone() as usize).gen_level(world);
@@ -42,6 +45,9 @@ impl WorldEvent {
                 world.set_world_value(block_type.id_as_u16(), *cords);
                 event_data.add_render_event(RenderEvent::ReRenderBlock(*cords));
             }
+            WorldEvent::FillLocation(world_location, block_texture) => {
+                event_data.add_world_events(world_location.borrow().get_area().get_fill_area_events(*block_texture));
+            },
         }
     }
 }

@@ -2,8 +2,42 @@ use std::{cell::RefCell, rc::Rc};
 
 use miniquad::KeyCode;
 
-use crate::game_data::{game_event_manager::{game_event_manager::Event, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}}, locations::world_area::WorldArea, player_data::{locations::location::WorldLocation, player_data::PlayerData}, screen::widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget_calculations::TextSize, world_rendering::play_world_view_config::PlayViewRendingConfig}};
+use crate::game_data::{game_event_manager::{game_event_manager::Event, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}, widget_event_manager::widget_event_manager::WidgetEvent, world_event_manager::world_event_manager::WorldEvent}, locations::world_area::WorldArea, player_data::{locations::location::WorldLocation, player_data::PlayerData}, screen::widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget_calculations::TextSize, world_rendering::play_world_view_config::PlayViewRendingConfig}};
 
+fn construct_building_events(location_ref: &Rc<RefCell<WorldLocation>>) -> Vec<InputEvent> {
+    let mut building_input_events = Vec::new();
+
+
+    let fill_location_event = Event::WorldEvent(WorldEvent::FillLocation(location_ref.clone(), crate::game_data::types::BlockTexture::Stone));
+    let place_block_event = 
+        InputEvent::RightMouseButtonClicked(
+            fill_location_event
+        ); 
+    
+    building_input_events.push(place_block_event);
+
+    return building_input_events;
+}
+
+fn construct_zoom_events(zoom_ref: &Rc<RefCell<i32>>) -> Vec<InputEvent> {
+    let mut zoom_input_events = Vec::new();
+
+    let zoom_out_event = Event::WidgetEvent(WidgetEvent::Modi32Event(zoom_ref.clone(), -1));
+    let scroll_up_input_event = 
+        InputEvent::ScrollUp(
+            zoom_out_event
+        ); 
+    zoom_input_events.push(scroll_up_input_event);
+
+    let zoom_in_event = Event::WidgetEvent(WidgetEvent::Modi32Event(zoom_ref.clone(), 1));
+    let scroll_down_input_event = 
+        InputEvent::ScrollDown(
+            zoom_in_event
+        ); 
+    zoom_input_events.push(scroll_down_input_event);
+
+    return zoom_input_events;
+}
 
 fn construct_shift_input_event(location_ref: &Rc<RefCell<WorldLocation>>, keycode: KeyCode, shift: [i32; 3]) -> InputEvent {
     // Move camera down event
@@ -22,22 +56,27 @@ fn construct_shift_input_event(location_ref: &Rc<RefCell<WorldLocation>>, keycod
     return key_down_input_event;
 }
 
-fn get_key_events(rendering_config: &PlayViewRendingConfig) -> Vec<InputEvent>{
+fn get_input_events(rendering_config: &PlayViewRendingConfig) -> Vec<InputEvent>{
     let mut input_events = Vec::new();
 
     let location_ref = rendering_config.get_location_ref().clone();
 
-
-    // Verticle
+    // Verticle Key Movement
     input_events.push(self::construct_shift_input_event(&location_ref, KeyCode::LeftShift, [0, 0, -1]));
     input_events.push(self::construct_shift_input_event(&location_ref, KeyCode::Space, [0, 0, 1]));
     
-    // Horizontal
+    // Horizontal Key Movment
     input_events.push(self::construct_shift_input_event(&location_ref, KeyCode::W, [0, -1, 0]));
     input_events.push(self::construct_shift_input_event(&location_ref, KeyCode::S, [0, 1, 0]));
 
     input_events.push(self::construct_shift_input_event(&location_ref, KeyCode::A, [-1, 0, 0]));
     input_events.push(self::construct_shift_input_event(&location_ref, KeyCode::D, [1, 0, 0]));
+
+    // Zooming events
+    let zoom_ref = rendering_config.get_zoom_ref();
+    input_events.append(&mut construct_zoom_events(zoom_ref));
+
+    input_events.append(&mut construct_building_events(&location_ref));
 
     return input_events;
 }
@@ -61,7 +100,7 @@ pub fn add_bulding_world_view_panel(panel: &mut Panel, player_data: &mut PlayerD
 
 
     let rendering_config = PlayViewRendingConfig::new(player_data.get_world_ref(), location);
-    let input_events = get_key_events(&rendering_config);
+    let input_events = get_input_events(&rendering_config);
 
 
     // Add World Rendering

@@ -106,6 +106,12 @@ impl EventData {
         self.world_events.push(world_event);
     }
 
+    pub fn add_world_events(&mut self, events: Vec<WorldEvent>) {
+        for event in events {
+            self.add_world_event(event);
+        }
+    }
+
     pub fn add_widget_event(&mut self, widget_event: WidgetEvent) {
         self.widget_events.push(widget_event);
     }

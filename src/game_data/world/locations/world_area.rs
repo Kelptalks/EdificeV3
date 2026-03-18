@@ -215,4 +215,28 @@ impl WorldArea {
         }
     }
 
+    pub fn get_fill_area_events(&self, block_texture: BlockTexture) -> Vec<WorldEvent> {
+        let mut min = [i32::MAX; 3];
+        let mut max = [i32::MIN; 3];
+
+        for point in &self.points {
+            for i in 0..3 {
+                if point[i] < min[i] { min[i] = point[i]; }
+                if point[i] > max[i] { max[i] = point[i]; }
+            }
+        }
+
+        let mut world_block_mod_events = Vec::new();
+
+        for x in min[0]..=max[0] {
+            for y in min[1]..=max[1] {
+                for z in min[2]..=max[2] {
+                    world_block_mod_events.push(WorldEvent::ModBlock([x, y, z], block_texture));
+                }
+            }
+        }
+
+        return world_block_mod_events;
+    }
+
 }

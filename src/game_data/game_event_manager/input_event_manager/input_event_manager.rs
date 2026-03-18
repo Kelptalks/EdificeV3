@@ -1,4 +1,4 @@
-use miniquad::KeyCode;
+use miniquad::{KeyCode, MouseButton};
 
 use crate::game_data::{game_event_manager::game_event_manager::{Event, EventData}, screen::ScreenData};
 
@@ -6,7 +6,20 @@ use crate::game_data::{game_event_manager::game_event_manager::{Event, EventData
 
 #[derive(Clone)]
 pub enum InputEvent {
+    // Keys
     KeyDown(KeyCode, Event),
+
+    // Scrolling
+    ScrollUp(Event),
+    ScrollDown(Event),
+
+    // Mouse button
+    LeftMouseButtonClicked(Event),
+    RightMouseButtonClicked(Event),
+
+    LeftMouseButtonReleased(Event),
+    RightMouseButtonReleased(Event),
+
 }
 
 impl InputEvent {
@@ -17,6 +30,36 @@ impl InputEvent {
             InputEvent::KeyDown(key_code, event) => {
                 // println!("{}", input_manager.was_key_code_pressed(*key_code));
                 if input_manager.was_key_code_pressed(*key_code) {
+                    event_data.add_game_event(event.clone());
+                }
+            },
+            InputEvent::ScrollUp(event) => {
+                if input_manager.get_mouse_input_data().scrolled_up() {
+                    event_data.add_game_event(event.clone());
+                }
+            },
+            InputEvent::ScrollDown(event) => {
+                if input_manager.get_mouse_input_data().scrolled_down() {
+                    event_data.add_game_event(event.clone());
+                }
+            },
+            InputEvent::LeftMouseButtonClicked(event) => {
+                if input_manager.get_mouse_input_data().was_left_clicked() {
+                    event_data.add_game_event(event.clone());
+                }
+            },
+            InputEvent::RightMouseButtonClicked(event) => {
+                if input_manager.get_mouse_input_data().was_right_clicked() {
+                    event_data.add_game_event(event.clone());
+                }
+            },
+            InputEvent::LeftMouseButtonReleased(event) => {
+                if input_manager.get_mouse_input_data().was_left_released() {
+                    event_data.add_game_event(event.clone());
+                }
+            },
+            InputEvent::RightMouseButtonReleased(event) => {
+                if input_manager.get_mouse_input_data().was_left_released() {
                     event_data.add_game_event(event.clone());
                 }
             },

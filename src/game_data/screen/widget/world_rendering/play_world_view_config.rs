@@ -30,7 +30,7 @@ impl PlayViewRendingConfig {
     }
 
     //=====================================
-    // Getters / Setters
+    // Ref Getters
     //=====================================
 
     pub fn get_world_ref(&self) -> &Arc<RwLock<World>> {
@@ -40,6 +40,14 @@ impl PlayViewRendingConfig {
     pub fn get_location_ref(&self) -> &Rc<RefCell<WorldLocation>> {
         return &self.location;
     }
+
+    pub fn get_zoom_ref(&self) -> &Rc<RefCell<i32>> {
+        return &self.zoom;
+    }
+
+    //=====================================
+    // Value Getters
+    //=====================================
 
     pub fn get_zoom(&self) -> i32 {
         return *self.zoom.borrow();
