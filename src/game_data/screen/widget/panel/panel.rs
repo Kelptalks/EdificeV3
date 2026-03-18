@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, drone_programming::var::var_type::{VarType, VarTypeKind}, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::vars::{draggable_var::{self, DraggableVar}, var_slot::VarSlot}, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::{self, scroll_panel::ScrollPanel}, tab_panel::tab_panel::TabPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, world_rendering::play_world_view_render::PlayWorldViewRender}}, types::UITextures};
+use crate::game_data::{TextureManager, drone_programming::var::var_type::{VarType, VarTypeKind}, game_event_manager::game_event_manager::{Event, GameEventManager}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::vars::{draggable_var::{self, DraggableVar}, var_slot::VarSlot}, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::{self, scroll_panel::ScrollPanel}, tab_panel::tab_panel::TabPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{play_world_view_config::PlayViewRendingConfig, play_world_view_render::PlayWorldViewRender}}}, types::UITextures};
 
 
 #[derive(Clone, Copy)]
@@ -279,8 +279,8 @@ impl Panel {
     // World Rendering Constructors
     //=====================================
 
-    pub fn add_play_world_view_renderer(&mut self) -> &mut PlayWorldViewRender {
-        let header = PlayWorldViewRender::new(self.pos, self.internal_buffers);
+    pub fn add_play_world_view_renderer(&mut self, rendering_config: PlayViewRendingConfig) -> &mut PlayWorldViewRender {
+        let header = PlayWorldViewRender::new(rendering_config);
         self.add_section(WidgetType::PlayWorldViewRender(header));
 
         if let WidgetType::PlayWorldViewRender(play_view) = self.sections.last_mut().unwrap().get_mut_widget() {

@@ -30,7 +30,7 @@ impl WorldArea {
     }
 
     //=====================================
-    // Setters
+    // points
     //=====================================
 
     pub fn set_point_1(&mut self, world_cords: [i32; 3]) {
@@ -39,6 +39,53 @@ impl WorldArea {
 
     pub fn set_point_2(&mut self, world_cords: [i32; 3]) {
         self.points[1] = world_cords;
+    }
+
+    pub fn get_point_1(&self) -> [i32; 3] {
+        return self.points[0];
+    }
+
+    pub fn get_point_2(&self) -> [i32; 3] {
+        return self.points[1];
+    }
+
+    //=====================================
+    // modification
+    //=====================================
+
+    pub fn shift_cords(&mut self, shift_cords: [i32; 3]) {
+        for point in &mut self.points {
+            for (i, axis) in point.iter_mut().enumerate() {
+                *axis += shift_cords[i];
+            }
+        }
+    }
+
+    //=====================================
+    // Getters
+    //=====================================
+
+    pub fn get_dimensions(&self) -> [i32; 3] {
+        let [start, end] = self.points;
+        [
+            (end[0] - start[0]).abs(),
+            (end[1] - start[1]).abs(),
+            (end[2] - start[2]).abs(),
+        ]
+    }
+
+    pub fn get_half_dimensions(&self) -> [i32; 3] {
+        return self.get_dimensions().map(|d| d / 2);
+    }
+
+    pub fn get_center_world_cords(&self) -> [i32; 3] {
+        let [start, _] = self.points;
+        let half = self.get_half_dimensions();
+        [
+            start[0] + half[0],
+            start[1] + half[1],
+            start[2] + half[2],
+        ]
     }
 
     //=====================================

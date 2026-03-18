@@ -39,51 +39,14 @@ pub enum WidgetType {
     VarSlot(VarSlot),
 }
 
-#[derive(Copy, Clone)]
-pub struct WidgetTypeProperties {
-    pub name: &'static str,
-    pub draggable: bool,
-}
-
-static WIDGET_TYPE_PROPERTIES: [WidgetTypeProperties; 10] = [
-    WidgetTypeProperties { name: "Panel",                draggable: false },
-    WidgetTypeProperties { name: "TabPanel",             draggable: false },
-    WidgetTypeProperties { name: "ScrollPanel",          draggable: false },
-    WidgetTypeProperties { name: "Button",               draggable: false },
-    WidgetTypeProperties { name: "BarButton",            draggable: false },
-    WidgetTypeProperties { name: "ToggleButton",         draggable: false },
-    WidgetTypeProperties { name: "TextDisplay",          draggable: false },
-    WidgetTypeProperties { name: "PlayWorldViewRender",  draggable: false },
-    WidgetTypeProperties { name: "DraggableVar",         draggable: true  },
-    WidgetTypeProperties { name: "VarSlot",              draggable: false },
-];
-
 impl WidgetType {
-    fn variant_index(&self) -> usize {
-        match self {
-            WidgetType::Panel(_)               => 0,
-            WidgetType::TabPanel(_)            => 1,
-            WidgetType::ScrollPanel(_)         => 2,
-            WidgetType::Button(_)              => 3,
-            WidgetType::BarButton(_)           => 4,
-            WidgetType::ToggleButton(_)        => 5,
-            WidgetType::TextDisplay(_)         => 6,
-            WidgetType::PlayWorldViewRender(_) => 7,
-            WidgetType::DraggableVar(_)        => 8,
-            WidgetType::VarSlot(_)             => 9,
-        }
-    }
-
-    pub fn properties(&self) -> &'static WidgetTypeProperties {
-        &WIDGET_TYPE_PROPERTIES[self.variant_index()]
-    }
-
-    pub fn is_draggable(&self) -> bool {
-        WIDGET_TYPE_PROPERTIES[self.variant_index()].draggable
-    }
 
     pub fn new_panel(parent_pos: [f32; 4], buffers: [f32; 4]) -> Self {
         return WidgetType::Panel(Panel::new(parent_pos, buffers));
+    }
+
+    pub fn new_text_display(text: String) -> Self {
+        return WidgetType::TextDisplay(TextDisplay::new(text));
     }
 }
 

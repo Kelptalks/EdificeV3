@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc, sync::{Arc, RwLock}};
 
 use miniquad::KeyCode;
 
-use crate::game_data::{TextureManager, World, game_event_manager::game_event_manager::GameEventManager, screen::{ScreenData, camera_data::Direction, iso_cord_tool, widget::{panel::panel::Panel, widget::Widget, widget_calculations, world_rendering::play_block::PlayBlock}}, types::BlockTexture};
+use crate::game_data::{TextureManager, World, game_event_manager::{game_event_manager::{Event, GameEventManager}, input_event_manager::input_event_manager::InputEvent}, screen::{ScreenData, camera_data::Direction, iso_cord_tool, widget::{panel::panel::Panel, widget::Widget, widget_calculations, world_rendering::{play_block::PlayBlock, play_world_view_config::PlayViewRendingConfig}}}, types::BlockTexture};
 
 /*
 ###############
@@ -69,9 +69,16 @@ pub struct PlayWorldViewRender {
     center_ndc: [f32; 2],
 
 
+    // Input | Handling
+    input_events: Vec<InputEvent>,
+
     // World Rendering
+    rendering_config: PlayViewRendingConfig,
+
     world_ref: Option<Arc<RwLock<World>>>,
     camera_cords_ref: Option<Rc<RefCell<[i32; 3]>>>,
+    
+    
     camera_direction: ViewDirection,
 
     // Camera Motion
@@ -86,15 +93,15 @@ pub struct PlayWorldViewRender {
 }
 
 impl PlayWorldViewRender {
-    pub fn new(parent_pos: [f32; 4], buffers: [f32; 4]) -> PlayWorldViewRender{
+    pub fn new(play_view_rendering_config: PlayViewRendingConfig) -> PlayWorldViewRender{
         PlayWorldViewRender {            
            // Parent Rendering
-            parent_pos: parent_pos,
+            parent_pos: [0.0; 4],
             parent_scale: [0.0; 2],
             prefered_scale: [1.0; 2],
 
             // Self Rendering
-            external_buffers: buffers, 
+            external_buffers: [0.0; 4], 
             internal_buffers: [0.012; 4],   
             pos: [0.0; 4],
             scale: [0.0; 2],
@@ -102,7 +109,11 @@ impl PlayWorldViewRender {
             center_ndc: [0.0; 2],
 
 
+            // Input | Handling
+            input_events: Vec::new(),
+
             // Player Data Links
+            rendering_config: play_view_rendering_config,
             world_ref: None,
             camera_cords_ref: None,
 
@@ -123,6 +134,10 @@ impl PlayWorldViewRender {
     // Controls
     //=====================================
     
+    pub fn add_input_event(&mut self, event: InputEvent) {
+        self.input_events.push(event);
+    }
+
     fn handle_camera_panning(&mut self, screen_data: &ScreenData) {
         // Update camera offset based off scrolling change
         if screen_data.is_middle_mouse_held() {
@@ -182,6 +197,11 @@ impl PlayWorldViewRender {
     // Rendering
     //=====================================
 
+    /// Size blocks based off zoom level and the space avalible to the widget
+    /// 
+    /// Why: The size of blocks scale needs to be ajusted based off the space avalible and
+    /// the area requried by the rendering
+    /// 
     pub fn size(&mut self) {
         self.parent_scale = widget_calculations::pos_to_scale(self.parent_pos);
         self.pos = widget_calculations::buffer_pos(self.parent_pos, self.external_buffers);
@@ -199,6 +219,35 @@ impl PlayWorldViewRender {
 
     }
 
+    /// Get the starting and ending points render view should loop through
+    /// 
+    /// Why : Based of the location's area and rendering configs zoom level
+    /// the area's shape needs to be determined.
+    /// 
+    pub fn get_area_to_render(&self) -> [[i32; 3]; 2] {
+        let location_ref = self.rendering_config.get_location_ref();
+
+        let half_dimensions = location_ref.borrow().get_area().get_half_dimensions();
+
+
+        let mut start_cords = half_dimensions.map(|d| -d);
+        for axis in &mut start_cords {
+            *axis -= self.rendering_config.get_zoom();
+        }
+        
+        let mut end_cords = half_dimensions;
+        for axis in &mut end_cords {
+            *axis += self.rendering_config.get_zoom();
+        }
+
+        return [start_cords, end_cords];
+    }
+
+    pub fn get_rendering_center_world_cor(&self) -> [i32; 3] {
+        let location_ref = self.rendering_config.get_location_ref();
+        return location_ref.borrow().get_area().get_center_world_cords();
+    }
+
     pub fn render_view(&mut self, 
         screen_data: &ScreenData, 
         texture_manager: &mut TextureManager,
@@ -206,33 +255,23 @@ impl PlayWorldViewRender {
         self.size();
         self.handle_camera_panning(screen_data);
 
-        let world;
-        if let Some(world_ref) = &self.world_ref {
-            world = world_ref.read().unwrap();
-        }
-        else {
-            panic!("No refrence world was provided for render view");
-        }
-
+        let world = self.rendering_config.get_world_ref().read().unwrap();
 
         let ndc_x_draw_center_offset = self.center_ndc[0] - self.ndc_block_scale;
         let ndc_y_draw_center_offset = self.center_ndc[1] - self.ndc_block_scale;
 
         let rot = self.camera_direction.rotation_matrix();
         
-        let camera_cords;
-        if let Some(player_cords_ref) = &self.camera_cords_ref {
-            camera_cords = *player_cords_ref.borrow();
-        }
-        else {
-            panic!("No refrence player cords was provided for render view");
-        }
+        let camera_cords = self.get_rendering_center_world_cor();
 
+        let area_to_render = self.get_area_to_render();
+        let start_cords = area_to_render[0];
+        let end_cords = area_to_render[1];
 
         // Loop through blocks in zoom
-        for z in -self.zoom..=self.zoom {
-            for y in -self.zoom..=self.zoom {
-                for x in -self.zoom..=self.zoom {
+        for z in start_cords[0]..=end_cords[0] {
+            for y in start_cords[1]..=end_cords[1] {
+                for x in start_cords[2]..=end_cords[2] {
                     let world_block_cords = [
                         camera_cords[0] + (rot[0][0] * x + rot[0][1] * y),
                         camera_cords[1] + (rot[1][0] * x + rot[1][1] * y),
@@ -347,7 +386,11 @@ impl Widget for PlayWorldViewRender {
         if !screen_data.mouse_on_ndc_pos(self.pos) { 
             return;
         }
+        else {
+            game_event_manager.add_input_events(&self.input_events);
+        }
         
+        /*
         let inputs = screen_data.get_inputs();
         for input in inputs {
             match input {
@@ -375,6 +418,7 @@ impl Widget for PlayWorldViewRender {
 
             }
         }
+         */
         
 
     }

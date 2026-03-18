@@ -1,6 +1,6 @@
 use miniquad::{GlContext, MouseButton, RenderingBackend};
 
-use crate::game_data::{World, screen::{camera_data::CameraData, input_data::{Input, InputData}, iso_cord_tool}};
+use crate::game_data::{World, screen::{camera_data::CameraData, input_data::{Input, InputManager}, iso_cord_tool}};
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum CurrentMenu {
@@ -12,7 +12,7 @@ pub enum CurrentMenu {
 }
 
 pub struct ScreenData {
-    input_data: InputData,
+    input_manager: InputManager,
     
     // Menu
     current_menu: CurrentMenu,
@@ -55,7 +55,7 @@ impl ScreenData {
     pub fn new() -> ScreenData {
         ScreenData {
             // Input Data, 
-            input_data: InputData::new(),
+            input_manager: InputManager::new(),
 
             // Menu
             current_menu: CurrentMenu::MainMenu,
@@ -99,11 +99,11 @@ impl ScreenData {
     //=====================================
     
     pub fn add_input(&mut self, input: Input) {
-        self.input_data.add_input(input);
+        self.input_manager.add_input(input);
     }
 
     pub fn update_inputs(&mut self) {
-        for input in self.input_data.get_inputs() {
+        for input in self.input_manager.get_inputs() {
             match input {
                 Input::MouseButtonDown(mouse_button) => {
                     if *mouse_button == MouseButton::Left {
@@ -134,7 +134,7 @@ impl ScreenData {
     }
 
     pub fn clear_inputs(&mut self) {
-        self.input_data.clear_inputs();
+        self.input_manager.clear_inputs();
         self.was_left_released = false;
         self.was_right_released = false;
         self.was_left_pressed = false;
@@ -142,8 +142,12 @@ impl ScreenData {
     }
 
     pub fn get_inputs(&self) -> &Vec<Input> {
-       return &self.input_data.get_inputs();
+       return &self.input_manager.get_inputs();
     } 
+
+    pub fn get_input_manager(&self) -> &InputManager {
+        return &self.input_manager;
+    }
 
     //=====================================
     // Menu

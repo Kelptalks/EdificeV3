@@ -32,6 +32,9 @@ impl WorldLocation {
     pub fn get_mut_area(&mut self) -> &mut WorldArea {
         return &mut self.area;
     }
+    pub fn get_area(&self) -> &WorldArea {
+        return &self.area;
+    }
 
     /// Set the name 
     /// 

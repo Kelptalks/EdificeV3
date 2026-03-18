@@ -189,6 +189,9 @@ impl GameData {
         let frame_duration_ms = frame_duration.as_millis();
         
         // Update game events
+        self.event_manager.execute_input_events(screen_mananager);
+        self.event_manager.execute_player_data_events(&mut self.player_data);
+
         //Get world gaurd
         let mut world_guard = match self.world.write() {
             Ok(guard) => guard,
@@ -201,7 +204,6 @@ impl GameData {
         self.event_manager.execute_world_events(&mut world_guard);
         drop(world_guard);
 
-
         self.event_manager.execute_render_events(screen_mananager, &mut self.player_data);
         self.event_manager.execute_widget_events();
 
@@ -211,6 +213,8 @@ impl GameData {
         self.tik_manager.update_debug_data(&mut self.debug_data);
         self.texture_manager.get_texture_renderer().flush(ctx);
 
+        // Clear inputs for this frame
+        self.screen_manager.get_mut_screen_data().clear_inputs();
 
 
     }

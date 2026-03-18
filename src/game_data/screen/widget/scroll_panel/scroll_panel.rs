@@ -14,7 +14,7 @@ pub struct ScrollPanel {
     scale: [f32; 2],
 
     // Widgets
-    panels: Vec<WidgetType>,
+    widgets: Vec<WidgetType>,
 
     // Scrolling
     scroll_value: Rc<RefCell<f32>>,
@@ -46,7 +46,7 @@ impl ScrollPanel {
             scale: [0.0; 2],
 
             // Widgets
-            panels: Vec::new(),
+            widgets: Vec::new(),
 
             // Scrolling
             scroll_value: scroll_ref,
@@ -56,15 +56,15 @@ impl ScrollPanel {
     }
 
 
-    pub fn add_panel(&mut self, widget: WidgetType) {
-        self.panels.push(widget);
+    pub fn add_widget(&mut self, widget: WidgetType) {
+        self.widgets.push(widget);
     }
 
     pub fn set_prefered_scale(&mut self, scale: f32) {
         self.prefered_scale[1] = scale;
 
         let mut largest_widget_prefered_x_scale = 0.0;
-        for widget in &mut self.panels {
+        for widget in &mut self.widgets {
             widget.size();
             let widget_prefered_size = widget.get_preffered_scale();
             if largest_widget_prefered_x_scale < widget_prefered_size[0] {
@@ -113,7 +113,7 @@ impl Widget for ScrollPanel {
         current_widget_buffer_offset += self.buttons[0].get_scale()[1];
 
 
-        for widget in &mut self.panels {
+        for widget in &mut self.widgets {
             let mut widget_buffer = self.internal_buffers;
             let widget_prefered_size = widget.get_preffered_scale();
 
@@ -163,12 +163,9 @@ impl Widget for ScrollPanel {
 
         //texture_manager.render_ui_element_with_pos(crate::game_data::types::UITextures::MirrorBackground, self.pos);
 
-        for widget in &mut self.panels {
-            if let WidgetType::Panel(panel) = widget {
-                // If panel is fully contained within the widgets area
-                if widget_calculations::is_pos_contained_within_pos(self.pos, panel.get_pos()) {
-                    panel.render(texture_manager, screen_data, game_event_manager);
-                }
+        for widget in &mut self.widgets {
+            if widget_calculations::is_pos_contained_within_pos(self.pos, widget.get_pos()) {
+                widget.render(texture_manager, screen_data, game_event_manager);
             }
         }
 

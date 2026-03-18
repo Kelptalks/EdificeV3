@@ -1,4 +1,5 @@
-use crate::game_data::{drone_programming::var::{game_vars::game_var_type::GameVarType, var_type::VarType}, game_event_manager::{game_event_manager::Event, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::{BlockTexture, UITextures, drone_item::DroneItem}};
+
+use crate::game_data::{drone_programming::var::{game_vars::game_var_type::{GameVarType, GameVarTypeKind}, var_type::{VarType, VarTypeKind}}, game_event_manager::{game_event_manager::Event, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}, render_event_manager::render_event_manager::RenderEvent}, locations::world_area::WorldArea, player_data::{locations::location_manager, player_data::PlayerData}, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::TextSize, world_rendering::play_world_view_config::PlayViewRendingConfig}}, types::{BlockTexture, UITextures, drone_item::DroneItem}};
 
 //=====================================
 // Selection Panel
@@ -32,7 +33,7 @@ pub fn get_block_selection_panel() -> WidgetType {
                     row_panel.add_draggable_var(VarType::Game(GameVarType::Block(block_type)));
                 }
             }
-            scroll_panel.add_panel(block_selection_panel);
+            scroll_panel.add_widget(block_selection_panel);
         }
 
         scroll_panel.set_prefered_scale(0.8);
@@ -68,7 +69,7 @@ pub fn get_item_selection_panel() -> WidgetType {
                     row_panel.add_draggable_var(VarType::Game(GameVarType::DroneItem(item_type)));
                 }
             }
-            scroll_panel.add_panel(item_selection_panel);
+            scroll_panel.add_widget(item_selection_panel);
         }
 
         scroll_panel.set_prefered_scale(0.8);
@@ -145,7 +146,13 @@ pub fn add_selection_menu(panel: &mut Panel, screen_data: &ScreenData, player_da
 // Control interface
 //=====================================
 
-pub fn get_location_panel() -> WidgetType {
+pub fn add_location_world_view_panel(panel: &mut Panel, player_data: &mut PlayerData) {
+    let play_view_sub_panel = panel.add_sub_panel();
+    play_view_sub_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+
+}
+
+pub fn get_location_panel(player_data: &mut PlayerData) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
 
     if let WidgetType::Panel(panel) = &mut panel {
@@ -155,6 +162,8 @@ pub fn get_location_panel() -> WidgetType {
         let text_display = panel.add_text_display("Location Manager".to_string());
         text_display.set_text_scale(TextSize::Medium);
         
+        self::add_location_world_view_panel(panel, player_data);
+
         panel.size();
     }
 
@@ -162,24 +171,33 @@ pub fn get_location_panel() -> WidgetType {
     return panel;
 }
 
+pub fn add_drone_world_view_panel(panel: &mut Panel, player_data: &mut PlayerData) {
+    let play_view_sub_panel = panel.add_sub_panel();
+    play_view_sub_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+
+}
+
+
+
+
 pub fn get_drone_panel(player_data: &mut PlayerData) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
 
     if let WidgetType::Panel(panel) = &mut panel {
-        panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+        panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
 
         // Header
-        let text_display = panel.add_text_display("Drone Controller".to_string());
-        text_display.set_text_scale(TextSize::Medium);
+        let scroll_panel = panel.add_scroll_panel();
+        scroll_panel.set_prefered_scale(0.8);
+
+        let mut text_display = TextDisplay::new("Controls".to_string());
+        text_display.set_text_scale(TextSize::Small);
+        scroll_panel.add_widget(WidgetType::TextDisplay(text_display));
 
 
-        let play_view = panel.add_play_world_view_renderer();
-        let world_ref = player_data.get_world_ref();
-        play_view.link_world_ref(world_ref);
-        let cords_ref = player_data.get_mut_location_manager().get_player_cursor_location_cords_ref();
-        play_view.link_camera_world_cords_ref(cords_ref);
+        scroll_panel.set_prefered_scale(0.5);
 
-        play_view.set_prefered_size(0.5);
+        self::add_drone_world_view_panel(panel, player_data);
         
 
         panel.size();
@@ -188,18 +206,70 @@ pub fn get_drone_panel(player_data: &mut PlayerData) -> WidgetType {
     return panel;
 }
 
-pub fn get_building_panel() -> WidgetType {
+//=====================================
+// Building View
+//=====================================
+
+pub fn add_bulding_world_view_panel(panel: &mut Panel, player_data: &mut PlayerData) {
+    let play_view_panel = panel.add_sub_panel();
+    play_view_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+    play_view_panel.set_color(PanelColor::Dark);
+
+    // Header
+    let text_display = play_view_panel.add_text_display("Building View".to_string());
+    text_display.set_text_scale(TextSize::Medium);
+
+    // Create the rendering config
+    let location_manager = player_data.get_mut_location_manager();
+    let location = location_manager.create_location(
+        "Building_Location".to_string(), 
+        WorldArea::new_blank()
+    );    
+    let rendering_config = PlayViewRendingConfig::new(player_data.get_world_ref(), location);
+    let location_ref = rendering_config.get_location_ref().clone();
+
+    // Add World Rendering
+    let play_view = play_view_panel.add_play_world_view_renderer(rendering_config);
+
+    let cords_ref = player_data.get_mut_location_manager().get_player_cursor_location_cords_ref();
+    play_view.link_camera_world_cords_ref(cords_ref);
+
+
+    let shift_event = 
+        PlayerDataEvent::LocationEvent(
+            location_ref, 
+            LocationEvent::ShiftLocation([0, 0, -1])
+        );
+
+    let key_down_input_event = 
+        InputEvent::KeyDown(
+            miniquad::KeyCode::LeftShift, 
+            Event::PlayerDataEvent(shift_event)
+        ); 
+
+    play_view.add_input_event(key_down_input_event);
+
+
+
+    play_view.set_prefered_size(0.8);
+}
+
+pub fn get_building_panel(player_data: &mut PlayerData) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
 
     if let WidgetType::Panel(panel) = &mut panel {
-        panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+        panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
 
-        // Header
-        let text_display = panel.add_text_display("Building".to_string());
-        text_display.set_text_scale(TextSize::Medium);
+        self::add_bulding_world_view_panel(panel, player_data);
 
-        // 
-        let button = panel.add_button();
+
+        let block_selection_panel = panel.add_sub_panel();
+        block_selection_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+
+        for i in 0..9 {
+            block_selection_panel.add_var_slot(VarTypeKind::Game(GameVarTypeKind::Block));
+        }
+
 
         panel.size();
     }
@@ -225,37 +295,15 @@ pub fn add_control_panel(panel: &mut Panel, screen_data: &ScreenData, player_dat
     button.set_block(crate::game_data::types::BlockTexture::DroneBotRight);
 
     // Add Location Manager Tab
-    let button = control_tab_panel.add_panel(get_location_panel());
+    let button = control_tab_panel.add_panel(get_location_panel(player_data));
     button.set_text("locations".to_string());
     button.set_icon(UITextures::AreaIcon);
 
     // Add Location Manager Tab
-    let button = control_tab_panel.add_panel(get_building_panel());
+    let button = control_tab_panel.add_panel(get_building_panel(player_data));
     button.set_text("Building".to_string());
     button.set_icon(UITextures::BluePrintIcon);
     
-}
-
-//=====================================
-// Play View Panel
-//=====================================
-
-pub fn add_play_view_panel(panel: &mut Panel, screen_data: &ScreenData, player_data: &mut PlayerData) {
-    let play_view_sub_panel = panel.add_sub_panel();
-    play_view_sub_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-
-    // Header
-    let text_display = play_view_sub_panel.add_text_display("play view".to_string());
-    text_display.set_text_scale(TextSize::Medium);
-
-    // Add World Rendering
-    let play_view = play_view_sub_panel.add_play_world_view_renderer();
-    let world_ref = player_data.get_world_ref();
-    play_view.link_world_ref(world_ref);
-    let cords_ref = player_data.get_mut_location_manager().get_player_cursor_location_cords_ref();
-    play_view.link_camera_world_cords_ref(cords_ref);
-
-    play_view.set_prefered_size(0.5);
 }
 
 //=====================================
@@ -302,7 +350,6 @@ pub fn get_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> Widge
         self::add_menu_nav_panel(panel, screen_data, player_data);
         self::add_control_panel(panel, screen_data, player_data);
         self::add_selection_menu(panel, screen_data, player_data);
-        self::add_play_view_panel(panel, screen_data, player_data);
 
         panel.size();
     }

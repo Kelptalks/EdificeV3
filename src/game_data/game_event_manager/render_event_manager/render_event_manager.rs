@@ -54,7 +54,7 @@ impl RenderEvent {
                     );
             }
             CurrentMenu::PlayView => {
-                menu_panel = menu_constructors::play_view_menu::get_menu(
+                menu_panel = menu_constructors::play_view_menu::play_view_menu::get_menu(
                     &screen_mananager.get_mut_screen_data(), 
                     player_data
                 );

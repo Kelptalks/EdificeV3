@@ -113,9 +113,6 @@ impl ScreenManager {
 
         // Render Mouse On top
         game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().render(texture_manager, &self.screen_data);
-
-        self.screen_data.clear_inputs();
-
         
     }
 
