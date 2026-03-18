@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc, sync::{Arc, RwLock}};
 
 use miniquad::KeyCode;
 
-use crate::game_data::{TextureManager, World, game_event_manager::{game_event_manager::{Event, GameEventManager}, input_event_manager::input_event_manager::InputEvent}, screen::{ScreenData, camera_data::Direction, iso_cord_tool, widget::{panel::panel::Panel, widget::Widget, widget_calculations, world_rendering::{play_block::PlayBlock, play_world_view_config::PlayViewRendingConfig}}}, types::BlockTexture};
+use crate::game_data::{TextureManager, World, game_event_manager::{game_event_manager::{Event, GameEventManager}, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}}, screen::{ScreenData, camera_data::Direction, iso_cord_tool, widget::{panel::panel::Panel, widget::Widget, widget_calculations, world_rendering::{play_block::PlayBlock, play_world_view_config::PlayViewRendingConfig}}}, types::BlockTexture};
 
 /*
 ###############
@@ -75,9 +75,6 @@ pub struct PlayWorldViewRender {
     // World Rendering
     rendering_config: PlayViewRendingConfig,
 
-    world_ref: Option<Arc<RwLock<World>>>,
-    camera_cords_ref: Option<Rc<RefCell<[i32; 3]>>>,
-    
     
     camera_direction: ViewDirection,
 
@@ -114,8 +111,6 @@ impl PlayWorldViewRender {
 
             // Player Data Links
             rendering_config: play_view_rendering_config,
-            world_ref: None,
-            camera_cords_ref: None,
 
             camera_direction: ViewDirection::North,
 
@@ -138,7 +133,7 @@ impl PlayWorldViewRender {
         self.input_events.push(event);
     }
 
-    fn handle_camera_panning(&mut self, screen_data: &ScreenData) {
+    fn handle_camera_panning(&mut self, screen_data: &ScreenData, game_event_manager: &mut GameEventManager) {
         // Update camera offset based off scrolling change
         if screen_data.is_middle_mouse_held() {
             let scrolling_offset = screen_data.get_change_in_mouse_ndc();
@@ -146,40 +141,38 @@ impl PlayWorldViewRender {
             self.camera_ndc_offset[1] += scrolling_offset[1];
         }
 
-        if let Some(cords_ref) = &self.camera_cords_ref {
-            // Get iso offset amounts
-            let iso_offset = 
-                iso_cord_tool::ndi_screen_cords_to_iso_cords(self.ndc_tile_scale, self.camera_ndc_offset);
+        let mut cords_offset = [0; 3];
 
-            // Iso X camera movment
-            if iso_offset[0] > 1.0 {
-                cords_ref.borrow_mut()[0] -= 1;
-                self.camera_ndc_offset[0] -= self.ndc_tile_scale;
-                self.camera_ndc_offset[1] -= self.ndc_tile_half_scale;
-            }
-            if iso_offset[0] < -1.0 {
-                cords_ref.borrow_mut()[0] += 1;
-                self.camera_ndc_offset[0] += self.ndc_tile_scale;
-                self.camera_ndc_offset[1] += self.ndc_tile_half_scale;
-            }
+        // Get iso offset amounts
+        let iso_offset = 
+            iso_cord_tool::ndi_screen_cords_to_iso_cords(self.ndc_tile_scale, self.camera_ndc_offset);
 
-            // Iso Y Cam movment
-            if iso_offset[1] > 1.0 {
-                cords_ref.borrow_mut()[1] -= 1;
-                self.camera_ndc_offset[0] += self.ndc_tile_scale;
-                self.camera_ndc_offset[1] -= self.ndc_tile_half_scale;
-            }
-
-            if iso_offset[1] < -1.0 {
-                cords_ref.borrow_mut()[1] += 1;
-                self.camera_ndc_offset[0] -= self.ndc_tile_scale;
-                self.camera_ndc_offset[1] += self.ndc_tile_half_scale;
-            }
+        // Iso X camera movment
+        if iso_offset[0] > 1.0 {
+            cords_offset[0] -= 1;
+            self.camera_ndc_offset[0] -= self.ndc_tile_scale;
+            self.camera_ndc_offset[1] -= self.ndc_tile_half_scale;
         }
-        else {
-            panic!("No refrence player cords was provided for render view");
+        if iso_offset[0] < -1.0 {
+            cords_offset[0] += 1;
+            self.camera_ndc_offset[0] += self.ndc_tile_scale;
+            self.camera_ndc_offset[1] += self.ndc_tile_half_scale;
         }
-    
+
+        // Iso Y Cam movment
+        if iso_offset[1] > 1.0 {
+            cords_offset[1] -= 1;
+            self.camera_ndc_offset[0] += self.ndc_tile_scale;
+            self.camera_ndc_offset[1] -= self.ndc_tile_half_scale;
+        }
+
+        if iso_offset[1] < -1.0 {
+            cords_offset[1] += 1;
+            self.camera_ndc_offset[0] -= self.ndc_tile_scale;
+            self.camera_ndc_offset[1] += self.ndc_tile_half_scale;
+        } 
+
+        game_event_manager.add_player_data_event(PlayerDataEvent::LocationEvent(self.rendering_config.get_location_ref().clone(), LocationEvent::ShiftLocation(cords_offset)));
 
     }
 
@@ -213,7 +206,8 @@ impl PlayWorldViewRender {
         ];
 
 
-        self.ndc_block_scale = (self.scale[0] / ((self.zoom * 2) + 1) as f32) / 2.0;
+
+        self.ndc_block_scale = (self.scale[0] / ((self.rendering_config.get_zoom() * 2) + 1) as f32) / 2.0;
         self.ndc_tile_scale = self.ndc_block_scale / 2.0;
         self.ndc_tile_half_scale = self.ndc_tile_scale / 2.0;
 
@@ -226,9 +220,7 @@ impl PlayWorldViewRender {
     /// 
     pub fn get_area_to_render(&self) -> [[i32; 3]; 2] {
         let location_ref = self.rendering_config.get_location_ref();
-
         let half_dimensions = location_ref.borrow().get_area().get_half_dimensions();
-
 
         let mut start_cords = half_dimensions.map(|d| -d);
         for axis in &mut start_cords {
@@ -253,7 +245,6 @@ impl PlayWorldViewRender {
         texture_manager: &mut TextureManager,
     ) {
         self.size();
-        self.handle_camera_panning(screen_data);
 
         let world = self.rendering_config.get_world_ref().read().unwrap();
 
@@ -326,19 +317,6 @@ impl PlayWorldViewRender {
     }
 
     //=====================================
-    // Linking
-    //=====================================
-
-    pub fn link_world_ref(&mut self, world_ref: Arc<RwLock<World>>) {
-        self.world_ref = Some(world_ref);
-    }
-
-    pub fn link_camera_world_cords_ref(&mut self, world_cords_ref: Rc<RefCell<[i32; 3]>>) {
-        self.camera_cords_ref = Some(world_cords_ref)
-    }
-
-
-    //=====================================
     // Settings
     //=====================================
 
@@ -387,6 +365,7 @@ impl Widget for PlayWorldViewRender {
             return;
         }
         else {
+            self.handle_camera_panning(screen_data, game_event_manager);
             game_event_manager.add_input_events(&self.input_events);
         }
         

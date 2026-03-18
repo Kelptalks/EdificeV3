@@ -1,5 +1,46 @@
-use crate::game_data::{game_event_manager::{game_event_manager::Event, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}}, locations::world_area::WorldArea, player_data::player_data::PlayerData, screen::widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget_calculations::TextSize, world_rendering::play_world_view_config::PlayViewRendingConfig}};
+use std::{cell::RefCell, rc::Rc};
 
+use miniquad::KeyCode;
+
+use crate::game_data::{game_event_manager::{game_event_manager::Event, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}}, locations::world_area::WorldArea, player_data::{locations::location::WorldLocation, player_data::PlayerData}, screen::widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget_calculations::TextSize, world_rendering::play_world_view_config::PlayViewRendingConfig}};
+
+
+fn construct_shift_input_event(location_ref: &Rc<RefCell<WorldLocation>>, keycode: KeyCode, shift: [i32; 3]) -> InputEvent {
+    // Move camera down event
+    let shift_event = 
+        PlayerDataEvent::LocationEvent(
+            location_ref.clone(), 
+            LocationEvent::ShiftLocation(shift)
+        );
+
+    let key_down_input_event = 
+        InputEvent::KeyDown(
+            keycode, 
+            Event::PlayerDataEvent(shift_event)
+        ); 
+
+    return key_down_input_event;
+}
+
+fn get_key_events(rendering_config: &PlayViewRendingConfig) -> Vec<InputEvent>{
+    let mut input_events = Vec::new();
+
+    let location_ref = rendering_config.get_location_ref().clone();
+
+
+    // Verticle
+    input_events.push(self::construct_shift_input_event(&location_ref, KeyCode::LeftShift, [0, 0, -1]));
+    input_events.push(self::construct_shift_input_event(&location_ref, KeyCode::Space, [0, 0, 1]));
+    
+    // Horizontal
+    input_events.push(self::construct_shift_input_event(&location_ref, KeyCode::W, [0, -1, 0]));
+    input_events.push(self::construct_shift_input_event(&location_ref, KeyCode::S, [0, 1, 0]));
+
+    input_events.push(self::construct_shift_input_event(&location_ref, KeyCode::A, [-1, 0, 0]));
+    input_events.push(self::construct_shift_input_event(&location_ref, KeyCode::D, [1, 0, 0]));
+
+    return input_events;
+}
 
 
 pub fn add_bulding_world_view_panel(panel: &mut Panel, player_data: &mut PlayerData) {
@@ -17,29 +58,19 @@ pub fn add_bulding_world_view_panel(panel: &mut Panel, player_data: &mut PlayerD
         "Building_Location".to_string(), 
         WorldArea::new_blank()
     );    
+
+
     let rendering_config = PlayViewRendingConfig::new(player_data.get_world_ref(), location);
-    let location_ref = rendering_config.get_location_ref().clone();
+    let input_events = get_key_events(&rendering_config);
+
 
     // Add World Rendering
     let play_view = play_view_panel.add_play_world_view_renderer(rendering_config);
 
-    let cords_ref = player_data.get_mut_location_manager().get_player_cursor_location_cords_ref();
-    play_view.link_camera_world_cords_ref(cords_ref);
 
-
-    let shift_event = 
-        PlayerDataEvent::LocationEvent(
-            location_ref, 
-            LocationEvent::ShiftLocation([0, 0, -1])
-        );
-
-    let key_down_input_event = 
-        InputEvent::KeyDown(
-            miniquad::KeyCode::LeftShift, 
-            Event::PlayerDataEvent(shift_event)
-        ); 
-
-    play_view.add_input_event(key_down_input_event);
+    for event in input_events {
+        play_view.add_input_event(event);
+    }
 
 
 
