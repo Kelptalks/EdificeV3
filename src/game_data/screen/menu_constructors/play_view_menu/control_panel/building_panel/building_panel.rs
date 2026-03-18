@@ -1,4 +1,4 @@
-use crate::game_data::{drone_programming::var::{game_vars::game_var_type::GameVarTypeKind, var_type::VarTypeKind}, player_data::player_data::PlayerData, screen::{menu_constructors::play_view_menu::selection_panel::building_panel::building_world_view, widget::{panel::panel::{PanelAlignment, PanelOrientation}, widget::WidgetType}}};
+use crate::game_data::{drone_programming::var::{game_vars::game_var_type::GameVarTypeKind, var_type::VarTypeKind}, player_data::player_data::PlayerData, screen::{menu_constructors::play_view_menu::control_panel::building_panel::building_world_view, widget::{panel::panel::{PanelAlignment, PanelOrientation}, widget::WidgetType}}};
 
 pub fn get_building_panel(player_data: &mut PlayerData) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
