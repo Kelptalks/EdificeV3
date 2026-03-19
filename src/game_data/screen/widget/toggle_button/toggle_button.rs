@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use rand::rand_core::block;
 
-use crate::game_data::{TextureManager, game_event_manager::{self, game_event_manager::{GameEvent, EventManager}, widget_event_manager::widget_event_manager::WidgetEvent}, screen::{ScreenData, render_centered_string_at_ndc, screen_data, screen_mananager, widget::{self, button::button::Button, widget::Widget, widget_calculations}}, types::{BlockTexture, FontType, UITextures}};
+use crate::game_data::{TextureManager, game_event_manager::{self, event_manager::EventManager, game_event_manager::game_event_manager::GameEvent, widget_event_manager::widget_event_manager::WidgetEvent}, screen::{ScreenData, render_centered_string_at_ndc, screen_data, screen_mananager, widget::{self, button::button::Button, widget::Widget, widget_calculations}}, types::{BlockTexture, FontType, UITextures}};
 
 pub struct ToggleButton {
     // Input handling
@@ -109,7 +109,7 @@ impl Widget for ToggleButton {
     ) { 
         // Add links
         for event in &self.links.pop() {
-            game_event_manager.add_event(event.clone());
+            game_event_manager.add_game_event(event.clone());
         }
 
         self.button.render(texture_manager, screen_data, game_event_manager);

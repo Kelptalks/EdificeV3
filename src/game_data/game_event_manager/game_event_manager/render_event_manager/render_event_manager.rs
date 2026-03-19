@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, game_event_manager::{game_event_manager::GameEventManager, render_event_manager}, player_data::{self, player_data::PlayerData}, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::widget::{Widget, WidgetType}}};
+use crate::game_data::{World, game_event_manager::game_event_manager::game_event_manager::GameEventManager, player_data::{self, player_data::PlayerData}, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::widget::{Widget, WidgetType}}};
 
 /*
 ##################

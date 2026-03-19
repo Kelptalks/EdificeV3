@@ -1,6 +1,6 @@
 use crate::game_data::{
     TextureManager,
-    game_event_manager::game_event_manager::{GameEvent, EventManager},
+    game_event_manager::{event_manager::EventManager, game_event_manager::GameEvent},
     screen::{
         ScreenData, render_centered_string_at_ndc, text::render_string_at_ndc, widget::{
             bar_button::bar_button_texture_manager::BarButtonTextureManager,
@@ -151,7 +151,7 @@ impl Widget for BarButtonWidget {
 
         if is_hovered && screen_data.was_left_released() {
             for event in &self.events {
-                game_event_manager.add_event(event.clone());
+                game_event_manager.add_game_event(event.clone());
             }
         }
 

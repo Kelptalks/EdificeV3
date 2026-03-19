@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::GameEvent, widget_event_manager::widget_event_manager::WidgetEvent}, screen::widget::{button::{self, button::Button}, panel::panel::Panel, widget::{Widget, WidgetType}, widget_calculations}, types::UITextures};
+use crate::game_data::{game_event_manager::{game_event_manager::game_event_manager::GameEvent, widget_event_manager::widget_event_manager::WidgetEvent}, screen::widget::{button::{self, button::Button}, panel::panel::Panel, widget::{Widget, WidgetType}, widget_calculations}, types::UITextures};
 
 pub struct TabPanel {
     // Parent 
@@ -140,7 +140,7 @@ impl Widget for TabPanel {
         &mut self, 
         texture_manager: &mut crate::game_data::TextureManager, 
         screen_data: &crate::game_data::screen::ScreenData, 
-        game_event_manager: &mut crate::game_data::game_event_manager::game_event_manager::EventManager
+        game_event_manager: &mut crate::game_data::game_event_manager::event_manager::EventManager
     ) {
         
         let current_index = *self.current_panel_index.borrow();

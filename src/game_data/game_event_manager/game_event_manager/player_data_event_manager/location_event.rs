@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::game_event_manager::GameEventManager, player_data::locations::location::WorldLocation};
+use crate::game_data::{game_event_manager::game_event_manager::game_event_manager::GameEventManager, player_data::locations::location::WorldLocation};
 
 #[derive(Clone)]
 pub enum LocationEvent {

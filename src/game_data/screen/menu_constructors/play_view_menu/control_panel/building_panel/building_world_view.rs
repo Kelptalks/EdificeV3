@@ -2,7 +2,9 @@ use std::{cell::RefCell, rc::Rc};
 
 use miniquad::KeyCode;
 
-use crate::game_data::{game_event_manager::{game_event_manager::GameEvent, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}, widget_event_manager::widget_event_manager::WidgetEvent, world_event_manager::world_event_manager::WorldEvent}, locations::world_area::WorldArea, player_data::{locations::location::WorldLocation, player_data::PlayerData}, screen::widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget_calculations::TextSize, world_rendering::play_world_view_config::PlayViewRendingConfig}};
+use crate::game_data::{locations::world_area::WorldArea, player_data::{locations::location::WorldLocation, player_data::PlayerData}, screen::widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget_calculations::TextSize, world_rendering::play_world_view_config::PlayViewRendingConfig}};
+
+use crate::game_data::game_event_manager::prelude::*;
 
 fn construct_building_events(location_ref: &Rc<RefCell<WorldLocation>>) -> Vec<InputEvent> {
     let mut building_input_events = Vec::new();

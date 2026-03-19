@@ -1,6 +1,6 @@
 use miniquad::{KeyCode, MouseButton};
 
-use crate::game_data::{game_event_manager::game_event_manager::{GameEvent, GameEventManager}, screen::ScreenData};
+use crate::game_data::{game_event_manager::game_event_manager::game_event_manager::{GameEvent, GameEventManager}, screen::ScreenData};
 
 
 

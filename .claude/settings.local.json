@@ -2,7 +2,15 @@
   "permissions": {
     "allow": [
       "Bash(cargo check:*)",
-      "Bash(find C:/Users/Spencer/EdificeV3/src -name \"widget*\" -o -name \"*widget*\" 2>/dev/null | head -20)"
+      "Bash(find C:/Users/Spencer/EdificeV3/src -name \"widget*\" -o -name \"*widget*\" 2>/dev/null | head -20)",
+      "Bash(grep -r \"use.*event_manager\\\\|use.*game_event_manager\" /c/Users/Spencer/EdificeV3/src --include=*.rs)",
+      "Bash(grep -r 'use crate::game_data::game_event_manager::' /c/Users/Spencer/EdificeV3/src --include=*.rs)",
+      "Bash(grep -r \"event_manager::GameEvent\\\\|event_manager::EventManager\" /c/Users/Spencer/EdificeV3/src --include=*.rs)",
+      "Bash(grep -r player_data_event_manager:: /c/Users/Spencer/EdificeV3/src --include=*.rs)",
+      "Bash(grep -r widget_event_manager:: /c/Users/Spencer/EdificeV3/src --include=*.rs)",
+      "Bash(grep -r world_event_manager:: /c/Users/Spencer/EdificeV3/src --include=*.rs)",
+      "Bash(grep -r event_manager:: /c/Users/Spencer/EdificeV3/src --include=*.rs)",
+      "Bash(grep -v \"^$\")"
     ]
   }
 }

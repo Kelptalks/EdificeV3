@@ -1,6 +1,6 @@
 use rand::rand_core::block;
 
-use crate::game_data::{TextureManager, game_event_manager::{self, game_event_manager::{GameEvent, EventManager}}, screen::{ScreenData, render_centered_string_at_ndc, screen_data, screen_mananager, widget::{self, widget::Widget, widget_calculations}}, types::{BlockTexture, FontType, UITextures}};
+use crate::game_data::{TextureManager, game_event_manager::{self, event_manager::EventManager, game_event_manager::game_event_manager::GameEvent}, screen::{ScreenData, render_centered_string_at_ndc, screen_data, screen_mananager, widget::{self, widget::Widget, widget_calculations}}, types::{BlockTexture, FontType, UITextures}};
 
 pub struct Button {
     // Parent Rendering
@@ -189,7 +189,7 @@ impl Widget for Button {
             // If button was clicked
             if screen_data.was_left_released(){
                 for event in &self.events {
-                    game_event_manager.add_event(event.clone());
+                    game_event_manager.add_game_event(event.clone());
                 }    
             }
         }
