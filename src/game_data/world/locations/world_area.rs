@@ -32,6 +32,9 @@ impl WorldArea {
     //=====================================
     // points
     //=====================================
+    pub fn set_point(&mut self, index: usize, new_cords: [i32; 3]) {
+        self.points[index] = new_cords;
+    }
 
     pub fn set_point_1(&mut self, world_cords: [i32; 3]) {
         self.points[0] = world_cords;
@@ -57,6 +60,18 @@ impl WorldArea {
         for point in &mut self.points {
             for (i, axis) in point.iter_mut().enumerate() {
                 *axis += shift_cords[i];
+            }
+        }
+    }
+
+    pub fn resize(&mut self, mod_scale: [i32; 3], expand: bool) {
+        for i in 0..3 {
+            if self.points[0][i] < self.points[1][i] {
+                self.points[0][i] += if expand { -mod_scale[i] } else { mod_scale[i] };
+                self.points[1][i] += if expand { mod_scale[i] } else { -mod_scale[i] };
+            } else {
+                self.points[1][i] += if expand { -mod_scale[i] } else { mod_scale[i] };
+                self.points[0][i] += if expand { mod_scale[i] } else { -mod_scale[i] };
             }
         }
     }

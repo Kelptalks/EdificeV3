@@ -208,16 +208,20 @@ in
     3/15/26 = 2.5
     3/16/26 = 3
     3/17/26 = 4
+    3/18/26 = 4
+    3/19/26 = 0.5
 
 
 **Lines**
 
     3/16/26 = 14718
+    3/18/26 = 15570
 
 **Notes:**
 
 ***Additions***
-+ Variable Widget System for creating ui elements to support drone programming  
++ Variable Widget System for creating ui elements to support drone programming 
++ Many improvments to game event manager and widget input handling
 
 ---------------------------------------------------------------
 ## Week NUM

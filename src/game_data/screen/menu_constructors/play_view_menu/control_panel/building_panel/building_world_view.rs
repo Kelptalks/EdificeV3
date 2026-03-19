@@ -8,10 +8,15 @@ fn construct_building_events(location_ref: &Rc<RefCell<WorldLocation>>) -> Vec<I
     let mut building_input_events = Vec::new();
 
 
-    let fill_location_event = Event::WorldEvent(WorldEvent::FillLocation(location_ref.clone(), crate::game_data::types::BlockTexture::Stone));
+    let test_event = Event::PlayerDataEvent(PlayerDataEvent::LocationEvent(location_ref.clone(), LocationEvent::SetLocationPoint(0, [0; 3])));
+
+
+    let fill_location_event = Event::WorldEvent(
+        WorldEvent::FillLocation(location_ref.clone(), crate::game_data::types::BlockTexture::Stone));
+
     let place_block_event = 
         InputEvent::RightMouseButtonClicked(
-            fill_location_event
+            test_event
         ); 
     
     building_input_events.push(place_block_event);
