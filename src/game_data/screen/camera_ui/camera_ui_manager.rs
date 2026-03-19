@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::{Arc, RwLock}};
 
 use miniquad::{KeyCode, KeyMods, MouseButton};
 
-use crate::game_data::{TextureManager, World, game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent, world_event_manager::world_event_manager::WorldEvent}, screen::{Button, ScreenData, camera_data::CameraData, camera_ui::{drone_ui::drone_ui::DroneUI, tik_ui::tik_ui::TikUI}, render_centered_string_at_ndc, screen_data::CurrentMenu, text::render_string_at_ndc}, tik_manager::tik_manager::TikManager, types::{BlockTexture, FontType, UITextures}, world_task_manager::{self, world_task_manager::WorldTaskManager}};
+use crate::game_data::{TextureManager, World, game_event_manager::{game_event_manager::EventManager, render_event_manager::render_event_manager::RenderEvent, world_event_manager::world_event_manager::WorldEvent}, screen::{Button, ScreenData, camera_data::CameraData, camera_ui::{drone_ui::drone_ui::DroneUI, tik_ui::tik_ui::TikUI}, render_centered_string_at_ndc, screen_data::CurrentMenu, text::render_string_at_ndc}, tik_manager::tik_manager::TikManager, types::{BlockTexture, FontType, UITextures}, world_task_manager::{self, world_task_manager::WorldTaskManager}};
 
 
 /*
@@ -272,7 +272,7 @@ impl CameraUIManager {
         }
     }
 
-    pub fn handle_key_down(&mut self, event_manager: &mut GameEventManager, keycode: KeyCode, tik_manager: &mut TikManager) {
+    pub fn handle_key_down(&mut self, event_manager: &mut EventManager, keycode: KeyCode, tik_manager: &mut TikManager) {
         match keycode {
             KeyCode::F1 => {
                 self.visible = !self.visible;

@@ -1,6 +1,6 @@
 use crate::game_data::{
     TextureManager,
-    game_event_manager::game_event_manager::{Event, GameEventManager},
+    game_event_manager::game_event_manager::{GameEvent, EventManager},
     screen::{
         ScreenData, render_centered_string_at_ndc, text::render_string_at_ndc, widget::{
             bar_button::bar_button_texture_manager::BarButtonTextureManager,
@@ -26,7 +26,7 @@ pub struct BarButtonWidget {
     prefered_scale: [f32; 2],
 
     // Input
-    events: Vec<Event>,
+    events: Vec<GameEvent>,
 
     // Appearance
     texture_manager: BarButtonTextureManager,
@@ -65,7 +65,7 @@ impl BarButtonWidget {
     //=====================================
     // Events
     //=====================================
-    pub fn add_event(&mut self, event: Event) {
+    pub fn add_event(&mut self, event: GameEvent) {
         self.events.push(event);
     }
 
@@ -141,7 +141,7 @@ impl Widget for BarButtonWidget {
         &mut self,
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
-        game_event_manager: &mut GameEventManager,
+        game_event_manager: &mut EventManager,
     ) {
         if self.needs_resizing {
             self.size();

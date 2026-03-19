@@ -1,5 +1,5 @@
 
-use crate::game_data::{drone_programming::var::{game_vars::game_var_type::{GameVarType, GameVarTypeKind}, var_type::{VarType, VarTypeKind}}, game_event_manager::{game_event_manager::Event, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}, render_event_manager::render_event_manager::RenderEvent}, locations::world_area::WorldArea, player_data::{locations::location_manager, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::control_panel, screen_data::CurrentMenu, widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::TextSize, world_rendering::play_world_view_config::PlayViewRendingConfig}}, types::{BlockTexture, UITextures, drone_item::DroneItem}};
+use crate::game_data::{drone_programming::var::{game_vars::game_var_type::{GameVarType, GameVarTypeKind}, var_type::{VarType, VarTypeKind}}, game_event_manager::{game_event_manager::GameEvent, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}, render_event_manager::render_event_manager::RenderEvent}, locations::world_area::WorldArea, player_data::{locations::location_manager, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::control_panel, screen_data::CurrentMenu, widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::TextSize, world_rendering::play_world_view_config::PlayViewRendingConfig}}, types::{BlockTexture, UITextures, drone_item::DroneItem}};
 
 //=====================================
 // Selection Panel
@@ -153,17 +153,17 @@ pub fn add_menu_nav_panel(panel: &mut Panel, screen_data: &ScreenData, player_da
 
     // Back button
     let button = menu_nav_sub_panel.add_button();
-    button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::MapView)));
+    button.add_event(GameEvent::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::MapView)));
     button.set_icon(crate::game_data::types::UITextures::MapIcon);
     button.set_text("Map".to_string());
 
     let button = menu_nav_sub_panel.add_button();
-    button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::SettingsMenu)));
+    button.add_event(GameEvent::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::SettingsMenu)));
     button.set_icon(crate::game_data::types::UITextures::AreaIcon);
     button.set_text("Settings".to_string());
 
     let button = menu_nav_sub_panel.add_button();
-    button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::MainMenu)));
+    button.add_event(GameEvent::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::MainMenu)));
     button.set_icon(crate::game_data::types::UITextures::XIcon);
     button.set_text("Main Menu".to_string());
 }

@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, game_event_manager::game_event_manager::GameEventManager, screen::{ScreenData, screen_data, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::vars::{draggable_var::DraggableVar, var_slot::VarSlot}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, tab_panel::tab_panel::TabPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, world_rendering::play_world_view_render::PlayWorldViewRender}}, texture_manager};
+use crate::game_data::{TextureManager, game_event_manager::game_event_manager::EventManager, screen::{ScreenData, screen_data, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::vars::{draggable_var::DraggableVar, var_slot::VarSlot}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, tab_panel::tab_panel::TabPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, world_rendering::play_world_view_render::PlayWorldViewRender}}, texture_manager};
 
 pub trait Widget {
     fn get_pos(&self) -> [f32; 4];
@@ -13,7 +13,7 @@ pub trait Widget {
         &mut self,
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
-        game_event_manager: &mut GameEventManager
+        game_event_manager: &mut EventManager
     );
 }
 
@@ -183,7 +183,7 @@ impl Widget for WidgetType {
         &mut self,
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
-        game_event_manager: &mut GameEventManager
+        game_event_manager: &mut EventManager
     ) {
         match self {
             // Panels

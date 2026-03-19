@@ -3,7 +3,7 @@ use std::sync::{Arc, RwLock};
 use image::imageops::FilterType::Triangle;
 use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::{DebugData}, game_event_manager::{self, game_event_manager::{Event, GameEventManager}, render_event_manager::render_event_manager::RenderEvent}, log_init, player_data::player_data::PlayerData, screen::{self, Camera, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, input_data::Input, iso_cord_tool, menu_constructors, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
+use crate::game_data::{TextureManager, World, debuging::debug_data::{DebugData}, game_event_manager::{self, game_event_manager::{GameEvent, EventManager}, render_event_manager::render_event_manager::RenderEvent}, log_init, player_data::player_data::PlayerData, screen::{self, Camera, ScreenData, camera_controls, camera_data::{self, CameraData}, camera_ui::camera_ui_manager::CameraUIManager, input_data::Input, iso_cord_tool, menu_constructors, render_centered_string_at_ndc, renderer::casted_block_manager::{casted_block_manager::CastedChunkManager, casted_tile::{self, CastedTile}}, screen_data::{self, CurrentMenu}, screen_task_manager::rendering_task_manager::RenderingTaskManager, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, tik_manager::{self, tik_manager::TikManager}, types::UITextures, world_task_manager::{self, world_task_manager::WorldTaskManager}};
 
 
 
@@ -54,7 +54,7 @@ impl ScreenManager {
     // Init functions
     //=====================================
 
-    pub fn init_screen(&mut self, event_manager: &mut GameEventManager, screen_rez: [f32; 2], ctx : &mut GlContext) {
+    pub fn init_screen(&mut self, event_manager: &mut EventManager, screen_rez: [f32; 2], ctx : &mut GlContext) {
         // Init level manager with all levels
         self.set_screen_rez(screen_rez, ctx);
         self.camera.initialize_camera(ctx);
@@ -72,7 +72,7 @@ impl ScreenManager {
         world_rendering_task_manager: &mut RenderingTaskManager,
         tik_manager: &TikManager,
         player_data: &mut PlayerData,
-        game_event_manager: &mut GameEventManager,
+        game_event_manager: &mut EventManager,
         ctx : &mut GlContext
     ){
         // If quit
@@ -151,7 +151,7 @@ impl ScreenManager {
         button: MouseButton,
         tik_manager: &mut TikManager,
         world_task_manager: &mut WorldTaskManager,
-        event_manager: &mut GameEventManager,
+        event_manager: &mut EventManager,
     ) {
         self.screen_data.add_input(Input::MouseButtonDown(button));
         let camera_data = &self.get_camera_data().clone();
@@ -184,7 +184,7 @@ impl ScreenManager {
     // Handle mouse button release
     pub fn mouse_button_up_event(
         &mut self,
-        event_manager: &mut GameEventManager,
+        event_manager: &mut EventManager,
         button: MouseButton,
     ) {
         self.screen_data.add_input(Input::MouseButtonUp(button));
@@ -213,7 +213,7 @@ impl ScreenManager {
 
     // Handle key press
     pub fn key_down_event(&mut self,
-        event_manager: &mut GameEventManager,
+        event_manager: &mut EventManager,
         tik_manager: &mut TikManager,
         keycode: KeyCode,
         keymods: KeyMods,

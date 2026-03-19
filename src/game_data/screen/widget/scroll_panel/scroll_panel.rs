@@ -1,6 +1,6 @@
 use std::{cell::{RefCell}, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::Event, widget_event_manager::widget_event_manager::WidgetEvent}, screen::widget::{bar_button::bar_button::BarButtonWidget, widget::{Widget, WidgetType}, widget_calculations}};
+use crate::game_data::{game_event_manager::{game_event_manager::GameEvent, widget_event_manager::widget_event_manager::WidgetEvent}, screen::widget::{bar_button::bar_button::BarButtonWidget, widget::{Widget, WidgetType}, widget_calculations}};
 
 pub struct ScrollPanel {
     // Parent rendering
@@ -29,10 +29,10 @@ impl ScrollPanel {
         let scroll_interval = 0.05;
 
         let mut scroll_up_button = BarButtonWidget::new("".to_string(), [0.0; 4]);
-        scroll_up_button.add_event(Event::WidgetEvent(WidgetEvent::Modf32Event(scroll_ref.clone(), -scroll_interval)));
+        scroll_up_button.add_event(GameEvent::WidgetEvent(WidgetEvent::Modf32Event(scroll_ref.clone(), -scroll_interval)));
         
         let mut scroll_down_button = BarButtonWidget::new("".to_string(), [0.0; 4]);
-        scroll_down_button.add_event(Event::WidgetEvent(WidgetEvent::Modf32Event(scroll_ref.clone(), scroll_interval)));
+        scroll_down_button.add_event(GameEvent::WidgetEvent(WidgetEvent::Modf32Event(scroll_ref.clone(), scroll_interval)));
 
         ScrollPanel {
             // Parent Rendering
@@ -148,7 +148,7 @@ impl Widget for ScrollPanel {
         &mut self,
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
-        game_event_manager: &mut crate::game_data::game_event_manager::game_event_manager::GameEventManager
+        game_event_manager: &mut crate::game_data::game_event_manager::game_event_manager::EventManager
     ) {
         // Make sure scroll is within bounds 
         if *self.scroll_value.borrow() < 0.0 {

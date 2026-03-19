@@ -5,7 +5,7 @@ use std::sync::{Arc, RwLock};
 use std::time::SystemTime;
 
 use crate::game_data::debuging::debug_data::DebugData;
-use crate::game_data::game_event_manager::game_event_manager::GameEventManager;
+use crate::game_data::game_event_manager::game_event_manager::EventManager;
 use crate::game_data::player_data::player_data::PlayerData;
 use crate::game_data::{log_indent, log_init, log_unindent};
 use crate::game_data::screen::screen_task_manager::rendering_task_manager::RenderingTaskManager;
@@ -19,7 +19,7 @@ use crate::game_data::world_task_manager::world_task_manager::WorldTaskManager;
 pub struct GameData {
     // Other
     debug_data: DebugData,
-    event_manager: GameEventManager,
+    event_manager: EventManager,
     player_data: PlayerData,
 
     // World
@@ -59,7 +59,7 @@ impl GameData {
         Self {
             // Other
             debug_data: DebugData::new(),
-            event_manager: GameEventManager::new(),
+            event_manager: EventManager::new(),
             player_data: PlayerData::new(world.clone()),
 
             // World

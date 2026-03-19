@@ -1,6 +1,6 @@
 use crate::game_data::{
     game_event_manager::{
-        game_event_manager::GameEventManager,
+        game_event_manager::EventManager,
         world_event_manager::world_event_manager::WorldEvent,
     },
     types::BlockTexture,
@@ -210,7 +210,7 @@ impl WorldArea {
     // Modification
     //=====================================
 
-    pub fn fill_area(&self, game_event_manager: &mut GameEventManager, block_texture: BlockTexture) {
+    pub fn fill_area(&self, game_event_manager: &mut EventManager, block_texture: BlockTexture) {
         let mut min = [i32::MAX; 3];
         let mut max = [i32::MIN; 3];
 

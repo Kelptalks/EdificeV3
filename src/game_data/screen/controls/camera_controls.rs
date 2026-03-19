@@ -1,6 +1,6 @@
 use miniquad::{KeyCode, KeyMods, MouseButton};
 
-use crate::game_data::{game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, screen::{Camera, camera_controls, iso_cord_tool, renderer::camera, screen_data::CurrentMenu, screen_mananager::ScreenManager}};
+use crate::game_data::{game_event_manager::{game_event_manager::EventManager, render_event_manager::render_event_manager::RenderEvent}, screen::{Camera, camera_controls, iso_cord_tool, renderer::camera, screen_data::CurrentMenu, screen_mananager::ScreenManager}};
 /*
 ####################
 ## CameraControls ##
@@ -68,7 +68,7 @@ pub fn mouse_button_up_event(screen_manager: &mut ScreenManager, button: MouseBu
 }
 
 
-pub fn key_down_event(event_manager: &mut GameEventManager, screen_manager: &mut ScreenManager, keycode: KeyCode, keymods: KeyMods, repeat: bool) {
+pub fn key_down_event(event_manager: &mut EventManager, screen_manager: &mut ScreenManager, keycode: KeyCode, keymods: KeyMods, repeat: bool) {
     let camera_data = screen_manager.get_mut_camera_data();
     match keycode {
         KeyCode::W | KeyCode::Up => {

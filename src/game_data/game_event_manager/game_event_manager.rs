@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, game_event_manager::{input_event_manager::input_event_manager::InputEvent, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::render_event_manager::RenderEvent, widget_event_manager::{mouse_action_manager::MouseWidgetData, widget_event_manager::WidgetEvent}, world_event_manager::{self, world_event_manager::WorldEvent}}, level_manager::level_manager::LevelManager, player_data::{self, player_data::PlayerData}, screen::{Camera, screen_mananager::{self, ScreenManager}}, world_gen::WorldGenManager};
+use crate::game_data::{World, game_event_manager::{dispatch_event_manager::dispatch_event_manager::DispatchEvent, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::render_event_manager::RenderEvent, widget_event_manager::{mouse_action_manager::MouseWidgetData, widget_event_manager::WidgetEvent}, world_event_manager::{self, world_event_manager::WorldEvent}}, level_manager::level_manager::LevelManager, player_data::{self, player_data::PlayerData}, screen::{Camera, screen_mananager::{self, ScreenManager}}, world_gen::WorldGenManager};
 
 /*
 #######################
@@ -10,17 +10,15 @@ use crate::game_data::{World, game_event_manager::{input_event_manager::input_ev
 */
 
 #[derive(Clone)]
-pub enum Event  {
+pub enum GameEvent  {
+    // Game
     WidgetEvent(WidgetEvent),
     WorldEvent(WorldEvent),
     RenderEvent(RenderEvent),
     PlayerDataEvent(PlayerDataEvent),
 }
 
-pub struct EventData {
-    // Input Events
-    input_events: Vec<InputEvent>,
-    
+pub struct GameEventManager {
     // Game Events
     widget_events: Vec<WidgetEvent>,
     world_events: Vec<WorldEvent>,
@@ -33,11 +31,10 @@ pub struct EventData {
     mouse_widget_data: MouseWidgetData,
 }
 
-impl EventData {
-    pub fn new() -> EventData {
-        EventData {
+impl GameEventManager {
+    pub fn new() -> GameEventManager {
+        GameEventManager {
             // Events
-            input_events: Vec::new(),
             widget_events: Vec::new(),
             world_events: Vec::new(),
             render_events: Vec::new(),
@@ -79,21 +76,6 @@ impl EventData {
         return &self.mouse_widget_data;
     }
 
-    pub fn add_input_event(&mut self, input_event: InputEvent) {
-        self.input_events.push(input_event);
-    }
-
-
-    //=====================================
-    // Input Events
-    //=====================================
-
-    pub fn add_input_events(&mut self, input_events: &Vec<InputEvent>) {
-        for event in input_events {
-            self.add_input_event(event.clone());
-        }
-    }
-
     //=====================================
     // Game Events
     //=====================================
@@ -120,24 +102,24 @@ impl EventData {
         self.player_data_events.push(player_data_event);
     }
 
-    pub fn add_game_event(&mut self, event: Event) {
+    pub fn add_game_event(&mut self, event: GameEvent) {
         match event {
-            Event::WorldEvent(world_event) => {
+            GameEvent::WorldEvent(world_event) => {
                 self.add_world_event(world_event);
             },
-            Event::RenderEvent(render_event) => {
+            GameEvent::RenderEvent(render_event) => {
                 self.add_render_event(render_event);
             },
-            Event::WidgetEvent(widget_event) => {
+            GameEvent::WidgetEvent(widget_event) => {
                 self.add_widget_event(widget_event);
             }
-            Event::PlayerDataEvent(player_data_event) => {
+            GameEvent::PlayerDataEvent(player_data_event) => {
                 self.add_player_data_event(player_data_event);
             }
         }
     }
 
-    pub fn add_game_events(&mut self, events: &Vec<Event>) {
+    pub fn add_game_events(&mut self, events: &Vec<GameEvent>) {
         for event in events {
             self.add_game_event(event.clone());
         }
@@ -146,22 +128,35 @@ impl EventData {
 }
 
 /*
-########################
-## Game Event Manager ##
-########################
-
+###################
+## Event Manager ##
+###################
 */
 
-pub struct GameEventManager {
-    // Event tools
-    event_data: EventData,
+pub enum Event {
+    DispatchEvent(DispatchEvent),
+    InputEvent(InputEvent),
+    GameEvent(GameEvent),
 }
 
-impl GameEventManager {
-    pub fn new() -> GameEventManager {
-        GameEventManager {
+pub struct EventManager {
+    // Event Disptachers
+    dispatch_events: Vec<DispatchEvent>,
+    input_events: Vec<InputEvent>,
+
+    // Event tools
+    event_data: GameEventManager,
+}
+
+impl EventManager {
+    pub fn new() -> EventManager {
+        EventManager {
+            // Event Disptachers
+            dispatch_events: Vec::new(),
+            input_events: Vec::new(),
+
             // Event tools
-            event_data: EventData::new(),
+            event_data: GameEventManager::new(),
             
         }
     }
@@ -169,36 +164,41 @@ impl GameEventManager {
     //=====================================
     // Getters and setters
     //=====================================
-    pub fn get_event_tools(&self) -> &EventData {
+    pub fn get_event_tools(&self) -> &GameEventManager {
         return &self.event_data;
     }
 
-    pub fn get_mut_event_tools(&mut self) -> &mut EventData {
+    pub fn get_mut_event_tools(&mut self) -> &mut GameEventManager {
         return &mut self.event_data;
     }
 
 
     //=====================================
-    // Input Event constructor
+    // Dispatch Event constructor
+    //=====================================
+
+    pub fn add_dispatch_event(&mut self, dispatch_event: DispatchEvent) {
+        self.dispatch_events.push(dispatch_event);
+    }
+
+
+    //=====================================
+    // Input Event adders
     //=====================================
 
     pub fn add_input_event(&mut self, input_event: InputEvent) {
-        self.event_data.input_events.push(input_event);
+        self.input_events.push(input_event);
     }
 
     pub fn add_input_events(&mut self, input_events: &Vec<InputEvent>) {
-        self.event_data.add_input_events(input_events);
+        for event in input_events {
+            self.add_input_event(event.clone());
+        }
     }
 
-
     //=====================================
-    // Game Event constructors
+    // Game Event adders
     //=====================================
-
-    pub fn init_world(&mut self) {
-        self.event_data.render_events.push(RenderEvent::InitWorldRender());
-        self.event_data.world_events.push(WorldEvent::GenWorld());
-    }
 
     pub fn add_world_event(&mut self, world_event: WorldEvent) {
         self.event_data.world_events.push(world_event);
@@ -216,11 +216,11 @@ impl GameEventManager {
         self.event_data.player_data_events.push(player_data_event);
     }
 
-    pub fn add_event(&mut self, event: Event) {
+    pub fn add_event(&mut self, event: GameEvent) {
         self.event_data.add_game_event(event);
     }
 
-    pub fn add_events(&mut self, events: &Vec<Event>) {
+    pub fn add_events(&mut self, events: &Vec<GameEvent>) {
         self.event_data.add_game_events(events);
     }
 
@@ -229,7 +229,7 @@ impl GameEventManager {
     //=====================================
 
     pub fn execute_input_events(&mut self, screen_mananager: &mut ScreenManager) {
-        while let Some(input_event) = self.event_data.input_events.pop() {
+        while let Some(input_event) = self.input_events.pop() {
             input_event.execute_input_events(&mut self.event_data, screen_mananager.get_screen_data());
         }
     }

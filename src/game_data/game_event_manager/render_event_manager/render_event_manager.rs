@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, game_event_manager::{game_event_manager::EventData, render_event_manager}, player_data::{self, player_data::PlayerData}, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::widget::{Widget, WidgetType}}};
+use crate::game_data::{World, game_event_manager::{game_event_manager::GameEventManager, render_event_manager}, player_data::{self, player_data::PlayerData}, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::widget::{Widget, WidgetType}}};
 
 /*
 ##################
@@ -31,7 +31,7 @@ pub enum RenderEvent {
 impl RenderEvent {
 
 
-    pub fn construct_menu(current_menu: CurrentMenu, screen_mananager: &mut ScreenManager, event_tools: &mut EventData, player_data: &mut PlayerData) -> WidgetType 
+    pub fn construct_menu(current_menu: CurrentMenu, screen_mananager: &mut ScreenManager, event_tools: &mut GameEventManager, player_data: &mut PlayerData) -> WidgetType 
     {
         let mut menu_panel= WidgetType::new_panel([0.0; 4], [0.0; 4]);
         match current_menu {
@@ -71,7 +71,7 @@ impl RenderEvent {
     //=====================================
     // Execution
     //=====================================
-    pub fn execute_render_event(&self, event_tools: &mut EventData, screen_mananager: &mut ScreenManager, player_data: &mut PlayerData) {
+    pub fn execute_render_event(&self, event_tools: &mut GameEventManager, screen_mananager: &mut ScreenManager, player_data: &mut PlayerData) {
         let camera = screen_mananager.get_mut_camera();
         let camera_data = &camera.get_camera_data().clone();
         let world = &player_data.get_world_ref();

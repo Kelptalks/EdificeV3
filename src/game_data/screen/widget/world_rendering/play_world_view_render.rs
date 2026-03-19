@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc, sync::{Arc, RwLock}};
 
 use miniquad::KeyCode;
 
-use crate::game_data::{TextureManager, World, game_event_manager::{game_event_manager::{Event, GameEventManager}, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}}, screen::{ScreenData, camera_data::Direction, iso_cord_tool, widget::{panel::panel::Panel, widget::Widget, widget_calculations, world_rendering::{play_block::PlayBlock, play_world_view_config::PlayViewRendingConfig}}}, types::BlockTexture};
+use crate::game_data::{TextureManager, World, game_event_manager::{game_event_manager::{GameEvent, EventManager}, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}}, screen::{ScreenData, camera_data::Direction, iso_cord_tool, widget::{panel::panel::Panel, widget::Widget, widget_calculations, world_rendering::{play_block::PlayBlock, play_world_view_config::PlayViewRendingConfig}}}, types::BlockTexture};
 
 /*
 ###############
@@ -133,7 +133,7 @@ impl PlayWorldViewRender {
         self.input_events.push(event);
     }
 
-    fn handle_camera_panning(&mut self, screen_data: &ScreenData, game_event_manager: &mut GameEventManager) {
+    fn handle_camera_panning(&mut self, screen_data: &ScreenData, game_event_manager: &mut EventManager) {
         // Update camera offset based off scrolling change
         if screen_data.is_middle_mouse_held() {
             let scrolling_offset = screen_data.get_change_in_mouse_ndc();
@@ -355,7 +355,7 @@ impl Widget for PlayWorldViewRender {
         &mut self, 
         texture_manager: &mut TextureManager, 
         screen_data: &ScreenData, 
-        game_event_manager: &mut GameEventManager
+        game_event_manager: &mut EventManager
     ) {
         self.render_view(screen_data, texture_manager);
 

@@ -1,4 +1,4 @@
-use crate::game_data::{game_event_manager::{game_event_manager::Event, render_event_manager::render_event_manager::RenderEvent, world_event_manager::world_event_manager::WorldEvent}, screen::{ScreenData, screen_data::CurrentMenu, widget::{button, panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::{BlockTexture, UITextures}, world_gen::world_config::{self, WorldConfig}};
+use crate::game_data::{game_event_manager::{game_event_manager::GameEvent, render_event_manager::render_event_manager::RenderEvent, world_event_manager::world_event_manager::WorldEvent}, screen::{ScreenData, screen_data::CurrentMenu, widget::{button, panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::{BlockTexture, UITextures}, world_gen::world_config::{self, WorldConfig}};
 
 
 pub fn get_menu(screen_data: &ScreenData, world_config: &mut WorldConfig) -> WidgetType {
@@ -33,14 +33,14 @@ pub fn get_menu(screen_data: &ScreenData, world_config: &mut WorldConfig) -> Wid
 
             // Create world button
             let button = config_panel.add_bar_button("Create World".to_string());
-            button.add_event(Event::WorldEvent(WorldEvent::GenWorld()));
-            button.add_event(Event::RenderEvent(RenderEvent::InitWorldRender()));
-            button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::PlayView)));
+            button.add_event(GameEvent::WorldEvent(WorldEvent::GenWorld()));
+            button.add_event(GameEvent::RenderEvent(RenderEvent::InitWorldRender()));
+            button.add_event(GameEvent::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::PlayView)));
             button.set_text_scale(TextSize::Large);
 
         // Back button
         let button = panel.add_button();
-        button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::MainMenu)));
+        button.add_event(GameEvent::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::MainMenu)));
         button.set_icon(crate::game_data::types::UITextures::XIcon);
         button.set_text("Main Menu".to_string());
         

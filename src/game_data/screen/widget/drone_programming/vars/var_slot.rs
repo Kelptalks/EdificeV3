@@ -67,7 +67,7 @@ impl Widget for VarSlot {
         &mut self,
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
-        game_event_manager: &mut crate::game_data::game_event_manager::game_event_manager::GameEventManager
+        game_event_manager: &mut crate::game_data::game_event_manager::game_event_manager::EventManager
     ) {
 
         // Try and get var if mouse was released

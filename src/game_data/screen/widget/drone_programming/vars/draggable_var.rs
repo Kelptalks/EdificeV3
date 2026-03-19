@@ -67,7 +67,7 @@ impl Widget for DraggableVar {
         &mut self, 
         texture_manager: &mut crate::game_data::TextureManager, 
         screen_data: &crate::game_data::screen::ScreenData, 
-        game_event_manager: &mut crate::game_data::game_event_manager::game_event_manager::GameEventManager
+        game_event_manager: &mut crate::game_data::game_event_manager::game_event_manager::EventManager
     ) {
 
         if screen_data.mouse_on_ndc_pos(self.pos) && screen_data.was_left_pressed() {

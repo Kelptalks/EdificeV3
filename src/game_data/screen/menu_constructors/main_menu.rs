@@ -1,4 +1,4 @@
-use crate::game_data::{game_event_manager::{game_event_manager::Event, render_event_manager::render_event_manager::RenderEvent}, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}};
+use crate::game_data::{game_event_manager::{game_event_manager::GameEvent, render_event_manager::render_event_manager::RenderEvent}, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}};
 
 
 pub fn get_menu(screen_data: &ScreenData) -> WidgetType {
@@ -14,16 +14,16 @@ pub fn get_menu(screen_data: &ScreenData) -> WidgetType {
 
         // Play Button
         let bar_button = panel.add_bar_button("Play".to_string());
-        bar_button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::WorldCreationMenu)));
+        bar_button.add_event(GameEvent::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::WorldCreationMenu)));
         bar_button.set_text_scale(TextSize::Large);
         
         // Settings Button
         let bar_button = panel.add_bar_button("Settings".to_string());
-        bar_button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::SettingsMenu)));
+        bar_button.add_event(GameEvent::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::SettingsMenu)));
         bar_button.set_text_scale(TextSize::Large);
         
         let bar_button = panel.add_bar_button("Exit".to_string());
-        bar_button.add_event(Event::RenderEvent(RenderEvent::QuitGame));
+        bar_button.add_event(GameEvent::RenderEvent(RenderEvent::QuitGame));
         bar_button.set_text_scale(TextSize::Large);
         
         panel.size();

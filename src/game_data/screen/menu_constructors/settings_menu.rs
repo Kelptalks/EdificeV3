@@ -1,4 +1,4 @@
-use crate::game_data::{drone_programming::var::{game_vars::game_var_type::{GameVarType, GameVarTypeKind}, var_type::{VarType, VarTypeKind}}, game_event_manager::{game_event_manager::Event, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::{BlockTexture, drone_item::DroneItem}};
+use crate::game_data::{drone_programming::var::{game_vars::game_var_type::{GameVarType, GameVarTypeKind}, var_type::{VarType, VarTypeKind}}, game_event_manager::{game_event_manager::GameEvent, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::{BlockTexture, drone_item::DroneItem}};
 
 
 
@@ -17,7 +17,7 @@ pub fn get_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> Widge
 
         // Back button
         let button = panel.add_button();
-        button.add_event(Event::RenderEvent(RenderEvent::ChangeMenu(screen_data.get_current_menu())));
+        button.add_event(GameEvent::RenderEvent(RenderEvent::ChangeMenu(screen_data.get_current_menu())));
         button.set_icon(crate::game_data::types::UITextures::XIcon);
         button.set_text("Back".to_string());
 

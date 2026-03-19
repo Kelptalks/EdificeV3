@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use rand::rand_core::block;
 
-use crate::game_data::{TextureManager, game_event_manager::{self, game_event_manager::{Event, GameEventManager}, widget_event_manager::widget_event_manager::WidgetEvent}, screen::{ScreenData, render_centered_string_at_ndc, screen_data, screen_mananager, widget::{self, button::button::Button, widget::Widget, widget_calculations}}, types::{BlockTexture, FontType, UITextures}};
+use crate::game_data::{TextureManager, game_event_manager::{self, game_event_manager::{GameEvent, EventManager}, widget_event_manager::widget_event_manager::WidgetEvent}, screen::{ScreenData, render_centered_string_at_ndc, screen_data, screen_mananager, widget::{self, button::button::Button, widget::Widget, widget_calculations}}, types::{BlockTexture, FontType, UITextures}};
 
 pub struct ToggleButton {
     // Input handling
@@ -10,7 +10,7 @@ pub struct ToggleButton {
 
     // Rendering
     button: Button,
-    links: Vec<Event>
+    links: Vec<GameEvent>
 
 }
 
@@ -20,7 +20,7 @@ impl ToggleButton {
         let is_toggled = Rc::new(RefCell::new(false));
 
         let mut button = Button::new([0.0; 4]);
-        button.add_event(Event::WidgetEvent(WidgetEvent::ToggleBoolEvent(is_toggled.clone())));
+        button.add_event(GameEvent::WidgetEvent(WidgetEvent::ToggleBoolEvent(is_toggled.clone())));
 
 
         let mut toggle_button = ToggleButton {
@@ -55,7 +55,7 @@ impl ToggleButton {
     // Events
     //=====================================
 
-    pub fn add_value_link(&mut self, event: Event) {
+    pub fn add_value_link(&mut self, event: GameEvent) {
         self.links.push(event);
     } 
 
@@ -105,7 +105,7 @@ impl Widget for ToggleButton {
         &mut self, 
         texture_manager: &mut TextureManager, 
         screen_data: &ScreenData, 
-        game_event_manager: &mut GameEventManager
+        game_event_manager: &mut EventManager
     ) { 
         // Add links
         for event in &self.links.pop() {

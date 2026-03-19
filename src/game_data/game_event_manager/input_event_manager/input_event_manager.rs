@@ -1,29 +1,29 @@
 use miniquad::{KeyCode, MouseButton};
 
-use crate::game_data::{game_event_manager::game_event_manager::{Event, EventData}, screen::ScreenData};
+use crate::game_data::{game_event_manager::game_event_manager::{GameEvent, GameEventManager}, screen::ScreenData};
 
 
 
 #[derive(Clone)]
 pub enum InputEvent {
     // Keys
-    KeyDown(KeyCode, Event),
+    KeyDown(KeyCode, GameEvent),
 
     // Scrolling
-    ScrollUp(Event),
-    ScrollDown(Event),
+    ScrollUp(GameEvent),
+    ScrollDown(GameEvent),
 
     // Mouse button
-    LeftMouseButtonClicked(Event),
-    RightMouseButtonClicked(Event),
+    LeftMouseButtonClicked(GameEvent),
+    RightMouseButtonClicked(GameEvent),
 
-    LeftMouseButtonReleased(Event),
-    RightMouseButtonReleased(Event),
+    LeftMouseButtonReleased(GameEvent),
+    RightMouseButtonReleased(GameEvent),
 
 }
 
 impl InputEvent {
-    pub fn execute_input_events(&self, event_data: &mut EventData, screen_data: &ScreenData) {
+    pub fn execute_input_events(&self, event_data: &mut GameEventManager, screen_data: &ScreenData) {
         let input_manager = screen_data.get_input_manager();
         
         match self {

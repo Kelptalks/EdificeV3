@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use rand::rand_core::le;
 
-use crate::game_data::{World, game_event_manager::{game_event_manager::EventData, render_event_manager::render_event_manager::RenderEvent}, locations::world_area::WorldArea, player_data::locations::location::WorldLocation, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, locations::world_area::WorldArea, player_data::locations::location::WorldLocation, types::BlockTexture};
 
 /*
 #################
@@ -28,7 +28,7 @@ impl WorldEvent {
     //=====================================
     // Execution
     //=====================================
-    pub fn execute_world_event(&self, world: &mut World, event_data: &mut EventData) {
+    pub fn execute_world_event(&self, world: &mut World, event_data: &mut GameEventManager) {
         match self {
             WorldEvent::Clear => {
                 world.clear();

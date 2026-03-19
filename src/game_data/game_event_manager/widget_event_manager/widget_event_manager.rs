@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::game_event_manager::{game_event_manager::EventData};
+use crate::game_data::game_event_manager::{game_event_manager::GameEventManager};
 
 #[derive(Clone)]
 pub enum WidgetEvent {
@@ -12,7 +12,7 @@ pub enum WidgetEvent {
 
 
 impl WidgetEvent {
-    pub fn execute_widget_event(&self, event_tools: &mut EventData) {
+    pub fn execute_widget_event(&self, event_tools: &mut GameEventManager) {
         match self {
             WidgetEvent::ToggleBoolEvent(toggle_button_event) => {
                 let current_state = *toggle_button_event.borrow();

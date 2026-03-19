@@ -2,16 +2,16 @@ use std::{cell::RefCell, rc::Rc};
 
 use miniquad::KeyCode;
 
-use crate::game_data::{game_event_manager::{game_event_manager::Event, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}, widget_event_manager::widget_event_manager::WidgetEvent, world_event_manager::world_event_manager::WorldEvent}, locations::world_area::WorldArea, player_data::{locations::location::WorldLocation, player_data::PlayerData}, screen::widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget_calculations::TextSize, world_rendering::play_world_view_config::PlayViewRendingConfig}};
+use crate::game_data::{game_event_manager::{game_event_manager::GameEvent, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}, widget_event_manager::widget_event_manager::WidgetEvent, world_event_manager::world_event_manager::WorldEvent}, locations::world_area::WorldArea, player_data::{locations::location::WorldLocation, player_data::PlayerData}, screen::widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget_calculations::TextSize, world_rendering::play_world_view_config::PlayViewRendingConfig}};
 
 fn construct_building_events(location_ref: &Rc<RefCell<WorldLocation>>) -> Vec<InputEvent> {
     let mut building_input_events = Vec::new();
 
 
-    let test_event = Event::PlayerDataEvent(PlayerDataEvent::LocationEvent(location_ref.clone(), LocationEvent::SetLocationPoint(0, [0; 3])));
+    let test_event = GameEvent::PlayerDataEvent(PlayerDataEvent::LocationEvent(location_ref.clone(), LocationEvent::SetLocationPoint(0, [0; 3])));
 
 
-    let fill_location_event = Event::WorldEvent(
+    let fill_location_event = GameEvent::WorldEvent(
         WorldEvent::FillLocation(location_ref.clone(), crate::game_data::types::BlockTexture::Stone));
 
     let place_block_event = 
@@ -27,14 +27,14 @@ fn construct_building_events(location_ref: &Rc<RefCell<WorldLocation>>) -> Vec<I
 fn construct_zoom_events(zoom_ref: &Rc<RefCell<i32>>) -> Vec<InputEvent> {
     let mut zoom_input_events = Vec::new();
 
-    let zoom_out_event = Event::WidgetEvent(WidgetEvent::Modi32Event(zoom_ref.clone(), -1));
+    let zoom_out_event = GameEvent::WidgetEvent(WidgetEvent::Modi32Event(zoom_ref.clone(), -1));
     let scroll_up_input_event = 
         InputEvent::ScrollUp(
             zoom_out_event
         ); 
     zoom_input_events.push(scroll_up_input_event);
 
-    let zoom_in_event = Event::WidgetEvent(WidgetEvent::Modi32Event(zoom_ref.clone(), 1));
+    let zoom_in_event = GameEvent::WidgetEvent(WidgetEvent::Modi32Event(zoom_ref.clone(), 1));
     let scroll_down_input_event = 
         InputEvent::ScrollDown(
             zoom_in_event
@@ -55,7 +55,7 @@ fn construct_shift_input_event(location_ref: &Rc<RefCell<WorldLocation>>, keycod
     let key_down_input_event = 
         InputEvent::KeyDown(
             keycode, 
-            Event::PlayerDataEvent(shift_event)
+            GameEvent::PlayerDataEvent(shift_event)
         ); 
 
     return key_down_input_event;
