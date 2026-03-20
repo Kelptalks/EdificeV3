@@ -2,7 +2,9 @@ use std::{cell::RefCell, rc::Rc, sync::{Arc, RwLock}};
 
 use miniquad::KeyCode;
 
-use crate::game_data::{TextureManager, World, game_event_manager::{game_event_manager::{GameEvent, EventManager}, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}}, screen::{ScreenData, camera_data::Direction, iso_cord_tool, widget::{panel::panel::Panel, widget::Widget, widget_calculations, world_rendering::{play_block::PlayBlock, play_world_view_config::PlayViewRendingConfig}}}, types::BlockTexture};
+use crate::game_data::{TextureManager, World, screen::{ScreenData, camera_data::Direction, iso_cord_tool, widget::{panel::panel::Panel, widget::Widget, widget_calculations, world_rendering::{play_block::PlayBlock, play_world_view_config::PlayViewRendingConfig}}}, types::BlockTexture};
+
+use crate::game_data::game_event_manager::prelude::*;
 
 /*
 ###############
@@ -70,7 +72,7 @@ pub struct PlayWorldViewRender {
 
 
     // Input | Handling
-    input_events: Vec<InputEvent>,
+    events: Vec<Event>,
 
     // World Rendering
     rendering_config: PlayViewRendingConfig,
@@ -79,9 +81,7 @@ pub struct PlayWorldViewRender {
     camera_direction: ViewDirection,
 
     // Camera Motion
-    zoom: i32,
     camera_ndc_offset: [f32; 2],
-    render_scale: f32,
 
     // Cached scale values
     ndc_block_scale: f32,
@@ -107,7 +107,7 @@ impl PlayWorldViewRender {
 
 
             // Input | Handling
-            input_events: Vec::new(),
+            events: Vec::new(),
 
             // Player Data Links
             rendering_config: play_view_rendering_config,
@@ -115,9 +115,7 @@ impl PlayWorldViewRender {
             camera_direction: ViewDirection::North,
 
             // Rendering
-            zoom: 10,
             camera_ndc_offset: [0.0, 0.0],
-            render_scale: 0.5,
 
             ndc_block_scale: 0.0,
             ndc_tile_scale: 0.0,
@@ -129,8 +127,8 @@ impl PlayWorldViewRender {
     // Controls
     //=====================================
     
-    pub fn add_input_event(&mut self, event: InputEvent) {
-        self.input_events.push(event);
+    pub fn add_event(&mut self, event: Event) {
+        self.events.push(event);
     }
 
     fn handle_camera_panning(&mut self, screen_data: &ScreenData, game_event_manager: &mut EventManager) {
@@ -176,16 +174,6 @@ impl PlayWorldViewRender {
 
     }
 
-    fn zoom_in(&mut self) {
-        if self.zoom > 1 {
-            self.zoom-=1;
-        }
-    }
-
-    fn zoom_out(&mut self) {
-        self.zoom+=1;
-    }
-
     //=====================================
     // Rendering
     //=====================================
@@ -206,8 +194,10 @@ impl PlayWorldViewRender {
         ];
 
 
+        let largest_side_of_location = self.rendering_config.get_location_ref().borrow().get_area().get_largest_dimension_scale();
+        let block_diementions = largest_side_of_location + self.rendering_config.get_zoom() * 2 + 1;
 
-        self.ndc_block_scale = (self.scale[0] / ((self.rendering_config.get_zoom() * 2) + 1) as f32) / 2.0;
+        self.ndc_block_scale = (self.scale[0] / block_diementions as f32) / 2.0;
         self.ndc_tile_scale = self.ndc_block_scale / 2.0;
         self.ndc_tile_half_scale = self.ndc_tile_scale / 2.0;
 
@@ -237,11 +227,11 @@ impl PlayWorldViewRender {
 
     pub fn get_rendering_center_world_cor(&self) -> [i32; 3] {
         let location_ref = self.rendering_config.get_location_ref();
+        
         return location_ref.borrow().get_area().get_center_world_cords();
     }
 
     pub fn render_view(&mut self, 
-        screen_data: &ScreenData, 
         texture_manager: &mut TextureManager,
     ) {
         self.size();
@@ -296,22 +286,11 @@ impl PlayWorldViewRender {
 
                     play_block.render_block(texture_manager);
                     play_block.render_cursor(texture_manager);
+                    play_block.render_area(texture_manager, self.rendering_config.get_location_ref().borrow().get_area());
 
                 }
             }
         }
-
-
-        /*
-        if screen_data.is_left_mouse_held() || screen_data.is_right_mouse_held() {
-            play_view_data.get_mut_cursor_area().set_point_1(camera_cords);
-        }
-        else {
-            play_view_data.get_mut_cursor_area().set_point_1(camera_cords);
-            play_view_data.get_mut_cursor_area().set_point_2(camera_cords);
-        }
-
-        */
 
 
     }
@@ -357,7 +336,7 @@ impl Widget for PlayWorldViewRender {
         screen_data: &ScreenData, 
         game_event_manager: &mut EventManager
     ) {
-        self.render_view(screen_data, texture_manager);
+        self.render_view(texture_manager);
 
 
         // Don't handle input if mouse is not on render
@@ -366,39 +345,7 @@ impl Widget for PlayWorldViewRender {
         }
         else {
             self.handle_camera_panning(screen_data, game_event_manager);
-            game_event_manager.add_input_events(&self.input_events);
+            game_event_manager.add_events(&self.events);
         }
-        
-        /*
-        let inputs = screen_data.get_inputs();
-        for input in inputs {
-            match input {
-                crate::game_data::screen::input_data::Input::KeyDown(key_code) => {
-                    if let Some(cords_ref) = &self.camera_cords_ref {
-                        if *key_code == KeyCode::LeftShift {
-                            cords_ref.borrow_mut()[2] -= 1;
-                        }
-                        else if *key_code == KeyCode::Space {
-                            cords_ref.borrow_mut()[2] += 1;
-                        }
-                    }
-                },
-                crate::game_data::screen::input_data::Input::MouseWheel(x, y) => {
-                    if *y > 0.0 {
-                        self.zoom_in();
-                    }
-                    else if *y < 0.0 { 
-                        self.zoom_out();
-                    }
-                },
-                _ => {
-
-                }
-
-            }
-        }
-         */
-        
-
     }
 }

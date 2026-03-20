@@ -1,4 +1,4 @@
-pub use super::event_manager::EventManager;
+pub use super::event_manager::{EventManager, Event};
 
 pub use super::game_event_manager::{GameEvent, GameEventManager};
 

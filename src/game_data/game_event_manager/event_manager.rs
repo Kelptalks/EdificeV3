@@ -8,6 +8,7 @@ use crate::game_data::{World, game_event_manager::{dispatch_event_manager::dispa
 ###################
 */
 
+#[derive(Clone)]
 pub enum Event {
     DispatchEvent(DispatchEvent),
     InputEvent(InputEvent),
@@ -20,7 +21,7 @@ pub struct EventManager {
     input_events: Vec<InputEvent>,
 
     // Event tools
-    event_data: GameEventManager,
+    game_event_manager: GameEventManager,
 }
 
 impl EventManager {
@@ -31,7 +32,7 @@ impl EventManager {
             input_events: Vec::new(),
 
             // Event tools
-            event_data: GameEventManager::new(),
+            game_event_manager: GameEventManager::new(),
             
         }
     }
@@ -40,11 +41,11 @@ impl EventManager {
     // Getters and setters
     //=====================================
     pub fn get_event_tools(&self) -> &GameEventManager {
-        return &self.event_data;
+        return &self.game_event_manager;
     }
 
     pub fn get_mut_event_tools(&mut self) -> &mut GameEventManager {
-        return &mut self.event_data;
+        return &mut self.game_event_manager;
     }
 
 
@@ -76,60 +77,91 @@ impl EventManager {
     //=====================================
 
     pub fn add_world_event(&mut self, world_event: WorldEvent) {
-        self.event_data.add_world_event(world_event);
+        self.game_event_manager.add_world_event(world_event);
     }
 
     pub fn add_render_event(&mut self, render_event: RenderEvent) {
-        self.event_data.add_render_event(render_event);
+        self.game_event_manager.add_render_event(render_event);
     }
 
     pub fn add_widget_event(&mut self, widget_event: WidgetEvent) {
-        self.event_data.add_widget_event(widget_event);
+        self.game_event_manager.add_widget_event(widget_event);
     }
 
     pub fn add_player_data_event(&mut self, player_data_event: PlayerDataEvent) {
-        self.event_data.add_player_data_event(player_data_event);
+        self.game_event_manager.add_player_data_event(player_data_event);
     }
 
     pub fn add_game_event(&mut self, event: GameEvent) {
-        self.event_data.add_game_event(event);
+        self.game_event_manager.add_game_event(event);
     }
 
     pub fn add_game_events(&mut self, events: &Vec<GameEvent>) {
-        self.event_data.add_game_events(events);
+        self.game_event_manager.add_game_events(events);
+    }
+
+    //=====================================
+    // Event
+    //=====================================
+
+    pub fn add_event(&mut self, event: Event) {
+        match event {
+            Event::DispatchEvent(dispatch_event) => {
+                self.dispatch_events.push(dispatch_event);
+            },
+            Event::InputEvent(input_event) => {
+                self.input_events.push(input_event);
+            },
+            Event::GameEvent(game_event) => {
+                self.add_game_event(game_event);
+            },
+        }
+    }
+
+    pub fn add_events(&mut self, events: &Vec<Event>) {
+        for event in events {
+            self.add_event(event.clone());
+        }
     }
 
     //=====================================
     // Execution
     //=====================================
 
-    pub fn execute_input_events(&mut self, screen_mananager: &mut ScreenManager) {
-        while let Some(input_event) = self.input_events.pop() {
-            input_event.execute_input_events(&mut self.event_data, screen_mananager.get_screen_data());
+    pub fn execute_dispatch_events(&mut self) {
+        while let Some(dispatch_event) = self.dispatch_events.pop() {
+            self.add_events(&dispatch_event.get_events_dispatched());
         }
+    }
+
+    pub fn dispatch_input_events(&mut self, screen_mananager: &mut ScreenManager) {
+        while let Some(input_event) = self.input_events.pop() {
+            self.add_events(&input_event.get_input_events_to_dispatch(screen_mananager.get_screen_data()));
+        }
+        self.execute_dispatch_events();
     }
     
     pub fn execute_world_events(&mut self, world: &mut World) {
-        while let Some(world_event) = self.event_data.world_events.pop() {
-            world_event.execute_world_event(world, &mut self.event_data);
+        while let Some(world_event) = self.game_event_manager.world_events.pop() {
+            world_event.execute_world_event(world, &mut self.game_event_manager);
         }
     }
 
     pub fn execute_render_events(&mut self, screen_mananager: &mut ScreenManager, player_data: &mut PlayerData) {
-        while let Some(render_event) = self.event_data.render_events.pop() {
-            render_event.execute_render_event(&mut self.event_data, screen_mananager, player_data);
+        while let Some(render_event) = self.game_event_manager.render_events.pop() {
+            render_event.execute_render_event(&mut self.game_event_manager, screen_mananager, player_data);
         }
     }
 
     pub fn execute_player_data_events(&mut self, player_data: &mut PlayerData) {
-        while let Some(player_data_event) = self.event_data.player_data_events.pop() {
-            player_data_event.execute_player_data_events(&mut self.event_data, player_data);
+        while let Some(player_data_event) = self.game_event_manager.player_data_events.pop() {
+            player_data_event.execute_player_data_events(&mut self.game_event_manager, player_data);
         }
     }
 
     pub fn execute_widget_events(&mut self) {
-        while let Some(widget_event) = self.event_data.widget_events.pop() {
-            widget_event.execute_widget_event(&mut self.event_data);
+        while let Some(widget_event) = self.game_event_manager.widget_events.pop() {
+            widget_event.execute_widget_event(&mut self.game_event_manager);
         }
     }
 

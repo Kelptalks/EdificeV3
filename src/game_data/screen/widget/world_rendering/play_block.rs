@@ -76,7 +76,7 @@ impl PlayBlock {
         }
     }
 
-    pub fn render_area_selection(&self, texture_manager: &mut TextureManager, world_area: &WorldArea) {        
+    pub fn render_area(&self, texture_manager: &mut TextureManager, world_area: &WorldArea) {        
         
         if world_area.cords_in_area(self.block_world_cords) {
             if self.block_type != BlockTexture::Air {

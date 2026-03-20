@@ -1,5 +1,5 @@
 
-use crate::game_data::{player_data::locations::location::WorldLocation, texture_manager::texture::Texture, types::{BlockTexture, drone_item::DroneItem}};
+use crate::game_data::{texture_manager::texture::Texture, types::{BlockTexture, drone_item::DroneItem}};
 
 
 #[derive(PartialEq)]
@@ -25,6 +25,7 @@ impl GameVarTypeKind {
 pub enum GameVarType {
     DroneItem(DroneItem),
     Block(BlockTexture),
+    Location(u32),
 }
 
 impl GameVarType {
@@ -36,6 +37,9 @@ impl GameVarType {
             GameVarType::Block(block_texture) => {
                 return Texture::BlockTexture(*block_texture);
             },
+            GameVarType::Location(u32) => {
+                todo!("Have not yet implemented Location Var")
+            },
         }
     }
 
@@ -43,6 +47,9 @@ impl GameVarType {
         match self {
             GameVarType::DroneItem(_drone_item) => return GameVarTypeKind::DroneItem,
             GameVarType::Block(_block_texture) => return GameVarTypeKind::Block,
+            GameVarType::Location(u32) => {
+                todo!("Have not yet implemented Location Var")
+            },
         }
     }
 }

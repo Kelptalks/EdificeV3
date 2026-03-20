@@ -103,14 +103,6 @@ impl DebugData {
         self.total_tiles_raycasted = tiles_raycasted;
     }
 
-    // View Rendering
-    pub fn set_direction(&mut self, direction_string: String) {
-        self.direction = direction_string;
-    }
-    pub fn set_camera_cords(&mut self, camera_cords: [i32; 3]) {
-        self.camera_cords = camera_cords;
-    }
-
     //=====================================
     // Rendering
     //=====================================

@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::game_event_manager::{game_event_manager::GameEventManager, player_data_event_manager::location_event::LocationEvent}, player_data::{locations::location::WorldLocation, player_data::PlayerData}};
+use crate::game_data::{game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, player_data_event_manager::location_event::LocationEvent}, prelude::{Event, GameEvent}}, player_data::{locations::location::WorldLocation, player_data::PlayerData}};
 
 #[derive(Clone)]
 pub enum PlayerDataEvent {
@@ -9,6 +9,10 @@ pub enum PlayerDataEvent {
 
 
 impl PlayerDataEvent {
+    pub fn wrap_into_event(self) -> Event {
+        return Event::GameEvent(GameEvent::PlayerDataEvent(self));
+    }
+
     pub fn execute_player_data_events(&self, event_tools: &mut GameEventManager, player_data: &mut PlayerData) {
         match self {
             PlayerDataEvent::LocationEvent(location_ref, location_event) => {

@@ -52,8 +52,14 @@ impl WorldArea {
         return self.points[1];
     }
 
+    pub fn shift_point(&mut self, point_index: usize, shift_cords: [i32; 3]) {
+        for (i, axis) in self.points[point_index].iter_mut().enumerate() {
+            *axis += shift_cords[i];
+        }
+    }
+
     //=====================================
-    // modification
+    // Entire Area
     //=====================================
 
     pub fn shift_cords(&mut self, shift_cords: [i32; 3]) {
@@ -80,6 +86,7 @@ impl WorldArea {
     // Getters
     //=====================================
 
+
     pub fn get_dimensions(&self) -> [i32; 3] {
         let [start, end] = self.points;
         [
@@ -93,13 +100,16 @@ impl WorldArea {
         return self.get_dimensions().map(|d| d / 2);
     }
 
+    pub fn get_largest_dimension_scale(&self) -> i32 {
+        self.get_dimensions().iter().max().copied().unwrap()
+    }
+
     pub fn get_center_world_cords(&self) -> [i32; 3] {
-        let [start, _] = self.points;
-        let half = self.get_half_dimensions();
+        let [start, end] = self.points;
         [
-            start[0] + half[0],
-            start[1] + half[1],
-            start[2] + half[2],
+            start[0] + (end[0] - start[0]) / 2,
+            start[1] + (end[1] - start[1]) / 2,
+            start[2] + (end[2] - start[2]) / 2,
         ]
     }
 

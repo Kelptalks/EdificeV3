@@ -1,70 +1,72 @@
 use miniquad::{KeyCode, MouseButton};
 
-use crate::game_data::{game_event_manager::game_event_manager::game_event_manager::{GameEvent, GameEventManager}, screen::ScreenData};
+use crate::game_data::{game_event_manager::{game_event_manager::game_event_manager::{GameEvent, GameEventManager}, prelude::Event}, screen::ScreenData};
 
 
 
 #[derive(Clone)]
 pub enum InputEvent {
     // Keys
-    KeyDown(KeyCode, GameEvent),
+    KeyDown(KeyCode, Vec<Event>),
 
     // Scrolling
-    ScrollUp(GameEvent),
-    ScrollDown(GameEvent),
+    ScrollUp(Vec<Event>),
+    ScrollDown(Vec<Event>),
 
     // Mouse button
-    LeftMouseButtonClicked(GameEvent),
-    RightMouseButtonClicked(GameEvent),
+    LeftMouseButtonDown(Vec<Event>),
+    RightMouseButtonDown(Vec<Event>),
 
-    LeftMouseButtonReleased(GameEvent),
-    RightMouseButtonReleased(GameEvent),
+    LeftMouseButtonReleased(Vec<Event>),
+    RightMouseButtonReleased(Vec<Event>),
 
 }
 
 impl InputEvent {
-    pub fn execute_input_events(&self, event_data: &mut GameEventManager, screen_data: &ScreenData) {
+    pub fn get_input_events_to_dispatch(&self, screen_data: &ScreenData) -> Vec<Event> {
         let input_manager = screen_data.get_input_manager();
         
+        let mut events_to_dispatch = Vec::new();
         match self {
-            InputEvent::KeyDown(key_code, event) => {
+            InputEvent::KeyDown(key_code, events) => {
                 // println!("{}", input_manager.was_key_code_pressed(*key_code));
                 if input_manager.was_key_code_pressed(*key_code) {
-                    event_data.add_game_event(event.clone());
+                    events_to_dispatch.append(&mut events.clone());
                 }
             },
-            InputEvent::ScrollUp(event) => {
+            InputEvent::ScrollUp(events) => {
                 if input_manager.get_mouse_input_data().scrolled_up() {
-                    event_data.add_game_event(event.clone());
+                    events_to_dispatch.append(&mut events.clone());
                 }
             },
-            InputEvent::ScrollDown(event) => {
+            InputEvent::ScrollDown(events) => {
                 if input_manager.get_mouse_input_data().scrolled_down() {
-                    event_data.add_game_event(event.clone());
+                    events_to_dispatch.append(&mut events.clone());
                 }
             },
-            InputEvent::LeftMouseButtonClicked(event) => {
+            InputEvent::LeftMouseButtonDown(events) => {
                 if input_manager.get_mouse_input_data().was_left_clicked() {
-                    event_data.add_game_event(event.clone());
+                    events_to_dispatch.append(&mut events.clone());
                 }
             },
-            InputEvent::RightMouseButtonClicked(event) => {
+            InputEvent::RightMouseButtonDown(events) => {
                 if input_manager.get_mouse_input_data().was_right_clicked() {
-                    event_data.add_game_event(event.clone());
+                    events_to_dispatch.append(&mut events.clone());
                 }
             },
-            InputEvent::LeftMouseButtonReleased(event) => {
+            InputEvent::LeftMouseButtonReleased(events) => {
                 if input_manager.get_mouse_input_data().was_left_released() {
-                    event_data.add_game_event(event.clone());
+                    events_to_dispatch.append(&mut events.clone());
                 }
             },
-            InputEvent::RightMouseButtonReleased(event) => {
+            InputEvent::RightMouseButtonReleased(events) => {
                 if input_manager.get_mouse_input_data().was_left_released() {
-                    event_data.add_game_event(event.clone());
+                    events_to_dispatch.append(&mut events.clone());
                 }
             },
         }
         
+        return events_to_dispatch;
 
     }
 }

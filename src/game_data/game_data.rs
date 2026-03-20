@@ -189,7 +189,8 @@ impl GameData {
         let frame_duration_ms = frame_duration.as_millis();
         
         // Update game events
-        self.event_manager.execute_input_events(screen_mananager);
+        self.event_manager.execute_dispatch_events();
+        self.event_manager.dispatch_input_events(screen_mananager);
         self.event_manager.execute_player_data_events(&mut self.player_data);
 
         //Get world gaurd

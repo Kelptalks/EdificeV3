@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::game_event_manager::game_event_manager::game_event_manager::GameEventManager;
+use crate::game_data::game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}};
 
 #[derive(Clone)]
 pub enum WidgetEvent {
@@ -12,6 +12,10 @@ pub enum WidgetEvent {
 
 
 impl WidgetEvent {
+    pub fn wrap_into_event(self) -> Vec<Event> {
+        return vec![Event::GameEvent(GameEvent::WidgetEvent(self))];
+    } 
+
     pub fn execute_widget_event(&self, event_tools: &mut GameEventManager) {
         match self {
             WidgetEvent::ToggleBoolEvent(toggle_button_event) => {
