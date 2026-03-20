@@ -18,11 +18,19 @@ pub enum InputEvent {
     RightMouseButtonDown(Vec<Event>),
 
     LeftMouseButtonReleased(Vec<Event>),
-    RightMouseButtonReleased(Vec<Event>),
+    RightMouseButtonUp(Vec<Event>),
 
 }
 
+pub fn construct_key_down_event(key_code: KeyCode, event: Event) -> Event {
+    return InputEvent::KeyDown(key_code, vec![event]).wrap_into_event();
+}
+
 impl InputEvent {
+    pub fn wrap_into_event(self) -> Event {
+        return Event::InputEvent(self);
+    }
+
     pub fn get_input_events_to_dispatch(&self, screen_data: &ScreenData) -> Vec<Event> {
         let input_manager = screen_data.get_input_manager();
         
@@ -59,8 +67,8 @@ impl InputEvent {
                     events_to_dispatch.append(&mut events.clone());
                 }
             },
-            InputEvent::RightMouseButtonReleased(events) => {
-                if input_manager.get_mouse_input_data().was_left_released() {
+            InputEvent::RightMouseButtonUp(events) => {
+                if input_manager.get_mouse_input_data().was_right_released() {
                     events_to_dispatch.append(&mut events.clone());
                 }
             },

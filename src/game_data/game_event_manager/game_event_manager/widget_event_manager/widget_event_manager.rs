@@ -12,9 +12,13 @@ pub enum WidgetEvent {
 
 
 impl WidgetEvent {
-    pub fn wrap_into_event(self) -> Vec<Event> {
+    pub fn wrap_into_event_vec(self) -> Vec<Event> {
         return vec![Event::GameEvent(GameEvent::WidgetEvent(self))];
     } 
+    
+    pub fn wrap_into_event(self) -> Event {
+        return Event::GameEvent(GameEvent::WidgetEvent(self));
+    }
 
     pub fn execute_widget_event(&self, event_tools: &mut GameEventManager) {
         match self {

@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc, sync::{Arc, RwLock}};
 
 use miniquad::KeyCode;
 
-use crate::game_data::{TextureManager, World, screen::{ScreenData, camera_data::Direction, iso_cord_tool, widget::{panel::panel::Panel, widget::Widget, widget_calculations, world_rendering::{play_block::PlayBlock, play_world_view_config::PlayViewRendingConfig}}}, types::BlockTexture};
+use crate::game_data::{TextureManager, World, screen::{ScreenData, camera_data::Direction, iso_cord_tool, widget::{panel::panel::Panel, widget::Widget, widget_calculations, world_rendering::{play_block::PlayBlock, play_view_control_manager::{self, PlayViewControlManager}, play_world_view_config::PlayViewRendingConfig}}}, types::BlockTexture};
 
 use crate::game_data::game_event_manager::prelude::*;
 
@@ -73,6 +73,7 @@ pub struct PlayWorldViewRender {
 
     // Input | Handling
     events: Vec<Event>,
+    control_manager: PlayViewControlManager,
 
     // World Rendering
     rendering_config: PlayViewRendingConfig,
@@ -91,6 +92,12 @@ pub struct PlayWorldViewRender {
 
 impl PlayWorldViewRender {
     pub fn new(play_view_rendering_config: PlayViewRendingConfig) -> PlayWorldViewRender{
+
+        let input_manager = PlayViewControlManager::new(
+            play_view_rendering_config.get_camera_movment_event_type_ref(), 
+            play_view_rendering_config.get_location_ref()
+        );
+
         PlayWorldViewRender {            
            // Parent Rendering
             parent_pos: [0.0; 4],
@@ -108,6 +115,7 @@ impl PlayWorldViewRender {
 
             // Input | Handling
             events: Vec::new(),
+            control_manager: input_manager,
 
             // Player Data Links
             rendering_config: play_view_rendering_config,
@@ -123,10 +131,18 @@ impl PlayWorldViewRender {
         }
     }
 
+    pub fn get_rendering_config(&self) -> &PlayViewRendingConfig {
+        return &self.rendering_config;
+    }
+
     //=====================================
     // Controls
     //=====================================
     
+    pub fn get_camera_control_manager(&self) -> &PlayViewControlManager {
+        return &self.control_manager;
+    }
+
     pub fn add_event(&mut self, event: Event) {
         self.events.push(event);
     }
@@ -170,7 +186,7 @@ impl PlayWorldViewRender {
             self.camera_ndc_offset[1] += self.ndc_tile_half_scale;
         } 
 
-        game_event_manager.add_player_data_event(PlayerDataEvent::LocationEvent(self.rendering_config.get_location_ref().clone(), LocationEvent::ShiftLocation(cords_offset)));
+        game_event_manager.add_event(self.control_manager.get_camera_shift_event(cords_offset));
 
     }
 

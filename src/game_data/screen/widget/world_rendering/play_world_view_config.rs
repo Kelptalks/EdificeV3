@@ -2,6 +2,12 @@ use std::{cell::RefCell, rc::{self, Rc}, sync::{Arc, RwLock}};
 
 use crate::game_data::{World, drone_programming::var::game_vars::game_var_type::GameVarType, player_data::locations::location::WorldLocation};
 
+pub enum CameraMovementType {
+    ShiftArea,
+    SelectArea,
+
+}
+
 pub struct PlayViewRendingConfig {
     world_ref: Arc<RwLock<World>>,
 
@@ -12,6 +18,8 @@ pub struct PlayViewRendingConfig {
     
     render_cursur: bool,
     render_location_out_line: bool,
+
+    camera_movment_event_type: Rc<RefCell<usize>>,
 }
 
 impl PlayViewRendingConfig {
@@ -26,6 +34,8 @@ impl PlayViewRendingConfig {
 
             render_cursur: false,
             render_location_out_line: false,
+
+            camera_movment_event_type: Rc::new(RefCell::new(0)),
         }
     }
 
@@ -43,6 +53,10 @@ impl PlayViewRendingConfig {
 
     pub fn get_zoom_ref(&self) -> &Rc<RefCell<i32>> {
         return &self.zoom;
+    }
+
+    pub fn get_camera_movment_event_type_ref(&self) -> &Rc<RefCell<usize>> {
+        return &self.camera_movment_event_type;
     }
 
     //=====================================
