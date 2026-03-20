@@ -275,35 +275,43 @@ impl PlayWorldViewRender {
                         camera_cords[2] + z,
                     ];
 
-                    // Block Type
-                    let block_type_at_cord = BlockTexture::from_id(world.get_world_value(world_block_cords));
+                    let blocking_block_cords = [
+                        world_block_cords[0] + (rot[0][0] * 1 + rot[0][1] * 1),
+                        world_block_cords[1] + (rot[1][0] * 1 + rot[1][1] * 1),
+                        world_block_cords[2] + 1,
+                    ];
+
                     
-                    // Draw Cords
-                    let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, [x - z, y - z]);
-                    
-                    draw_cords[0] += ndc_x_draw_center_offset;
-                    draw_cords[1] += ndc_y_draw_center_offset;
-                    
-                    draw_cords[0] += self.camera_ndc_offset[0];
-                    draw_cords[1] += self.camera_ndc_offset[1];
+                    if !BlockTexture::from_id(world.get_world_value(blocking_block_cords)).is_opaque() {
+                        // Block Type
+                        let block_type_at_cord = BlockTexture::from_id(world.get_world_value(world_block_cords));
+                        
+                        // Draw Cords
+                        let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, [x - z, y - z]);
+                        
+                        draw_cords[0] += ndc_x_draw_center_offset;
+                        draw_cords[1] += ndc_y_draw_center_offset;
+                        
+                        draw_cords[0] += self.camera_ndc_offset[0];
+                        draw_cords[1] += self.camera_ndc_offset[1];
 
-                    // Create a play block if block needs to be rendered
-                    let mut play_block = PlayBlock::new_blank();
+                        // Create a play block if block needs to be rendered
+                        let mut play_block = PlayBlock::new_blank();
 
-                    // World
-                    play_block.block_type = block_type_at_cord;
-                    play_block.block_world_cords = world_block_cords;
+                        // World
+                        play_block.block_type = block_type_at_cord;
+                        play_block.block_world_cords = world_block_cords;
 
-                    // Rendering
-                    play_block.rendering_block_cords = [x, y, z];
-                    play_block.draw_cords = draw_cords;
-                    play_block.ndc_block_scale = self.ndc_block_scale;
+                        // Rendering
+                        play_block.rendering_block_cords = [x, y, z];
+                        play_block.draw_cords = draw_cords;
+                        play_block.ndc_block_scale = self.ndc_block_scale;
 
 
-                    play_block.render_block(texture_manager);
-                    play_block.render_cursor(texture_manager);
-                    play_block.render_area(texture_manager, self.rendering_config.get_location_ref().borrow().get_area());
-
+                        play_block.render_block(texture_manager);
+                        play_block.render_cursor(texture_manager);
+                        play_block.render_area(texture_manager, self.rendering_config.get_location_ref().borrow().get_area());
+                    }
                 }
             }
         }
