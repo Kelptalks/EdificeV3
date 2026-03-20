@@ -2,21 +2,34 @@ use std::{cell::RefCell, rc::Rc};
 
 use miniquad::KeyCode;
 
-use crate::game_data::{game_event_manager::input_event_manager::input_event_manager, locations::world_area::WorldArea, player_data::player_data::PlayerData, screen::{menu_constructors::play_view_menu::control_panel::view_panel_input_constructor, widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget_calculations::TextSize, world_rendering::{play_world_view_config::PlayViewRendingConfig, play_world_view_render::PlayWorldViewRender}}}};
+use crate::game_data::{game_event_manager::input_event_manager::input_event_manager, locations::world_area::WorldArea, player_data::player_data::PlayerData, screen::{menu_constructors::play_view_menu::control_panel::view_panel_input_constructor, widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget_calculations::TextSize, world_rendering::{play_world_view_config::PlayViewRendingConfig, play_world_view_render::PlayWorldViewRender}}}, types::BlockTexture};
 
 use crate::game_data::game_event_manager::prelude::*;
 
+fn get_building_events(play_view: &PlayWorldViewRender) -> Vec<Event>{
+    let mut input_events = Vec::new();
 
-//=====================================
-// All inputs
-//=====================================
+    let location_ref = play_view.get_rendering_config().get_location_ref();
+
+    let event_to_enact = WorldEvent::FillLocation(location_ref.clone(), BlockTexture::Air).wrap_into_event_vec();
+    
+    let input_event = InputEvent::LeftMouseButtonDown(event_to_enact).wrap_into_event();
+
+    input_events.push(input_event);
+
+    return input_events;
+}
 
 fn get_input_events(play_view: &PlayWorldViewRender) -> Vec<Event>{
     let mut input_events = Vec::new();
 
+    // Basic controls
     input_events.append(&mut view_panel_input_constructor::construct_area_selection_events(play_view));
     input_events.append(&mut view_panel_input_constructor::construct_camera_keyboard_movements(play_view));
     input_events.append(&mut view_panel_input_constructor::construct_zoom_events(play_view));
+
+    // Building specific
+    input_events.append(&mut self::get_building_events(play_view));
 
     return input_events;
 }

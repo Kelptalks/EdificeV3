@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use rand::rand_core::le;
 
-use crate::game_data::{World, game_event_manager::game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, locations::world_area::WorldArea, player_data::locations::location::WorldLocation, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, prelude::{Event, GameEvent}}, locations::world_area::WorldArea, player_data::locations::location::WorldLocation, types::BlockTexture};
 
 /*
 #################
@@ -25,6 +25,15 @@ pub enum WorldEvent {
 }
 
 impl WorldEvent {
+
+    pub fn wrap_into_event(self) -> Event {
+        return Event::GameEvent(GameEvent::WorldEvent(self));
+    }
+
+    pub fn wrap_into_event_vec(self) -> Vec<Event> {
+        return vec![self.wrap_into_event()];
+    }
+
     //=====================================
     // Execution
     //=====================================
