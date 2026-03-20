@@ -2,53 +2,10 @@ use std::{cell::RefCell, rc::Rc};
 
 use miniquad::KeyCode;
 
-use crate::game_data::{game_event_manager::input_event_manager::input_event_manager, locations::world_area::WorldArea, player_data::{locations::location::WorldLocation, player_data::PlayerData}, screen::widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget_calculations::TextSize, world_rendering::{play_world_view_config::PlayViewRendingConfig, play_world_view_render::PlayWorldViewRender}}};
+use crate::game_data::{game_event_manager::input_event_manager::input_event_manager, locations::world_area::WorldArea, player_data::player_data::PlayerData, screen::{menu_constructors::play_view_menu::control_panel::view_panel_input_constructor, widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget_calculations::TextSize, world_rendering::{play_world_view_config::PlayViewRendingConfig, play_world_view_render::PlayWorldViewRender}}}};
 
 use crate::game_data::game_event_manager::prelude::*;
 
-
-fn construct_building_events(shift_type_ref: &Rc<RefCell<usize>>, location_ref: &Rc<RefCell<WorldLocation>>) -> Vec<Event> {
-    let mut building_input_events = Vec::new();
-
-
-    let left_mouse_down_input_event = 
-        InputEvent::RightMouseButtonDown(
-            WidgetEvent::SetUsizeEvent(shift_type_ref.clone(), 1).wrap_into_event_vec()
-        ).wrap_into_event();
-    building_input_events.push(left_mouse_down_input_event);
-
-    let left_mouse_up_input_event = 
-        InputEvent::RightMouseButtonUp(
-            WidgetEvent::SetUsizeEvent(shift_type_ref.clone(), 0).wrap_into_event_vec()
-        ).wrap_into_event();
-    building_input_events.push(left_mouse_up_input_event);
-
-    return building_input_events;
-}
-
-//=====================================
-// Zooming event
-//=====================================
-
-fn construct_zoom_events(zoom_ref: &Rc<RefCell<i32>>) -> Vec<Event> {
-    let mut zoom_input_events = Vec::new();
-
-    let zoom_out_event = WidgetEvent::Modi32Event(zoom_ref.clone(), -1).wrap_into_event_vec();
-    let scroll_up_input_event = 
-        InputEvent::ScrollUp(
-            zoom_out_event
-        ).wrap_into_event(); 
-    zoom_input_events.push(scroll_up_input_event);
-
-    let zoom_in_event = WidgetEvent::Modi32Event(zoom_ref.clone(), 1).wrap_into_event_vec();
-    let scroll_down_input_event = 
-        InputEvent::ScrollDown(
-            zoom_in_event
-        ).wrap_into_event(); 
-    zoom_input_events.push(scroll_down_input_event);
-
-    return zoom_input_events;
-}
 
 //=====================================
 // All inputs
@@ -57,36 +14,9 @@ fn construct_zoom_events(zoom_ref: &Rc<RefCell<i32>>) -> Vec<Event> {
 fn get_input_events(play_view: &PlayWorldViewRender) -> Vec<Event>{
     let mut input_events = Vec::new();
 
-    let location_ref = play_view.get_rendering_config().get_location_ref().clone();
-    let shift_type_ref = play_view.get_rendering_config().get_camera_movment_event_type_ref();
-
-    let camera_control_manager = play_view.get_camera_control_manager();
-
-    // Verticle Key Movement
-    let movment_event = camera_control_manager.get_camera_shift_event([0, 0, -1]);
-    input_events.push(input_event_manager::construct_key_down_event(KeyCode::LeftShift, movment_event));
-
-    let movment_event = camera_control_manager.get_camera_shift_event([0, 0, 1]);
-    input_events.push(input_event_manager::construct_key_down_event(KeyCode::Space, movment_event));
-
-    // Horizontal Key Movment
-    let movment_event = camera_control_manager.get_camera_shift_event([0, -1, 0]);
-    input_events.push(input_event_manager::construct_key_down_event(KeyCode::W, movment_event));
-
-    let movment_event = camera_control_manager.get_camera_shift_event([0, 1, 0]);
-    input_events.push(input_event_manager::construct_key_down_event(KeyCode::S, movment_event));
-
-    let movment_event = camera_control_manager.get_camera_shift_event([-1, 0, 0]);
-    input_events.push(input_event_manager::construct_key_down_event(KeyCode::A, movment_event));
-
-    let movment_event = camera_control_manager.get_camera_shift_event([1, 0, 0]);
-    input_events.push(input_event_manager::construct_key_down_event(KeyCode::D, movment_event));
-
-    // Zooming events
-    let zoom_ref = play_view.get_rendering_config().get_zoom_ref();
-    input_events.append(&mut construct_zoom_events(zoom_ref));
-
-    input_events.append(&mut construct_building_events(&shift_type_ref, &location_ref));
+    input_events.append(&mut view_panel_input_constructor::construct_area_selection_events(play_view));
+    input_events.append(&mut view_panel_input_constructor::construct_camera_keyboard_movements(play_view));
+    input_events.append(&mut view_panel_input_constructor::construct_zoom_events(play_view));
 
     return input_events;
 }

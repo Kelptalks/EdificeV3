@@ -55,7 +55,7 @@ impl PlayViewRendingConfig {
         return &self.zoom;
     }
 
-    pub fn get_camera_movment_event_type_ref(&self) -> &Rc<RefCell<usize>> {
+    pub fn get_camera_movement_event_type_ref(&self) -> &Rc<RefCell<usize>> {
         return &self.camera_movment_event_type;
     }
 

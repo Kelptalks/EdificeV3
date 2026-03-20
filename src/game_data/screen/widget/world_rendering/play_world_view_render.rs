@@ -94,7 +94,7 @@ impl PlayWorldViewRender {
     pub fn new(play_view_rendering_config: PlayViewRendingConfig) -> PlayWorldViewRender{
 
         let input_manager = PlayViewControlManager::new(
-            play_view_rendering_config.get_camera_movment_event_type_ref(), 
+            play_view_rendering_config.get_camera_movement_event_type_ref(), 
             play_view_rendering_config.get_location_ref()
         );
 
@@ -281,7 +281,7 @@ impl PlayWorldViewRender {
                         world_block_cords[2] + 1,
                     ];
 
-                    
+
                     if !BlockTexture::from_id(world.get_world_value(blocking_block_cords)).is_opaque() {
                         // Block Type
                         let block_type_at_cord = BlockTexture::from_id(world.get_world_value(world_block_cords));

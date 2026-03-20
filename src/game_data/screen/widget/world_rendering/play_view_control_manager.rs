@@ -58,4 +58,5 @@ impl PlayViewControlManager {
     pub fn get_camera_shift_event(&self, shift: [i32; 3]) -> Event {
         return self::construct_shift_event(&self.shift_type_ref, &self.location_ref, shift);
     }
+    
 }
