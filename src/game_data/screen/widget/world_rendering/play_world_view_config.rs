@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::{self, Rc}, sync::{Arc, RwLock}};
 
-use crate::game_data::{World, drone_programming::var::game_vars::game_var_type::GameVar, player_data::locations::location::WorldLocation};
+use crate::game_data::{World, drone_programming::var::game_vars::game_var_type::GameVar, player_data::locations::location::WorldLocation, types::BlockTexture};
 
 pub enum CameraMovementType {
     ShiftArea,
@@ -14,7 +14,7 @@ pub struct PlayViewRendingConfig {
     location: Rc<RefCell<WorldLocation>>,
     zoom: Rc<RefCell<i32>>,
     
-    block_ghost: Option<Rc<RefCell<GameVar>>>,
+    block_ghost: Option<Rc<RefCell<BlockTexture>>>,
     
     render_cursur: bool,
     render_location_out_line: bool,
@@ -37,6 +37,14 @@ impl PlayViewRendingConfig {
 
             camera_movment_event_type: Rc::new(RefCell::new(0)),
         }
+    }
+
+    //=====================================
+    // Ref Setters
+    //=====================================
+
+    pub fn set_block_ghost(&mut self, block_ref: Rc<RefCell<BlockTexture>>) {
+        self.block_ghost = Some(block_ref.clone())
     }
 
     //=====================================
@@ -65,6 +73,16 @@ impl PlayViewRendingConfig {
 
     pub fn get_zoom(&self) -> i32 {
         return *self.zoom.borrow();
+    }
+
+    pub fn get_block_ghost(&self) -> BlockTexture {
+        if let Some(block_ghost_ref) = &self.block_ghost {
+            return *block_ghost_ref.borrow();
+        }
+        else {
+            return BlockTexture::Air;
+        }
+
     }
 }
 

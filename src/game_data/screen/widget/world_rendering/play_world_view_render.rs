@@ -309,7 +309,7 @@ impl PlayWorldViewRender {
 
 
                         play_block.render_block(texture_manager);
-                        play_block.render_cursor(texture_manager);
+                        play_block.render_cursor(texture_manager, self.rendering_config.get_block_ghost());
                         play_block.render_area(texture_manager, self.rendering_config.get_location_ref().borrow().get_area());
                     }
                 }

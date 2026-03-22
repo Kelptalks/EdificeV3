@@ -34,12 +34,13 @@ impl PlayBlock {
         }
     }
 
-    pub fn render_cursor(&self, texture_manager: &mut TextureManager) {
+    pub fn render_cursor(&self, texture_manager: &mut TextureManager, block_ghost: BlockTexture) {
         // Render Selector if at center
         let x = self.rendering_block_cords[0];
         let y = self.rendering_block_cords[1];
         let z = self.rendering_block_cords[2];
         if x == 0 && y == 0 && z == 0 {
+            texture_manager.render_block(block_ghost, self.draw_cords, self.ndc_block_scale);
             texture_manager.render_block(BlockTexture::Selector, self.draw_cords, self.ndc_block_scale);
             if self.block_type != BlockTexture::Air {
                 texture_manager.render_block(BlockTexture::translucent_red, self.draw_cords, self.ndc_block_scale);

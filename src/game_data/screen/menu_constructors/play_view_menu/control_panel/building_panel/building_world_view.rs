@@ -52,8 +52,8 @@ pub fn add_bulding_world_view_panel(panel: &mut Panel, player_data: &mut PlayerD
     );    
 
 
-    let rendering_config = PlayViewRendingConfig::new(player_data.get_world_ref(), location);
-
+    let mut rendering_config = PlayViewRendingConfig::new(player_data.get_world_ref(), location);
+    rendering_config.set_block_ghost(block_selected_ref.clone());
 
     // Add World Rendering
     let play_view = play_view_panel.add_play_world_view_renderer(rendering_config);
