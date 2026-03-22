@@ -22,7 +22,7 @@ pub fn add_control_panel(panel: &mut Panel, screen_data: &ScreenData, player_dat
     // Add Location Manager Tab
     let button = control_tab_panel.add_panel(location_panel::location_panel::get_location_panel(player_data));
     button.set_text("locations".to_string());
-    button.set_icon(UITextures::AreaIcon);
+    button.set_icon(UITextures::LocationIcon);
 
     // Add Location Manager Tab
     let button = control_tab_panel.add_panel(building_panel::building_panel::get_building_panel(player_data));

@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, game_event_manager::game_event_manager::game_event_manager::GameEventManager, player_data::{self, player_data::PlayerData}, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::widget::{Widget, WidgetType}}};
+use crate::game_data::{World, game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}}, player_data::{self, player_data::PlayerData}, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::widget::{Widget, WidgetType}}};
 
 /*
 ##################
@@ -30,6 +30,9 @@ pub enum RenderEvent {
 
 impl RenderEvent {
 
+    pub fn wrap_into_event(self) -> Event {
+        return Event::GameEvent(GameEvent::RenderEvent(self));
+    }
 
     pub fn construct_menu(current_menu: CurrentMenu, screen_mananager: &mut ScreenManager, event_tools: &mut GameEventManager, player_data: &mut PlayerData) -> WidgetType 
     {

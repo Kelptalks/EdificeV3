@@ -211,6 +211,7 @@ in
     3/18/26 = 4
     3/19/26 = 1.5
     3/20/26 = 3
+    3/21/26 = 5
 
 
 **Lines**
@@ -223,6 +224,18 @@ in
 ***Additions***
 + Variable Widget System for creating ui elements to support drone programming 
 + Many improvments to game event manager and widget input handling
+
+---------------------------------------------------------------
+## Week 12
+
+**Hours:**
+    3/22/26 = 2
+
+**Lines**
+
+**Notes:**
+
+***Additions***
 
 ---------------------------------------------------------------
 ## Week NUM

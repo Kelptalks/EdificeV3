@@ -53,7 +53,7 @@ impl TabPanel {
         
         // Add Index modifyer event to button
         button.add_event(
-            GameEvent::WidgetEvent(WidgetEvent::SetUsizeEvent(self.current_panel_index.clone(), self.sub_panels.len() - 1)));
+            WidgetEvent::SetUsizeEvent(self.current_panel_index.clone(), self.sub_panels.len() - 1).wrap_into_event());
 
         return button;
 

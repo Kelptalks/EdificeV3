@@ -40,7 +40,7 @@ pub fn get_menu(screen_data: &ScreenData, world_config: &mut WorldConfig) -> Wid
 
         // Back button
         let button = panel.add_button();
-        button.add_event(GameEvent::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::MainMenu)));
+        button.add_event(RenderEvent::ChangeMenu(CurrentMenu::MainMenu).wrap_into_event());
         button.set_icon(crate::game_data::types::UITextures::XIcon);
         button.set_text("Main Menu".to_string());
         

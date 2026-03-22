@@ -147,6 +147,10 @@ impl PlayWorldViewRender {
         self.events.push(event);
     }
 
+    pub fn add_events(&mut self, events: &mut Vec<Event>) {
+        self.events.append(events);
+    }
+
     fn handle_camera_panning(&mut self, screen_data: &ScreenData, game_event_manager: &mut EventManager) {
         // Update camera offset based off scrolling change
         if screen_data.is_middle_mouse_held() {

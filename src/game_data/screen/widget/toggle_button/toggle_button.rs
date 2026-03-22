@@ -20,7 +20,7 @@ impl ToggleButton {
         let is_toggled = Rc::new(RefCell::new(false));
 
         let mut button = Button::new([0.0; 4]);
-        button.add_event(GameEvent::WidgetEvent(WidgetEvent::ToggleBoolEvent(is_toggled.clone())));
+        button.add_event(WidgetEvent::ToggleBoolEvent(is_toggled.clone()).wrap_into_event());
 
 
         let mut toggle_button = ToggleButton {

@@ -6,6 +6,20 @@ pub struct UITextureData {
     pub pressed_variant: Option<u32>,  // ID of pressed version, if any
 }
 
+const fn shift_src_rect_x(rect: [u32; 4], amount: u32) -> [u32; 4] {
+    return [
+        rect[0] + amount,
+        rect[1],
+        rect[2],
+        rect[3]
+    ];
+}
+
+const ICON_START_SRC_RECT:[u32; 4] = [0, 256, 32, 32];
+const fn get_icon_src_rect(index: u32) -> [u32; 4] {
+    return self::shift_src_rect_x(ICON_START_SRC_RECT, index * ICON_START_SRC_RECT[2])
+}
+
 // All UI textures defined in one place
 pub const UI_TEXTURES: &[UITextureData] = &[
     // Arrow buttons
@@ -85,26 +99,30 @@ pub const UI_TEXTURES: &[UITextureData] = &[
     UITextureData { id: 43, name: "PanelBotCenterDark", rect: [640, 160, 16, 16], pressed_variant: None },
     UITextureData { id: 44, name: "PanelBotRightDark", rect: [656, 160, 16, 16], pressed_variant: None },
 
-    // Icons (32x32) - Row 1
-    UITextureData { id: 45, name: "BluePrintIcon",      rect: [32,  64, 32, 32], pressed_variant: None },
-    UITextureData { id: 46, name: "BlockSelectionIcon", rect: [64,  64, 32, 32], pressed_variant: None },
-    UITextureData { id: 47, name: "AreaIcon",           rect: [96,  64, 32, 32], pressed_variant: None },
-    UITextureData { id: 48, name: "MapIcon",            rect: [128, 64, 32, 32], pressed_variant: None },
-    UITextureData { id: 49, name: "XIcon",              rect: [32,  96, 32, 32], pressed_variant: None },
+    // Icons 
+    UITextureData { id: 45, name: "BluePrintIcon",      rect: self::get_icon_src_rect(0), pressed_variant: None },
+    UITextureData { id: 46, name: "BlockSelectionIcon", rect: self::get_icon_src_rect(1), pressed_variant: None },
+    UITextureData { id: 47, name: "AreaIcon",           rect: self::get_icon_src_rect(2), pressed_variant: None },
+    UITextureData { id: 48, name: "MapIcon",            rect: self::get_icon_src_rect(3), pressed_variant: None },
+    UITextureData { id: 49, name: "XIcon",              rect: self::get_icon_src_rect(4), pressed_variant: None },
+    UITextureData { id: 50, name: "LocationIcon",       rect: self::get_icon_src_rect(5), pressed_variant: None },
+    UITextureData { id: 51, name: "SettingsIcon",       rect: self::get_icon_src_rect(6), pressed_variant: None },
+    UITextureData { id: 52, name: "LeftArrowIcon",      rect: self::get_icon_src_rect(7), pressed_variant: None },
+    UITextureData { id: 53, name: "LocationIcon",       rect: self::get_icon_src_rect(8), pressed_variant: None },
 
     // Scalling Icons (16x16) - 3x3 grid starting at (96, 96)
     // Row 1
-    UITextureData { id: 50, name: "ScallingIconTopLeft",   rect: [96,  96,  16, 16], pressed_variant: None },
-    UITextureData { id: 51, name: "ScallingIconTopCenter", rect: [112, 96,  16, 16], pressed_variant: None },
-    UITextureData { id: 52, name: "ScallingIconTopRight",  rect: [128, 96,  16, 16], pressed_variant: None },
+    UITextureData { id: 54, name: "ScallingIconTopLeft",   rect: [96,  96,  16, 16], pressed_variant: None },
+    UITextureData { id: 55, name: "ScallingIconTopCenter", rect: [112, 96,  16, 16], pressed_variant: None },
+    UITextureData { id: 56, name: "ScallingIconTopRight",  rect: [128, 96,  16, 16], pressed_variant: None },
     // Row 2
-    UITextureData { id: 53, name: "ScallingIconMidLeft",   rect: [96,  112, 16, 16], pressed_variant: None },
-    UITextureData { id: 54, name: "ScallingIconMidCenter", rect: [112, 112, 16, 16], pressed_variant: None },
-    UITextureData { id: 55, name: "ScallingIconMidRight",  rect: [128, 112, 16, 16], pressed_variant: None },
+    UITextureData { id: 57, name: "ScallingIconMidLeft",   rect: [96,  112, 16, 16], pressed_variant: None },
+    UITextureData { id: 58, name: "ScallingIconMidCenter", rect: [112, 112, 16, 16], pressed_variant: None },
+    UITextureData { id: 59, name: "ScallingIconMidRight",  rect: [128, 112, 16, 16], pressed_variant: None },
     // Row 3
-    UITextureData { id: 56, name: "ScallingIconBotLeft",   rect: [96,  128, 16, 16], pressed_variant: None },
-    UITextureData { id: 57, name: "ScallingIconBotCenter", rect: [112, 128, 16, 16], pressed_variant: None },
-    UITextureData { id: 58, name: "ScallingIconBotRight",  rect: [128, 128, 16, 16], pressed_variant: None },
+    UITextureData { id: 60, name: "ScallingIconBotLeft",   rect: [96,  128, 16, 16], pressed_variant: None },
+    UITextureData { id: 61, name: "ScallingIconBotCenter", rect: [112, 128, 16, 16], pressed_variant: None },
+    UITextureData { id: 62, name: "ScallingIconBotRight",  rect: [128, 128, 16, 16], pressed_variant: None },
 
 ];
 
@@ -170,17 +188,22 @@ pub enum UITextures {
     AreaIcon = 47,
     MapIcon = 48,
     XIcon = 49,
+    LocationIcon = 50,
+    SettingsIcon = 51,
+    LeftArrowIcon = 52,
+    RightArrowIcon = 53,
+
 
     // Scalling Icons
-    ScallingIconTopLeft = 50,
-    ScallingIconTopCenter = 51,
-    ScallingIconTopRight = 52,
-    ScallingIconMidLeft = 53,
-    ScallingIconMidCenter = 54,
-    ScallingIconMidRight = 55,
-    ScallingIconBotLeft = 56,
-    ScallingIconBotCenter = 57,
-    ScallingIconBotRight = 58,
+    ScallingIconTopLeft = 54,
+    ScallingIconTopCenter = 55,
+    ScallingIconTopRight = 56,
+    ScallingIconMidLeft = 57,
+    ScallingIconMidCenter = 58,
+    ScallingIconMidRight = 59,
+    ScallingIconBotLeft = 60,
+    ScallingIconBotCenter = 61,
+    ScallingIconBotRight = 62,
 }
 
 impl UITextures {

@@ -153,17 +153,17 @@ pub fn add_menu_nav_panel(panel: &mut Panel, screen_data: &ScreenData, player_da
 
     // Back button
     let button = menu_nav_sub_panel.add_button();
-    button.add_event(GameEvent::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::MapView)));
+    button.add_event(RenderEvent::ChangeMenu(CurrentMenu::MapView).wrap_into_event());
     button.set_icon(crate::game_data::types::UITextures::MapIcon);
     button.set_text("Map".to_string());
 
     let button = menu_nav_sub_panel.add_button();
-    button.add_event(GameEvent::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::SettingsMenu)));
-    button.set_icon(crate::game_data::types::UITextures::AreaIcon);
+    button.add_event(RenderEvent::ChangeMenu(CurrentMenu::SettingsMenu).wrap_into_event());
+    button.set_icon(crate::game_data::types::UITextures::SettingsIcon);
     button.set_text("Settings".to_string());
 
     let button = menu_nav_sub_panel.add_button();
-    button.add_event(GameEvent::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::MainMenu)));
+    button.add_event(RenderEvent::ChangeMenu(CurrentMenu::MainMenu).wrap_into_event());
     button.set_icon(crate::game_data::types::UITextures::XIcon);
     button.set_text("Main Menu".to_string());
 }
