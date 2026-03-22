@@ -1,4 +1,4 @@
-use crate::game_data::{drone_programming::var::{self, game_vars::game_var_type::GameVarType, var_type::{VarType, VarTypeKind}}, screen::widget::{widget::Widget, widget_calculations}, types::{BlockTexture, UITextures}};
+use crate::game_data::{drone_programming::var::{self, game_vars::game_var_type::GameVar, var_type::{VarRef, Var, VarTypeKind}}, game_event_manager::prelude::EventManager, screen::{ScreenData, widget::{widget::Widget, widget_calculations}}, types::{BlockTexture, UITextures}};
 
 pub struct VarSlot {
     // Parent rendering
@@ -13,12 +13,13 @@ pub struct VarSlot {
     scale: [f32; 2],
     
     var_type_kind_allowed: VarTypeKind,
-    var: Option<VarType>,
+    var_instance: VarRef,
 
 }
 
 impl VarSlot {
     pub fn new(var_type_kind_allowed: VarTypeKind) -> VarSlot {
+        let mut_var = var_type_kind_allowed.create_mut_var();
         VarSlot {
             // Parent Rendering
             parent_pos: [0.0; 4],
@@ -32,8 +33,15 @@ impl VarSlot {
             scale: [0.0; 2],
 
             var_type_kind_allowed: var_type_kind_allowed,
-            var: None,
+            var_instance: mut_var,
         }
+    }
+
+    pub fn var_released_on_slot(&self, screen_data: &ScreenData, game_event_manager: &mut EventManager) -> bool {
+        if screen_data.mouse_on_ndc_pos(self.pos) && screen_data.was_left_released() {
+            return true;
+        }
+        return false;
     }
 }
 
@@ -66,8 +74,8 @@ impl Widget for VarSlot {
     fn render(
         &mut self,
         texture_manager: &mut crate::game_data::TextureManager,
-        screen_data: &crate::game_data::screen::ScreenData,
-        game_event_manager: &mut crate::game_data::game_event_manager::game_event_manager::EventManager
+        screen_data: &ScreenData,
+        game_event_manager: &mut EventManager
     ) {
 
         // Try and get var if mouse was released
@@ -75,22 +83,18 @@ impl Widget for VarSlot {
             if screen_data.was_left_released() {
                 if let Some(var_held_by_mouse) = game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().get_var_held() {
                     if var_held_by_mouse.to_kind() == self.var_type_kind_allowed {
-                        self.var = Some(*var_held_by_mouse);
+                        self.var_instance.set_var_ref(*var_held_by_mouse);
                     }
                 }
             }
-            else if screen_data.was_right_released() {
-                self.var = None;
-            }
         }
 
-        game_event_manager.get_event_tools().get_mouse_widget_data();
-        if let Some(var) = self.var {
-            texture_manager.render_texture_with_pos(var.get_texture(), self.pos);
-        }
-        else {
-            texture_manager.render_texture_with_pos(self.var_type_kind_allowed.get_texture(), self.pos);
-        }
+        texture_manager.render_texture_with_pos(self.var_type_kind_allowed.get_texture(), self.pos);
+
+
+        texture_manager.render_texture_with_pos(self.var_instance.to_var().get_texture(), self.pos);
+        
+        
         
     }
 }

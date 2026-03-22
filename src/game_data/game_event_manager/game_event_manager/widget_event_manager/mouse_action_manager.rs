@@ -1,9 +1,9 @@
-use crate::game_data::{drone_programming::var::var_type::VarType, screen::widget::widget_calculations};
+use crate::game_data::{drone_programming::var::var_type::Var, screen::widget::widget_calculations};
 
 pub struct MouseWidgetData {
     mouse_data_rendering_scale: [f32; 2],
     
-    var_held: Option<VarType>,
+    var_held: Option<Var>,
 }
 
 impl MouseWidgetData {
@@ -19,11 +19,11 @@ impl MouseWidgetData {
     // Var Setters / Getters
     //=====================================
 
-    pub fn set_var_held(&mut self, var: VarType) {
+    pub fn set_var_held(&mut self, var: Var) {
         self.var_held = Some(var);
     }
 
-    pub fn get_var_held(&mut self) -> &Option<VarType> {
+    pub fn get_var_held(&mut self) -> &Option<Var> {
         return &self.var_held;
     }
 

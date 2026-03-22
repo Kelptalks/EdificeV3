@@ -1,4 +1,4 @@
-use crate::game_data::{drone_programming::var::var_type::VarType, screen::widget::{widget::Widget, widget_calculations::{self, buffer_pos}}, types::UITextures};
+use crate::game_data::{drone_programming::var::var_type::Var, screen::widget::{widget::Widget, widget_calculations::{self, buffer_pos}}, types::UITextures};
 
 pub struct DraggableVar {
     // Parent rendering
@@ -12,12 +12,12 @@ pub struct DraggableVar {
     pos: [f32; 4],
     scale: [f32; 2],
     
-    var: VarType,
+    var: Var,
     held: bool,
 }
 
 impl DraggableVar {
-    pub fn new(var: VarType) -> DraggableVar {
+    pub fn new(var: Var) -> DraggableVar {
         DraggableVar {
             // Parent Rendering
             parent_pos: [0.0; 4],

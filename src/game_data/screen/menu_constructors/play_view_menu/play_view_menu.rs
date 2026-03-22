@@ -1,5 +1,5 @@
 
-use crate::game_data::{drone_programming::var::{game_vars::game_var_type::{GameVarType, GameVarTypeKind}, var_type::{VarType, VarTypeKind}}, game_event_manager::{game_event_manager::GameEvent, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}, render_event_manager::render_event_manager::RenderEvent}, locations::world_area::WorldArea, player_data::{locations::location_manager, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::control_panel, screen_data::CurrentMenu, widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::TextSize, world_rendering::play_world_view_config::PlayViewRendingConfig}}, types::{BlockTexture, UITextures, drone_item::DroneItem}};
+use crate::game_data::{drone_programming::var::{game_vars::game_var_type::{GameVar, GameVarTypeKind}, var_type::{Var, VarTypeKind}}, game_event_manager::{game_event_manager::GameEvent, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}, render_event_manager::render_event_manager::RenderEvent}, locations::world_area::WorldArea, player_data::{locations::location_manager, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::control_panel, screen_data::CurrentMenu, widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::TextSize, world_rendering::play_world_view_config::PlayViewRendingConfig}}, types::{BlockTexture, UITextures, drone_item::DroneItem}};
 
 //=====================================
 // Selection Panel
@@ -30,7 +30,7 @@ pub fn get_block_selection_panel() -> WidgetType {
                 for row_block_id in 0..blocks_per_row {
                     
                     let block_type = BlockTexture::from_id(collumn_block_id as u16 + row_block_id as u16);
-                    row_panel.add_draggable_var(VarType::Game(GameVarType::Block(block_type)));
+                    row_panel.add_draggable_var(Var::Game(GameVar::Block(block_type)));
                 }
             }
             scroll_panel.add_widget(block_selection_panel);
@@ -66,7 +66,7 @@ pub fn get_item_selection_panel() -> WidgetType {
                 for row_item_id in 0..items_per_row {
                     
                     let item_type = DroneItem::from_id(collumn_item_id as u32 + row_item_id as u32);
-                    row_panel.add_draggable_var(VarType::Game(GameVarType::DroneItem(item_type)));
+                    row_panel.add_draggable_var(Var::Game(GameVar::DroneItem(item_type)));
                 }
             }
             scroll_panel.add_widget(item_selection_panel);

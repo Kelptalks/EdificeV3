@@ -1,16 +1,20 @@
-use crate::game_data::{drone_programming::var::game_vars::game_var_type::{GameVarType, GameVarTypeKind}, texture_manager::texture::Texture};
+use std::fmt::Error;
+
+use image::error;
+
+use crate::game_data::{drone_programming::var::game_vars::game_var_type::{GameVarMut, GameVar, GameVarTypeKind}, texture_manager::texture::Texture};
 
 
 #[derive(PartialEq)]
 pub enum VarTypeKind {
-    VarType,
+    Any,
     Game(GameVarTypeKind)
 }
 
 impl VarTypeKind {
     pub fn get_texture(&self) -> Texture {
         match self {
-            VarTypeKind::VarType => {
+            VarTypeKind::Any => {
                 return Texture::UITexture(crate::game_data::types::UITextures::ScallingIconMidCenter);
             },
             VarTypeKind::Game(game_var_type_kind) => {
@@ -18,26 +22,63 @@ impl VarTypeKind {
             },
         }
     }
+
+    pub fn create_mut_var(&self) -> VarRef{
+        match self {
+            VarTypeKind::Any => todo!(),
+            VarTypeKind::Game(game_var_type_kind) => {
+                return VarRef::Game(game_var_type_kind.create_mut_var());
+            },
+        }
+    }
 }
 
 
 #[derive(Clone, Copy, PartialEq)]
-pub enum VarType {
-    Game(GameVarType),
+pub enum Var {
+    Game(GameVar),
 }
 
-impl VarType {
+impl Var {
     pub fn get_texture(&self) -> Texture {
         match self {
-            VarType::Game(game_var_type) => game_var_type.get_texture(),
+            Var::Game(game_var_type) => game_var_type.get_texture(),
         }
     }
 
     pub fn to_kind(&self) -> VarTypeKind {
         match self {
-            VarType::Game(game_var_type) => {
+            Var::Game(game_var_type) => {
                 VarTypeKind::Game(game_var_type.to_kind())
             },
+        }
+    }
+}
+
+pub enum VarRef {
+    Game(GameVarMut),
+}
+
+impl VarRef {
+    pub fn to_kind(&self) -> VarTypeKind {
+        match self {
+            VarRef::Game(game_var_type) => {
+                VarTypeKind::Game(game_var_type.to_kind())
+            },
+        }
+    }
+
+    pub fn set_var_ref(&self, var: Var) {
+        match (self, var) {
+            (VarRef::Game(game_var_ref), Var::Game(game_var)) =>{
+                game_var_ref.set_var_ref(game_var);
+            }
+        }
+    }
+
+    pub fn to_var(&self) -> Var {
+        match self {
+            VarRef::Game(game_var_mut) => Var::Game(game_var_mut.to_var()),
         }
     }
 }

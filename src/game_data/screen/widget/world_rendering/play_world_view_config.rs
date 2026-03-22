@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::{self, Rc}, sync::{Arc, RwLock}};
 
-use crate::game_data::{World, drone_programming::var::game_vars::game_var_type::GameVarType, player_data::locations::location::WorldLocation};
+use crate::game_data::{World, drone_programming::var::game_vars::game_var_type::GameVar, player_data::locations::location::WorldLocation};
 
 pub enum CameraMovementType {
     ShiftArea,
@@ -14,7 +14,7 @@ pub struct PlayViewRendingConfig {
     location: Rc<RefCell<WorldLocation>>,
     zoom: Rc<RefCell<i32>>,
     
-    block_ghost: Option<Rc<RefCell<GameVarType>>>,
+    block_ghost: Option<Rc<RefCell<GameVar>>>,
     
     render_cursur: bool,
     render_location_out_line: bool,
