@@ -21,7 +21,7 @@ pub enum WorldEvent {
     // Modifcation
     GenLevel(u32),                      // Level Id
     ModBlock([i32; 3], BlockTexture),    // Block Cords, Block Type
-    FillLocation(Rc<RefCell<WorldLocation>>, BlockTexture)
+    FillLocation(Rc<RefCell<WorldLocation>>, Rc<RefCell<BlockTexture>>)
 }
 
 impl WorldEvent {
@@ -55,7 +55,7 @@ impl WorldEvent {
                 event_data.add_render_event(RenderEvent::ReRenderBlock(*cords));
             }
             WorldEvent::FillLocation(world_location, block_texture) => {
-                event_data.add_world_events(world_location.borrow().get_area().get_fill_area_events(*block_texture));
+                event_data.add_world_events(world_location.borrow().get_area().get_fill_area_events(*block_texture.borrow()));
             },
         }
     }

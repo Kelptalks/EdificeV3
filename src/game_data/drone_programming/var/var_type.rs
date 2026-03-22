@@ -2,7 +2,7 @@ use std::fmt::Error;
 
 use image::error;
 
-use crate::game_data::{drone_programming::var::game_vars::game_var_type::{GameVarMut, GameVar, GameVarTypeKind}, texture_manager::texture::Texture};
+use crate::game_data::{drone_programming::var::game_vars::game_var_type::{GameVarRef, GameVar, GameVarTypeKind}, texture_manager::texture::Texture};
 
 
 #[derive(PartialEq)]
@@ -56,7 +56,7 @@ impl Var {
 }
 
 pub enum VarRef {
-    Game(GameVarMut),
+    Game(GameVarRef),
 }
 
 impl VarRef {

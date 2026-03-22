@@ -6,12 +6,12 @@ use crate::game_data::{game_event_manager::input_event_manager::input_event_mana
 
 use crate::game_data::game_event_manager::prelude::*;
 
-fn get_building_events(play_view: &PlayWorldViewRender) -> Vec<Event>{
+fn get_building_events(play_view: &PlayWorldViewRender, block_selected_ref: Rc<RefCell<BlockTexture>>) -> Vec<Event>{
     let mut input_events = Vec::new();
 
     let location_ref = play_view.get_rendering_config().get_location_ref();
 
-    let event_to_enact = WorldEvent::FillLocation(location_ref.clone(), BlockTexture::Air).wrap_into_event_vec();
+    let event_to_enact = WorldEvent::FillLocation(location_ref.clone(), block_selected_ref.clone()).wrap_into_event_vec();
     
     let input_event = InputEvent::LeftMouseButtonDown(event_to_enact).wrap_into_event();
 
@@ -20,7 +20,7 @@ fn get_building_events(play_view: &PlayWorldViewRender) -> Vec<Event>{
     return input_events;
 }
 
-fn get_input_events(play_view: &PlayWorldViewRender) -> Vec<Event>{
+fn get_input_events(play_view: &PlayWorldViewRender, block_selected_ref: Rc<RefCell<BlockTexture>>) -> Vec<Event>{
     let mut input_events = Vec::new();
 
     // Basic controls
@@ -29,13 +29,13 @@ fn get_input_events(play_view: &PlayWorldViewRender) -> Vec<Event>{
     input_events.append(&mut view_panel_input_constructor::construct_zoom_events(play_view));
 
     // Building specific
-    input_events.append(&mut self::get_building_events(play_view));
+    input_events.append(&mut self::get_building_events(play_view, block_selected_ref));
 
     return input_events;
 }
 
 
-pub fn add_bulding_world_view_panel(panel: &mut Panel, player_data: &mut PlayerData) {
+pub fn add_bulding_world_view_panel(panel: &mut Panel, player_data: &mut PlayerData, block_selected_ref: Rc<RefCell<BlockTexture>>) {
     let play_view_panel = panel.add_sub_panel();
     play_view_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
     play_view_panel.set_color(PanelColor::Dark);
@@ -57,7 +57,7 @@ pub fn add_bulding_world_view_panel(panel: &mut Panel, player_data: &mut PlayerD
 
     // Add World Rendering
     let play_view = play_view_panel.add_play_world_view_renderer(rendering_config);
-    let input_events = get_input_events(&play_view);
+    let input_events = get_input_events(&play_view, block_selected_ref);
 
     // Wrapp and add input events
     for event in input_events {

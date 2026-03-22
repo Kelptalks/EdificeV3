@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, drone_programming::var::var_type::{Var, VarTypeKind}, game_event_manager::game_event_manager::{GameEvent, EventManager}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::vars::{draggable_var::{self, DraggableVar}, var_slot::VarSlot}, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::{self, scroll_panel::ScrollPanel}, tab_panel::tab_panel::TabPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{play_world_view_config::PlayViewRendingConfig, play_world_view_render::PlayWorldViewRender}}}, types::UITextures};
+use crate::game_data::{TextureManager, drone_programming::var::var_type::{Var, VarTypeKind}, game_event_manager::{event_manager, game_event_manager::{EventManager, GameEvent}, prelude::Event}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::vars::{draggable_var::{self, DraggableVar}, var_slot::VarSlot}, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::{self, scroll_panel::ScrollPanel}, tab_panel::tab_panel::TabPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{play_world_view_config::PlayViewRendingConfig, play_world_view_render::PlayWorldViewRender}}}, types::UITextures};
 
 
 #[derive(Clone, Copy)]
@@ -45,6 +45,9 @@ pub struct Panel {
     orientation: PanelOrientation,
     alignment: PanelAlignment,
     new_background: Option<PanelBackground>,
+
+    // Control
+    events: Vec<Event>,
 }
 
 impl Panel {
@@ -76,6 +79,9 @@ impl Panel {
             orientation: PanelOrientation::Horizontal,
             alignment: PanelAlignment::Center,
             new_background: None,
+
+            // Control
+            events: Vec::new(),
         };
 
         return panel;
@@ -173,10 +179,11 @@ impl Panel {
         self.rendering_manager.size(self.pos, self.scale);
     }
 
-    pub fn add_section(&mut self, widget: WidgetType) {
+    pub fn add_widget(&mut self, widget: WidgetType) {
         let section = PanelSection::new(widget, self.orientation, self.alignment);
         self.sections.push(section);
     }
+
 
     //=====================================
     // Panel Constructors
@@ -184,7 +191,7 @@ impl Panel {
 
     pub fn add_sub_panel(&mut self) -> &mut Panel {
         let panel = Self::new(self.pos, [0.0; 4]);
-        self.add_section(WidgetType::Panel(panel));
+        self.add_widget(WidgetType::Panel(panel));
  
         if let WidgetType::Panel(panel) = self.sections.last_mut().unwrap().get_mut_widget() {
             return panel;
@@ -196,7 +203,7 @@ impl Panel {
 
     pub fn add_tab_panel(&mut self) -> &mut TabPanel {
         let tab_panel = TabPanel::new();
-        self.add_section(WidgetType::TabPanel(tab_panel));
+        self.add_widget(WidgetType::TabPanel(tab_panel));
  
         if let WidgetType::TabPanel(tab_panel) = self.sections.last_mut().unwrap().get_mut_widget() {
             return tab_panel;
@@ -208,7 +215,7 @@ impl Panel {
 
     pub fn add_scroll_panel(&mut self) -> &mut ScrollPanel {
         let scroll_panel = ScrollPanel::new();
-        self.add_section(WidgetType::ScrollPanel(scroll_panel));
+        self.add_widget(WidgetType::ScrollPanel(scroll_panel));
  
         if let WidgetType::ScrollPanel(scroll_panel) = self.sections.last_mut().unwrap().get_mut_widget() {
             return scroll_panel;
@@ -225,7 +232,7 @@ impl Panel {
 
     pub fn add_button(&mut self) -> &mut Button { 
         let button = Button::new([0.0; 4]);
-        self.add_section(WidgetType::Button(button));
+        self.add_widget(WidgetType::Button(button));
 
         if let WidgetType::Button(button) = self.sections.last_mut().unwrap().get_mut_widget() {
             return button;
@@ -237,7 +244,7 @@ impl Panel {
 
     pub fn add_bar_button(&mut self, text: String) -> &mut BarButtonWidget {
         let bar_button = BarButtonWidget::new(text, [0.0; 4]);
-        self.add_section(WidgetType::BarButton(bar_button));
+        self.add_widget(WidgetType::BarButton(bar_button));
 
         if let WidgetType::BarButton(bar_button) = self.sections.last_mut().unwrap().get_mut_widget() {
             return bar_button;
@@ -249,7 +256,7 @@ impl Panel {
 
     pub fn add_toggle_button(&mut self) -> &mut ToggleButton {
         let toggle_button = ToggleButton::new();
-        self.add_section(WidgetType::ToggleButton(toggle_button));
+        self.add_widget(WidgetType::ToggleButton(toggle_button));
 
         if let WidgetType::ToggleButton(toggle_button) = self.sections.last_mut().unwrap().get_mut_widget() {
             return toggle_button;
@@ -265,7 +272,7 @@ impl Panel {
 
     pub fn add_text_display(&mut self, text: String) -> &mut TextDisplay {
         let header = TextDisplay::new(text);
-        self.add_section(WidgetType::TextDisplay(header));
+        self.add_widget(WidgetType::TextDisplay(header));
 
         if let WidgetType::TextDisplay(header) = self.sections.last_mut().unwrap().get_mut_widget() {
             return header;
@@ -281,7 +288,7 @@ impl Panel {
 
     pub fn add_play_world_view_renderer(&mut self, rendering_config: PlayViewRendingConfig) -> &mut PlayWorldViewRender {
         let header = PlayWorldViewRender::new(rendering_config);
-        self.add_section(WidgetType::PlayWorldViewRender(header));
+        self.add_widget(WidgetType::PlayWorldViewRender(header));
 
         if let WidgetType::PlayWorldViewRender(play_view) = self.sections.last_mut().unwrap().get_mut_widget() {
             return play_view;
@@ -297,7 +304,7 @@ impl Panel {
 
     pub fn add_draggable_var(&mut self, var: Var) -> &mut DraggableVar {
         let draggable_var = DraggableVar::new(var);
-        self.add_section(WidgetType::DraggableVar(draggable_var));
+        self.add_widget(WidgetType::DraggableVar(draggable_var));
 
         if let WidgetType::DraggableVar(draggable_var) = self.sections.last_mut().unwrap().get_mut_widget() {
             return draggable_var;
@@ -309,7 +316,7 @@ impl Panel {
 
     pub fn add_var_slot(&mut self, var_kind_allowed: VarTypeKind) -> &mut VarSlot{
         let var_slot = VarSlot::new(var_kind_allowed);
-        self.add_section(WidgetType::VarSlot(var_slot));
+        self.add_widget(WidgetType::VarSlot(var_slot));
 
         if let WidgetType::VarSlot(var_slot) = self.sections.last_mut().unwrap().get_mut_widget() {
             return var_slot;
@@ -319,6 +326,17 @@ impl Panel {
         }
     }
 
+    //=====================================
+    // Input
+    //=====================================
+
+    pub fn add_event (&mut self, event: Event) {
+        self.events.push(event);
+    }
+
+    pub fn add_events(&mut self, events: &mut Vec<Event>) {
+        self.events.append(events);
+    }
 
 }
 
@@ -359,6 +377,10 @@ impl Widget for Panel {
         // Render all the widgets
         for section in &mut self.sections {
             section.get_mut_widget().render(texture_manager, screen_data, game_event_manager);
+        }
+
+        if screen_data.mouse_on_ndc_pos(self.pos) {
+            game_event_manager.add_events(&self.events);
         }
     }
 }

@@ -12,7 +12,7 @@ pub enum WidgetEvent {
     Modi32Event(Rc<RefCell<i32>>, i32),
 
     // Game type
-    SetBlockRef(Rc<RefCell<BlockTexture>>, BlockTexture)
+    SetBlockRef(Rc<RefCell<BlockTexture>>, Rc<RefCell<BlockTexture>>)
 }
 
 
@@ -40,8 +40,8 @@ impl WidgetEvent {
             WidgetEvent::Modi32Event(ref_cell, value) => {
                 *ref_cell.borrow_mut() += *value;
             }
-            WidgetEvent::SetBlockRef(ref_cell, block_texture) => {
-                *ref_cell.borrow_mut() = *block_texture;
+            WidgetEvent::SetBlockRef(current_block, new_block) => {
+                *current_block.borrow_mut() = *new_block.borrow();
             },
         }
     }

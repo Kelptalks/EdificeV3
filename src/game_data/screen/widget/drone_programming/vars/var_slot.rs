@@ -1,4 +1,4 @@
-use crate::game_data::{drone_programming::var::{self, game_vars::game_var_type::GameVar, var_type::{VarRef, Var, VarTypeKind}}, game_event_manager::prelude::EventManager, screen::{ScreenData, widget::{widget::Widget, widget_calculations}}, types::{BlockTexture, UITextures}};
+use crate::game_data::{drone_programming::var::{self, game_vars::game_var_type::GameVar, var_type::{Var, VarRef, VarTypeKind}}, game_event_manager::prelude::EventManager, screen::{ScreenData, widget::{widget::{Widget, WidgetType}, widget_calculations}}, types::{BlockTexture, UITextures}};
 
 pub struct VarSlot {
     // Parent rendering
@@ -37,11 +37,12 @@ impl VarSlot {
         }
     }
 
-    pub fn var_released_on_slot(&self, screen_data: &ScreenData, game_event_manager: &mut EventManager) -> bool {
-        if screen_data.mouse_on_ndc_pos(self.pos) && screen_data.was_left_released() {
-            return true;
-        }
-        return false;
+    pub fn get_var_ref(&self) -> &VarRef {
+        return &self.var_instance;
+    }
+
+    pub fn wrap_into_widget(self) -> WidgetType {
+        return WidgetType::VarSlot(self);
     }
 }
 
@@ -90,8 +91,6 @@ impl Widget for VarSlot {
         }
 
         texture_manager.render_texture_with_pos(self.var_type_kind_allowed.get_texture(), self.pos);
-
-
         texture_manager.render_texture_with_pos(self.var_instance.to_var().get_texture(), self.pos);
         
         

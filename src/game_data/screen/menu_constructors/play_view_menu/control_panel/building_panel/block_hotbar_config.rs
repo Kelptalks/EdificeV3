@@ -6,7 +6,6 @@ pub struct BlockHotbarConfig {
     block_slot_refs: Vec<Rc<RefCell<BlockTexture>>>,
 }
 
-
 impl BlockHotbarConfig {
     pub fn new() -> BlockHotbarConfig {
         BlockHotbarConfig {
