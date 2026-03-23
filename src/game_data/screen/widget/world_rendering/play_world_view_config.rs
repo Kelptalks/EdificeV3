@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::{self, Rc}, sync::{Arc, RwLock}};
 
-use crate::game_data::{World, drone_programming::var::game_vars::game_var_type::GameVar, player_data::locations::location::WorldLocation, types::BlockTexture};
+use crate::game_data::{World, player_data::locations::location::WorldLocation, types::BlockTexture};
 
 pub enum CameraMovementType {
     ShiftArea,

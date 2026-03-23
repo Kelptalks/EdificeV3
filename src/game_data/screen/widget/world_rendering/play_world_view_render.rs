@@ -241,8 +241,6 @@ impl PlayWorldViewRender {
         for axis in &mut end_cords {
             *axis += self.rendering_config.get_zoom();
         }
-
-        println!("Start: {:?} | End: {:?}", start_cords, end_cords);
         return [start_cords, end_cords];
     }
 

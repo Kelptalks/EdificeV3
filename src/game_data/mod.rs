@@ -23,4 +23,3 @@ mod debuging;
 
 mod types;
 
-mod drone_programming;

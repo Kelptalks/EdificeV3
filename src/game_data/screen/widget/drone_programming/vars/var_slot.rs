@@ -1,4 +1,4 @@
-use crate::game_data::{drone_programming::var::{self, game_vars::game_var_type::GameVar, var_type::{Var, VarRef, VarTypeKind}}, game_event_manager::prelude::EventManager, screen::{ScreenData, widget::{widget::{Widget, WidgetType}, widget_calculations}}, types::{BlockTexture, UITextures}};
+use crate::game_data::{player_data::drone_programming::var::{self, game_vars::game_var_type::GameVar, var_type::{Var, VarRef, VarTypeKind}}, game_event_manager::prelude::EventManager, screen::{ScreenData, widget::{widget::{Widget, WidgetType}, widget_calculations}}, types::{BlockTexture, UITextures}};
 
 pub struct VarSlot {
     // Parent rendering

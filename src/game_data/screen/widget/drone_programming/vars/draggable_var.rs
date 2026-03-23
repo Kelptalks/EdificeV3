@@ -1,4 +1,4 @@
-use crate::game_data::{drone_programming::var::var_type::Var, screen::widget::{widget::Widget, widget_calculations::{self, buffer_pos}}, types::UITextures};
+use crate::game_data::{player_data::drone_programming::var::var_type::Var, screen::widget::{widget::Widget, widget_calculations::{self, buffer_pos}}, types::UITextures};
 
 pub struct DraggableVar {
     // Parent rendering
