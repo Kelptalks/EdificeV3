@@ -10,7 +10,8 @@
       "Bash(grep -r widget_event_manager:: /c/Users/Spencer/EdificeV3/src --include=*.rs)",
       "Bash(grep -r world_event_manager:: /c/Users/Spencer/EdificeV3/src --include=*.rs)",
       "Bash(grep -r event_manager:: /c/Users/Spencer/EdificeV3/src --include=*.rs)",
-      "Bash(grep -v \"^$\")"
+      "Bash(grep -v \"^$\")",
+      "Bash(wc -l \"C:\\\\Users\\\\Spencer\\\\EdificeV3/src\"/**/*.rs)"
     ]
   }
 }
