@@ -11,6 +11,7 @@ pub use super::widget_event_manager::{
         prim_event_manager::PrimEvent,
         string_events::StringEvent,
         usize_events::UsizeEvent,
+        bool_events::BoolEvent,
     },
 };
 

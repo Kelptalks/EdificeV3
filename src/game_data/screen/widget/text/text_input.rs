@@ -1,9 +1,11 @@
 use std::{cell::RefCell, fmt::format, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::{Event, StringEvent, UsizeEvent}, screen::widget::{panel::panel_texture_manager::PanelTextureManager, text::{header::TextDisplay, text_input_event_constructor}, widget::{Widget, WidgetType}}, texture_manager::texture::Texture};
+use crate::game_data::{game_event_manager::prelude::{BoolEvent, Event, InputEvent, StringEvent, UsizeEvent}, screen::widget::{panel::panel_texture_manager::PanelTextureManager, text::{header::TextDisplay, text_input_event_constructor}, widget::{Widget, WidgetType}}, texture_manager::texture::Texture};
 
 pub struct TextInput {
     text_display: TextDisplay,
+    
+    focused_bool_ref: Rc<RefCell<bool>>,
 
     current_index_ref: Rc<RefCell<usize>>,
     max_string_size: usize,
@@ -25,16 +27,28 @@ impl TextInput {
         let mut text_display = TextDisplay::new(" ".to_string()); 
         text_display.set_string_ref(&string_ref.clone());
 
+
         let cursor_index_ref = Rc::new(RefCell::new(0));
 
+        // Setup Inputs
+        let mut input_events = text_input_event_constructor::get_text_inputs(string_ref, &cursor_index_ref);
+        let focused_bool_ref = Rc::new(RefCell::new(false));
+        let unfocus_input_event = 
+            InputEvent::KeyDown(
+                miniquad::KeyCode::Escape, 
+                BoolEvent::SetBool(focused_bool_ref.clone(), false).wrap_into_event_vec()
+            ).wrap_into_event();
+        input_events.push(unfocus_input_event);
 
         TextInput {
             text_display: text_display,
 
+            focused_bool_ref,
+
             current_index_ref: cursor_index_ref.clone(),
             max_string_size,
 
-            events: text_input_event_constructor::get_text_inputs(string_ref, &cursor_index_ref),
+            events: input_events,
             panel_texture: PanelTextureManager::new(),
         }
 
@@ -56,8 +70,16 @@ impl TextInput {
         ];
     }
 
-    pub fn set_max_index(&mut self, new_max: usize) {
-        self.max_string_size = new_max;
+    pub fn set_cursor_to_last_char(&self) {
+        
+        
+        let mut current_cursor_index = 0;
+        for (i, char) in self.text_display.get_string_ref().borrow().chars().enumerate() {
+            if char != ' ' {
+                current_cursor_index = i + 1;
+            }
+        }
+        *self.current_index_ref.borrow_mut() = current_cursor_index;
     }
 }
 
@@ -100,40 +122,52 @@ impl Widget for TextInput {
         self.text_display.render(texture_manager, screen_data, game_event_manager);
         
 
-        if !screen_data.mouse_on_ndc_pos(self.get_pos()) {
-            self.panel_texture.set_color(crate::game_data::screen::widget::panel::panel_color::PanelColor::Dark);
-            return;
+        // If not focused on
+        if screen_data.mouse_on_ndc_pos(self.get_pos()) {
+            if screen_data.get_input_manager().get_mouse_input_data().was_left_clicked() {
+                self.panel_texture.set_color(crate::game_data::screen::widget::panel::panel_color::PanelColor::Dark);
+                *self.focused_bool_ref.borrow_mut() = true;
+                self.set_cursor_to_last_char();
+            }
+        }
+        else {
+            if screen_data.get_input_manager().get_mouse_input_data().was_left_clicked() {
+                *self.focused_bool_ref.borrow_mut() = false;
+            }
+        }
+
+        // If focused on 
+        if *self.focused_bool_ref.borrow() {
+            // Make sure curosor is in string bounds
+            let string_len = self.text_display.get_string_ref().borrow().len();
+            let cursor_index = *self.current_index_ref.borrow();
+            if string_len < cursor_index {
+                *self.current_index_ref.borrow_mut() = string_len;
+            }
+
+            texture_manager.render_texture_with_pos(Texture::UITexture(crate::game_data::types::UITextures::ButtonCircle), self.get_cursor_pos());
+
+
+            game_event_manager.add_events(&self.events);
+
+            // Backspace if cursor index is over max
+            if cursor_index > self.max_string_size {
+                let mut backspace_event = 
+                StringEvent::RemoveCharWithRefIndex(
+                    self.text_display.get_string_ref().clone(), self.current_index_ref.clone()
+                ).wrap_into_event_vec();
+
+                backspace_event.insert(1, UsizeEvent::ModUsize(self.current_index_ref.clone(), -1).wrap_into_event());
+                game_event_manager.add_events(&backspace_event);
+            }
+
+            // Trim the string to max cursor index length
+            let mut string = self.text_display.get_string_ref().borrow_mut();
+            string.truncate(self.max_string_size);
         }
         else {
             self.panel_texture.set_color(crate::game_data::screen::widget::panel::panel_color::PanelColor::Light);
         }
-
-        // Make sure curosor is in string bounds
-        let string_len = self.text_display.get_string_ref().borrow().len();
-        let cursor_index = *self.current_index_ref.borrow();
-        if string_len < cursor_index {
-            *self.current_index_ref.borrow_mut() = string_len;
-        }
-
-        texture_manager.render_texture_with_pos(Texture::UITexture(crate::game_data::types::UITextures::ButtonCircle), self.get_cursor_pos());
-
-
-        game_event_manager.add_events(&self.events);
-
-        // Backspace if cursor index is over max
-        if cursor_index > self.max_string_size {
-            let mut backspace_event = 
-            StringEvent::RemoveCharWithRefIndex(
-                self.text_display.get_string_ref().clone(), self.current_index_ref.clone()
-            ).wrap_into_event_vec();
-
-            backspace_event.insert(1, UsizeEvent::ModUsize(self.current_index_ref.clone(), -1).wrap_into_event());
-            game_event_manager.add_events(&backspace_event);
-        }
-
-        // Trim the string to max cursor index length
-        let mut string = self.text_display.get_string_ref().borrow_mut();
-        string.truncate(self.max_string_size);
     }
 }
 

@@ -1,9 +1,10 @@
-use crate::game_data::game_event_manager::widget_event_manager::prim_events::{string_events::StringEvent, usize_events::UsizeEvent};
+use crate::game_data::game_event_manager::widget_event_manager::prim_events::{bool_events::BoolEvent, string_events::StringEvent, usize_events::{self, UsizeEvent}};
 
 #[derive(Clone)]
 pub enum PrimEvent {
     StringEvent(StringEvent),
-    UsizeEvent(UsizeEvent)
+    UsizeEvent(UsizeEvent),
+    BoolEvent(BoolEvent),
 }
 
 impl PrimEvent {
@@ -14,6 +15,9 @@ impl PrimEvent {
             },
             PrimEvent::UsizeEvent(usize_event) => {
                 usize_event.execute();
+            },
+            PrimEvent::BoolEvent(bool_event) => {
+                bool_event.execute();
             },
         }
     }
