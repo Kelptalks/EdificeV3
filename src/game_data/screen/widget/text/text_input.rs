@@ -1,21 +1,28 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, fmt::format, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::{Event, StringEvent, UsizeEvent}, screen::widget::{text::{header::TextDisplay, text_input_event_constructor}, widget::Widget}, texture_manager::texture::Texture};
+use crate::game_data::{game_event_manager::prelude::{Event, StringEvent, UsizeEvent}, screen::widget::{panel::panel_texture_manager::PanelTextureManager, text::{header::TextDisplay, text_input_event_constructor}, widget::{Widget, WidgetType}}, texture_manager::texture::Texture};
 
 pub struct TextInput {
     text_display: TextDisplay,
-    
+
     current_index_ref: Rc<RefCell<usize>>,
-    cursor_max_index: usize,
+    max_string_size: usize,
 
     events: Vec<Event>,
-
+    panel_texture: PanelTextureManager,
 }
 
 
 impl TextInput {
+    pub fn wrap_into_widget(self) -> WidgetType {
+        WidgetType::TextInput(self)
+    }
+
     pub fn new_text_input(string_ref: &Rc<RefCell<String>>) -> TextInput {
-        let mut text_display = TextDisplay::new("".to_string());
+
+        // Init text_display with max size for propper positioning
+        let max_string_size = string_ref.borrow().len();
+        let mut text_display = TextDisplay::new(" ".to_string()); 
         text_display.set_string_ref(&string_ref.clone());
 
         let cursor_index_ref = Rc::new(RefCell::new(0));
@@ -25,9 +32,10 @@ impl TextInput {
             text_display: text_display,
 
             current_index_ref: cursor_index_ref.clone(),
-            cursor_max_index: 30,
+            max_string_size,
 
-            events: text_input_event_constructor::get_text_inputs(string_ref, &cursor_index_ref)
+            events: text_input_event_constructor::get_text_inputs(string_ref, &cursor_index_ref),
+            panel_texture: PanelTextureManager::new(),
         }
 
     }
@@ -49,7 +57,7 @@ impl TextInput {
     }
 
     pub fn set_max_index(&mut self, new_max: usize) {
-        self.cursor_max_index = new_max;
+        self.max_string_size = new_max;
     }
 }
 
@@ -76,6 +84,9 @@ impl Widget for TextInput {
 
     fn size(&mut self) {
         self.text_display.size();
+
+
+        self.panel_texture.size(self.get_pos(), self.text_display.get_scale());
     }
 
     fn render(
@@ -84,8 +95,18 @@ impl Widget for TextInput {
         screen_data: &crate::game_data::screen::ScreenData,
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager
     ) {
-        self.text_display.size();
+        
+        self.panel_texture.render(texture_manager);
         self.text_display.render(texture_manager, screen_data, game_event_manager);
+        
+
+        if !screen_data.mouse_on_ndc_pos(self.get_pos()) {
+            self.panel_texture.set_color(crate::game_data::screen::widget::panel::panel_color::PanelColor::Dark);
+            return;
+        }
+        else {
+            self.panel_texture.set_color(crate::game_data::screen::widget::panel::panel_color::PanelColor::Light);
+        }
 
         // Make sure curosor is in string bounds
         let string_len = self.text_display.get_string_ref().borrow().len();
@@ -100,7 +121,7 @@ impl Widget for TextInput {
         game_event_manager.add_events(&self.events);
 
         // Backspace if cursor index is over max
-        if cursor_index > self.cursor_max_index {
+        if cursor_index > self.max_string_size {
             let mut backspace_event = 
             StringEvent::RemoveCharWithRefIndex(
                 self.text_display.get_string_ref().clone(), self.current_index_ref.clone()
@@ -109,6 +130,10 @@ impl Widget for TextInput {
             backspace_event.insert(1, UsizeEvent::ModUsize(self.current_index_ref.clone(), -1).wrap_into_event());
             game_event_manager.add_events(&backspace_event);
         }
+
+        // Trim the string to max cursor index length
+        let mut string = self.text_display.get_string_ref().borrow_mut();
+        string.truncate(self.max_string_size);
     }
 }
 

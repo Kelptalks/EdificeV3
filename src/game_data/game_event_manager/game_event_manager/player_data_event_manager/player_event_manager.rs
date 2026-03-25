@@ -20,10 +20,7 @@ impl PlayerDataEvent {
                 location_event.execute_location_events(event_tools, location_ref.clone());
             },
             PlayerDataEvent::CreateLocation(location_config) => {
-                let location_area = location_config.borrow().get_source_location_ref().borrow().get_area().clone();
-                let location_name = location_config.borrow().get_location_name();
-
-                player_data.get_mut_location_manager().create_location(location_name, location_area);
+                location_config.borrow().create_location_in_manager(player_data.get_mut_location_manager());
             },
         }
     }
