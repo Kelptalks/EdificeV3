@@ -1,4 +1,6 @@
-use crate::game_data::{game_event_manager::{game_event_manager::GameEvent, render_event_manager::render_event_manager::RenderEvent}, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}};
+use std::{cell::RefCell, rc::Rc};
+
+use crate::game_data::{game_event_manager::{game_event_manager::GameEvent, render_event_manager::render_event_manager::RenderEvent}, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, text::text_input::TextInput, widget::{Widget, WidgetType}, widget_calculations::TextSize}}};
 
 
 pub fn get_menu(screen_data: &ScreenData) -> WidgetType {
@@ -26,6 +28,11 @@ pub fn get_menu(screen_data: &ScreenData) -> WidgetType {
         bar_button.add_event(GameEvent::RenderEvent(RenderEvent::QuitGame));
         bar_button.set_text_scale(TextSize::Large);
         
+        let string_ref = Rc::new(RefCell::new("".to_string()));
+        let text_input = TextInput::new_text_input(&string_ref);
+
+        panel.add_widget(WidgetType::TextInput(text_input));
+
         panel.size();
     }
 

@@ -1,4 +1,4 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::{Ref, RefCell}, rc::Rc};
 
 use crate::game_data::{locations::world_area::WorldArea, player_data::locations::location::WorldLocation};
 
@@ -10,11 +10,13 @@ pub struct WorldLocationConfig {
 }
 
 impl WorldLocationConfig {
-    pub fn new(location_ref: Rc<RefCell<WorldLocation>>) -> WorldLocationConfig {
-        WorldLocationConfig {
+    pub fn new(location_ref: Rc<RefCell<WorldLocation>>) -> Rc<RefCell<WorldLocationConfig>> {
+        let config = WorldLocationConfig {
             name: Rc::new(RefCell::new("".to_string())),
             source_location: location_ref,
-        }
+        };
+
+        return Rc::new(RefCell::new(config));
     }
 
     pub fn get_source_location_ref(&self) -> Rc<RefCell<WorldLocation>> {

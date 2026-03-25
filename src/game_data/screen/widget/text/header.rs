@@ -1,4 +1,6 @@
-use crate::game_data::{screen::{text::render_string_at_ndc, widget::{widget::Widget, widget_calculations::{self, TextSize}}}, types::FontType};
+use std::{cell::RefCell, rc::Rc};
+
+use crate::game_data::{screen::{text::{self, render_string_at_ndc}, widget::{widget::Widget, widget_calculations::{self, TextSize}}}, types::FontType};
 
 pub struct TextDisplay {
     // Parent rendering
@@ -8,7 +10,7 @@ pub struct TextDisplay {
     prefered_char_scale: f32,
 
     // Self
-    text: String,
+    string_ref: Rc<RefCell<String>>,
     pos: [f32; 4],
     scale: [f32; 2],
     external_buffers: [f32; 4],
@@ -25,12 +27,20 @@ impl TextDisplay {
             prefered_char_scale: TextSize::Small.get_scale(),
 
             // Self Rendering
-            text: text,
+            string_ref: Rc::new(RefCell::new(text)),
             pos: [0.0; 4],
             scale: [0.0; 2],
             external_buffers: [0.0; 4],
             
         }
+    }
+
+    pub fn get_string_ref(&self) -> &Rc<RefCell<String>> {
+        return &self.string_ref;
+    }
+
+    pub fn set_string_ref(&mut self, string_ref: &Rc<RefCell<String>>) {
+        self.string_ref = string_ref.clone();
     }
 
     pub fn set_text_scale(&mut self, size: TextSize) {
@@ -44,9 +54,13 @@ impl TextDisplay {
         let char_scale =  self.prefered_char_scale;
 
         self.prefered_scale = [
-            char_scale * self.text.len() as f32,
+            char_scale * self.string_ref.borrow().len() as f32,
             char_scale
         ];
+    }
+
+    pub fn get_char_scale(&self) -> f32 {
+        return self.prefered_char_scale;
     }
 
 
@@ -85,7 +99,7 @@ impl Widget for TextDisplay {
         game_event_manager: &mut crate::game_data::game_event_manager::game_event_manager::EventManager
     ) {
         render_string_at_ndc(texture_manager, 
-            self.text.clone(), 
+            self.string_ref.borrow().clone(), 
             FontType::Basic, 
             self.scale[1], 
             [self.pos[0], self.pos[1]]

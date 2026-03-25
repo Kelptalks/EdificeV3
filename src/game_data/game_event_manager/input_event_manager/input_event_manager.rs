@@ -8,6 +8,7 @@ use crate::game_data::{game_event_manager::{game_event_manager::game_event_manag
 pub enum InputEvent {
     // Keys
     KeyDown(KeyCode, Vec<Event>),
+    KeysDown(Vec<KeyCode>, Vec<Event>),
 
     // Scrolling
     ScrollUp(Vec<Event>),
@@ -41,6 +42,17 @@ impl InputEvent {
                 if input_manager.was_key_code_pressed(*key_code) {
                     events_to_dispatch.append(&mut events.clone());
                 }
+            },
+            InputEvent::KeysDown(key_codes, events) => {
+                for key_code in key_codes {
+                    if !input_manager.was_key_code_pressed(*key_code) {
+                        return vec![];
+                    }
+                    events_to_dispatch.append(&mut events.clone());
+                }
+                
+                events_to_dispatch.append(&mut events.clone());
+                
             },
             InputEvent::ScrollUp(events) => {
                 if input_manager.get_mouse_input_data().scrolled_up() {

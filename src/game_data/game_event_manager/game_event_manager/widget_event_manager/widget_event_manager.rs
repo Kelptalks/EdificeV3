@@ -1,13 +1,16 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}}, types::BlockTexture};
+use crate::game_data::{game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}, widget_event_manager::prim_events::prim_event_manager::PrimEvent}, types::BlockTexture};
 
 #[derive(Clone)]
 pub enum WidgetEvent {
     ToggleBoolEvent(Rc<RefCell<bool>>),
     
     // Prim
+    PrimEvent(PrimEvent),
     SetUsizeEvent(Rc<RefCell<usize>>, usize),
+    
+    
     Modf32Event(Rc<RefCell<f32>>, f32),
     Modi32Event(Rc<RefCell<i32>>, i32),
 
@@ -27,6 +30,9 @@ impl WidgetEvent {
 
     pub fn execute_widget_event(&self, event_tools: &mut GameEventManager) {
         match self {
+            WidgetEvent::PrimEvent(event) => {
+                event.execute();
+            }
             WidgetEvent::ToggleBoolEvent(toggle_button_event) => {
                 let current_state = *toggle_button_event.borrow();
                 *toggle_button_event.borrow_mut() = !current_state;

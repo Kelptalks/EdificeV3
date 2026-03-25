@@ -5,7 +5,15 @@ pub use super::game_event_manager::{GameEvent, GameEventManager};
 // Game Events
 pub use super::render_event_manager::render_event_manager::RenderEvent;
 pub use super::world_event_manager::world_event_manager::WorldEvent;
-pub use super::widget_event_manager::widget_event_manager::WidgetEvent;
+pub use super::widget_event_manager::{
+    widget_event_manager::WidgetEvent,
+    prim_events::{
+        prim_event_manager::PrimEvent,
+        string_events::StringEvent,
+        usize_events::UsizeEvent,
+    },
+};
+
 pub use super::player_data_event_manager::{
     player_event_manager::PlayerDataEvent,
     location_event::LocationEvent,
