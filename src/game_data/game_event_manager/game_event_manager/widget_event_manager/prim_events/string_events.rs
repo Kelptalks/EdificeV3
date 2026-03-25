@@ -27,9 +27,6 @@ impl StringEvent {
             StringEvent::InsertCharWithRefIndex(string_ref, index_ref, char) => {
                 let index = *index_ref.borrow();
                 let mut string = string_ref.borrow_mut();
-                
-                println!("index: {}", index);
-                println!("string_len: {}", string.len());
 
                 if index <= string.len() {
                     string.insert(index, *char);

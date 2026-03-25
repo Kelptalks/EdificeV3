@@ -604,6 +604,11 @@ impl BlockTexture {
         !self.is_transparent() && !self.is_translucent()
     }
 
+    #[inline]
+    pub fn is_visible(&self) -> bool {
+        !self.is_transparent() && (self.is_translucent() || self.is_opaque())
+    }
+
     pub fn is_solid(&self) -> bool {
         BLOCK_PROPERTIES[*self as usize].solid
     }

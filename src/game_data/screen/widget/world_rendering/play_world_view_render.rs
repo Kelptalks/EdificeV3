@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc, sync::{Arc, RwLock}};
 
 use miniquad::KeyCode;
 
-use crate::game_data::{TextureManager, World, screen::{ScreenData, camera_data::Direction, iso_cord_tool, widget::{panel::panel::Panel, widget::Widget, widget_calculations, world_rendering::{play_block::PlayBlock, play_view_control_manager::{self, PlayViewControlManager}, play_world_view_config::PlayViewRendingConfig}}}, types::BlockTexture};
+use crate::game_data::{TextureManager, World, ray_caster::ray::TileRay, screen::{ScreenData, camera_data::Direction, iso_cord_tool, widget::{panel::panel::Panel, widget::Widget, widget_calculations, world_rendering::{play_block::PlayBlock, play_view_control_manager::{self, PlayViewControlManager}, play_world_view_config::PlayViewRendingConfig}}}, types::BlockTexture};
 
 use crate::game_data::game_event_manager::prelude::*;
 
@@ -250,6 +250,75 @@ impl PlayWorldViewRender {
         return location_ref.borrow().get_area().get_center_world_cords();
     }
 
+    pub fn ray_cast_view(&mut self, texture_manager: &mut TextureManager) {
+        self.size();
+
+        let world = self.rendering_config.get_world_ref().read().unwrap();
+
+        let ndc_x_draw_center_offset = self.center_ndc[0] - self.ndc_block_scale;
+        let ndc_y_draw_center_offset = self.center_ndc[1] - self.ndc_block_scale;
+
+        let rot = self.camera_direction.rotation_matrix();
+        
+        let camera_cords = self.get_rendering_center_world_cor();
+
+        let area_to_render = self.get_area_to_render();
+        let start_cords = area_to_render[0];
+        let end_cords = area_to_render[1];
+
+        // Loop through blocks in zoom
+        for y in start_cords[1]..=end_cords[1] {
+            for x in start_cords[0]..=end_cords[0] {
+                let world_cords = [
+                    camera_cords[0] + x,
+                    camera_cords[1] + y,
+                    camera_cords[2],
+                ];
+
+                let mut ray = TileRay::new(world_cords, [1; 3], 100);
+                ray.cast(&world);
+                
+                let [left_textures, right_textures] = ray.get_tile_textures();
+
+                let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, [x, y]);
+
+                
+                draw_cords[0] += ndc_x_draw_center_offset;
+                draw_cords[1] += ndc_y_draw_center_offset;
+                
+                draw_cords[0] += self.camera_ndc_offset[0];
+                draw_cords[1] += self.camera_ndc_offset[1];
+
+
+                // Left side 
+                let left_pos = [
+                    draw_cords[0],
+                    draw_cords[1],
+                    draw_cords[0] + self.ndc_block_scale,
+                    draw_cords[1] + self.ndc_block_scale,
+                ];
+                for texture in left_textures {
+                    texture_manager.render_texture_with_pos(texture, left_pos);
+                }
+
+                // Right side 
+                let right_pos = [
+                    draw_cords[0] + self.ndc_block_scale,
+                    draw_cords[1],
+                    draw_cords[0] + (self.ndc_block_scale * 2.0),
+                    draw_cords[1] + self.ndc_block_scale,
+                ];
+                for texture in right_textures {
+                    texture_manager.render_texture_with_pos(texture, right_pos);
+                }
+                
+                
+
+
+            }
+        }
+    }
+
     pub fn render_view(&mut self, 
         texture_manager: &mut TextureManager,
     ) {
@@ -363,8 +432,8 @@ impl Widget for PlayWorldViewRender {
         screen_data: &ScreenData, 
         game_event_manager: &mut EventManager
     ) {
-        self.render_view(texture_manager);
-
+        //self.render_view(texture_manager);
+        self.ray_cast_view(texture_manager);
 
         // Don't handle input if mouse is not on render
         if !screen_data.mouse_on_ndc_pos(self.pos) { 
