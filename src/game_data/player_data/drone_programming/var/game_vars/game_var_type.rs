@@ -78,6 +78,21 @@ impl GameVar {
             GameVar::Location(_) => return GameVarTypeKind::Location,
         }
     }
+
+    pub fn get_name(&self) -> String {
+        match self {
+            GameVar::DroneItem(_) => "DroneItem".to_string(),
+            GameVar::Block(block) => block.to_string().to_string(),
+            GameVar::Location(location_option_ref) => {
+                if let Some(location) = location_option_ref {
+                    return location.borrow().get_name().to_string();
+                }
+
+                return "UNKOWN LOCATION".to_string();
+            }
+        }
+    }
+
 }
 
 pub enum GameVarRef {
@@ -123,6 +138,14 @@ impl GameVarRef {
             GameVarRef::Location(ref_cell) => {
                 return GameVar::Location(ref_cell.borrow().clone());
             },
+        }
+    }
+
+    pub fn get_name(&self) -> String {
+        match self {
+            GameVarRef::DroneItem(_) => "DroneItem".to_string(),
+            GameVarRef::Block(_) => "Block".to_string(),
+            GameVarRef::Location(_) => "Location".to_string(),
         }
     }
 }

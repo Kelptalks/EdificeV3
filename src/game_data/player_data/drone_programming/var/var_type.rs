@@ -53,6 +53,12 @@ impl Var {
             },
         }
     }
+
+    pub fn get_name(&self) -> String {
+        match self {
+            Var::Game(game_var) => game_var.get_name(),
+        }
+    }
 }
 
 pub enum VarRef {

@@ -1,4 +1,4 @@
-use crate::game_data::{player_data::drone_programming::var::var_type::Var, screen::widget::{widget::Widget, widget_calculations::{self, buffer_pos}}, types::UITextures};
+use crate::game_data::{player_data::drone_programming::var::var_type::Var, screen::{text::render_string_at_ndc, widget::{widget::Widget, widget_calculations::{self, buffer_pos}}}, types::UITextures};
 
 
 #[derive(Clone)]
@@ -72,10 +72,16 @@ impl Widget for VarSource {
         game_event_manager: &mut crate::game_data::game_event_manager::game_event_manager::EventManager
     ) {
 
-        if screen_data.mouse_on_ndc_pos(self.pos) && screen_data.was_left_pressed() {
-            if !self.held {
-                self.held = true;
-                game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().set_var_held(self.var.clone());
+        if screen_data.mouse_on_ndc_pos(self.pos) {
+            let string = self.var.get_name();
+
+            render_string_at_ndc(texture_manager, string, crate::game_data::types::FontType::Basic, 0.1, [self.pos[0], self.pos[1]]);
+
+            if screen_data.was_left_pressed() {
+                if !self.held {
+                    self.held = true;
+                    game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().set_var_held(self.var.clone());
+                }
             }
         }
         else if self.held && screen_data.was_left_released() {
