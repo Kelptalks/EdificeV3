@@ -252,8 +252,6 @@ pub fn raycast_tile(camera_data : &CameraData, world : &World, casted_tile : &mu
 
 
     for d in 0..camera_data.get_draw_distance() {
-
-
         // x--
         left_cords[0] -= 1;
         current_block = BlockTexture::from_id(world.get_world_value(left_cords));

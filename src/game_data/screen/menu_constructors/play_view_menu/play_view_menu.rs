@@ -1,5 +1,5 @@
 
-use crate::game_data::{game_event_manager::{game_event_manager::GameEvent, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}, render_event_manager::render_event_manager::RenderEvent}, locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::game_var_type::GameVar, var_type::Var}, locations::location_manager, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::control_panel, screen_data::CurrentMenu, widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::TextSize, world_rendering::play_world_view_config::PlayViewRendingConfig}}, types::{BlockTexture, UITextures, drone_item::DroneItem}};
+use crate::game_data::{game_event_manager::{game_event_manager::GameEvent, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}, render_event_manager::render_event_manager::RenderEvent}, locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::game_var_type::GameVar, var_type::Var}, locations::location_manager, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::control_panel, screen_data::CurrentMenu, widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, selection_panel::selection_panel::SelectionPanel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::TextSize, world_rendering::play_world_view_config::PlayViewRendingConfig}}, types::{BlockTexture, UITextures, drone_item::DroneItem}};
 
 //=====================================
 // Selection Panel
@@ -79,20 +79,13 @@ pub fn get_item_selection_panel() -> WidgetType {
     return panel;
 }
 
-pub fn get_location_selection_panel() -> WidgetType {
-    let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
+pub fn get_location_selection_panel(player_data: &mut PlayerData) -> WidgetType {
 
-    if let WidgetType::Panel(panel) = &mut panel {
-        panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+    let mut selection_panel = SelectionPanel::new(player_data.get_mut_location_manager().get_panel_update_manager().clone());
 
-        // Header
-        let text_display = panel.add_text_display("Locations".to_string());
-        text_display.set_text_scale(TextSize::Medium);
+    
 
-        
-    }
-
-    return panel;
+    return selection_panel.wrap_into_widget();
 }
 
 pub fn get_drone_selection_panel() -> WidgetType {
@@ -131,7 +124,7 @@ pub fn add_selection_menu(panel: &mut Panel, screen_data: &ScreenData, player_da
     button.set_icon(UITextures::ScallingIconMidCenter);
 
     // Add Location Selection
-    let button = selection_tab_panel.add_panel(get_location_selection_panel());
+    let button = selection_tab_panel.add_panel(get_location_selection_panel(player_data));
     button.set_text("Locations".to_string());
     button.set_icon(UITextures::AreaIcon);
 

@@ -42,7 +42,7 @@ impl MouseWidgetData {
         texture_manager: &mut crate::game_data::TextureManager, 
         screen_data: &crate::game_data::screen::ScreenData, 
     ) {
-        if let Some(var) = self.var_held {
+        if let Some(var) = self.var_held.clone() {
             texture_manager.render_texture_with_pos(
                 var.get_texture(), 
                 screen_data.get_mouse_centered_texture_rendering_pos(self.mouse_data_rendering_scale)

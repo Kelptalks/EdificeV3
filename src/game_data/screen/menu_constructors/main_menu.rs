@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::GameEvent, render_event_manager::render_event_manager::RenderEvent}, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, text::text_input::TextInput, widget::{Widget, WidgetType}, widget_calculations::TextSize}}};
+use crate::game_data::{game_event_manager::{game_event_manager::GameEvent, render_event_manager::render_event_manager::RenderEvent}, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, selection_panel::selection_panel::SelectionPanel, text::text_input::TextInput, widget::{Widget, WidgetType}, widget_calculations::TextSize}}};
 
 
 pub fn get_menu(screen_data: &ScreenData) -> WidgetType {

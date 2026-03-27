@@ -1,4 +1,4 @@
-use crate::game_data::locations::world_area::WorldArea;
+use crate::game_data::{locations::world_area::WorldArea, player_data::drone_programming::var::{game_vars::game_var_type::GameVar, var_type::Var}, texture_manager::texture::Texture, types::UITextures};
 
 pub struct WorldLocation {
     area: WorldArea,
@@ -15,6 +15,14 @@ impl WorldLocation {
             name: name,
             id: id,
         }
+    }
+
+    //=====================================
+    // Var Converters
+    //=====================================
+
+    pub fn get_texture(&self) -> Texture {
+        return Texture::UITexture(UITextures::LocationIcon);
     }
 
     //=====================================

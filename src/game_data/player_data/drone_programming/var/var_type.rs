@@ -27,14 +27,14 @@ impl VarTypeKind {
         match self {
             VarTypeKind::Any => todo!(),
             VarTypeKind::Game(game_var_type_kind) => {
-                return VarRef::Game(game_var_type_kind.create_mut_var());
+                return VarRef::Game(game_var_type_kind.create_ref_var());
             },
         }
     }
 }
 
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub enum Var {
     Game(GameVar),
 }

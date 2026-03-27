@@ -6,6 +6,7 @@ pub mod widget_calculations;
 pub mod panel;
 pub mod tab_panel;
 pub mod scroll_panel;
+pub mod selection_panel;
 
 // Buttons
 pub mod button;

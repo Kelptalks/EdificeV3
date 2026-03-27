@@ -1,6 +1,8 @@
 use crate::game_data::{player_data::drone_programming::var::var_type::Var, screen::widget::{widget::Widget, widget_calculations::{self, buffer_pos}}, types::UITextures};
 
-pub struct DraggableVar {
+
+#[derive(Clone)]
+pub struct VarSource {
     // Parent rendering
     parent_pos: [f32; 4],
     parent_scale: [f32; 2],
@@ -16,9 +18,9 @@ pub struct DraggableVar {
     held: bool,
 }
 
-impl DraggableVar {
-    pub fn new(var: Var) -> DraggableVar {
-        DraggableVar {
+impl VarSource {
+    pub fn new(var: Var) -> VarSource {
+        VarSource {
             // Parent Rendering
             parent_pos: [0.0; 4],
             parent_scale: [0.0; 2],
@@ -37,7 +39,7 @@ impl DraggableVar {
 }
  
 
-impl Widget for DraggableVar {
+impl Widget for VarSource {
     fn get_pos(&self) -> [f32; 4] {
         return self.pos;
     }
@@ -73,7 +75,7 @@ impl Widget for DraggableVar {
         if screen_data.mouse_on_ndc_pos(self.pos) && screen_data.was_left_pressed() {
             if !self.held {
                 self.held = true;
-                game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().set_var_held(self.var);
+                game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().set_var_held(self.var.clone());
             }
         }
         else if self.held && screen_data.was_left_released() {

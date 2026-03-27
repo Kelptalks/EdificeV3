@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, player_data::drone_programming::var::var_type::{Var, VarTypeKind}, game_event_manager::{event_manager, game_event_manager::{EventManager, GameEvent}, prelude::Event}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::vars::{draggable_var::{self, DraggableVar}, var_slot::VarSlot}, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::{self, scroll_panel::ScrollPanel}, tab_panel::tab_panel::TabPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{play_world_view_config::PlayViewRendingConfig, play_world_view_render::PlayWorldViewRender}}}, types::UITextures};
+use crate::game_data::{TextureManager, player_data::drone_programming::var::var_type::{Var, VarTypeKind}, game_event_manager::{event_manager, game_event_manager::{EventManager, GameEvent}, prelude::Event}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::vars::{var_source::{self, VarSource}, var_slot::VarSlot}, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::{self, scroll_panel::ScrollPanel}, tab_panel::tab_panel::TabPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{play_world_view_config::PlayViewRendingConfig, play_world_view_render::PlayWorldViewRender}}}, types::UITextures};
 
 
 #[derive(Clone, Copy)]
@@ -302,11 +302,11 @@ impl Panel {
     // Drone Programming Constructors
     //=====================================
 
-    pub fn add_draggable_var(&mut self, var: Var) -> &mut DraggableVar {
-        let draggable_var = DraggableVar::new(var);
-        self.add_widget(WidgetType::DraggableVar(draggable_var));
+    pub fn add_draggable_var(&mut self, var: Var) -> &mut VarSource {
+        let draggable_var = VarSource::new(var);
+        self.add_widget(WidgetType::VarSource(draggable_var));
 
-        if let WidgetType::DraggableVar(draggable_var) = self.sections.last_mut().unwrap().get_mut_widget() {
+        if let WidgetType::VarSource(draggable_var) = self.sections.last_mut().unwrap().get_mut_widget() {
             return draggable_var;
         }
         else {

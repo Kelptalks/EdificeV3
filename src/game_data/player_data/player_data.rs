@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, log_init, player_data::{locations::location_manager::LocationManager, settings::settings_manager::SettingsManager}};
+use crate::game_data::{World, log_init, player_data::{locations::location_manager::LocationManager, settings::settings_manager::SettingsManager}, tik_manager::drones::drone_manager::DroneManager};
 
 
 /*
@@ -17,6 +17,7 @@ pub struct PlayerData {
 
 
     // Drone Control data
+    drone_manager: DroneManager,
     location_manager: LocationManager,
     settings: SettingsManager,
 }
@@ -27,8 +28,9 @@ impl PlayerData {
         PlayerData {
             current_world: world,
 
-            location_manager: LocationManager::new(),
 
+            drone_manager: DroneManager::new(),
+            location_manager: LocationManager::new(),
             settings: SettingsManager::new(),
         }
     }

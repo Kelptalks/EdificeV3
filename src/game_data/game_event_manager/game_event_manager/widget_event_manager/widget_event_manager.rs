@@ -1,11 +1,15 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}, widget_event_manager::prim_events::prim_event_manager::PrimEvent}, types::BlockTexture};
+use crate::game_data::{game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}, widget_event_manager::prim_events::prim_event_manager::PrimEvent}, player_data::drone_programming::var::var_type::VarRef, screen::widget::{drone_programming::vars::var_source::VarSource, widget::WidgetType}, types::BlockTexture};
 
 #[derive(Clone)]
 pub enum WidgetEvent {
+
+    AddVarSourceToWidgetVec(Rc<RefCell<Vec<WidgetType>>>, VarSource),
+
+    // Old need to be moved into prim eevnets
     ToggleBoolEvent(Rc<RefCell<bool>>),
-    
+
     // Prim
     PrimEvent(PrimEvent),
     SetUsizeEvent(Rc<RefCell<usize>>, usize),
@@ -30,6 +34,10 @@ impl WidgetEvent {
 
     pub fn execute_widget_event(&self, event_tools: &mut GameEventManager) {
         match self {
+            WidgetEvent::AddVarSourceToWidgetVec(vec_ref, var) => {
+                vec_ref.borrow_mut().push(WidgetType::VarSource(var.clone()));
+
+            }
             WidgetEvent::PrimEvent(event) => {
                 event.execute();
             }
