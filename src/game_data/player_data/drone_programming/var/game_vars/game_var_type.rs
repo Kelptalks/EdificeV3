@@ -182,4 +182,8 @@ impl GameVarRef {
             GameVarRef::Drone(_) => "Drone".to_string(),
         }
     }
+
+    pub fn get_drone_ref(&self) -> Rc<RefCell<Drone>> {
+
+    }
 }

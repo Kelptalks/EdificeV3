@@ -11,9 +11,11 @@ Managers the retrival and creation of new locations
 
 */
 pub struct LocationManager {
-    location_map: HashMap<u32, Rc<RefCell<WorldLocation>>>,
-    location_name_map: HashMap<String, u32>,
+    player_location_map: HashMap<u32, Rc<RefCell<WorldLocation>>>,
+    player_location_name_map: HashMap<String, u32>,
     next_id: u32,
+
+
 
     selection_panel_update_manager: Rc<RefCell<WidgetUpdateManager>>,
 }
@@ -26,8 +28,8 @@ impl LocationManager {
 
     pub fn new() -> LocationManager {
         LocationManager {
-            location_map: HashMap::new(),
-            location_name_map: HashMap::new(),
+            player_location_map: HashMap::new(),
+            player_location_name_map: HashMap::new(),
             next_id: 0,
 
             selection_panel_update_manager: WidgetUpdateManager::new(), // Used for updating UI with new drones created
@@ -41,8 +43,8 @@ impl LocationManager {
     pub fn create_location(&mut self, name: String, area: WorldArea) -> Rc<RefCell<WorldLocation>>{
         // Add location to maps
         let new_location = Rc::new(RefCell::new(WorldLocation::new(name.clone(), area, self.next_id)));
-        self.location_map.insert(self.next_id, new_location.clone());
-        self.location_name_map.insert(name, self.next_id);
+        self.player_location_map.insert(self.next_id, new_location.clone());
+        self.player_location_name_map.insert(name, self.next_id);
 
         let widget = VarSource::new(Var::Game(GameVar::Location(Some(new_location.clone()))));
         self.selection_panel_update_manager.borrow_mut().add_widget(WidgetType::VarSource(widget));
@@ -66,21 +68,21 @@ impl LocationManager {
     //=====================================
 
     pub fn name_to_id(&self, name: &str) -> Option<u32> {
-        return self.location_name_map.get(name).cloned();
+        return self.player_location_name_map.get(name).cloned();
     }
 
     // Location
     pub fn get_all_locations(&self) -> Vec<Rc<RefCell<WorldLocation>>> {
-        self.location_map.values().cloned().collect()
+        self.player_location_map.values().cloned().collect()
     }
 
     pub fn get_all_location_ids(&self) -> Vec<u32> {
-        self.location_map.keys().copied().collect()
+        self.player_location_map.keys().copied().collect()
     }
 
     pub fn get_location_with_name(&self, name: &str) -> Option<Rc<RefCell<WorldLocation>>> {
         if let Some(id) = self.name_to_id(name) {
-            return self.location_map.get(&id).cloned();
+            return self.player_location_map.get(&id).cloned();
         }
         else {
             return None;
@@ -88,7 +90,7 @@ impl LocationManager {
     }
     pub fn get_mut_location_with_name(&mut self, name: &str) -> Option<Rc<RefCell<WorldLocation>>> {
         if let Some(id) = self.name_to_id(name) {
-            return self.location_map.get_mut(&id).cloned();
+            return self.player_location_map.get_mut(&id).cloned();
         }
         else {
             return None;
