@@ -1,7 +1,7 @@
 
 use std::{sync::{Arc, RwLock}, time::{SystemTime, UNIX_EPOCH}, u128};
 
-use crate::game_data::{World, debuging::debug_data::DebugData, screen::{Camera, screen_task_manager::rendering_task_manager::RenderingTaskManager}, tik_manager::{block_updates::block_update_manager::{self, BlockUpdateManager}, drones::{drone_manager::DroneManager, lua_manager::LuaManager}}, world, world_task_manager::world_task_manager::WorldTaskManager};
+use crate::game_data::{World, debuging::debug_data::DebugData, game_event_manager::{event_manager, prelude::EventManager}, player_data::player_data::PlayerData, screen::{Camera, screen_task_manager::rendering_task_manager::RenderingTaskManager}, tik_manager::{block_updates::block_update_manager::{self, BlockUpdateManager}, drones::{drone_manager::DroneManager, lua_manager::LuaManager}}, world, world_task_manager::world_task_manager::WorldTaskManager};
 
 /*
 #################
@@ -100,6 +100,47 @@ impl TikManager {
     //=====================================
     // Init functions
     //=====================================
+
+    pub fn new_update_tik_manager(&mut self, event_manager: &mut EventManager, player_data: &mut PlayerData) {
+        if self.paused {
+            return
+        }
+
+        let current_millis = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_micros();
+
+        // Execute a tik
+        let mut total_tiks_to_execute = (current_millis - self.last_tik_micros) / self.tik_rate;
+        // Cap total_tiks_to_execute
+        if total_tiks_to_execute > 50 {
+            total_tiks_to_execute = 50;
+        }
+        
+        self.tiks_this_window = total_tiks_to_execute as u32;
+        
+        // Execute the number of tiks required this frame
+        let tik_start_time = SystemTime::now(); // Start tik execution timer
+        while total_tiks_to_execute > 0 {
+            // Update tik time
+            self.current_tik += 1;
+            self.last_tik_micros = current_millis;
+
+            let current_world = player_data.get_world_ref();
+            player_data.get_mut_drone_manager().tik_drones(current_world.clone(), event_manager);
+
+
+            // Decrement tiks left to execute
+            total_tiks_to_execute-=1;
+        }
+
+        // End tik execution time
+        let system_time_end = SystemTime::now();
+        let tik_duration = system_time_end.duration_since(tik_start_time).unwrap();
+        self.tik_window_exectuion_time = tik_duration.as_millis() as u32;
+
+    }
 
     // Called every frame to update the tik
     pub fn update_tik_manager(&mut self, world_task_manager: &mut WorldTaskManager, screen_task_manager: &mut RenderingTaskManager) {

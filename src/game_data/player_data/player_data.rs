@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, log_init, player_data::{locations::location_manager::LocationManager, settings::settings_manager::SettingsManager}, tik_manager::drones::drone_manager::DroneManager};
+use crate::game_data::{World, log_init, player_data::{drones::drone_manager::DroneManager, locations::location_manager::LocationManager, settings::settings_manager::SettingsManager}};
 
 
 /*
@@ -46,6 +46,9 @@ impl PlayerData {
         return &mut self.location_manager;
     }
 
+    pub fn get_mut_drone_manager(&mut self) -> &mut DroneManager {
+        return &mut self.drone_manager;
+    }
 
 
 

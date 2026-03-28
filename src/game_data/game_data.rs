@@ -174,7 +174,8 @@ impl GameData {
         );
         
         // Tik managing
-        self.tik_manager.update_tik_manager(&mut self.world_task_manager, &mut self.drone_rendering_task_manager);
+        self.tik_manager.new_update_tik_manager(&mut self.event_manager, &mut self.player_data);
+        //self.tik_manager.update_tik_manager(&mut self.world_task_manager, &mut self.drone_rendering_task_manager);
 
         let screen_mananager = &mut self.screen_manager;
         screen_mananager.collect_debug_data(&mut self.debug_data);

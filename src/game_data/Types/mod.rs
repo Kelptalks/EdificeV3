@@ -22,3 +22,4 @@ pub use drone_ui_texture::DroneUITexture;
 pub use drone_ui_texture::DroneItemTexture;
 
 pub mod drone_item;
+pub mod block_entity;

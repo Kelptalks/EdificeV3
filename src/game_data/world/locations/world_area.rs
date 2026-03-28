@@ -234,7 +234,7 @@ impl WorldArea {
         for x in min[0]..=max[0] {
             for y in min[1]..=max[1] {
                 for z in min[2]..=max[2] {
-                    game_event_manager.add_world_event(WorldEvent::ModBlock([x, y, z], block_texture));
+                    game_event_manager.add_world_event(WorldEvent::PlaceBlock([x, y, z], block_texture));
                 }
             }
         }
@@ -256,7 +256,7 @@ impl WorldArea {
         for x in min[0]..=max[0] {
             for y in min[1]..=max[1] {
                 for z in min[2]..=max[2] {
-                    world_block_mod_events.push(WorldEvent::ModBlock([x, y, z], block_texture));
+                    world_block_mod_events.push(WorldEvent::PlaceBlock([x, y, z], block_texture));
                 }
             }
         }

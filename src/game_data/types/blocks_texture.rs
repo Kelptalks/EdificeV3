@@ -1,4 +1,4 @@
-use crate::game_data::{tik_manager::drones::drone::Drone, types::drone_item::DroneItem};
+use crate::game_data::{tik_manager::drones::drone::Drone, types::{block_entity::EntityType, drone_item::DroneItem}};
 
 pub static TOTAL_BLOCKS: u32 = 400;
 
@@ -658,6 +658,46 @@ impl BlockTexture {
             }
             _ => {
                 return false;
+            }
+        }
+    }
+
+    pub fn is_block_entity(&self) -> bool {
+        match self {
+            BlockTexture::DroneBotLeft => {
+                return true;
+            },
+            BlockTexture::DroneBotRight => {
+                return true;
+            },
+            BlockTexture::DroneUpLeft => {
+                return true;
+            },
+            BlockTexture::DroneUpRight => {
+                return true;
+            },
+            _ => {
+                return false;
+            }
+        }
+    }
+
+    pub fn to_block_entity_type(&self) -> EntityType {
+        match self {
+            BlockTexture::DroneBotLeft => {
+                return EntityType::Drone;
+            },
+            BlockTexture::DroneBotRight => {
+                return EntityType::Drone;
+            },
+            BlockTexture::DroneUpLeft => {
+                return EntityType::Drone;
+            },
+            BlockTexture::DroneUpRight => {
+                return EntityType::Drone;
+            },
+            _ => {
+                return EntityType::Drone;
             }
         }
     }
