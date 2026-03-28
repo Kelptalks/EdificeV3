@@ -88,18 +88,12 @@ pub fn get_location_selection_panel(player_data: &mut PlayerData) -> WidgetType 
     return selection_panel.wrap_into_widget();
 }
 
-pub fn get_drone_selection_panel() -> WidgetType {
-    let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
+pub fn get_drone_selection_panel(player_data: &mut PlayerData) -> WidgetType {
+    let mut selection_panel = SelectionPanel::new(player_data.get_mut_drone_manager().get_panel_update_manager().clone());
 
-    if let WidgetType::Panel(panel) = &mut panel {
-        panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+    
 
-        // Header
-        let text_display = panel.add_text_display("Drones".to_string());
-        text_display.set_text_scale(TextSize::Medium);
-    }
-
-    return panel;
+    return selection_panel.wrap_into_widget();
 }
 
 pub fn add_selection_menu(panel: &mut Panel, screen_data: &ScreenData, player_data: &mut PlayerData) {
@@ -129,7 +123,7 @@ pub fn add_selection_menu(panel: &mut Panel, screen_data: &ScreenData, player_da
     button.set_icon(UITextures::AreaIcon);
 
     // Add Drone Selection
-    let button = selection_tab_panel.add_panel(get_drone_selection_panel());
+    let button = selection_tab_panel.add_panel(get_drone_selection_panel(player_data));
     button.set_text("Drones".to_string());
     button.set_block(crate::game_data::types::BlockTexture::DroneBotRight);
 

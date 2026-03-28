@@ -11,8 +11,6 @@ Managers the retrival and creation of new locations
 
 */
 pub struct LocationManager {
-    player_cursor_location_cords: Rc<RefCell<[i32; 3]>>,
-    
     location_map: HashMap<u32, Rc<RefCell<WorldLocation>>>,
     location_name_map: HashMap<String, u32>,
     next_id: u32,
@@ -28,15 +26,17 @@ impl LocationManager {
 
     pub fn new() -> LocationManager {
         LocationManager {
-            player_cursor_location_cords: Rc::new(RefCell::new([0; 3])),
-
             location_map: HashMap::new(),
             location_name_map: HashMap::new(),
             next_id: 0,
 
-            selection_panel_update_manager: WidgetUpdateManager::new(),
+            selection_panel_update_manager: WidgetUpdateManager::new(), // Used for updating UI with new drones created
         }
     }
+
+    //=====================================
+    // Location Creation
+    //=====================================
 
     pub fn create_location(&mut self, name: String, area: WorldArea) -> Rc<RefCell<WorldLocation>>{
         // Add location to maps
@@ -54,16 +54,16 @@ impl LocationManager {
     }
 
     //=====================================
-    // Getters / Setters
+    // UI Updating
     //=====================================
 
     pub fn get_panel_update_manager(&self) -> &Rc<RefCell<WidgetUpdateManager>> {
         return &self.selection_panel_update_manager;
     }
 
-    pub fn get_player_cursor_location_cords_ref(&self) -> Rc<RefCell<[i32; 3]>> {
-        return self.player_cursor_location_cords.clone();
-    }
+    //=====================================
+    // Location Getters
+    //=====================================
 
     pub fn name_to_id(&self, name: &str) -> Option<u32> {
         return self.location_name_map.get(name).cloned();
