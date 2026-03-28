@@ -44,6 +44,10 @@ impl WorldLocation {
         return &self.area;
     }
 
+    pub fn set_area(&mut self, new_area: WorldArea) {
+        self.area = new_area;
+    }
+
     /// Set the name 
     /// 
     /// Why (crate)?

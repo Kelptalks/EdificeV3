@@ -1,3 +1,5 @@
+use std::{cell::RefCell, rc::Rc};
+
 use crate::game_data::{player_data::drone_programming::var::{self, game_vars::game_var_type::GameVar, var_type::{Var, VarRef, VarTypeKind}}, game_event_manager::prelude::EventManager, screen::{ScreenData, widget::{widget::{Widget, WidgetType}, widget_calculations}}, types::{BlockTexture, UITextures}};
 
 pub struct VarSlot {
@@ -13,13 +15,13 @@ pub struct VarSlot {
     scale: [f32; 2],
     
     var_type_kind_allowed: VarTypeKind,
-    var_instance: VarRef,
+    var_instance: Rc<RefCell<VarRef>>,
 
 }
 
 impl VarSlot {
     pub fn new(var_type_kind_allowed: VarTypeKind) -> VarSlot {
-        let mut_var = var_type_kind_allowed.create_mut_var();
+        let mut_var = Rc::new(RefCell::new(var_type_kind_allowed.create_mut_var()));
         VarSlot {
             // Parent Rendering
             parent_pos: [0.0; 4],
@@ -37,7 +39,7 @@ impl VarSlot {
         }
     }
 
-    pub fn get_var_ref(&self) -> &VarRef {
+    pub fn get_var_ref(&self) -> &Rc<RefCell<VarRef>> {
         return &self.var_instance;
     }
 
@@ -84,14 +86,14 @@ impl Widget for VarSlot {
             if screen_data.was_left_released() {
                 if let Some(var_held_by_mouse) = game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().get_var_held() {
                     if var_held_by_mouse.to_kind() == self.var_type_kind_allowed {
-                        self.var_instance.set_var_ref(var_held_by_mouse.clone());
+                        self.var_instance.borrow_mut().set_var_ref(var_held_by_mouse.clone());
                     }
                 }
             }
         }
 
         texture_manager.render_texture_with_pos(self.var_type_kind_allowed.get_texture(), self.pos);
-        texture_manager.render_texture_with_pos(self.var_instance.to_var().get_texture(), self.pos);
+        texture_manager.render_texture_with_pos(self.var_instance.borrow().to_var().get_texture(), self.pos);
         
         
         

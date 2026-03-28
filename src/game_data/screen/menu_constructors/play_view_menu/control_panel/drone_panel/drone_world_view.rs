@@ -13,6 +13,7 @@ pub fn add_drone_world_view_panel(panel: &mut Panel, player_data: &mut PlayerDat
     let play_view = play_view_sub_panel.add_play_world_view_renderer(rendering_config);
 
 
+
     let mut events:Vec<Event> = Vec::new();
     events.append(&mut view_panel_input_constructor::construct_zoom_events(play_view));
     play_view.add_events(&mut events);

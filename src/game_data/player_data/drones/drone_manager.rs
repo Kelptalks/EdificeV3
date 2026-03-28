@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::HashMap, process::id, rc::Rc, sync::{Arc, 
 
 use rand::distr::Map;
 
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_programming::var::{game_vars::game_var_type::GameVar, var_type::Var}, drones::drone::Drone}, screen::widget::{drone_programming::vars::var_source::VarSource, selection_panel::selection_panel_config::WidgetUpdateManager, widget::WidgetType}};
+use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_programming::var::{game_vars::game_var_type::{DynamicVar, GameVar}, var_type::Var}, drones::drone::Drone}, screen::widget::{drone_programming::vars::var_source::VarSource, selection_panel::selection_panel_config::WidgetUpdateManager, widget::WidgetType}};
 
 pub struct DroneManager{
     current_id: u32,
@@ -43,7 +43,7 @@ impl DroneManager {
         let drone = Rc::new(RefCell::new(Drone::new(cords, new_id)));
 
         // Add the drone to the selection menu
-        let widget = VarSource::new(Var::Game(GameVar::Drone(Some(drone.clone()))));
+        let widget = VarSource::new(Var::Game(GameVar::Dynamic(DynamicVar::Drone(Some(drone.clone())))));
         self.selection_panel_update_manager.borrow_mut().add_widget(WidgetType::VarSource(widget));
 
         // Add drone to hashmap

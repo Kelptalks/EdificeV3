@@ -1,6 +1,6 @@
 use std::{cell::RefCell, collections::HashMap, panic::Location, rc::Rc};
 
-use crate::game_data::{game_event_manager::{event_manager, prelude::Event}, locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::game_var_type::GameVar, var_type::Var}, locations::location::WorldLocation}, screen::widget::{drone_programming::vars::var_source::VarSource, selection_panel::{self, selection_panel::SelectionPanel, selection_panel_config::WidgetUpdateManager}, widget::WidgetType}};
+use crate::game_data::{game_event_manager::{event_manager, prelude::Event}, locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::game_var_type::{DynamicVar, GameVar}, var_type::Var}, locations::location::WorldLocation}, screen::widget::{drone_programming::vars::var_source::VarSource, selection_panel::{self, selection_panel::SelectionPanel, selection_panel_config::WidgetUpdateManager}, widget::WidgetType}};
 
 
 /*
@@ -46,7 +46,7 @@ impl LocationManager {
         self.player_location_map.insert(self.next_id, new_location.clone());
         self.player_location_name_map.insert(name, self.next_id);
 
-        let widget = VarSource::new(Var::Game(GameVar::Location(Some(new_location.clone()))));
+        let widget = VarSource::new(Var::Game(GameVar::Dynamic(DynamicVar::Location(Some(new_location.clone())))));
         self.selection_panel_update_manager.borrow_mut().add_widget(WidgetType::VarSource(widget));
 
         self.next_id += 1;
