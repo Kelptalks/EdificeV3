@@ -81,7 +81,9 @@ pub fn get_item_selection_panel() -> WidgetType {
 
 pub fn get_location_selection_panel(player_data: &mut PlayerData) -> WidgetType {
 
-    let mut selection_panel = SelectionPanel::new(player_data.get_mut_location_manager().get_panel_update_manager().clone());
+    let location_manager = player_data.get_mut_location_manager();
+    location_manager.add_all_location_to_selection_manager();
+    let selection_panel = SelectionPanel::new(location_manager.get_panel_update_manager().clone());
 
     
 
@@ -89,7 +91,10 @@ pub fn get_location_selection_panel(player_data: &mut PlayerData) -> WidgetType 
 }
 
 pub fn get_drone_selection_panel(player_data: &mut PlayerData) -> WidgetType {
-    let mut selection_panel = SelectionPanel::new(player_data.get_mut_drone_manager().get_panel_update_manager().clone());
+    
+    let drone_manager = player_data.get_mut_drone_manager();
+    drone_manager.add_all_drones_to_selection_manager();
+    let selection_panel = SelectionPanel::new(drone_manager.get_panel_update_manager().clone());
 
     
 
