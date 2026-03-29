@@ -1,5 +1,5 @@
 
-use crate::game_data::{game_event_manager::{game_event_manager::GameEvent, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}, render_event_manager::render_event_manager::RenderEvent}, locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::game_var_type::{GameVar, PrimitiveVar}, var_type::Var}, locations::location_manager, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::control_panel, screen_data::CurrentMenu, widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, selection_panel::selection_panel::SelectionPanel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::TextSize, world_rendering::play_world_view_config::PlayViewRendingConfig}}, types::{BlockTexture, UITextures, drone_item::DroneItem}};
+use crate::game_data::{game_event_manager::{game_event_manager::GameEvent, input_event_manager::input_event_manager::InputEvent, player_data_event_manager::{location_event::LocationEvent, player_event_manager::PlayerDataEvent}, render_event_manager::render_event_manager::RenderEvent}, locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::game_var_type::{GameVar, PrimitiveVar}, var_type::{Var, VarTypeKind}}, locations::location_manager, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::control_panel, screen_data::CurrentMenu, widget::{panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, selection_panel::selection_panel::SelectionPanel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::TextSize, world_rendering::play_world_view_config::PlayViewRendingConfig}}, types::{BlockTexture, UITextures, drone_item::DroneItem}};
 
 //=====================================
 // Selection Panel
@@ -165,6 +165,9 @@ pub fn add_menu_nav_panel(panel: &mut Panel, screen_data: &ScreenData, player_da
 //=====================================
 
 pub fn get_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> WidgetType {
+    
+    return get_new_menu(screen_data, player_data);
+
     let mut panel = WidgetType::new_panel(screen_data.get_viewport_uv(), [0.0; 4]);
 
     if let WidgetType::Panel(panel) = &mut panel {
@@ -184,4 +187,34 @@ pub fn get_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> Widge
 
     return panel;
 
+}
+
+
+pub fn var_ref_bar() -> WidgetType {
+    let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
+
+    if let WidgetType::Panel(panel) = &mut panel {
+
+        for i in 0..10 {
+            panel.add_var_slot(VarTypeKind::Any);
+        }
+
+    }
+    return panel;
+}
+
+pub fn get_new_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> WidgetType {
+    let mut panel = WidgetType::new_panel(screen_data.get_viewport_uv(), [0.0; 4]);
+
+    if let WidgetType::Panel(panel) = &mut panel {
+        panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::TopLeft);
+        
+        // panel.set_background(crate::game_data::types::UITextures::VoidBackground);
+        panel.set_new_background(BackgroundType::Scrolling(UITextures::VoidBackground));
+        panel.set_color(PanelColor::Clear);
+
+        panel.add_widget(var_ref_bar());
+
+    }
+    return panel;
 }
