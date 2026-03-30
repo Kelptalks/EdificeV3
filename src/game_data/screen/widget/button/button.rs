@@ -97,6 +97,10 @@ impl Button {
     // Events
     //=====================================
 
+    pub fn clear_events(&mut self) {
+        self.events.clear();
+    }
+
     pub fn add_event(&mut self, event: Event) {
         self.events.push(event);
     } 

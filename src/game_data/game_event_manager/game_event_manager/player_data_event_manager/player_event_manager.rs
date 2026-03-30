@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, player_data_event_manager::location_event::LocationEvent}, player_data_event_manager::drone_event::DroneEvent, prelude::{Event, GameEvent}}, player_data::{drones::drone::Drone, locations::{location::WorldLocation, location_config::WorldLocationConfig}, player_data::PlayerData}};
+use crate::game_data::{game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, player_data_event_manager::location_event::LocationEvent}, player_data_event_manager::drone_event::DroneEvent, prelude::{Event, GameEvent}}, player_data::{drone_programming::var::{self, game_vars::dynamic_var::DynamicVar, var_type::Var}, drones::drone::Drone, locations::{location::WorldLocation, location_config::WorldLocationConfig}, player_data::PlayerData}};
 
 #[derive(Clone)]
 pub enum PlayerDataEvent {
@@ -9,6 +9,8 @@ pub enum PlayerDataEvent {
 
 
     CreateLocation(Rc<RefCell<WorldLocationConfig>>),
+    CreateLocationWithVar(Rc<RefCell<Var>>),
+
     LocationEvent(Rc<RefCell<WorldLocation>>, LocationEvent),
 }
 
@@ -31,6 +33,10 @@ impl PlayerDataEvent {
             },
             PlayerDataEvent::CreateLocation(location_config) => {
                 location_config.borrow().create_location_in_manager(player_data.get_mut_location_manager());
+            },
+            PlayerDataEvent::CreateLocationWithVar(var_ref) => {
+                let new_location = player_data.get_mut_location_manager().create_location_blank();
+                *var_ref.borrow_mut() = DynamicVar::Location(Some(new_location)).wrap_into_var();
             },
         }
     }

@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use rand::rand_core::block;
 
-use crate::game_data::{TextureManager, game_event_manager::{self, event_manager::EventManager, game_event_manager::game_event_manager::GameEvent, widget_event_manager::widget_event_manager::WidgetEvent}, screen::{ScreenData, render_centered_string_at_ndc, screen_data, screen_mananager, widget::{self, button::button::Button, widget::Widget, widget_calculations}}, types::{BlockTexture, FontType, UITextures}};
+use crate::game_data::{TextureManager, game_event_manager::{self, event_manager::EventManager, game_event_manager::game_event_manager::GameEvent, prelude::{BoolEvent, PrimEvent}, widget_event_manager::widget_event_manager::WidgetEvent}, screen::{ScreenData, render_centered_string_at_ndc, screen_data, screen_mananager, widget::{self, button::button::Button, widget::Widget, widget_calculations}}, types::{BlockTexture, FontType, UITextures}};
 
 pub struct ToggleButton {
     // Input handling
@@ -46,6 +46,9 @@ impl ToggleButton {
     //=====================================
     pub fn set_toggle_ref(&mut self, new_ref: &Rc<RefCell<bool>>) {
         self.is_toggled = new_ref.clone();
+        
+        self.button.clear_events();
+        self.button.add_event(BoolEvent::ToggleBool(new_ref.clone()).wrap_into_event());
     }
     
     pub fn get_toggle_ref(&self) -> Rc<RefCell<bool>> {
@@ -54,14 +57,6 @@ impl ToggleButton {
     pub fn set_toggle(&mut self, toggle: bool) {
         *self.is_toggled.borrow_mut() = toggle;
     }
-
-    //=====================================
-    // Events
-    //=====================================
-
-    pub fn add_value_link(&mut self, event: GameEvent) {
-        self.links.push(event);
-    } 
 
     //=====================================
     // Apearence

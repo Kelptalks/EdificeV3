@@ -1,6 +1,11 @@
-use crate::game_data::{locations::world_area::WorldArea, player_data::drone_programming::var::{game_vars::game_var_type::GameVar, var_type::Var}, texture_manager::texture::Texture, types::UITextures};
+use crate::game_data::{locations::world_area::WorldArea, player_data::drone_programming::var::{game_vars::game_var_type::GameVar, var_type::Var}, texture_manager::texture::Texture, types::{BlockTexture, UITextures}};
 
 pub struct WorldLocation {
+    // Var Texture
+    var_texture: Texture,
+
+
+    //
     area: WorldArea,
     name: String,
     id: u32
@@ -11,6 +16,8 @@ impl WorldLocation {
         println!("Created Location: {}", name);
         
         WorldLocation {
+            var_texture: Texture::BlockTexture(BlockTexture::Grass),
+
             area: area,
             name: name,
             id: id,
@@ -21,8 +28,8 @@ impl WorldLocation {
     // Var Converters
     //=====================================
 
-    pub fn get_texture(&self) -> Texture {
-        return Texture::UITexture(UITextures::LocationIcon);
+    pub fn get_texture(&self) -> &Texture {
+        return &self.var_texture;
     }
 
     //=====================================

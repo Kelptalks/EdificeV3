@@ -4,7 +4,8 @@ use crate::game_data::game_event_manager::prelude::{Event, GameEvent, PrimEvent,
 
 #[derive(Clone)]
 pub enum BoolEvent {
-    SetBool(Rc<RefCell<bool>>, bool)
+    SetBool(Rc<RefCell<bool>>, bool),
+    ToggleBool(Rc<RefCell<bool>>),
 }
 
 impl BoolEvent {
@@ -20,6 +21,10 @@ impl BoolEvent {
         match self {
             BoolEvent::SetBool(bool_ref, bool) => {
                 *bool_ref.borrow_mut() = *bool;
+            },
+            BoolEvent::ToggleBool(bool_ref) => {
+                let toggled_value = !*bool_ref.borrow();
+                *bool_ref.borrow_mut() = toggled_value;
             },
         }
 

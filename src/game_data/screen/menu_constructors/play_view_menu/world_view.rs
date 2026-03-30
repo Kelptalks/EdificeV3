@@ -17,7 +17,7 @@ pub fn get_widget(ref_manager: &mut RefManager) -> WidgetType {
         panel.set_color(PanelColor::Clear);
 
         let mut inputs = Vec::new();
-        let play_view = PlayWorldViewRender::new(ref_manager.play_view_rendering_config.clone());
+        let mut play_view = PlayWorldViewRender::new(ref_manager.play_view_rendering_config.clone());
         
         // Add Controls
         inputs.append(&mut construct_zoom_events(ref_manager));
@@ -25,7 +25,7 @@ pub fn get_widget(ref_manager: &mut RefManager) -> WidgetType {
         inputs.append(&mut construct_camera_keyboard_movements(&play_view));
         panel.add_events(&mut inputs);
 
-        
+        play_view.set_prefered_size(0.9);
         panel.add_widget(play_view.wrap_into_widget());
 
         panel.add_widget(world_hot_bar::get_widget(ref_manager));        

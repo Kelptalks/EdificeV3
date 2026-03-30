@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::{locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{var_ref_hot_bar, world_hot_bar, world_view}, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, world_rendering::play_world_view_config::PlayViewRendingConfig}}};
+use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{var_ref_hot_bar, world_hot_bar, world_view}, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, world_rendering::play_world_view_config::PlayViewRendingConfig}}};
 
 
 
@@ -10,6 +10,8 @@ pub struct RefManager {
 
     pub show_drones_toggle: Rc<RefCell<bool>>,
     pub show_locations_toggle: Rc<RefCell<bool>>,
+
+    pub selected_world_location: Rc<RefCell<Var>>,
 
 }
 
@@ -21,8 +23,10 @@ impl RefManager {
             cursor_location: cursor_location.clone(),
             play_view_rendering_config: PlayViewRendingConfig::new(player_data.get_world_ref().clone(), cursor_location),
 
-            show_drones_toggle: Rc::new(RefCell::new(false)),
+            show_drones_toggle: Rc::new(RefCell::new(true)),
             show_locations_toggle: Rc::new(RefCell::new(false)),
+
+            selected_world_location: Rc::new(RefCell::new(DynamicVar::Location(None).wrap_into_var())),
         }
     }
 }

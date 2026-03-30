@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::{drones::drone::Drone, locations::location::WorldLocation}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_programming::var::var_type::Var, drones::drone::Drone, locations::location::WorldLocation}, texture_manager::texture::Texture, types::BlockTexture};
 
 
 #[derive(Clone)]
@@ -20,10 +20,14 @@ impl PartialEq for DynamicVar {
 }
 
 impl DynamicVar {
+    pub fn wrap_into_var(self) -> Var {
+        Var::Game(super::game_var_type::GameVar::Dynamic(self))
+    }
+
     pub fn get_texture(&self) -> Texture {
         match self {
             DynamicVar::Location(Some(location)) => {
-                return location.borrow().get_texture();
+                return location.borrow().get_texture().clone();
             },
             DynamicVar::Location(None) => {
                 return Texture::UITexture(crate::game_data::types::UITextures::LocationIcon);

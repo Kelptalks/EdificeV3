@@ -55,6 +55,23 @@ impl LocationManager {
         return new_location;
     }
 
+    pub fn create_location_blank(&mut self) -> Rc<RefCell<WorldLocation>> {
+        let name = self.next_id.to_string();
+
+        // Add location to maps
+        let new_location = Rc::new(RefCell::new(WorldLocation::new(name, WorldArea::new_blank(), self.next_id)));
+        self.player_location_map.insert(self.next_id, new_location.clone());
+        self.player_location_name_map.insert("blank".to_string(), self.next_id);
+
+        // let widget = VarSource::new(Var::Game(GameVar::Dynamic(DynamicVar::Location(Some(new_location.clone())))));
+        // self.selection_panel_update_manager.borrow_mut().add_widget(WidgetType::VarSource(widget));
+
+        self.next_id += 1;
+
+
+        return new_location;
+    }
+
     //=====================================
     // UI Updating
     //=====================================
