@@ -285,22 +285,6 @@ impl Panel {
     }
 
     //=====================================
-    // World Rendering Constructors
-    //=====================================
-
-    pub fn add_play_world_view_renderer(&mut self, rendering_config: PlayViewRendingConfig) -> &mut PlayWorldViewRender {
-        let header = PlayWorldViewRender::new(rendering_config);
-        self.add_widget(WidgetType::PlayWorldViewRender(header));
-
-        if let WidgetType::PlayWorldViewRender(play_view) = self.sections.last_mut().unwrap().get_mut_widget() {
-            return play_view;
-        }
-        else {
-            panic!("Header was just inserted but could not be retrieved in Panel");
-        }
-    }
-
-    //=====================================
     // Input
     //=====================================
 

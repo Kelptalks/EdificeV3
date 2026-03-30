@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc, sync::{Arc, RwLock}};
 
 use miniquad::KeyCode;
 
-use crate::game_data::{TextureManager, World, ray_caster::ray::TileRay, screen::{ScreenData, camera_data::Direction, iso_cord_tool, widget::{panel::panel::Panel, widget::Widget, widget_calculations, world_rendering::{play_block::PlayBlock, play_view_control_manager::{self, PlayViewControlManager}, play_world_view_config::PlayViewRendingConfig}}}, types::BlockTexture};
+use crate::game_data::{TextureManager, World, ray_caster::ray::TileRay, screen::{ScreenData, camera_data::Direction, iso_cord_tool, widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{play_block::PlayBlock, play_view_control_manager::{self, PlayViewControlManager}, play_world_view_config::PlayViewRendingConfig}}}, types::BlockTexture};
 
 use crate::game_data::game_event_manager::prelude::*;
 
@@ -76,7 +76,7 @@ pub struct PlayWorldViewRender {
     control_manager: PlayViewControlManager,
 
     // World Rendering
-    rendering_config: PlayViewRendingConfig,
+    rendering_config: Rc<RefCell<PlayViewRendingConfig>>,
 
     
     camera_direction: ViewDirection,
@@ -91,12 +91,15 @@ pub struct PlayWorldViewRender {
 }
 
 impl PlayWorldViewRender {
-    pub fn new(play_view_rendering_config: PlayViewRendingConfig) -> PlayWorldViewRender{
+    pub fn new(play_view_rendering_config: Rc<RefCell<PlayViewRendingConfig>>) -> PlayWorldViewRender{
 
+
+        let config = play_view_rendering_config.borrow();
         let input_manager = PlayViewControlManager::new(
-            play_view_rendering_config.get_camera_movement_event_type_ref(), 
-            play_view_rendering_config.get_location_ref()
+            config.get_camera_movement_event_type_ref(),
+            config.get_location_ref()
         );
+        drop(config);
 
         PlayWorldViewRender {            
            // Parent Rendering
@@ -131,7 +134,11 @@ impl PlayWorldViewRender {
         }
     }
 
-    pub fn get_rendering_config(&self) -> &PlayViewRendingConfig {
+    pub fn wrap_into_widget(self) -> WidgetType {
+        WidgetType::PlayWorldViewRender(self)
+    }
+
+    pub fn get_rendering_config(&self) -> &Rc<RefCell<PlayViewRendingConfig>> {
         return &self.rendering_config;
     }
 
@@ -214,8 +221,9 @@ impl PlayWorldViewRender {
         ];
 
 
-        let largest_side_of_location = self.rendering_config.get_location_ref().borrow().get_area().get_largest_dimension_scale();
-        let block_diementions = largest_side_of_location + self.rendering_config.get_zoom() * 2 + 1;
+        let config = self.rendering_config.borrow();
+        let largest_side_of_location = config.get_location_ref().borrow().get_area().get_largest_dimension_scale();
+        let block_diementions = largest_side_of_location + config.get_zoom() * 2 + 1;
 
         self.ndc_block_scale = (self.scale[0] / block_diementions as f32) / 2.0;
         self.ndc_tile_scale = self.ndc_block_scale / 2.0;
@@ -229,37 +237,37 @@ impl PlayWorldViewRender {
     /// the area's shape needs to be determined.
     /// 
     pub fn get_area_to_render(&self) -> [[i32; 3]; 2] {
-        let location_ref = self.rendering_config.get_location_ref();
-        let half_dimensions = location_ref.borrow().get_area().get_half_dimensions();
+        let config = self.rendering_config.borrow();
+        let half_dimensions = config.get_location_ref().borrow().get_area().get_half_dimensions();
 
         let mut start_cords = half_dimensions.map(|d| -d);
         for axis in &mut start_cords {
-            *axis -= self.rendering_config.get_zoom();
+            *axis -= config.get_zoom();
         }
-        
+
         let mut end_cords = half_dimensions;
         for axis in &mut end_cords {
-            *axis += self.rendering_config.get_zoom();
+            *axis += config.get_zoom();
         }
         return [start_cords, end_cords];
     }
 
     pub fn get_rendering_center_world_cor(&self) -> [i32; 3] {
-        let location_ref = self.rendering_config.get_location_ref();
-        
-        return location_ref.borrow().get_area().get_center_world_cords();
+        let config = self.rendering_config.borrow();
+        return config.get_location_ref().borrow().get_area().get_center_world_cords();
     }
 
     pub fn ray_cast_view(&mut self, texture_manager: &mut TextureManager) {
         self.size();
 
-        let world = self.rendering_config.get_world_ref().read().unwrap();
+        let world_arc = self.rendering_config.borrow().get_world_ref().clone();
+        let world = world_arc.read().unwrap();
 
         let ndc_x_draw_center_offset = self.center_ndc[0] - self.ndc_block_scale;
         let ndc_y_draw_center_offset = self.center_ndc[1] - self.ndc_block_scale;
 
         let rot = self.camera_direction.rotation_matrix();
-        
+
         let camera_cords = self.get_rendering_center_world_cor();
 
         let area_to_render = self.get_area_to_render();
@@ -319,12 +327,16 @@ impl PlayWorldViewRender {
         }
     }
 
-    pub fn render_view(&mut self, 
+    pub fn render_view(&mut self,
         texture_manager: &mut TextureManager,
     ) {
         self.size();
 
-        let world = self.rendering_config.get_world_ref().read().unwrap();
+        let world_arc = self.rendering_config.borrow().get_world_ref().clone();
+        let block_ghost = self.rendering_config.borrow().get_block_ghost();
+        let location_rc = self.rendering_config.borrow().get_location_ref().clone();
+
+        let world = world_arc.read().unwrap();
 
         let ndc_x_draw_center_offset = self.center_ndc[0] - self.ndc_block_scale;
         let ndc_y_draw_center_offset = self.center_ndc[1] - self.ndc_block_scale;
@@ -381,8 +393,8 @@ impl PlayWorldViewRender {
 
 
                     play_block.render_block(texture_manager);
-                    play_block.render_cursor(texture_manager, self.rendering_config.get_block_ghost());
-                    play_block.render_area(texture_manager, self.rendering_config.get_location_ref().borrow().get_area());
+                    play_block.render_cursor(texture_manager, block_ghost);
+                    play_block.render_area(texture_manager, location_rc.borrow().get_area());
                     
                 }
             }

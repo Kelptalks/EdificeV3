@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::*, player_data::locations::location::{self, WorldLocation}};
+use crate::game_data::{game_event_manager::prelude::*, player_data::locations::location::{WorldLocation}};
 
 
 fn construct_shift_event(

@@ -1,4 +1,4 @@
-use std::{cell::RefCell, env::VarError, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
 use crate::game_data::{player_data::drone_programming::var::{self, game_vars::game_var_type::GameVar, var_type::{Var, VarTypeKind}}, game_event_manager::prelude::EventManager, screen::{ScreenData, widget::{widget::{Widget, WidgetType}, widget_calculations}}, types::{BlockTexture, UITextures}};
 
@@ -26,6 +26,19 @@ pub struct VarSlot {
 
 
 }
+
+/*
+#############
+## VarSlot ##
+#############
+
+## Purpose
+Var slots are ui Elements responsable for managing the usage of variables through
+the actions of setting and getting them. 
+
+## Usage
+Var Slots contain an RC that can be used in events, or just to manage values
+*/
 
 impl VarSlot {
     pub fn new(var_instance: &Rc<RefCell<Var>>) -> VarSlot {
@@ -57,6 +70,9 @@ impl VarSlot {
         return WidgetType::VarSlot(self);
     }
 
+    //=====================================
+    // Input Propertys
+    //=====================================
 
     pub fn set_dragging_properties(&mut self, allow_dragging: bool, allow_setting: bool, allow_clearing: bool) {
         self.allow_dragging = allow_dragging;
@@ -133,10 +149,6 @@ impl Widget for VarSlot {
         screen_data: &ScreenData,
         game_event_manager: &mut EventManager
     ) {
-
-
-
-
         
         // Try and get var if mouse was released
         if screen_data.mouse_on_ndc_pos(self.pos) {
@@ -149,26 +161,17 @@ impl Widget for VarSlot {
             }
 
             // Get 
-            if self.allow_dragging && screen_data.was_left_pressed() {
+            if screen_data.was_left_pressed() {
                 game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().set_var_held(self.try_and_get_var());
             }
-
 
             // Clear
             if self.allow_setting && screen_data.was_right_pressed() {
                 self.var_ref.borrow_mut().clear();
             }
-            
-            
-            
-
         }
 
-
-
-
         texture_manager.render_texture_with_pos(self.var_type_kind_allowed.get_texture(), self.pos);
-
         texture_manager.render_texture_with_pos(self.var_ref.borrow().get_texture(), self.pos);
     }
 }

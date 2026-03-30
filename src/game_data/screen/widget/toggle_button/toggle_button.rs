@@ -44,6 +44,10 @@ impl ToggleButton {
     //=====================================
     // Values
     //=====================================
+    pub fn set_toggle_ref(&mut self, new_ref: &Rc<RefCell<bool>>) {
+        self.is_toggled = new_ref.clone();
+    }
+    
     pub fn get_toggle_ref(&self) -> Rc<RefCell<bool>> {
         return self.is_toggled.clone();
     }

@@ -23,8 +23,8 @@ pub struct PlayViewRendingConfig {
 }
 
 impl PlayViewRendingConfig {
-    pub fn new(world_ref: Arc<RwLock<World>>, location: Rc<RefCell<WorldLocation>>, ) -> PlayViewRendingConfig {
-        PlayViewRendingConfig {
+    pub fn new(world_ref: Arc<RwLock<World>>, location: Rc<RefCell<WorldLocation>>, ) -> Rc<RefCell<PlayViewRendingConfig>> {
+        let config = PlayViewRendingConfig {
             world_ref: world_ref,
             
             location: location,
@@ -36,7 +36,9 @@ impl PlayViewRendingConfig {
             render_location_out_line: false,
 
             camera_movment_event_type: Rc::new(RefCell::new(0)),
-        }
+        };
+
+        return Rc::new(RefCell::new(config));
     }
 
     //=====================================
