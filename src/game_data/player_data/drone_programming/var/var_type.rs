@@ -2,13 +2,25 @@ use std::fmt::Error;
 
 use image::error;
 
-use crate::game_data::{player_data::drone_programming::var::game_vars::game_var_type::{GameVar, GameVarRef, GameVarTypeKind}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::drone_programming::var::game_vars::game_var_type::{GameVar, GameVarTypeKind}, texture_manager::texture::Texture};
 
 
-#[derive(PartialEq)]
+
 pub enum VarTypeKind {
     Any,
     Game(GameVarTypeKind)
+}
+
+impl PartialEq for VarTypeKind {
+    fn eq(&self, other: &Self) -> bool {
+        if matches!(self, Self::Any) || matches!(other, Self::Any) {
+            return true;
+        }
+        match (self, other) {
+            (Self::Game(a), Self::Game(b)) => a == b,
+            _ => false,
+        }
+    }
 }
 
 impl VarTypeKind {
@@ -23,14 +35,6 @@ impl VarTypeKind {
         }
     }
 
-    pub fn create_mut_var(&self) -> VarRef{
-        match self {
-            VarTypeKind::Any => todo!(),
-            VarTypeKind::Game(game_var_type_kind) => {
-                return VarRef::Game(game_var_type_kind.create_ref_var());
-            },
-        }
-    }
 }
 
 
@@ -59,32 +63,11 @@ impl Var {
             Var::Game(game_var) => game_var.get_name(),
         }
     }
-}
 
-pub enum VarRef {
-    Game(GameVarRef),
-}
-
-impl VarRef {
-    pub fn to_kind(&self) -> VarTypeKind {
+    pub fn clear(&mut self) {
         match self {
-            VarRef::Game(game_var_type) => {
-                VarTypeKind::Game(game_var_type.to_kind())
-            },
+            Var::Game(game_var) => {game_var.clear()},
         }
     }
 
-    pub fn set_var_ref(&self, var: Var) {
-        match (self, var) {
-            (VarRef::Game(game_var_ref), Var::Game(game_var)) =>{
-                game_var_ref.set_var_ref(game_var);
-            }
-        }
-    }
-
-    pub fn to_var(&self) -> Var {
-        match self {
-            VarRef::Game(game_var_mut) => Var::Game(game_var_mut.to_var()),
-        }
-    }
 }

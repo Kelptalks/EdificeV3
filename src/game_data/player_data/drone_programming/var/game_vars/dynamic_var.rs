@@ -60,61 +60,19 @@ impl DynamicVar {
             },
         }
     }
-}
-
-pub enum DynamicVarRef {
-    Location(Rc<RefCell<Option<Rc<RefCell<WorldLocation>>>>>),
-    Drone(Rc<RefCell<Option<Rc<RefCell<Drone>>>>>),
-}
-
-impl DynamicVarRef {
-    pub fn to_kind(&self) -> DynamicVarTypeKind {
-        match self {
-            DynamicVarRef::Location(_) => DynamicVarTypeKind::Location,
-            DynamicVarRef::Drone(_) => DynamicVarTypeKind::Drone,
-        }
-    }
-
-    pub fn set_var_ref(&self, var: DynamicVar) {
-        match (self, var) {
-            (DynamicVarRef::Location(ref_cell), DynamicVar::Location(location)) => {
-                *ref_cell.borrow_mut() = location;
-            },
-            (DynamicVarRef::Drone(ref_cell), DynamicVar::Drone(drone)) => {
-                *ref_cell.borrow_mut() = drone;
-            },
-            _ => {
-                println!("Cannot Set VarRef of different type");
-            }
-        }
-    }
-
-    pub fn to_var(&self) -> DynamicVar {
-        match self {
-            DynamicVarRef::Location(ref_cell) => DynamicVar::Location(ref_cell.borrow().clone()),
-            DynamicVarRef::Drone(ref_cell) => DynamicVar::Drone(ref_cell.borrow().clone()),
-        }
-    }
-
-    pub fn get_name(&self) -> String {
-        match self {
-            DynamicVarRef::Location(_) => "Location".to_string(),
-            DynamicVarRef::Drone(_) => "Drone".to_string(),
-        }
-    }
 
     pub fn get_area(&self) -> Option<WorldArea> {
         match self {
-            DynamicVarRef::Location(rc) => {
-                if let Some(location_rc) = rc.borrow().as_ref() {
+            DynamicVar::Location(option_location_ref) => {
+                if let Some(location_rc) = option_location_ref {
                     return Some(*location_rc.borrow().get_area());
                 }
                 else {
                     return None;
                 }
             },
-            DynamicVarRef::Drone(rc) => {
-                if let Some(drone_rc) = rc.borrow().as_ref() {
+            DynamicVar::Drone(option_drone_ref) => {
+                if let Some(drone_rc) = option_drone_ref {
                     let drone_cords = drone_rc.borrow().get_cords();
 
                     let mut area = WorldArea::new_blank();
@@ -129,6 +87,18 @@ impl DynamicVarRef {
             },
         }
     }
+
+    pub fn clear(&mut self) {
+        match self {
+            DynamicVar::Location(option_location_ref) => {
+                *option_location_ref = None;
+            },
+            DynamicVar::Drone(option_drone_ref) => {
+                *option_drone_ref = None;
+            },
+        }
+    }
+
 }
 
 #[derive(PartialEq)]
@@ -146,13 +116,6 @@ impl DynamicVarTypeKind {
             DynamicVarTypeKind::Drone => {
                 return Texture::BlockTexture(BlockTexture::DroneUpRight)
             },
-        }
-    }
-
-    pub fn create_ref_var(&self) -> DynamicVarRef {
-        match self {
-            DynamicVarTypeKind::Location => DynamicVarRef::Location(Rc::new(RefCell::new(None))),
-            DynamicVarTypeKind::Drone => DynamicVarRef::Drone(Rc::new(RefCell::new(None))),
         }
     }
 }

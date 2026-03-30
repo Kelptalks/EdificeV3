@@ -1,12 +1,8 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, env::VarError, rc::Rc};
 
-use crate::game_data::{player_data::drone_programming::var::{self, game_vars::game_var_type::GameVar, var_type::{Var, VarRef, VarTypeKind}}, game_event_manager::prelude::EventManager, screen::{ScreenData, widget::{widget::{Widget, WidgetType}, widget_calculations}}, types::{BlockTexture, UITextures}};
+use crate::game_data::{player_data::drone_programming::var::{self, game_vars::game_var_type::GameVar, var_type::{Var, VarTypeKind}}, game_event_manager::prelude::EventManager, screen::{ScreenData, widget::{widget::{Widget, WidgetType}, widget_calculations}}, types::{BlockTexture, UITextures}};
 
 
-enum VarSlotType {
-    Static(),
-    
-}
 
 pub struct VarSlot {
     // Parent rendering
@@ -20,14 +16,20 @@ pub struct VarSlot {
     pos: [f32; 4],
     scale: [f32; 2],
     
+    var_ref: Rc<RefCell<Var>>,
+
+
     var_type_kind_allowed: VarTypeKind,
-    var_instance: Rc<RefCell<VarRef>>,
+    allow_setting: bool,
+    allow_dragging: bool,
+    allow_clearing: bool,
+
 
 }
 
 impl VarSlot {
-    pub fn new(var_type_kind_allowed: VarTypeKind) -> VarSlot {
-        let mut_var = Rc::new(RefCell::new(var_type_kind_allowed.create_mut_var()));
+    pub fn new(var_instance: &Rc<RefCell<Var>>) -> VarSlot {
+
         VarSlot {
             // Parent Rendering
             parent_pos: [0.0; 4],
@@ -40,18 +42,63 @@ impl VarSlot {
             pos: [0.0; 4],
             scale: [0.0; 2],
 
-            var_type_kind_allowed: var_type_kind_allowed,
-            var_instance: mut_var,
-        }
-    }
+            var_ref: var_instance.clone(),
 
-    pub fn get_var_ref(&self) -> &Rc<RefCell<VarRef>> {
-        return &self.var_instance;
+            // Options
+            var_type_kind_allowed: VarTypeKind::Any,
+            allow_setting: true,
+            allow_dragging: true,
+            allow_clearing: true,
+
+        }
     }
 
     pub fn wrap_into_widget(self) -> WidgetType {
         return WidgetType::VarSlot(self);
     }
+
+
+    pub fn set_dragging_properties(&mut self, allow_dragging: bool, allow_setting: bool, allow_clearing: bool) {
+        self.allow_dragging = allow_dragging;
+        self.allow_setting = allow_setting;
+        self.allow_clearing = allow_clearing;
+    }
+
+    pub fn set_allowed_type(&mut self, var_type_allowed: VarTypeKind) {
+        self.var_type_kind_allowed = var_type_allowed;
+    }
+
+
+    //=====================================
+    // Control Managment Functions
+    //=====================================
+
+
+    // Set the variable of the slot if var released matches both type allowed and settings is allowed
+    fn try_and_set_var(&mut self, var_held_by_mouse: &Option<Rc<RefCell<Var>>>) {
+        if self.allow_setting {
+            if let Some(var_held_by_mouse) = var_held_by_mouse {
+                // Make sure the var held by mouse is not the same as this var
+                if var_held_by_mouse == &self.var_ref {
+                    return;
+                }
+                else if var_held_by_mouse.borrow().to_kind() == self.var_type_kind_allowed {
+                    *self.var_ref.borrow_mut() = var_held_by_mouse.borrow().clone();
+                }
+            }
+        }
+    }
+
+    // Get the value of the slot ref if it allows
+    fn try_and_get_var(&mut self) -> Option<Rc<RefCell<Var>>> {
+        if self.allow_dragging {
+            return Some(self.var_ref.clone());
+        }
+        else {
+            return None;
+        }
+    }
+
 }
 
 impl Widget for VarSlot {
@@ -87,21 +134,41 @@ impl Widget for VarSlot {
         game_event_manager: &mut EventManager
     ) {
 
+
+
+
+        
         // Try and get var if mouse was released
         if screen_data.mouse_on_ndc_pos(self.pos) {
+            
+            
+            // Set
             if screen_data.was_left_released() {
-                if let Some(var_held_by_mouse) = game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().get_var_held() {
-                    if var_held_by_mouse.to_kind() == self.var_type_kind_allowed {
-                        self.var_instance.borrow_mut().set_var_ref(var_held_by_mouse.clone());
-                    }
-                }
+                let var_held_by_mouse = game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().get_var_held();
+                self.try_and_set_var(var_held_by_mouse);
             }
+
+            // Get 
+            if self.allow_dragging && screen_data.was_left_pressed() {
+                game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().set_var_held(self.try_and_get_var());
+            }
+
+
+            // Clear
+            if self.allow_setting && screen_data.was_right_pressed() {
+                self.var_ref.borrow_mut().clear();
+            }
+            
+            
+            
+
         }
 
+
+
+
         texture_manager.render_texture_with_pos(self.var_type_kind_allowed.get_texture(), self.pos);
-        texture_manager.render_texture_with_pos(self.var_instance.borrow().to_var().get_texture(), self.pos);
-        
-        
-        
+
+        texture_manager.render_texture_with_pos(self.var_ref.borrow().get_texture(), self.pos);
     }
 }

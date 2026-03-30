@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent, PlayerDataEvent}}, player_data::{drone_programming::var::{self, game_vars::{dynamic_var::{self, DynamicVarRef}, game_var_type::GameVarRef}, var_type::VarRef}, locations::location::WorldLocation}};
+use crate::game_data::{game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent, PlayerDataEvent}}, player_data::{drone_programming::var::{self, game_vars::{dynamic_var::{self}, game_var_type::GameVar}, var_type::Var}, locations::location::WorldLocation}};
 
 #[derive(Clone)]
 pub enum LocationEvent {
@@ -10,7 +10,7 @@ pub enum LocationEvent {
     SetLocationPoint(usize, [i32; 3]), // Point Index
     ModSize([i32; 3], bool), // Expand Directions, Expand
 
-    SetAreaWithVarRef(Rc<RefCell<VarRef>>),
+    SetAreaWithVarRef(Rc<RefCell<Var>>),
 }
 
 
@@ -39,7 +39,7 @@ impl LocationEvent {
             },
             LocationEvent::SetAreaWithVarRef(var_ref) => {
                 let borrowed = var_ref.borrow();
-                if let VarRef::Game(GameVarRef::Dynamic(dynamic_var_ref)) = &*borrowed {
+                if let Var::Game(GameVar::Dynamic(dynamic_var_ref)) = &*borrowed {
                     if let Some(area) = dynamic_var_ref.get_area() {
                         location_ref.borrow_mut().set_area(area);
                     }

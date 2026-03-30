@@ -30,7 +30,7 @@ pub fn get_block_selection_panel() -> WidgetType {
                 for row_block_id in 0..blocks_per_row {
                     
                     let block_type = BlockTexture::from_id(collumn_block_id as u16 + row_block_id as u16);
-                    row_panel.add_draggable_var(Var::Game(GameVar::Primitive(PrimitiveVar::Block(block_type))));
+                    //row_panel.add_draggable_var(Var::Game(GameVar::Primitive(PrimitiveVar::Block(block_type))));
                 }
             }
             scroll_panel.add_widget(block_selection_panel);
@@ -66,7 +66,7 @@ pub fn get_item_selection_panel() -> WidgetType {
                 for row_item_id in 0..items_per_row {
                     
                     let item_type = DroneItem::from_id(collumn_item_id as u32 + row_item_id as u32);
-                    row_panel.add_draggable_var(Var::Game(GameVar::Primitive(PrimitiveVar::DroneItem(item_type))));
+                    //row_panel.add_draggable_var(Var::Game(GameVar::Primitive(PrimitiveVar::DroneItem(item_type))));
                 }
             }
             scroll_panel.add_widget(item_selection_panel);
@@ -196,7 +196,7 @@ pub fn var_ref_bar() -> WidgetType {
     if let WidgetType::Panel(panel) = &mut panel {
 
         for i in 0..10 {
-            panel.add_var_slot(VarTypeKind::Any);
+            //panel.add_var_slot(VarTypeKind::Any);
         }
 
     }

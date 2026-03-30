@@ -34,46 +34,15 @@ impl PrimitiveVar {
             PrimitiveVar::Block(block) => block.to_string().to_string(),
         }
     }
-}
 
-pub enum PrimitiveVarRef {
-    DroneItem(Rc<RefCell<DroneItem>>),
-    Block(Rc<RefCell<BlockTexture>>),
-}
-
-impl PrimitiveVarRef {
-    pub fn to_kind(&self) -> PrimitiveVarTypeKind {
+    pub fn clear(&mut self) {
         match self {
-            PrimitiveVarRef::DroneItem(_) => PrimitiveVarTypeKind::DroneItem,
-            PrimitiveVarRef::Block(_) => PrimitiveVarTypeKind::Block,
-        }
-    }
-
-    pub fn set_var_ref(&self, var: PrimitiveVar) {
-        match (self, var) {
-            (PrimitiveVarRef::DroneItem(ref_cell), PrimitiveVar::DroneItem(drone_item)) => {
-                *ref_cell.borrow_mut() = drone_item;
+            PrimitiveVar::DroneItem(drone_item) => {
+                *drone_item = DroneItem::Ash
             },
-            (PrimitiveVarRef::Block(ref_cell), PrimitiveVar::Block(block_texture)) => {
-                *ref_cell.borrow_mut() = block_texture;
+            PrimitiveVar::Block(block_texture) => {
+                *block_texture = BlockTexture::Air
             },
-            _ => {
-                println!("Cannot Set VarRef of different type");
-            }
-        }
-    }
-
-    pub fn to_var(&self) -> PrimitiveVar {
-        match self {
-            PrimitiveVarRef::DroneItem(ref_cell) => PrimitiveVar::DroneItem(*ref_cell.borrow()),
-            PrimitiveVarRef::Block(ref_cell) => PrimitiveVar::Block(*ref_cell.borrow()),
-        }
-    }
-
-    pub fn get_name(&self) -> String {
-        match self {
-            PrimitiveVarRef::DroneItem(_) => "DroneItem".to_string(),
-            PrimitiveVarRef::Block(_) => "Block".to_string(),
         }
     }
 }
@@ -96,10 +65,4 @@ impl PrimitiveVarTypeKind {
         }
     }
 
-    pub fn create_ref_var(&self) -> PrimitiveVarRef {
-        match self {
-            PrimitiveVarTypeKind::DroneItem => PrimitiveVarRef::DroneItem(Rc::new(RefCell::new(DroneItem::Ash))),
-            PrimitiveVarTypeKind::Block => PrimitiveVarRef::Block(Rc::new(RefCell::new(BlockTexture::Air))),
-        }
-    }
 }

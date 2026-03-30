@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, game_event_manager::game_event_manager::EventManager, screen::{ScreenData, screen_data, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::vars::{var_source::VarSource, var_slot::VarSlot}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, tab_panel::tab_panel::TabPanel, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, world_rendering::play_world_view_render::PlayWorldViewRender}}, texture_manager};
+use crate::game_data::{TextureManager, game_event_manager::game_event_manager::EventManager, screen::{ScreenData, screen_data, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::vars::{var_slot::VarSlot}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, tab_panel::tab_panel::TabPanel, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, world_rendering::play_world_view_render::PlayWorldViewRender}}, texture_manager};
 
 pub trait Widget {
     fn get_pos(&self) -> [f32; 4];
@@ -37,7 +37,6 @@ pub enum WidgetType {
     PlayWorldViewRender(PlayWorldViewRender),
 
     // Drone Programming
-    VarSource(VarSource),
     VarSlot(VarSlot),
 }
 
@@ -71,7 +70,6 @@ macro_rules! widget_match {
             WidgetType::PlayWorldViewRender(w) => w.$method($($arg),*),
 
             // Drone Programming
-            WidgetType::VarSource(w)   => w.$method($($arg),*),
             WidgetType::VarSlot(w)        => w.$method($($arg),*),
             WidgetType::TextInput(w)      => w.$method($($arg),*),
         }

@@ -1,6 +1,63 @@
-use crate::game_data::{game_event_manager::{game_event_manager::GameEvent, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{ScreenData, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::{BlockTexture, drone_item::DroneItem}};
+use std::{cell::RefCell, rc::Rc};
+
+use crate::game_data::{game_event_manager::{game_event_manager::GameEvent, render_event_manager::render_event_manager::RenderEvent}, player_data::{drone_programming::var::{game_vars::{dynamic_var::DynamicVarTypeKind, game_var_type::{GameVar, GameVarTypeKind}, primitive_var::{PrimitiveVar, PrimitiveVarTypeKind}}, var_type::{Var, VarTypeKind}}, player_data::PlayerData}, screen::{ScreenData, screen_data::CurrentMenu, widget::{drone_programming::vars::var_slot::VarSlot, panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::{BlockTexture, drone_item::DroneItem}};
 
 
+
+pub fn test_var_slots() -> WidgetType {
+    let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
+    
+    if let WidgetType::Panel(panel) = &mut panel {
+        panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+
+        // Blocks
+        panel.add_text_display("Block Slots".to_string());
+        let block_sub_panel = panel.add_sub_panel();
+        let blocks = [BlockTexture::Air, BlockTexture::Stone, BlockTexture::Granite, BlockTexture::Grass, BlockTexture::BlueGrass];
+        for i in 0..blocks.len() {
+            let var_instance = Rc::new(RefCell::new(Var::Game(GameVar::Primitive(PrimitiveVar::Block(blocks[i])))));
+            let mut var_slot = VarSlot::new(&var_instance);
+
+            var_slot.set_allowed_type(VarTypeKind::Game(GameVarTypeKind::Primitive(PrimitiveVarTypeKind::Block)));
+            var_slot.set_dragging_properties(true, false, false);
+
+            block_sub_panel.add_widget(var_slot.wrap_into_widget());
+        }
+
+        // Items
+        panel.add_text_display("Item Slots".to_string());
+        
+        let item_sub_panel = panel.add_sub_panel();
+        let items = [DroneItem::Ash, DroneItem::Dirt, DroneItem::PlantMatter, DroneItem::IronBattery, DroneItem::DroneChassis];
+        for i in 0..items.len() {
+            let var_instance = Rc::new(RefCell::new(Var::Game(GameVar::Primitive(PrimitiveVar::DroneItem(items[i])))));
+            let mut var_slot = VarSlot::new(&var_instance);
+
+            var_slot.set_allowed_type(VarTypeKind::Game(GameVarTypeKind::Primitive(PrimitiveVarTypeKind::DroneItem)));
+            var_slot.set_dragging_properties(true, false, false);
+
+            item_sub_panel.add_widget(var_slot.wrap_into_widget());
+        }
+
+
+
+        // Slots Types
+        panel.add_text_display("Block Selectors".to_string());
+        let slot_sub_panel = panel.add_sub_panel();
+        
+        
+        let var_instance = Rc::new(RefCell::new(Var::Game(GameVar::Primitive(PrimitiveVar::DroneItem(DroneItem::Ash)))));
+        let mut var_slot = VarSlot::new(&var_instance);
+
+
+        // var_slot.set_allowed_type(VarTypeKind::Game(GameVarTypeKind::Primitive(PrimitiveVarTypeKind::DroneItem)));
+        var_slot.set_dragging_properties(true, true, true);
+
+        slot_sub_panel.add_widget(var_slot.wrap_into_widget());
+    }
+
+    return panel;
+}
 
 
 pub fn get_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> WidgetType {
@@ -20,6 +77,10 @@ pub fn get_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> Widge
         button.add_event(RenderEvent::ChangeMenu(screen_data.get_current_menu()).wrap_into_event());
         button.set_icon(crate::game_data::types::UITextures::XIcon);
         button.set_text("Back".to_string());
+
+
+
+        panel.add_widget(test_var_slots());
 
         panel.size();
     }

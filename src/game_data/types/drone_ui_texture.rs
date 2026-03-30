@@ -75,12 +75,13 @@ pub enum DroneItemTexture {
     PurpleLog = 31,
     GoldOar = 32,
     GoldIngot = 33,
+    AirDrone = 34,
 }
 
 impl DroneItemTexture {
 
     pub fn get_total_UI_elements() -> u32 {
-        return DroneItemTexture::GoldIngot.get_id() + 1;
+        return DroneItemTexture::AirDrone.get_id() + 1;
     }
     
     pub fn get_id(&self) -> u32 {
@@ -123,6 +124,7 @@ impl DroneItemTexture {
             31 => DroneItemTexture::PurpleLog,
             32 => DroneItemTexture::GoldOar,
             33 => DroneItemTexture::GoldIngot,
+            34 => DroneItemTexture::AirDrone,
             _ => DroneItemTexture::DroneChassis,
         }
     }

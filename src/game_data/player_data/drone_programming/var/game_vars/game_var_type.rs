@@ -3,8 +3,8 @@ use std::{cell::RefCell, rc::Rc};
 use crate::game_data::{player_data::drones::drone::Drone, texture_manager::texture::Texture};
 
 pub use super::{
-    dynamic_var::{DynamicVar, DynamicVarRef, DynamicVarTypeKind},
-    primitive_var::{PrimitiveVar, PrimitiveVarRef, PrimitiveVarTypeKind},
+    dynamic_var::{DynamicVar, DynamicVarTypeKind},
+    primitive_var::{PrimitiveVar, PrimitiveVarTypeKind},
 };
 
 
@@ -47,53 +47,14 @@ impl GameVar {
             GameVar::Dynamic(d) => d.get_name(),
         }
     }
-}
 
-
-// ─── GameVarRef ───────────────────────────────────────────────────────────────
-
-pub enum GameVarRef {
-    Primitive(PrimitiveVarRef),
-    Dynamic(DynamicVarRef),
-}
-
-impl GameVarRef {
-    pub fn to_kind(&self) -> GameVarTypeKind {
+    pub fn clear(&mut self) {
         match self {
-            GameVarRef::Primitive(p) => GameVarTypeKind::Primitive(p.to_kind()),
-            GameVarRef::Dynamic(d) => GameVarTypeKind::Dynamic(d.to_kind()),
-        }
-    }
-
-    pub fn set_var_ref(&self, var: GameVar) {
-        match (self, var) {
-            (GameVarRef::Primitive(p_ref), GameVar::Primitive(p_var)) => {
-                p_ref.set_var_ref(p_var);
-            },
-            (GameVarRef::Dynamic(d_ref), GameVar::Dynamic(d_var)) => {
-                d_ref.set_var_ref(d_var);
-            },
-            _ => {
-                println!("Cannot Set VarRef of different type");
-            }
-        }
-    }
-
-    pub fn to_var(&self) -> GameVar {
-        match self {
-            GameVarRef::Primitive(p) => GameVar::Primitive(p.to_var()),
-            GameVarRef::Dynamic(d) => GameVar::Dynamic(d.to_var()),
-        }
-    }
-
-    pub fn get_name(&self) -> String {
-        match self {
-            GameVarRef::Primitive(p) => p.get_name(),
-            GameVarRef::Dynamic(d) => d.get_name(),
+            GameVar::Primitive(primitive_var) => primitive_var.clear(),
+            GameVar::Dynamic(dynamic_var) => dynamic_var.clear(),
         }
     }
 }
-
 
 // ─── GameVarTypeKind ──────────────────────────────────────────────────────────
 
@@ -108,13 +69,6 @@ impl GameVarTypeKind {
         match self {
             GameVarTypeKind::Primitive(p) => p.get_texture(),
             GameVarTypeKind::Dynamic(d) => d.get_texture(),
-        }
-    }
-
-    pub fn create_ref_var(&self) -> GameVarRef {
-        match self {
-            GameVarTypeKind::Primitive(p) => GameVarRef::Primitive(p.create_ref_var()),
-            GameVarTypeKind::Dynamic(d) => GameVarRef::Dynamic(d.create_ref_var()),
         }
     }
 }

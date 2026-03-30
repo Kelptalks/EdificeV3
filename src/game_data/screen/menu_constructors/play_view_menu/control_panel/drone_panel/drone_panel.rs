@@ -1,7 +1,8 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::{Event, LocationEvent, PlayerDataEvent}, locations::world_area::WorldArea, player_data::{drone_programming::var::{self, game_vars::game_var_type::{DynamicVarTypeKind, GameVarTypeKind}, var_type::{VarRef, VarTypeKind}}, locations::location::WorldLocation, player_data::PlayerData}, screen::{menu_constructors::play_view_menu::control_panel::drone_panel::drone_world_view, widget::{drone_programming::vars::var_slot::VarSlot, panel::panel::{PanelAlignment, PanelOrientation}, text::header::TextDisplay, widget::WidgetType, widget_calculations::TextSize}}};
+use crate::game_data::{game_event_manager::prelude::{Event, LocationEvent, PlayerDataEvent}, locations::world_area::WorldArea, player_data::{drone_programming::var::{self, game_vars::game_var_type::{DynamicVarTypeKind, GameVarTypeKind}, var_type::{VarTypeKind}}, locations::location::WorldLocation, player_data::PlayerData}, screen::{menu_constructors::play_view_menu::control_panel::drone_panel::drone_world_view, widget::{drone_programming::vars::var_slot::VarSlot, panel::panel::{PanelAlignment, PanelOrientation}, text::header::TextDisplay, widget::WidgetType, widget_calculations::TextSize}}};
 
+/*
 pub fn lock_camera_to_drone_event(location_ref: &Rc<RefCell<WorldLocation>>, var_ref: &Rc<RefCell<VarRef>>) -> Vec<Event> {
     let mut events = Vec::new();
 
@@ -12,6 +13,7 @@ pub fn lock_camera_to_drone_event(location_ref: &Rc<RefCell<WorldLocation>>, var
 
     return events;
 }
+*/
 
 pub fn get_drone_panel(player_data: &mut PlayerData) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
@@ -30,9 +32,10 @@ pub fn get_drone_panel(player_data: &mut PlayerData) -> WidgetType {
 
         scroll_panel.set_prefered_scale(0.5);
 
+        /*
         let var_slot = VarSlot::new(VarTypeKind::Game(GameVarTypeKind::Dynamic(DynamicVarTypeKind::Drone)));
         let dynamic_var_ref = var_slot.get_var_ref();
-
+        
          
         
 
@@ -45,7 +48,7 @@ pub fn get_drone_panel(player_data: &mut PlayerData) -> WidgetType {
 
         panel.add_widget(var_slot.wrap_into_widget());
         drone_world_view::add_drone_world_view_panel(panel, player_data, &location_ref);
-        
+        */
 
         panel.size();
     }
