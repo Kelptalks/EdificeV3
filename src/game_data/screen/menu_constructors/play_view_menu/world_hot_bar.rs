@@ -1,6 +1,11 @@
-use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, PlayerDataEvent}, screen::{menu_constructors::play_view_menu::new_play_view::RefManager, widget::{panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot}, widget::WidgetType}}, types::{BlockTexture, UITextures}};
+use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, PlayerDataEvent}, player_data::drone_programming::var, screen::{menu_constructors::play_view_menu::new_play_view::{PlayViewMode, RefManager}, widget::{button, panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel, VarSlot}, tab_panel, widget::WidgetType}}, types::{BlockTexture, UITextures}};
 
-pub fn get_widget(ref_manager: &mut RefManager) -> WidgetType {
+
+//=====================================
+// Hotbar Panel Constructors
+//=====================================
+
+fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
 
     if let WidgetType::Panel(panel) = &mut panel {
@@ -12,6 +17,7 @@ pub fn get_widget(ref_manager: &mut RefManager) -> WidgetType {
         let create_location_button = panel.add_button();
         let blank_location_event = PlayerDataEvent::CreateLocationWithVar(ref_manager.selected_world_location.clone()).wrap_into_event();
         create_location_button.add_event(blank_location_event);
+        create_location_button.add_event(PlayViewMode::Location.to_tab_panel_event(&ref_manager.play_view_mode));
 
         // Toggle show drones
         let show_drones = panel.add_toggle_button();
@@ -25,11 +31,44 @@ pub fn get_widget(ref_manager: &mut RefManager) -> WidgetType {
         show_locations.set_icon(UITextures::LocationIcon);
         show_locations.set_text("Show Locations".to_string());
     
-        
+
         
     }
-
-
     return panel;
 }
+
+
+fn get_location_hotbar(ref_manager: &mut RefManager) -> WidgetType {
+    let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
+
+    if let WidgetType::Panel(panel) = &mut panel {
+        panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
+        panel.set_color(PanelColor::Dark);
+
+        let mut var_slot = VarSlot::new(&ref_manager.selected_world_location);
+        var_slot.set_dragging_properties(true, false, false);
+        
+        panel.add_widget(var_slot.wrap_into_widget());
+        
+    }
+    return panel;
+}
+
+//=====================================
+// Tab Panel Constructor
+//=====================================
+
+pub fn get_widget(ref_manager: &mut RefManager) -> WidgetType {    
+    let mut tab_panel = TabPanel::new(&ref_manager.play_view_mode);
+
+    tab_panel.set_button_panel_visiblity(false);
+
+    tab_panel.add_panel(get_main_hotbar_panel(ref_manager));
+    tab_panel.add_panel(get_location_hotbar(ref_manager));
+
+    return tab_panel.wrap_into_widget();
+}
     
+//=====================================
+// Tab Panel Event constructor
+//=====================================

@@ -1,7 +1,21 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{var_ref_hot_bar, world_hot_bar, world_view}, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, world_rendering::play_world_view_config::PlayViewRendingConfig}}};
+use crate::game_data::{game_event_manager::prelude::{Event, PrimEvent, UsizeEvent}, locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{var_ref_hot_bar, world_hot_bar, world_view}, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, world_rendering::play_world_view_config::PlayViewRendingConfig}}};
 
+pub enum PlayViewMode {
+    Main = 0,
+    Location = 1,
+}
+
+impl PlayViewMode {
+    pub fn to_usize(self) -> usize {
+        self as usize
+    }
+
+    pub fn to_tab_panel_event(self, usize: &Rc<RefCell<usize>>) -> Event {
+        return UsizeEvent::SetUsize(usize.clone(), self.to_usize()).wrap_into_event();
+    }
+}
 
 
 pub struct RefManager {
@@ -13,6 +27,7 @@ pub struct RefManager {
 
     pub selected_world_location: Rc<RefCell<Var>>,
 
+    pub play_view_mode: Rc<RefCell<usize>>,
 }
 
 impl RefManager {
@@ -27,6 +42,8 @@ impl RefManager {
             show_locations_toggle: Rc::new(RefCell::new(false)),
 
             selected_world_location: Rc::new(RefCell::new(DynamicVar::Location(None).wrap_into_var())),
+            
+            play_view_mode: Rc::new(RefCell::new(0)),
         }
     }
 }

@@ -5,7 +5,7 @@ use crate::game_data::game_event_manager::prelude::{Event, GameEvent, PrimEvent,
 #[derive(Clone)]
 pub enum UsizeEvent {
     ModUsize(Rc<RefCell<usize>>, i32),
-
+    SetUsize(Rc<RefCell<usize>>, usize),
 }
 
 impl UsizeEvent {
@@ -31,8 +31,11 @@ impl UsizeEvent {
                     *usize_ref.borrow_mut() = new_usize as usize;
                 }
 
-                 
+     
 
+            },
+            UsizeEvent::SetUsize(ref_cell, new_usize) => {
+                *ref_cell.borrow_mut() = *new_usize;
             },
         }
 

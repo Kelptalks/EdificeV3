@@ -203,18 +203,6 @@ impl Panel {
         }
     }
 
-    pub fn add_tab_panel(&mut self) -> &mut TabPanel {
-        let tab_panel = TabPanel::new();
-        self.add_widget(WidgetType::TabPanel(tab_panel));
- 
-        if let WidgetType::TabPanel(tab_panel) = self.sections.last_mut().unwrap().get_mut_widget() {
-            return tab_panel;
-        }
-        else {
-            panic!("Tab Panel was just inserted but could not be retrieved in Panel");
-        }
-    }
-
     pub fn add_scroll_panel(&mut self) -> &mut ScrollPanel {
         let scroll_panel = ScrollPanel::new();
         self.add_widget(WidgetType::ScrollPanel(scroll_panel));
