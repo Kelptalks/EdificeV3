@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_programming::var::{self, game_vars::game_var_type::GameVar, var_type::{Var, VarTypeKind}}, game_event_manager::prelude::EventManager, screen::{ScreenData, widget::{widget::{Widget, WidgetType}, widget_calculations}}, types::{BlockTexture, UITextures}};
+use crate::game_data::{game_event_manager::prelude::EventManager, player_data::drone_programming::var::{self, game_vars::game_var_type::GameVar, var_type::{Var, VarTypeKind}}, screen::{ScreenData, render_centered_string_at_ndc, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations}}, types::{BlockTexture, UITextures}};
 
 
 
@@ -17,6 +17,7 @@ pub struct VarSlot {
     scale: [f32; 2],
     
     var_ref: Rc<RefCell<Var>>,
+    var_string_ndc: [f32; 2],
 
 
     var_type_kind_allowed: VarTypeKind,
@@ -55,7 +56,9 @@ impl VarSlot {
             pos: [0.0; 4],
             scale: [0.0; 2],
 
+
             var_ref: var_instance.clone(),
+            var_string_ndc: [0.0; 2],
 
             // Options
             var_type_kind_allowed: VarTypeKind::Any,
@@ -141,6 +144,7 @@ impl Widget for VarSlot {
     fn size(&mut self) {
         self.pos = widget_calculations::buffer_pos(self.parent_pos, self.external_buffers);
         self.scale = widget_calculations::pos_to_scale(self.pos);
+        self.var_string_ndc = [self.pos[0] + self.scale[0] / 2.0, self.pos[1]];
     }
 
     fn render(
@@ -150,9 +154,20 @@ impl Widget for VarSlot {
         game_event_manager: &mut EventManager
     ) {
         
+        texture_manager.render_texture_with_pos(self.var_type_kind_allowed.get_texture(), self.pos);
+        texture_manager.render_texture_with_pos(self.var_ref.borrow().get_texture(), self.pos);
+
         // Try and get var if mouse was released
         if screen_data.mouse_on_ndc_pos(self.pos) {
-            
+
+            render_string_at_ndc(
+                texture_manager, 
+                self.var_ref.borrow().get_name(), 
+                crate::game_data::types::FontType::Basic, 
+                widget_calculations::get_button_text_scale(), 
+                screen_data.get_mouse_ndc(),
+            );
+    
             
             // Set
             if screen_data.was_left_released() {
@@ -170,8 +185,5 @@ impl Widget for VarSlot {
                 self.var_ref.borrow_mut().clear();
             }
         }
-
-        texture_manager.render_texture_with_pos(self.var_type_kind_allowed.get_texture(), self.pos);
-        texture_manager.render_texture_with_pos(self.var_ref.borrow().get_texture(), self.pos);
     }
 }

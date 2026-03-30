@@ -1,4 +1,4 @@
-use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, PlayerDataEvent}, player_data::drone_programming::var, screen::{menu_constructors::play_view_menu::new_play_view::{PlayViewMode, RefManager}, widget::{button, panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel, VarSlot}, tab_panel, widget::WidgetType}}, types::{BlockTexture, UITextures}};
+use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, PlayerDataEvent}, player_data::drone_programming::var, screen::{menu_constructors::play_view_menu::new_play_view::{PlayViewMode, RefManager}, widget::{button, panel::panel::{PanelAlignment, PanelOrientation}, prelude::{Panel, PanelColor, TabPanel, VarSlot}, tab_panel, widget::WidgetType}}, types::{BlockTexture, UITextures}};
 
 
 //=====================================
@@ -22,7 +22,7 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         // Toggle show drones
         let show_drones = panel.add_toggle_button();
         show_drones.set_toggle_ref(&ref_manager.show_drones_toggle);
-        show_drones.set_block(BlockTexture::DroneUpRight);
+        show_drones.set_block(BlockTexture::DroneBotRight);
         show_drones.set_text("Show Drones".to_string());
         
         // Toggle Show Locations
@@ -31,7 +31,6 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         show_locations.set_icon(UITextures::LocationIcon);
         show_locations.set_text("Show Locations".to_string());
     
-
         
     }
     return panel;
@@ -44,15 +43,69 @@ fn get_location_hotbar(ref_manager: &mut RefManager) -> WidgetType {
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
         panel.set_color(PanelColor::Dark);
-
-        let mut var_slot = VarSlot::new(&ref_manager.selected_world_location);
-        var_slot.set_dragging_properties(true, false, false);
         
+        // Back To Main
+        let back_button = panel.add_button();
+        back_button.set_icon(UITextures::LeftArrowIcon);
+        back_button.add_event(PlayViewMode::Main.to_tab_panel_event(&ref_manager.play_view_mode));
+        back_button.set_text("Back".to_string());
+
+        // Var Source Slot
+        let mut var_slot = VarSlot::new(&ref_manager.selected_world_location);
+        var_slot.set_dragging_properties(true, false, false);     
         panel.add_widget(var_slot.wrap_into_widget());
+
+        // Toggle Render Only Location
+        let render_only_location_toggle = panel.add_toggle_button();
+        render_only_location_toggle.set_toggle_ref(&ref_manager.render_only_selected_location);
+        render_only_location_toggle.set_icon(UITextures::MapIcon);
+        render_only_location_toggle.set_text("Render Only Location".to_string());
+        
+
+        // Enter BluePrintMode
+        let enter_blue_print_mode = panel.add_button();
+        enter_blue_print_mode.add_event(PlayViewMode::BluePrint.to_tab_panel_event(&ref_manager.play_view_mode));
+        enter_blue_print_mode.set_icon(UITextures::BluePrintIcon);
+        enter_blue_print_mode.set_text("Blue Print Mode".to_string());
+
+        
+        // Set Location Entrence
+        let set_location_entrence = panel.add_button();
+        set_location_entrence.set_block(BlockTexture::translucent_green);
+        set_location_entrence.set_text("Set Entrence".to_string());
+
+        // Set Location Entrence
+        let set_location_exit = panel.add_button();
+        set_location_exit.set_block(BlockTexture::translucent_red);
+        set_location_exit.set_text("Set Exit".to_string());
         
     }
     return panel;
 }
+
+
+fn get_blue_print_hotbar(ref_manager: &mut RefManager) -> WidgetType {
+    let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
+
+    if let WidgetType::Panel(panel) = &mut panel {
+        panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
+        panel.set_color(PanelColor::Dark);
+
+        // Back To Location
+        let back_button = panel.add_button();
+        back_button.set_icon(UITextures::LeftArrowIcon);
+        back_button.add_event(PlayViewMode::Location.to_tab_panel_event(&ref_manager.play_view_mode));
+        back_button.set_text("Back".to_string());
+        
+
+        
+        
+        
+    }
+    return panel;
+}
+
+
 
 //=====================================
 // Tab Panel Constructor
@@ -65,6 +118,7 @@ pub fn get_widget(ref_manager: &mut RefManager) -> WidgetType {
 
     tab_panel.add_panel(get_main_hotbar_panel(ref_manager));
     tab_panel.add_panel(get_location_hotbar(ref_manager));
+    tab_panel.add_panel(get_blue_print_hotbar(ref_manager));
 
     return tab_panel.wrap_into_widget();
 }

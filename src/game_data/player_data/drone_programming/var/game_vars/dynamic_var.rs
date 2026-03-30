@@ -30,13 +30,13 @@ impl DynamicVar {
                 return location.borrow().get_texture().clone();
             },
             DynamicVar::Location(None) => {
-                return Texture::UITexture(crate::game_data::types::UITextures::LocationIcon);
+                return Texture::BlockTexture(BlockTexture::Air);
             },
             DynamicVar::Drone(Some(drone_ref)) => {
                 return drone_ref.borrow().get_texture();
             },
             DynamicVar::Drone(None) => {
-                return Texture::BlockTexture(BlockTexture::DroneBotLeft);
+                return Texture::BlockTexture(BlockTexture::Air);
             },
         }
     }

@@ -89,12 +89,20 @@ impl TabPanel {
     }
  
     fn size_sub_panels(&mut self, top_offset: f32) {
+        let largest_width = self.largest_sub_panel_prefered_scale()[0];
         let mut sub_panel_buffer = self.internal_buffers;
         sub_panel_buffer[1] += top_offset;
- 
+
         for sub_panel in &mut self.sub_panels {
+            let current_width = sub_panel.get_preffered_scale()[0];
+            let x_center_offset = ((largest_width - current_width) / 2.0).max(0.0);
+
+            let mut individual_buffer = sub_panel_buffer;
+            individual_buffer[0] += x_center_offset; // left
+            individual_buffer[2] += x_center_offset; // right
+
             sub_panel.set_parent_pos(self.pos);
-            sub_panel.set_buffers(sub_panel_buffer);
+            sub_panel.set_buffers(individual_buffer);
             sub_panel.size();
         }
     }

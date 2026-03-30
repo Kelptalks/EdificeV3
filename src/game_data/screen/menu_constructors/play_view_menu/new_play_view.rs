@@ -5,6 +5,7 @@ use crate::game_data::{game_event_manager::prelude::{Event, PrimEvent, UsizeEven
 pub enum PlayViewMode {
     Main = 0,
     Location = 1,
+    BluePrint = 2,
 }
 
 impl PlayViewMode {
@@ -24,9 +25,10 @@ pub struct RefManager {
 
     pub show_drones_toggle: Rc<RefCell<bool>>,
     pub show_locations_toggle: Rc<RefCell<bool>>,
+    pub render_only_selected_location: Rc<RefCell<bool>>,
+
 
     pub selected_world_location: Rc<RefCell<Var>>,
-
     pub play_view_mode: Rc<RefCell<usize>>,
 }
 
@@ -38,8 +40,9 @@ impl RefManager {
             cursor_location: cursor_location.clone(),
             play_view_rendering_config: PlayViewRendingConfig::new(player_data.get_world_ref().clone(), cursor_location),
 
-            show_drones_toggle: Rc::new(RefCell::new(true)),
+            show_drones_toggle: Rc::new(RefCell::new(false)),
             show_locations_toggle: Rc::new(RefCell::new(false)),
+            render_only_selected_location: Rc::new(RefCell::new(false)),
 
             selected_world_location: Rc::new(RefCell::new(DynamicVar::Location(None).wrap_into_var())),
             
