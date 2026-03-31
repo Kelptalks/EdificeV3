@@ -19,7 +19,7 @@ pub fn get_widget() -> WidgetType {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
         panel.set_color(PanelColor::Dark);
 
-        for _i in 0..9 {
+        for _i in 0..11 {
             // Init Ref
             let blank_var = Var::Game(GameVar::Primitive(PrimitiveVar::Block(crate::game_data::types::BlockTexture::Air)));
             let var_instance = Rc::new(RefCell::new(blank_var));

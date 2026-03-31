@@ -15,9 +15,16 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         
         // Toggle create location
         let create_location_button = panel.add_button();
-        let blank_location_event = PlayerDataEvent::CreateLocationWithVar(ref_manager.selected_world_location.clone()).wrap_into_event();
+        let blank_location_event = 
+            PlayerDataEvent::CreateLocationWithVar(
+                ref_manager.selected_world_location.clone(),
+                ref_manager.cursor_location.clone(),
+            ).wrap_into_event();
         create_location_button.add_event(blank_location_event);
         create_location_button.add_event(PlayViewMode::Location.to_tab_panel_event(&ref_manager.play_view_mode));
+        create_location_button.set_text("Create Location".to_string());
+        create_location_button.set_icon(UITextures::LocationIcon);
+        
 
         // Toggle show drones
         let show_drones = panel.add_toggle_button();
@@ -28,7 +35,7 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         // Toggle Show Locations
         let show_locations = panel.add_toggle_button();
         show_locations.set_toggle_ref(&ref_manager.show_locations_toggle);
-        show_locations.set_icon(UITextures::LocationIcon);
+        show_locations.set_icon(UITextures::AreaIcon);
         show_locations.set_text("Show Locations".to_string());
     
         
@@ -67,7 +74,6 @@ fn get_location_hotbar(ref_manager: &mut RefManager) -> WidgetType {
         enter_blue_print_mode.add_event(PlayViewMode::BluePrint.to_tab_panel_event(&ref_manager.play_view_mode));
         enter_blue_print_mode.set_icon(UITextures::BluePrintIcon);
         enter_blue_print_mode.set_text("Blue Print Mode".to_string());
-
         
         // Set Location Entrence
         let set_location_entrence = panel.add_button();

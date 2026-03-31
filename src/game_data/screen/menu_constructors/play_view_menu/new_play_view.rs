@@ -34,14 +34,17 @@ pub struct RefManager {
 
 impl RefManager {
     pub fn new(player_data: &mut PlayerData) -> RefManager {
-        let cursor_location = player_data.get_mut_location_manager().create_location("cursor_location".to_string(), WorldArea::new_blank());
+        let rendering_config = PlayViewRendingConfig::new(player_data);
+        let cursor_location =  rendering_config.borrow().get_cursor_location_ref().clone();
+        let show_locations_bool = rendering_config.borrow().get_should_render_all_locations_ref().clone();
 
         RefManager {
-            cursor_location: cursor_location.clone(),
-            play_view_rendering_config: PlayViewRendingConfig::new(player_data.get_world_ref().clone(), cursor_location),
+            play_view_rendering_config: rendering_config.clone(),
+
+            cursor_location: cursor_location,
 
             show_drones_toggle: Rc::new(RefCell::new(false)),
-            show_locations_toggle: Rc::new(RefCell::new(false)),
+            show_locations_toggle: show_locations_bool,
             render_only_selected_location: Rc::new(RefCell::new(false)),
 
             selected_world_location: Rc::new(RefCell::new(DynamicVar::Location(None).wrap_into_var())),

@@ -12,6 +12,8 @@ Managers the retrival and creation of new locations
 */
 pub struct LocationManager {
     player_location_map: HashMap<u32, Rc<RefCell<WorldLocation>>>,
+    all_play_locations_vec_ref: Rc<RefCell<Vec<Rc<RefCell<WorldLocation>>>>>,
+    
     player_location_name_map: HashMap<String, u32>,
     next_id: u32,
 
@@ -30,6 +32,8 @@ impl LocationManager {
         LocationManager {
             player_location_map: HashMap::new(),
             player_location_name_map: HashMap::new(),
+            all_play_locations_vec_ref: Rc::new(RefCell::new(Vec::new())),
+
             next_id: 0,
 
             selection_panel_update_manager: WidgetUpdateManager::new(), // Used for updating UI with new drones created
@@ -45,7 +49,7 @@ impl LocationManager {
         let new_location = Rc::new(RefCell::new(WorldLocation::new(name.clone(), area, self.next_id)));
         self.player_location_map.insert(self.next_id, new_location.clone());
         self.player_location_name_map.insert(name, self.next_id);
-
+        self.all_play_locations_vec_ref.borrow_mut().push(new_location.clone());
         // let widget = VarSource::new(Var::Game(GameVar::Dynamic(DynamicVar::Location(Some(new_location.clone())))));
         // self.selection_panel_update_manager.borrow_mut().add_widget(WidgetType::VarSource(widget));
 
@@ -62,8 +66,9 @@ impl LocationManager {
         let new_location = Rc::new(RefCell::new(WorldLocation::new(name, WorldArea::new_blank(), self.next_id)));
         self.player_location_map.insert(self.next_id, new_location.clone());
         self.player_location_name_map.insert("blank".to_string(), self.next_id);
-
-        // let widget = VarSource::new(Var::Game(GameVar::Dynamic(DynamicVar::Location(Some(new_location.clone())))));
+        self.all_play_locations_vec_ref.borrow_mut().push(new_location.clone());
+        
+        // let widget = VarSource::new(Var::Game(GameVar::Dynamic(DynamicVar::Loscation(Some(new_location.clone())))));
         // self.selection_panel_update_manager.borrow_mut().add_widget(WidgetType::VarSource(widget));
 
         self.next_id += 1;
@@ -90,6 +95,10 @@ impl LocationManager {
     //=====================================
     // Location Getters
     //=====================================
+
+    pub fn get_locations_ref_vec(&self) -> &Rc<RefCell<Vec<Rc<RefCell<WorldLocation>>>>> {
+        return &self.all_play_locations_vec_ref;
+    }
 
     pub fn name_to_id(&self, name: &str) -> Option<u32> {
         return self.player_location_name_map.get(name).cloned();

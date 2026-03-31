@@ -1,6 +1,6 @@
-use std::{cell::RefCell, rc::{self, Rc}, sync::{Arc, RwLock}};
+use std::{cell::{Ref, RefCell}, rc::{self, Rc}, sync::{Arc, RwLock}};
 
-use crate::game_data::{World, player_data::locations::location::WorldLocation, types::BlockTexture};
+use crate::game_data::{World, locations::world_area::WorldArea, player_data::{locations::{location::WorldLocation, location_manager::LocationManager}, player_data::PlayerData}, types::BlockTexture};
 
 pub enum CameraMovementType {
     ShiftArea,
@@ -11,31 +11,44 @@ pub enum CameraMovementType {
 pub struct PlayViewRendingConfig {
     world_ref: Arc<RwLock<World>>,
 
-    location: Rc<RefCell<WorldLocation>>,
+    cursor_location: Rc<RefCell<WorldLocation>>,
     zoom: Rc<RefCell<i32>>,
     
     block_ghost: Option<Rc<RefCell<BlockTexture>>>,
-    
-    render_cursur: bool,
-    render_location_out_line: bool,
 
     camera_movment_event_type: Rc<RefCell<usize>>,
+
+    // Focused Location Rendering
+    focused_location: Option<Rc<RefCell<WorldLocation>>>,
+
+    // All World Location Rendering
+    render_all_locations: Rc<RefCell<bool>>,
+    all_locations: Rc<RefCell<Vec<Rc<RefCell<WorldLocation>>>>>,
 }
 
 impl PlayViewRendingConfig {
-    pub fn new(world_ref: Arc<RwLock<World>>, location: Rc<RefCell<WorldLocation>>, ) -> Rc<RefCell<PlayViewRendingConfig>> {
+    pub fn new(player_data: &mut PlayerData) -> Rc<RefCell<PlayViewRendingConfig>> {
+        
+        let cursor_location = player_data.get_mut_location_manager().create_location("cursor_location".to_string(), WorldArea::new_blank());
+        let world_ref = player_data.get_world_ref();
+        
         let config = PlayViewRendingConfig {
             world_ref: world_ref,
             
-            location: location,
+            // Cursor
+            cursor_location: cursor_location,
             zoom: Rc::new(RefCell::new(5)),
-
             block_ghost: None,
 
-            render_cursur: false,
-            render_location_out_line: false,
 
             camera_movment_event_type: Rc::new(RefCell::new(0)),
+
+            // Focused Location
+            focused_location: Option<Rc<RefCell<WorldLocation>>>,
+
+            // All World Location Rendering
+            render_all_locations: Rc::new(RefCell::new(true)),
+            all_locations: player_data.get_mut_location_manager().get_locations_ref_vec().clone(),
         };
 
         return Rc::new(RefCell::new(config));
@@ -50,15 +63,19 @@ impl PlayViewRendingConfig {
     }
 
     //=====================================
-    // Ref Getters
+    // Ref World
     //=====================================
 
     pub fn get_world_ref(&self) -> &Arc<RwLock<World>> {
         return &self.world_ref;
     }
 
-    pub fn get_location_ref(&self) -> &Rc<RefCell<WorldLocation>> {
-        return &self.location;
+    //=====================================
+    // Coursor
+    //=====================================
+
+    pub fn get_cursor_location_ref(&self) -> &Rc<RefCell<WorldLocation>> {
+        return &self.cursor_location;
     }
 
     pub fn get_zoom_ref(&self) -> &Rc<RefCell<i32>> {
@@ -67,6 +84,22 @@ impl PlayViewRendingConfig {
 
     pub fn get_camera_movement_event_type_ref(&self) -> &Rc<RefCell<usize>> {
         return &self.camera_movment_event_type;
+    }
+
+    //=====================================
+    // Locations
+    //=====================================
+
+    pub fn get_should_render_all_locations_ref(&self) -> &Rc<RefCell<bool>> {
+        return &self.render_all_locations;
+    }
+
+    pub fn should_render_all_locations(&self) -> bool {
+        return *self.render_all_locations.borrow();
+    }
+
+    pub fn get_locations_to_render(&self) -> &Rc<RefCell<Vec<Rc<RefCell<WorldLocation>>>>> {
+        return &self.all_locations;
     }
 
     //=====================================

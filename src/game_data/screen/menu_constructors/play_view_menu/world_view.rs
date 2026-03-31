@@ -25,7 +25,7 @@ pub fn get_widget(ref_manager: &mut RefManager) -> WidgetType {
         inputs.append(&mut construct_camera_keyboard_movements(&play_view));
         panel.add_events(&mut inputs);
 
-        play_view.set_prefered_size(0.9);
+        play_view.set_prefered_size(0.95);
         panel.add_widget(play_view.wrap_into_widget());
 
         panel.add_widget(world_hot_bar::get_widget(ref_manager));        

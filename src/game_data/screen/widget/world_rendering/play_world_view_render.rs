@@ -97,7 +97,7 @@ impl PlayWorldViewRender {
         let config = play_view_rendering_config.borrow();
         let input_manager = PlayViewControlManager::new(
             config.get_camera_movement_event_type_ref(),
-            config.get_location_ref()
+            config.get_cursor_location_ref()
         );
         drop(config);
 
@@ -222,7 +222,7 @@ impl PlayWorldViewRender {
 
 
         let config = self.rendering_config.borrow();
-        let largest_side_of_location = config.get_location_ref().borrow().get_area().get_largest_dimension_scale();
+        let largest_side_of_location = config.get_cursor_location_ref().borrow().get_area().get_largest_dimension_scale();
         let block_diementions = largest_side_of_location + config.get_zoom() * 2 + 1;
 
         self.ndc_block_scale = (self.scale[0] / block_diementions as f32) / 2.0;
@@ -238,7 +238,7 @@ impl PlayWorldViewRender {
     /// 
     pub fn get_area_to_render(&self) -> [[i32; 3]; 2] {
         let config = self.rendering_config.borrow();
-        let half_dimensions = config.get_location_ref().borrow().get_area().get_half_dimensions();
+        let half_dimensions = config.get_cursor_location_ref().borrow().get_area().get_half_dimensions();
 
         let mut start_cords = half_dimensions.map(|d| -d);
         for axis in &mut start_cords {
@@ -254,7 +254,7 @@ impl PlayWorldViewRender {
 
     pub fn get_rendering_center_world_cor(&self) -> [i32; 3] {
         let config = self.rendering_config.borrow();
-        return config.get_location_ref().borrow().get_area().get_center_world_cords();
+        return config.get_cursor_location_ref().borrow().get_area().get_center_world_cords();
     }
 
     pub fn ray_cast_view(&mut self, texture_manager: &mut TextureManager) {
@@ -334,7 +334,7 @@ impl PlayWorldViewRender {
 
         let world_arc = self.rendering_config.borrow().get_world_ref().clone();
         let block_ghost = self.rendering_config.borrow().get_block_ghost();
-        let location_rc = self.rendering_config.borrow().get_location_ref().clone();
+        let location_rc = self.rendering_config.borrow().get_cursor_location_ref().clone();
 
         let world = world_arc.read().unwrap();
 
@@ -349,7 +349,9 @@ impl PlayWorldViewRender {
         let start_cords = area_to_render[0];
         let end_cords = area_to_render[1];
 
-        // Loop through blocks in zoom
+        // Pass 1: Build all play blocks
+        let mut play_blocks: Vec<PlayBlock> = Vec::new();
+
         for z in start_cords[2]..=end_cords[2] {
             for y in start_cords[1]..=end_cords[1] {
                 for x in start_cords[0]..=end_cords[0] {
@@ -359,43 +361,34 @@ impl PlayWorldViewRender {
                         camera_cords[2] + z,
                     ];
 
-                    let blocking_block_cords = [
-                        world_block_cords[0] + (rot[0][0] * 1 + rot[0][1] * 1),
-                        world_block_cords[1] + (rot[1][0] * 1 + rot[1][1] * 1),
-                        world_block_cords[2] + 1,
-                    ];
-
-
-                    
-                    // Block Type
-                    let block_type_at_cord = BlockTexture::from_id(world.get_world_value(world_block_cords));
-                    
-                    // Draw Cords
                     let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, [x - z, y - z]);
-                    
-                    draw_cords[0] += ndc_x_draw_center_offset;
-                    draw_cords[1] += ndc_y_draw_center_offset;
-                    
-                    draw_cords[0] += self.camera_ndc_offset[0];
-                    draw_cords[1] += self.camera_ndc_offset[1];
+                    draw_cords[0] += ndc_x_draw_center_offset + self.camera_ndc_offset[0];
+                    draw_cords[1] += ndc_y_draw_center_offset + self.camera_ndc_offset[1];
 
-                    // Create a play block if block needs to be rendered
                     let mut play_block = PlayBlock::new_blank();
-
-                    // World
-                    play_block.block_type = block_type_at_cord;
+                    play_block.block_type = BlockTexture::from_id(world.get_world_value(world_block_cords));
                     play_block.block_world_cords = world_block_cords;
-
-                    // Rendering
                     play_block.rendering_block_cords = [x, y, z];
                     play_block.draw_cords = draw_cords;
                     play_block.ndc_block_scale = self.ndc_block_scale;
 
+                    play_blocks.push(play_block);
+                }
+            }
+        }
 
-                    play_block.render_block(texture_manager);
-                    play_block.render_cursor(texture_manager, block_ghost);
-                    play_block.render_area(texture_manager, location_rc.borrow().get_area());
-                    
+        // Pass 2: Render in order
+        let config = self.rendering_config.borrow();
+        let locations_to_render = config.get_locations_to_render().borrow();
+        let render_all_locations = config.should_render_all_locations();
+
+        for play_block in play_blocks.iter() {
+            play_block.render_block(texture_manager);
+            play_block.render_cursor(texture_manager, block_ghost);
+
+            if render_all_locations {
+                for location in locations_to_render.iter() {
+                    play_block.render_area(texture_manager, location.borrow().get_area());
                 }
             }
         }

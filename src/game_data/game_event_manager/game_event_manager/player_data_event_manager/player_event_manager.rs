@@ -9,7 +9,7 @@ pub enum PlayerDataEvent {
 
 
     CreateLocation(Rc<RefCell<WorldLocationConfig>>),
-    CreateLocationWithVar(Rc<RefCell<Var>>),
+    CreateLocationWithVar(Rc<RefCell<Var>>, Rc<RefCell<WorldLocation>>),
 
     LocationEvent(Rc<RefCell<WorldLocation>>, LocationEvent),
 }
@@ -34,8 +34,12 @@ impl PlayerDataEvent {
             PlayerDataEvent::CreateLocation(location_config) => {
                 location_config.borrow().create_location_in_manager(player_data.get_mut_location_manager());
             },
-            PlayerDataEvent::CreateLocationWithVar(var_ref) => {
-                let new_location = player_data.get_mut_location_manager().create_location_blank();
+            PlayerDataEvent::CreateLocationWithVar(var_ref, location_ref) => {
+                let new_location = 
+                    player_data.get_mut_location_manager().create_location(
+                        "name".to_string(), 
+                        *location_ref.borrow().get_area()
+                    );
                 *var_ref.borrow_mut() = DynamicVar::Location(Some(new_location)).wrap_into_var();
             },
         }
