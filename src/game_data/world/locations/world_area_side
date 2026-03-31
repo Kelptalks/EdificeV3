@@ -1,0 +1,27 @@
+pub enum WorldAreaSide {
+    XPlus,
+    XMinus,
+    YPlus,
+    YMinus,
+    ZPlus,
+    ZMinus,
+}
+
+
+impl AreaSide {
+    // Get Sides of world cords in area 
+    // Will return empty if point is not touching any sides
+    pub fn get_sides_of_cord_in_area() -> Vec<WorldPoint> {
+
+    }
+
+    // Get modifying values to expand the side of an area
+    pub fn get_area_point_expander_mods() -> [WorldPoint; 2] {
+
+    }
+
+    // Get modifying values to shrink the side of an area
+    pub fn get_area_point_shrinking_mods(&self) -> [WorldPoint; 2] {
+        
+    }
+}

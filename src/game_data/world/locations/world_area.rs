@@ -6,6 +6,16 @@ use crate::game_data::{
     types::BlockTexture,
 };
 
+
+pub enum AreaSide {
+    XPlus,
+    XMinus,
+    YPlus,
+    YMinus,
+    ZPlus,
+    ZMinus,
+}
+
 /*
 ###############
 ## WorldArea ##

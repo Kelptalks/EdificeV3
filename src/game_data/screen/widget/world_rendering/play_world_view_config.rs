@@ -44,7 +44,7 @@ impl PlayViewRendingConfig {
             camera_movment_event_type: Rc::new(RefCell::new(0)),
 
             // Focused Location
-            focused_location: Option<Rc<RefCell<WorldLocation>>>,
+            focused_location: None,
 
             // All World Location Rendering
             render_all_locations: Rc::new(RefCell::new(true)),
