@@ -81,7 +81,7 @@ impl DynamicVar {
 
                     let mut area = WorldArea::new_blank();
                     area.set_point_1(drone_cords);
-                    area.set_point_2(drone_cords);
+                    area.set_point_2_cords(drone_cords);
 
                     return Some(area);
                 }

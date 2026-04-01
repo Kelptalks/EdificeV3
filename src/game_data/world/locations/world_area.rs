@@ -2,19 +2,8 @@ use crate::game_data::{
     game_event_manager::{
         game_event_manager::EventManager,
         world_event_manager::world_event_manager::WorldEvent,
-    },
-    types::BlockTexture,
+    }, locations::world_point::WorldPoint, types::BlockTexture
 };
-
-
-pub enum AreaSide {
-    XPlus,
-    XMinus,
-    YPlus,
-    YMinus,
-    ZPlus,
-    ZMinus,
-}
 
 /*
 ###############
@@ -29,42 +18,58 @@ includes functions for checking bounds
 */
 #[derive(Clone, Copy)]
 pub struct WorldArea {
-    points: [[i32; 3]; 2],
+    points: [WorldPoint; 2],
 }
 
 impl WorldArea {
     pub fn new_blank() -> WorldArea {
         WorldArea {
-            points: [[0, 0, 0], [0, 0, 0]]
+            points: [WorldPoint::new(), WorldPoint::new()]
         }
     }
 
     //=====================================
     // points
     //=====================================
-    pub fn set_point(&mut self, index: usize, new_cords: [i32; 3]) {
-        self.points[index] = new_cords;
+    pub fn set_point(&mut self, index: usize, new_point: WorldPoint) {
+        self.points[index] = new_point;
     }
 
-    pub fn set_point_1(&mut self, world_cords: [i32; 3]) {
-        self.points[0] = world_cords;
+    pub fn set_point_1(&mut self, cords: [i32; 3]) {
+        self.points[0] = WorldPoint::new_with_cords(cords);
     }
 
-    pub fn set_point_2(&mut self, world_cords: [i32; 3]) {
-        self.points[1] = world_cords;
+    pub fn set_point_2_cords(&mut self, cords: [i32; 3]) {
+        self.points[1] = WorldPoint::new_with_cords(cords);
     }
 
-    pub fn get_point_1(&self) -> [i32; 3] {
-        return self.points[0];
+    pub fn get_point_1_cords(&self) -> [i32; 3] {
+        return self.points[0].cords;
     }
 
-    pub fn get_point_2(&self) -> [i32; 3] {
-        return self.points[1];
+    pub fn get_point_2_cords(&self) -> [i32; 3] {
+        return self.points[1].cords;
+    }
+
+    pub fn get_world_point(&self, index: usize) -> WorldPoint{
+        return self.points[index];
     }
 
     pub fn shift_point(&mut self, point_index: usize, shift_cords: [i32; 3]) {
-        for (i, axis) in self.points[point_index].iter_mut().enumerate() {
+        for (i, axis) in self.points[point_index].cords.iter_mut().enumerate() {
             *axis += shift_cords[i];
+        }
+    }
+
+    // Ensures point 1 always holds the lesser coordinate on every axis and
+    // point 2 holds the greater, by selecting the real corners of the box.
+    pub fn normalize_points(&mut self) {
+        for i in 0..3 {
+            if self.points[0].cords[i] > self.points[1].cords[i] {
+                let tmp = self.points[0].cords[i];
+                self.points[0].cords[i] = self.points[1].cords[i];
+                self.points[1].cords[i] = tmp;
+            }
         }
     }
 
@@ -74,7 +79,7 @@ impl WorldArea {
 
     pub fn shift_cords(&mut self, shift_cords: [i32; 3]) {
         for point in &mut self.points {
-            for (i, axis) in point.iter_mut().enumerate() {
+            for (i, axis) in point.cords.iter_mut().enumerate() {
                 *axis += shift_cords[i];
             }
         }
@@ -82,12 +87,12 @@ impl WorldArea {
 
     pub fn resize(&mut self, mod_scale: [i32; 3], expand: bool) {
         for i in 0..3 {
-            if self.points[0][i] < self.points[1][i] {
-                self.points[0][i] += if expand { -mod_scale[i] } else { mod_scale[i] };
-                self.points[1][i] += if expand { mod_scale[i] } else { -mod_scale[i] };
+            if self.points[0].cords[i] < self.points[1].cords[i] {
+                self.points[0].cords[i] += if expand { -mod_scale[i] } else { mod_scale[i] };
+                self.points[1].cords[i] += if expand { mod_scale[i] } else { -mod_scale[i] };
             } else {
-                self.points[1][i] += if expand { -mod_scale[i] } else { mod_scale[i] };
-                self.points[0][i] += if expand { mod_scale[i] } else { -mod_scale[i] };
+                self.points[1].cords[i] += if expand { -mod_scale[i] } else { mod_scale[i] };
+                self.points[0].cords[i] += if expand { mod_scale[i] } else { -mod_scale[i] };
             }
         }
     }
@@ -100,9 +105,9 @@ impl WorldArea {
     pub fn get_dimensions(&self) -> [i32; 3] {
         let [start, end] = self.points;
         [
-            (end[0] - start[0]).abs(),
-            (end[1] - start[1]).abs(),
-            (end[2] - start[2]).abs(),
+            (end.cords[0] - start.cords[0]).abs(),
+            (end.cords[1] - start.cords[1]).abs(),
+            (end.cords[2] - start.cords[2]).abs(),
         ]
     }
 
@@ -117,9 +122,9 @@ impl WorldArea {
     pub fn get_center_world_cords(&self) -> [i32; 3] {
         let [start, end] = self.points;
         [
-            start[0] + (end[0] - start[0]) / 2,
-            start[1] + (end[1] - start[1]) / 2,
-            start[2] + (end[2] - start[2]) / 2,
+            start.cords[0] + (end.cords[0] - start.cords[0]) / 2,
+            start.cords[1] + (end.cords[1] - start.cords[1]) / 2,
+            start.cords[2] + (end.cords[2] - start.cords[2]) / 2,
         ]
     }
 
@@ -134,8 +139,8 @@ impl WorldArea {
         // Get min and max
         for point in &self.points {
             for i in 0..cords.len() {
-                if point[i] < min[i] { min[i] = point[i]; }
-                if point[i] > max[i] { max[i] = point[i]; }
+                if point.cords[i] < min[i] { min[i] = point.cords[i]; }
+                if point.cords[i] > max[i] { max[i] = point.cords[i]; }
             }
         }
 
@@ -156,8 +161,8 @@ impl WorldArea {
 
         for point in &self.points {
             for i in 0..3 {
-                if point[i] < min[i] { min[i] = point[i]; }
-                if point[i] > max[i] { max[i] = point[i]; }
+                if point.cords[i] < min[i] { min[i] = point.cords[i]; }
+                if point.cords[i] > max[i] { max[i] = point.cords[i]; }
             }
         }
 
@@ -184,8 +189,8 @@ impl WorldArea {
 
         for point in &self.points {
             for i in 0..3 {
-                if point[i] < min[i] { min[i] = point[i]; }
-                if point[i] > max[i] { max[i] = point[i]; }
+                if point.cords[i] < min[i] { min[i] = point.cords[i]; }
+                if point.cords[i] > max[i] { max[i] = point.cords[i]; }
             }
         }
 
@@ -205,8 +210,8 @@ impl WorldArea {
 
         for point in &self.points {
             for i in 0..3 {
-                if point[i] < min[i] { min[i] = point[i]; }
-                if point[i] > max[i] { max[i] = point[i]; }
+                if point.cords[i] < min[i] { min[i] = point.cords[i]; }
+                if point.cords[i] > max[i] { max[i] = point.cords[i]; }
             }
         }
 
@@ -236,8 +241,8 @@ impl WorldArea {
 
         for point in &self.points {
             for i in 0..3 {
-                if point[i] < min[i] { min[i] = point[i]; }
-                if point[i] > max[i] { max[i] = point[i]; }
+                if point.cords[i] < min[i] { min[i] = point.cords[i]; }
+                if point.cords[i] > max[i] { max[i] = point.cords[i]; }
             }
         }
 
@@ -256,8 +261,8 @@ impl WorldArea {
 
         for point in &self.points {
             for i in 0..3 {
-                if point[i] < min[i] { min[i] = point[i]; }
-                if point[i] > max[i] { max[i] = point[i]; }
+                if point.cords[i] < min[i] { min[i] = point.cords[i]; }
+                if point.cords[i] > max[i] { max[i] = point.cords[i]; }
             }
         }
 

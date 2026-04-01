@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent, PlayerDataEvent}}, player_data::{drone_programming::var::{self, game_vars::{dynamic_var::{self}, game_var_type::GameVar}, var_type::Var}, locations::location::WorldLocation}};
+use crate::game_data::{game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent, PlayerDataEvent}}, locations::world_point::WorldPoint, player_data::{drone_programming::var::{self, game_vars::{dynamic_var::{self}, game_var_type::GameVar}, var_type::Var}, locations::location::WorldLocation}};
 
 #[derive(Clone)]
 pub enum LocationEvent {
@@ -31,7 +31,7 @@ impl LocationEvent {
             },
             LocationEvent::SetLocationPoint(index, new_point) => {
                 let mut location = location_ref.borrow_mut();
-                location.get_mut_area().set_point(*index, *new_point);
+                location.get_mut_area().set_point(*index, WorldPoint::new_with_cords(*new_point));
             },
             LocationEvent::ModSize(mod_scale, expand) => {
                 let mut location = location_ref.borrow_mut();

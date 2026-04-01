@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc, sync::{Arc, RwLock}};
 
 use miniquad::KeyCode;
 
-use crate::game_data::{TextureManager, World, ray_caster::ray::TileRay, screen::{ScreenData, camera_data::Direction, iso_cord_tool, widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{play_block::PlayBlock, play_view_control_manager::{self, PlayViewControlManager}, play_world_view_config::PlayViewRendingConfig}}}, types::BlockTexture};
+use crate::game_data::{TextureManager, World, ray_caster::ray::TileRay, screen::{ScreenData, camera_data::Direction, iso_cord_tool, widget::{panel::panel::Panel, prelude::play_world_view_config::PlayViewRenderingConfig, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{play_block::PlayBlock, play_view_control_manager::{self, PlayViewControlManager}, rendering_config}}}, types::BlockTexture};
 
 use crate::game_data::game_event_manager::prelude::*;
 
@@ -73,10 +73,10 @@ pub struct PlayWorldViewRender {
 
     // Input | Handling
     events: Vec<Event>,
-    control_manager: PlayViewControlManager,
+
 
     // World Rendering
-    rendering_config: Rc<RefCell<PlayViewRendingConfig>>,
+    rendering_config: Rc<RefCell<PlayViewRenderingConfig>>,
 
     
     camera_direction: ViewDirection,
@@ -91,7 +91,7 @@ pub struct PlayWorldViewRender {
 }
 
 impl PlayWorldViewRender {
-    pub fn new(play_view_rendering_config: Rc<RefCell<PlayViewRendingConfig>>) -> PlayWorldViewRender{
+    pub fn new(play_view_rendering_config: Rc<RefCell<PlayViewRenderingConfig>>) -> PlayWorldViewRender{
 
 
         let config = play_view_rendering_config.borrow();
@@ -118,7 +118,6 @@ impl PlayWorldViewRender {
 
             // Input | Handling
             events: Vec::new(),
-            control_manager: input_manager,
 
             // Player Data Links
             rendering_config: play_view_rendering_config,
@@ -138,7 +137,7 @@ impl PlayWorldViewRender {
         WidgetType::PlayWorldViewRender(self)
     }
 
-    pub fn get_rendering_config(&self) -> &Rc<RefCell<PlayViewRendingConfig>> {
+    pub fn get_rendering_config(&self) -> &Rc<RefCell<PlayViewRenderingConfig>> {
         return &self.rendering_config;
     }
 
@@ -146,9 +145,6 @@ impl PlayWorldViewRender {
     // Controls
     //=====================================
     
-    pub fn get_camera_control_manager(&self) -> &PlayViewControlManager {
-        return &self.control_manager;
-    }
 
     pub fn add_event(&mut self, event: Event) {
         self.events.push(event);
@@ -196,8 +192,9 @@ impl PlayWorldViewRender {
             self.camera_ndc_offset[0] -= self.ndc_tile_scale;
             self.camera_ndc_offset[1] += self.ndc_tile_half_scale;
         } 
+        
 
-        game_event_manager.add_event(self.control_manager.get_camera_shift_event(cords_offset));
+        self.rendering_config.borrow().get_cursor_config().add_move_cursor_event_with_shift_mod(game_event_manager, cords_offset);
 
     }
 

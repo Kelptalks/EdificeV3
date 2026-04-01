@@ -1,6 +1,6 @@
 use std::{cell::{Ref, RefCell}, rc::{self, Rc}, sync::{Arc, RwLock}};
 
-use crate::game_data::{World, locations::world_area::WorldArea, player_data::{locations::{location::WorldLocation, location_manager::LocationManager}, player_data::PlayerData}, types::BlockTexture};
+use crate::game_data::{World, locations::world_area::WorldArea, player_data::{locations::{location::WorldLocation, location_manager::LocationManager}, player_data::PlayerData}, screen::widget::world_rendering::rendering_config::cursor_config::{self, CursorConfig}, types::BlockTexture};
 
 pub enum CameraMovementType {
     ShiftArea,
@@ -8,7 +8,7 @@ pub enum CameraMovementType {
 
 }
 
-pub struct PlayViewRendingConfig {
+pub struct PlayViewRenderingConfig {
     world_ref: Arc<RwLock<World>>,
 
     cursor_location: Rc<RefCell<WorldLocation>>,
@@ -24,15 +24,18 @@ pub struct PlayViewRendingConfig {
     // All World Location Rendering
     render_all_locations: Rc<RefCell<bool>>,
     all_locations: Rc<RefCell<Vec<Rc<RefCell<WorldLocation>>>>>,
+
+    cursor_config: CursorConfig
+
 }
 
-impl PlayViewRendingConfig {
-    pub fn new(player_data: &mut PlayerData) -> Rc<RefCell<PlayViewRendingConfig>> {
+impl PlayViewRenderingConfig {
+    pub fn new(player_data: &mut PlayerData) -> Rc<RefCell<PlayViewRenderingConfig>> {
         
         let cursor_location = player_data.get_mut_location_manager().create_location("cursor_location".to_string(), WorldArea::new_blank());
         let world_ref = player_data.get_world_ref();
         
-        let config = PlayViewRendingConfig {
+        let config = PlayViewRenderingConfig {
             world_ref: world_ref,
             
             // Cursor
@@ -49,9 +52,24 @@ impl PlayViewRendingConfig {
             // All World Location Rendering
             render_all_locations: Rc::new(RefCell::new(true)),
             all_locations: player_data.get_mut_location_manager().get_locations_ref_vec().clone(),
+
+
+            cursor_config: CursorConfig::new(player_data),
         };
 
         return Rc::new(RefCell::new(config));
+    }
+
+    //=====================================
+    // Main Element Getters
+    //=====================================
+
+    pub fn get_cursor_config(&self) -> &CursorConfig {
+        return &self.cursor_config;
+    }
+
+    pub fn get_mut_cursor_config(&mut self) -> &mut CursorConfig {
+        return &mut self.cursor_config;
     }
 
     //=====================================
@@ -75,7 +93,7 @@ impl PlayViewRendingConfig {
     //=====================================
 
     pub fn get_cursor_location_ref(&self) -> &Rc<RefCell<WorldLocation>> {
-        return &self.cursor_location;
+        return &self.cursor_config.get_location_ref();
     }
 
     pub fn get_zoom_ref(&self) -> &Rc<RefCell<i32>> {

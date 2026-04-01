@@ -1,4 +1,4 @@
-use crate::game_data::screen::{menu_constructors::play_view_menu::{new_play_view::RefManager, world_hot_bar}, widget::{panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, PlayWorldViewRender}, widget::WidgetType}};
+use crate::game_data::{game_event_manager::widget_event_manager::play_view_events::PlayViewEvent, screen::{menu_constructors::play_view_menu::{new_play_view::RefManager, world_hot_bar}, widget::{panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, PlayWorldViewRender}, widget::WidgetType}}};
 
 use miniquad::KeyCode;
 
@@ -22,7 +22,7 @@ pub fn get_widget(ref_manager: &mut RefManager) -> WidgetType {
         // Add Controls
         inputs.append(&mut construct_zoom_events(ref_manager));
         inputs.append(&mut construct_area_selection_events(ref_manager));
-        inputs.append(&mut construct_camera_keyboard_movements(&play_view));
+        inputs.append(&mut construct_camera_keyboard_movements(ref_manager));
         panel.add_events(&mut inputs);
 
         play_view.set_prefered_size(0.95);
@@ -83,28 +83,26 @@ fn construct_zoom_events(ref_manager: &mut RefManager) -> Vec<Event> {
     return zoom_input_events;
 }
 
-fn construct_camera_keyboard_movements(play_view: &PlayWorldViewRender) -> Vec<Event>{
+fn construct_camera_keyboard_movements(ref_manager: &mut RefManager) -> Vec<Event>{
     let mut input_events = Vec::new();
-    let camera_control_manager = play_view.get_camera_control_manager();
 
-    let movment_event = camera_control_manager.get_camera_shift_event([0, 0, -1]);
+    let movment_event = PlayViewEvent::ShiftCursor(ref_manager.play_view_rendering_config.clone(), [0, 0, -1]).wrap_into_event();
     input_events.push(input_event_manager::construct_key_down_event(KeyCode::LeftShift, movment_event));
 
-    let movment_event = camera_control_manager.get_camera_shift_event([0, 0, 1]);
+    let movment_event = PlayViewEvent::ShiftCursor(ref_manager.play_view_rendering_config.clone(), [0, 0, 1]).wrap_into_event();
     input_events.push(input_event_manager::construct_key_down_event(KeyCode::Space, movment_event));
 
     // Horizontal Key Movment
-    let movment_event = camera_control_manager.get_camera_shift_event([0, -1, 0]);
+    let movment_event = PlayViewEvent::ShiftCursor(ref_manager.play_view_rendering_config.clone(), [0, -1, 0]).wrap_into_event();
     input_events.push(input_event_manager::construct_key_down_event(KeyCode::W, movment_event));
 
-    let movment_event = camera_control_manager.get_camera_shift_event([0, 1, 0]);
+    let movment_event = PlayViewEvent::ShiftCursor(ref_manager.play_view_rendering_config.clone(), [0, 1, 0]).wrap_into_event();
     input_events.push(input_event_manager::construct_key_down_event(KeyCode::S, movment_event));
 
-    let movment_event = camera_control_manager.get_camera_shift_event([-1, 0, 0]);
+    let movment_event = PlayViewEvent::ShiftCursor(ref_manager.play_view_rendering_config.clone(), [-1, 0, 0]).wrap_into_event();
     input_events.push(input_event_manager::construct_key_down_event(KeyCode::A, movment_event));
 
-    let movment_event = camera_control_manager.get_camera_shift_event([1, 0, 0]);
+    let movment_event = PlayViewEvent::ShiftCursor(ref_manager.play_view_rendering_config.clone(), [1, 0, 0]).wrap_into_event();
     input_events.push(input_event_manager::construct_key_down_event(KeyCode::D, movment_event));
     return input_events;
-
 }

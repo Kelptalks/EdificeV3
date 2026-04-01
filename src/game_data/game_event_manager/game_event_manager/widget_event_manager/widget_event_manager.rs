@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}, widget_event_manager::prim_events::prim_event_manager::PrimEvent}, screen::widget::{widget::WidgetType}, types::BlockTexture};
+use crate::game_data::{game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}, widget_event_manager::{play_view_events::PlayViewEvent, prim_events::prim_event_manager::PrimEvent}}, screen::widget::widget::WidgetType, types::BlockTexture};
 
 #[derive(Clone)]
 pub enum WidgetEvent {
@@ -16,7 +16,8 @@ pub enum WidgetEvent {
     Modi32Event(Rc<RefCell<i32>>, i32),
 
     // Game type
-    SetBlockRef(Rc<RefCell<BlockTexture>>, Rc<RefCell<BlockTexture>>)
+    SetBlockRef(Rc<RefCell<BlockTexture>>, Rc<RefCell<BlockTexture>>),
+    PlayViewEvent(PlayViewEvent),
 }
 
 
@@ -29,7 +30,8 @@ impl WidgetEvent {
         return Event::GameEvent(GameEvent::WidgetEvent(self));
     }
 
-    pub fn execute_widget_event(&self, event_tools: &mut GameEventManager) {
+    pub fn execute_widget_event(&self, event_tools: &mut GameEventManager) -> Vec<Event> {
+        let mut events = Vec::new();
         match self {
             WidgetEvent::PrimEvent(event) => {
                 event.execute();
@@ -50,6 +52,11 @@ impl WidgetEvent {
             WidgetEvent::SetBlockRef(current_block, new_block) => {
                 *current_block.borrow_mut() = *new_block.borrow();
             },
+            WidgetEvent::PlayViewEvent(play_view_event) => {
+                events.append(&mut play_view_event.execute_widget_event(event_tools));
+            },
         }
+
+        events
     }
 }

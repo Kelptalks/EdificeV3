@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::{Event, PrimEvent, UsizeEvent}, locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{var_ref_hot_bar, world_hot_bar, world_view}, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, world_rendering::play_world_view_config::PlayViewRendingConfig}}};
+use crate::game_data::{game_event_manager::prelude::{Event, PrimEvent, UsizeEvent}, locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{var_ref_hot_bar, world_hot_bar, world_view}, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, world_rendering::rendering_config::play_world_view_config::PlayViewRenderingConfig}}};
 
 pub enum PlayViewMode {
     Main = 0,
@@ -21,7 +21,7 @@ impl PlayViewMode {
 
 pub struct RefManager {
     pub cursor_location: Rc<RefCell<WorldLocation>>,
-    pub play_view_rendering_config: Rc<RefCell<PlayViewRendingConfig>>,
+    pub play_view_rendering_config: Rc<RefCell<PlayViewRenderingConfig>>,
 
     pub show_drones_toggle: Rc<RefCell<bool>>,
     pub show_locations_toggle: Rc<RefCell<bool>>,
@@ -34,7 +34,7 @@ pub struct RefManager {
 
 impl RefManager {
     pub fn new(player_data: &mut PlayerData) -> RefManager {
-        let rendering_config = PlayViewRendingConfig::new(player_data);
+        let rendering_config = PlayViewRenderingConfig::new(player_data);
         let cursor_location =  rendering_config.borrow().get_cursor_location_ref().clone();
         let show_locations_bool = rendering_config.borrow().get_should_render_all_locations_ref().clone();
 

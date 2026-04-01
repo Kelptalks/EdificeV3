@@ -161,7 +161,8 @@ impl EventManager {
 
     pub fn execute_widget_events(&mut self) {
         while let Some(widget_event) = self.game_event_manager.widget_events.pop() {
-            widget_event.execute_widget_event(&mut self.game_event_manager);
+            let events = widget_event.execute_widget_event(&mut self.game_event_manager);
+            self.add_events(&events);
         }
     }
 

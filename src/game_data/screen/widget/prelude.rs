@@ -22,7 +22,8 @@ pub use super::text::text_input::TextInput;
 
 // World Rendering
 pub use super::world_rendering::play_world_view_render::PlayWorldViewRender;
-pub use super::world_rendering::play_world_view_config::{PlayViewRendingConfig, CameraMovementType};
+
+pub use super::world_rendering::rendering_config::{play_world_view_config};
 
 // Drone Programming
 pub use super::drone_programming::vars::var_slot::VarSlot;

@@ -1,4 +1,4 @@
-use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, PlayerDataEvent}, player_data::drone_programming::var, screen::{menu_constructors::play_view_menu::new_play_view::{PlayViewMode, RefManager}, widget::{button, panel::panel::{PanelAlignment, PanelOrientation}, prelude::{Panel, PanelColor, TabPanel, VarSlot}, tab_panel, widget::WidgetType}}, types::{BlockTexture, UITextures}};
+use crate::game_data::{game_event_manager::{prelude::{Event, GameEvent, PlayerDataEvent}, widget_event_manager::play_view_events::PlayViewEvent}, player_data::drone_programming::var, screen::{menu_constructors::play_view_menu::new_play_view::{PlayViewMode, RefManager}, widget::{button, panel::panel::{PanelAlignment, PanelOrientation}, prelude::{Panel, PanelColor, TabPanel, VarSlot}, tab_panel, widget::WidgetType, world_rendering::rendering_config::cursor_config::CursorMode}}, types::{BlockTexture, UITextures}};
 
 
 //=====================================
@@ -21,10 +21,16 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
                 ref_manager.cursor_location.clone(),
             ).wrap_into_event();
         create_location_button.add_event(blank_location_event);
+        create_location_button.add_event(
+            PlayViewEvent::SetCursorMode(
+                ref_manager.play_view_rendering_config.clone(),
+                CursorMode::LockedToVar(ref_manager.selected_world_location.clone())
+            ).wrap_into_event()
+        );
         create_location_button.add_event(PlayViewMode::Location.to_tab_panel_event(&ref_manager.play_view_mode));
+        
         create_location_button.set_text("Create Location".to_string());
         create_location_button.set_icon(UITextures::LocationIcon);
-        
 
         // Toggle show drones
         let show_drones = panel.add_toggle_button();
