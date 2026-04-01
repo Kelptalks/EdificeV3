@@ -1,26 +1,13 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::{Event, EventManager, LocationEvent, PlayerDataEvent}, locations::{world_area::WorldArea, world_area_side::WorldAreaSide, world_point::WorldPoint}, player_data::{drone_programming::var::{game_vars::{dynamic_var::{self, DynamicVar}, game_var_type::GameVar}, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}};
+use crate::game_data::{game_event_manager::prelude::{Event, EventManager, LocationEvent, PlayerDataEvent}, locations::{world_area::WorldArea, world_area_side::WorldAreaSide, world_point::WorldPoint}, player_data::{drone_programming::var::{game_vars::{game_var_type::GameVar}, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}};
 
 #[derive(Clone)]
 pub enum CursorMode {
     Free(), // Do not restric movment of cursor
-
-    Expand(Rc<RefCell<WorldLocation>>), // Expand a location when it leaves it's bounds to fit the cursor
     LockedToVar(Rc<RefCell<Var>>), // Prevent the cursor from leaveing the locations bounds
 
 }
-
-impl CursorMode {
-    pub fn get_id(&self) -> usize {
-        match self {
-            CursorMode::Free() => 0,
-            CursorMode::Expand(_ref_cell) => 1,
-            CursorMode::LockedToVar(_ref_cell) => 2,
-        }
-    }
-}
-
 
 pub struct CursorConfig {
     location: Rc<RefCell<WorldLocation>>,
@@ -97,7 +84,6 @@ impl CursorConfig {
             CursorMode::Free() => {
                 events.push(self.construct_shift_event(shift));
             },
-            CursorMode::Expand(_ref_cell) => todo!(),
             CursorMode::LockedToVar(var_ref) => {
                 let borrowed = var_ref.borrow();
                 if let Var::Game(GameVar::Dynamic(dynamic_var)) = &*borrowed {

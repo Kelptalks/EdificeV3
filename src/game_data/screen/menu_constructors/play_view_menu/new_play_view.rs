@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::{Event, PrimEvent, UsizeEvent}, locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{var_ref_hot_bar, world_hot_bar, world_view}, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, world_rendering::rendering_config::play_world_view_config::PlayViewRenderingConfig}}};
+use crate::game_data::{game_event_manager::prelude::{Event, PrimEvent, UsizeEvent}, locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{managmenet_panel, var_ref_hot_bar, world_hot_bar, world_view}, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, world_rendering::rendering_config::play_world_view_config::PlayViewRenderingConfig}}};
 
 pub enum PlayViewMode {
     Main = 0,
@@ -28,7 +28,7 @@ pub struct RefManager {
     pub render_only_selected_location: Rc<RefCell<bool>>,
 
 
-    pub selected_world_location: Rc<RefCell<Var>>,
+    pub selected_var: Rc<RefCell<Var>>,
     pub play_view_mode: Rc<RefCell<usize>>,
 }
 
@@ -47,7 +47,7 @@ impl RefManager {
             show_locations_toggle: show_locations_bool,
             render_only_selected_location: Rc::new(RefCell::new(false)),
 
-            selected_world_location: Rc::new(RefCell::new(DynamicVar::Location(None).wrap_into_var())),
+            selected_var: Rc::new(RefCell::new(DynamicVar::Location(None).wrap_into_var())),
             
             play_view_mode: Rc::new(RefCell::new(0)),
         }
@@ -75,9 +75,9 @@ impl PlayViewConstructionManager {
 
 
             panel.add_widget(var_ref_hot_bar::get_widget());
-
             panel.add_widget(world_view::get_widget(&mut self.ref_manager));
-            
+            panel.add_widget(managmenet_panel::get_widget(&mut self.ref_manager));
+
             panel.size();
         }
         return panel;

@@ -1,10 +1,12 @@
-use crate::game_data::{game_event_manager::{prelude::{Event, GameEvent, PlayerDataEvent}, widget_event_manager::play_view_events::PlayViewEvent}, player_data::drone_programming::var, screen::{menu_constructors::play_view_menu::new_play_view::{PlayViewMode, RefManager}, widget::{button, panel::panel::{PanelAlignment, PanelOrientation}, prelude::{Panel, PanelColor, TabPanel, VarSlot}, tab_panel, widget::WidgetType, world_rendering::rendering_config::cursor_config::CursorMode}}, types::{BlockTexture, UITextures}};
+use crate::game_data::{game_event_manager::{prelude::{PlayerDataEvent}, widget_event_manager::play_view_events::PlayViewEvent}, screen::{menu_constructors::play_view_menu::new_play_view::{PlayViewMode, RefManager}, widget::{panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel, VarSlot}, widget::WidgetType, world_rendering::rendering_config::cursor_config::CursorMode}}, types::{BlockTexture, UITextures}};
 
 
 //=====================================
 // Hotbar Panel Constructors
 //=====================================
 
+
+/// Main HotBar
 fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
 
@@ -16,10 +18,10 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         // Toggle create location
         let create_location_button = panel.add_button();
 
-        // Create a new location
+        // Create a new location button
         create_location_button.add_event(
             PlayerDataEvent::CreateLocationWithVar(
-                ref_manager.selected_world_location.clone(),
+                ref_manager.selected_var.clone(),
                 ref_manager.cursor_location.clone(),
             ).wrap_into_event()
         );
@@ -28,11 +30,10 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         create_location_button.add_event(
             PlayViewEvent::SetCursorMode(
                 ref_manager.play_view_rendering_config.clone(),
-                CursorMode::LockedToVar(ref_manager.selected_world_location.clone())
+                CursorMode::LockedToVar(ref_manager.selected_var.clone())
             ).wrap_into_event()
         );
         create_location_button.add_event(PlayViewMode::Location.to_tab_panel_event(&ref_manager.play_view_mode));
-        
         create_location_button.set_text("Create Location".to_string());
         create_location_button.set_icon(UITextures::LocationIcon);
 
@@ -67,8 +68,17 @@ fn get_location_hotbar(ref_manager: &mut RefManager) -> WidgetType {
         back_button.add_event(PlayViewMode::Main.to_tab_panel_event(&ref_manager.play_view_mode));
         back_button.set_text("Back".to_string());
 
+        // Set the cameras mode to lock into the location
+        back_button.add_event(
+            PlayViewEvent::SetCursorMode(
+                ref_manager.play_view_rendering_config.clone(),
+                CursorMode::Free()
+            ).wrap_into_event()
+        );
+
+
         // Var Source Slot
-        let mut var_slot = VarSlot::new(&ref_manager.selected_world_location);
+        let mut var_slot = VarSlot::new(&ref_manager.selected_var);
         var_slot.set_dragging_properties(true, false, false);     
         panel.add_widget(var_slot.wrap_into_widget());
 
@@ -112,8 +122,6 @@ fn get_blue_print_hotbar(ref_manager: &mut RefManager) -> WidgetType {
         back_button.set_icon(UITextures::LeftArrowIcon);
         back_button.add_event(PlayViewMode::Location.to_tab_panel_event(&ref_manager.play_view_mode));
         back_button.set_text("Back".to_string());
-        
-
         
         
         

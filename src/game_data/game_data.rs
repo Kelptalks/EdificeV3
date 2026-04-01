@@ -189,6 +189,8 @@ impl GameData {
         let frame_duration = system_time_end.duration_since(frame_start_time).unwrap();
         let frame_duration_ms = frame_duration.as_millis();
         
+
+
         // Update game events
         self.event_manager.execute_dispatch_events();
         self.event_manager.dispatch_input_events(screen_mananager);

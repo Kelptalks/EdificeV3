@@ -44,7 +44,6 @@ impl LocationEvent {
                         location_ref.borrow_mut().set_area(area);
                     }
                 }
-
             }
         }
 
