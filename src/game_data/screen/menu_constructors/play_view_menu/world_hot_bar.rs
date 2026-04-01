@@ -15,12 +15,16 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         
         // Toggle create location
         let create_location_button = panel.add_button();
-        let blank_location_event = 
+
+        // Create a new location
+        create_location_button.add_event(
             PlayerDataEvent::CreateLocationWithVar(
                 ref_manager.selected_world_location.clone(),
                 ref_manager.cursor_location.clone(),
-            ).wrap_into_event();
-        create_location_button.add_event(blank_location_event);
+            ).wrap_into_event()
+        );
+
+        // Set the cameras mode to lock into the location
         create_location_button.add_event(
             PlayViewEvent::SetCursorMode(
                 ref_manager.play_view_rendering_config.clone(),

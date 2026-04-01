@@ -111,7 +111,6 @@ impl CursorConfig {
                 else {
                     println!("Cannot Lock cursor to var({})", var_ref.borrow().get_name());
                 }
-
             },
         }
 
