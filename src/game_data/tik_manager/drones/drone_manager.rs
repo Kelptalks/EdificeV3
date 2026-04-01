@@ -1,8 +1,7 @@
-use std::{collections::HashMap, process::id, sync::{Arc, RwLock}};
+use std::{collections::HashMap, sync::{Arc, RwLock}};
 
-use rand::distr::Map;
 
-use crate::game_data::{World, screen::screen_task_manager::{self, rendering_task_manager::RenderingTaskManager}, tik_manager::drones::{drone::Drone, lua_manager::LuaManager}, world_task_manager::world_task_manager::WorldTaskManager};
+use crate::game_data::{World, tik_manager::drones::drone::Drone, world_task_manager::world_task_manager::WorldTaskManager};
 
 pub struct DroneManager{
     current_id: u32,

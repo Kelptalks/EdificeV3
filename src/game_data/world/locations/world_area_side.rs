@@ -1,4 +1,4 @@
-use crate::game_data::locations::{world_area::WorldArea, world_point::{self, WorldPoint}};
+use crate::game_data::locations::{world_area::WorldArea, world_point::WorldPoint};
 
 static ALL_WORLD_AREA_SIDES: [WorldAreaSide; 6] = [
     WorldAreaSide::XPlus,

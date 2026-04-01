@@ -1,4 +1,4 @@
-use crate::game_data::{player_data::drone_programming::var::{game_vars::{dynamic_var::DynamicVar, game_var_type::GameVar}, var_type::Var}, screen::{menu_constructors::play_view_menu::new_play_view::RefManager, widget::{panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel}, widget::WidgetType, widget_calculations::TextSize}}};
+use crate::game_data::screen::{menu_constructors::play_view_menu::new_play_view::RefManager, widget::{panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel}, widget::WidgetType, widget_calculations::TextSize}};
 
 fn get_main_view_panel(ref_manager: &mut RefManager) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);

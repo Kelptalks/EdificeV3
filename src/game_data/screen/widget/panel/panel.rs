@@ -1,6 +1,5 @@
-use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{TextureManager, player_data::drone_programming::var::var_type::{Var, VarTypeKind}, game_event_manager::{event_manager, game_event_manager::{EventManager, GameEvent}, prelude::Event}, screen::{ScreenData, text, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::vars::{var_slot::VarSlot}, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::{self, scroll_panel::ScrollPanel}, tab_panel::tab_panel::TabPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{play_world_view_render::PlayWorldViewRender}}}, types::UITextures};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::EventManager, prelude::Event}, screen::{ScreenData, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::scroll_panel::ScrollPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations}}};
 
 
 #[derive(Clone, Copy)]

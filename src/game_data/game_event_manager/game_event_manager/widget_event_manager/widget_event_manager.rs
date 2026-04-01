@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}, widget_event_manager::{play_view_events::PlayViewEvent, prim_events::prim_event_manager::PrimEvent}}, screen::widget::widget::WidgetType, types::BlockTexture};
+use crate::game_data::{game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}, widget_event_manager::{play_view_events::PlayViewEvent, prim_events::prim_event_manager::PrimEvent}}, types::BlockTexture};
 
 #[derive(Clone)]
 pub enum WidgetEvent {

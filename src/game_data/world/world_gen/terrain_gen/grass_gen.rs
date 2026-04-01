@@ -1,5 +1,5 @@
 use crate::game_data::{types::BlockTexture, World};
-use rand::{random_bool, rngs::ThreadRng, Rng};
+use rand::{rngs::ThreadRng, Rng};
 
 struct GroundItem {
     block_type: BlockTexture,

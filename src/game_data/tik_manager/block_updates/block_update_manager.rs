@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use rand::random_range;
 
-use crate::game_data::{World, tik_manager::block_updates::plant_update, types::BlockTexture, world_task_manager::{self, world_task_manager::WorldTaskManager}};
+use crate::game_data::{World, tik_manager::block_updates::plant_update, types::BlockTexture, world_task_manager::world_task_manager::WorldTaskManager};
 
 /*
 ##########################

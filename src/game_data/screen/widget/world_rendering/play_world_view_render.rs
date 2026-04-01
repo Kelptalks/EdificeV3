@@ -1,8 +1,7 @@
-use std::{cell::RefCell, rc::Rc, sync::{Arc, RwLock}};
+use std::{cell::RefCell, rc::Rc};
 
-use miniquad::KeyCode;
 
-use crate::game_data::{TextureManager, World, ray_caster::ray::TileRay, screen::{ScreenData, camera_data::Direction, iso_cord_tool, widget::{panel::panel::Panel, prelude::play_world_view_config::PlayViewRenderingConfig, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{play_block::PlayBlock, play_view_control_manager::{self, PlayViewControlManager}, rendering_config}}}, types::BlockTexture};
+use crate::game_data::{TextureManager, ray_caster::ray::TileRay, screen::{ScreenData, iso_cord_tool, widget::{prelude::play_world_view_config::PlayViewRenderingConfig, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{play_block::PlayBlock, play_view_control_manager::PlayViewControlManager}}}, types::BlockTexture};
 
 use crate::game_data::game_event_manager::prelude::*;
 

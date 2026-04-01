@@ -1,8 +1,8 @@
-use std::{fmt::format, i32};
+use std::i32;
 
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, screen::{Button, ScreenData, render_centered_string_at_ndc}, texture_manager, types::UITextures};
+use crate::game_data::{TextureManager, screen::{Button, ScreenData, render_centered_string_at_ndc}, types::UITextures};
 
 pub struct Stepper {
     // Value controls

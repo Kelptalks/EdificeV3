@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, screen::screen_task_manager::{self, rendering_task_manager::{self, RenderingTaskManager}}, types::BlockTexture};
+use crate::game_data::{World, screen::screen_task_manager::rendering_task_manager::RenderingTaskManager, types::BlockTexture};
 
 pub struct ModBlockTask {
     world_cords : [i32; 3],

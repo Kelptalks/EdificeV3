@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, screen::{Button, ScreenData, screen_data, ui_elements::{panel::Panel, selection_menu::SelectionMenu}}, types::BlockTexture};
+use crate::game_data::{TextureManager, screen::{Button, ScreenData, ui_elements::selection_menu::SelectionMenu}, types::BlockTexture};
 
 pub struct BlockSelection {
     selection_menu: SelectionMenu,

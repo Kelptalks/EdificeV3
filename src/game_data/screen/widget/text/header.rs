@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{screen::{text::{self, render_string_at_ndc}, widget::{widget::Widget, widget_calculations::{self, TextSize}}}, types::FontType};
+use crate::game_data::{screen::{text::render_string_at_ndc, widget::{widget::Widget, widget_calculations::{self, TextSize}}}, types::FontType};
 
 pub struct TextDisplay {
     // Parent rendering

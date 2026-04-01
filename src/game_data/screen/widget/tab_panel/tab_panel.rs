@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::game_event_manager::GameEvent, widget_event_manager::widget_event_manager::WidgetEvent}, screen::{render_string, text::render_string_at_ndc, widget::{button::{self, button::Button}, panel::panel::Panel, widget::{Widget, WidgetType}, widget_calculations}}, types::UITextures};
+use crate::game_data::{game_event_manager::widget_event_manager::widget_event_manager::WidgetEvent, screen::{text::render_string_at_ndc, widget::{button::button::Button, panel::panel::Panel, widget::{Widget, WidgetType}, widget_calculations}}};
 
 pub struct TabPanel {
     // Parent 

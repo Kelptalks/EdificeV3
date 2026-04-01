@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::game_event_manager::{event_manager::Event, game_event_manager::game_event_manager::GameEventManager};
+use crate::game_data::game_event_manager::event_manager::Event;
 
 #[derive(Clone)]
 pub enum DispatchEvent {

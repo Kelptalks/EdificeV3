@@ -1,6 +1,5 @@
-use std::{collections::HashMap, hash::Hash, path::absolute, ptr::null, sync::Arc};
+use std::collections::HashMap;
 
-use crate::game_data::{level_manager::level_manager::LevelManager, log_header, log_init, tik_manager::drones::drone_manager::DroneManager, types::BlockTexture, world::{self, world_gen::WorldGenManager}};
 
 
 const CHUNK_SIZE: usize = 64;
@@ -27,7 +26,7 @@ impl WorldChunk {
     pub fn cords_to_index(cords :[usize; 3]) -> usize
     {
         let cord_index = cords[0] + (cords[1] * CHUNK_SIZE) + (cords[2] * CHUNK_AREA);
-        if (cord_index >= CHUNK_VOLUME)
+        if cord_index >= CHUNK_VOLUME
         {
             println!("World_Error : failed to set chunk value at cords({}, {}, {}) giving index({}) out of range", cords[0], cords[1], cords[2], cord_index);
             return 0;
@@ -66,7 +65,7 @@ impl WorldChunk {
         for x_cor in 0..CHUNK_SIZE {
             for y_cor in 0..CHUNK_SIZE {
                 for z_cor in 0..CHUNK_SIZE {
-                    if (world_chunk.get_chunk_value([x_cor, y_cor, z_cor]) != 16)
+                    if world_chunk.get_chunk_value([x_cor, y_cor, z_cor]) != 16
                     {
                         println!("Error Reading/Setting value in world chunk")
                     }

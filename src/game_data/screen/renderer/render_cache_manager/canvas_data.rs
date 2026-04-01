@@ -1,4 +1,4 @@
-use crate::game_data::screen::renderer::{casted_block_manager::casted_chunk::CastedChunk, render_cache_manager::canvas};
+use crate::game_data::screen::renderer::casted_block_manager::casted_chunk::CastedChunk;
 
 #[derive(Clone, Copy)]
 pub struct CanvasData {

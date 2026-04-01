@@ -1,6 +1,5 @@
-use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drones::drone::Drone, texture_manager::texture::Texture};
+use crate::game_data::texture_manager::texture::Texture;
 
 pub use super::{
     dynamic_var::{DynamicVar, DynamicVarTypeKind},

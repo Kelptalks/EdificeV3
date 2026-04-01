@@ -1,9 +1,8 @@
-use std::{alloc::System, clone, collections::{HashMap, HashSet}, sync::{Arc, RwLock, TryLockError}, time::SystemTime};
+use std::{collections::HashSet, sync::{Arc, RwLock, TryLockError}, time::SystemTime};
 
 use miniquad::{GlContext, RenderingBackend};
-use rand::distr::Map;
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, log_init, screen::{self, camera_data::{self, CameraData}, iso_cord_tool, render_string, renderer::{camera, casted_block_manager::{self, casted_chunk::{self, CastedChunk}, casted_tile::CastedTile}, render_cache_manager::{self, canvas_data, render_cashe_manager::RenderCacheManager}, thread_manager::raycast_thread_pool::RaycastThreadPool}, text}, types::{BlockTriangle, BlockTexture, UITextures}};
+use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, log_init, screen::{camera_data::CameraData, iso_cord_tool, renderer::{render_cache_manager::render_cashe_manager::RenderCacheManager, thread_manager::raycast_thread_pool::RaycastThreadPool}}, types::UITextures};
 use super::casted_block_manager::casted_block_manager::CastedChunkManager;
 
 pub struct Camera

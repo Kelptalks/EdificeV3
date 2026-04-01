@@ -1,7 +1,5 @@
-use std::sync::{Arc, RwLock};
 
-use crate::game_data::game_event_manager;
-use crate::game_data::game_event_manager::prelude::{EventManager, GameEventManager, WorldEvent};
+use crate::game_data::game_event_manager::prelude::{EventManager, WorldEvent};
 use crate::game_data::texture_manager::texture::Texture;
 use crate::game_data::tik_manager::drones::drone_inventory::{DroneInventory};
 use crate::game_data::types::drone_item::DroneItem;

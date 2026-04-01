@@ -1,5 +1,5 @@
 use crate::game_data::types::{BlockTriangle, BlockTexture};
-use image::{ImageBuffer, Rgba, RgbaImage};
+use image::RgbaImage;
 
 static BLOCK_PIXLE_REZ: u32 = 64;
 static BLOCK_TEXTURES_PER_ROW: u32 = 20;

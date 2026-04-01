@@ -256,11 +256,11 @@ pub fn raycast_tile(camera_data : &CameraData, world : &World, casted_tile : &mu
         left_cords[0] -= 1;
         current_block = BlockTexture::from_id(world.get_world_value(left_cords));
 
-        if (!left_face_struck && !current_block.is_transparent()){
-            if (current_block.is_translucent()) {
+        if !left_face_struck && !current_block.is_transparent() {
+            if current_block.is_translucent() {
                 triangles[0].add_texture(current_block, BlockTriangle::RightTop);
                 
-                if (!triangles[0].has_struck_translucent()) {
+                if !triangles[0].has_struck_translucent() {
                     triangles[0].struck_translucent(left_cords);
                 }
             }
@@ -268,7 +268,7 @@ pub fn raycast_tile(camera_data : &CameraData, world : &World, casted_tile : &mu
             else {
                 triangles[0].add_texture(current_block, BlockTriangle::RightTop);
                 // TODO : Add shader rendering later 
-                if (*direction == Direction::North || *direction == Direction::West) {
+                if *direction == Direction::North || *direction == Direction::West {
                     // Add Shader
                     triangles[0].set_shader(ShaderTriangle::RightTop, BlockShader::Grey);
                 }
@@ -283,17 +283,17 @@ pub fn raycast_tile(camera_data : &CameraData, world : &World, casted_tile : &mu
         right_cords[1] -= 1;
         current_block = BlockTexture::from_id(world.get_world_value(right_cords));
 
-        if (!right_face_struck && !current_block.is_transparent()){
+        if !right_face_struck && !current_block.is_transparent() {
             triangles[1].add_texture(current_block, BlockTriangle::LeftTop);
-            if (current_block.is_translucent()) {
-                if (!triangles[1].has_struck_translucent()) {
+            if current_block.is_translucent() {
+                if !triangles[1].has_struck_translucent() {
                     triangles[1].struck_translucent(right_cords);
                 }
             }
             // If block is solid
             else {
                 // TODO : Add shader rendering later 
-                if (*direction == Direction::South || *direction == Direction::West) {
+                if *direction == Direction::South || *direction == Direction::West {
                     // Add Shader
                     
                 }
@@ -308,16 +308,16 @@ pub fn raycast_tile(camera_data : &CameraData, world : &World, casted_tile : &mu
         current_cords[1] -= directions[1];
 
         current_block = BlockTexture::from_id(world.get_world_value(current_cords));
-        if (!current_block.is_transparent()) {
-            if (!left_face_struck) {
+        if !current_block.is_transparent() {
+            if !left_face_struck {
                 triangles[0].add_texture(current_block, BlockTriangle::LeftBot);
-                if (current_block.is_translucent()) {
-                    if (!triangles[0].has_struck_translucent()){
+                if current_block.is_translucent() {
+                    if !triangles[0].has_struck_translucent() {
                         triangles[0].struck_translucent(current_cords);
                     }
                 }
                 else {
-                    if (*direction == Direction::South || *direction == Direction::West) {
+                    if *direction == Direction::South || *direction == Direction::West {
                         // Add shader
                     }
                     triangles[0].struck_solid(current_cords);
@@ -325,15 +325,15 @@ pub fn raycast_tile(camera_data : &CameraData, world : &World, casted_tile : &mu
                 }
             }
 
-            if (!right_face_struck) {
+            if !right_face_struck {
                 triangles[1].add_texture(current_block, BlockTriangle::RightBot);
-                if (current_block.is_translucent()) {
-                    if (!triangles[1].has_struck_translucent()){
+                if current_block.is_translucent() {
+                    if !triangles[1].has_struck_translucent() {
                         triangles[1].struck_translucent(current_cords);
                     }
                 }
                 else {
-                    if (*direction == Direction::North || *direction == Direction::West) {
+                    if *direction == Direction::North || *direction == Direction::West {
                         // Add shader
                         triangles[1].set_shader(ShaderTriangle::RightBot, BlockShader::Grey);
                     }
@@ -347,11 +347,11 @@ pub fn raycast_tile(camera_data : &CameraData, world : &World, casted_tile : &mu
         current_cords[2] -= 1;
 
         current_block = BlockTexture::from_id(world.get_world_value(current_cords));
-        if (!current_block.is_transparent()) {
-            if (!left_face_struck) {
+        if !current_block.is_transparent() {
+            if !left_face_struck {
                 triangles[0].add_texture(current_block, BlockTriangle::TopLeft);
-                if (current_block.is_translucent()) {
-                    if (!triangles[0].has_struck_translucent()){
+                if current_block.is_translucent() {
+                    if !triangles[0].has_struck_translucent() {
                         triangles[0].struck_translucent(current_cords);
                     }
                 }
@@ -361,10 +361,10 @@ pub fn raycast_tile(camera_data : &CameraData, world : &World, casted_tile : &mu
                 }
             }
 
-            if (!right_face_struck) {
+            if !right_face_struck {
                 triangles[1].add_texture(current_block, BlockTriangle::TopRight);
-                if (current_block.is_translucent()) {
-                    if (!triangles[1].has_struck_translucent()){
+                if current_block.is_translucent() {
+                    if !triangles[1].has_struck_translucent() {
                         triangles[1].struck_translucent(current_cords);
                     }
                 }
@@ -378,7 +378,7 @@ pub fn raycast_tile(camera_data : &CameraData, world : &World, casted_tile : &mu
         left_cords = current_cords;
         right_cords = current_cords;
 
-        if (left_face_struck && right_face_struck) {
+        if left_face_struck && right_face_struck {
             break;
         }
     }

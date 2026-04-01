@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndc, screen_data}, types::{FontType, UITextures}};
+use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndc}, types::{FontType, UITextures}};
 
 #[derive(Clone)]
 pub enum PanelColor {

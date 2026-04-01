@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, locations::world_area::{self, WorldArea}, types::BlockTexture};
+use crate::game_data::{TextureManager, locations::world_area::WorldArea, types::BlockTexture};
 
 #[derive(Clone, Copy)]
 pub struct PlayBlock {

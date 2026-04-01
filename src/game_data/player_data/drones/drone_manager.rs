@@ -1,8 +1,7 @@
-use std::{cell::RefCell, collections::HashMap, process::id, rc::Rc, sync::{Arc, RwLock}};
+use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::{Arc, RwLock}};
 
-use rand::distr::Map;
 
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_programming::var::{game_vars::game_var_type::{DynamicVar, GameVar}, var_type::Var}, drones::drone::Drone}, screen::widget::{selection_panel::selection_panel_config::WidgetUpdateManager, widget::WidgetType}};
+use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::drones::drone::Drone, screen::widget::selection_panel::selection_panel_config::WidgetUpdateManager};
 
 pub struct DroneManager{
     current_id: u32,

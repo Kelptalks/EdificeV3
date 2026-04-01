@@ -1,4 +1,4 @@
-use crate::game_data::{level_manager::level::Level, screen::Button, types::{BlockTexture, UITextures}};
+use crate::game_data::{level_manager::level::Level, screen::Button, types::BlockTexture};
 
 pub struct FlatField {
     name: String,

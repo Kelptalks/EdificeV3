@@ -1,8 +1,7 @@
 use core::f32;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 use miniquad::{KeyCode, MouseButton};
-use rand::distr::Map;
 
 pub enum Input {
     MouseMotion(f32, f32),

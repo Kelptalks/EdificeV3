@@ -1,4 +1,4 @@
-use crate::game_data::{locations::world_area::WorldArea, player_data::drone_programming::var::{game_vars::game_var_type::GameVar, var_type::Var}, texture_manager::texture::Texture, types::{BlockTexture, UITextures}};
+use crate::game_data::{locations::world_area::WorldArea, texture_manager::texture::Texture, types::BlockTexture};
 
 pub struct WorldLocation {
     // Var Texture

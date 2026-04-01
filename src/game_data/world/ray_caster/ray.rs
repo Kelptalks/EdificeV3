@@ -1,4 +1,3 @@
-use image::imageops::FilterType::Triangle;
 
 use crate::game_data::{World, texture_manager::texture::Texture, types::{BlockTexture, BlockTriangle}};
 

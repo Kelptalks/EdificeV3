@@ -87,7 +87,7 @@ impl LuaManager {
         let globals = self.lua.globals();
         
         // Get drone cords
-        let get_drone_cords = self.lua.create_function(|lua, (drone_id): (u32)| {
+        let get_drone_cords = self.lua.create_function(|lua, drone_id: u32| {
             let drone_manager = Self::get_drone_manager(lua)?;
             if let Some(drone) = drone_manager.get_drone_with_id(drone_id) {
                 return Ok(drone.get_cords());
@@ -266,7 +266,7 @@ impl LuaManager {
         let globals = self.lua.globals();
         
         // Move drone
-        let block_is_solid = self.lua.create_function(|lua, (block_id): (u32)| {
+        let block_is_solid = self.lua.create_function(|lua, block_id: u32| {
             Ok(BlockTexture::from_id(block_id as u16).is_solid())
         })?;
         globals.set("rust_block_is_solid", block_is_solid)?;

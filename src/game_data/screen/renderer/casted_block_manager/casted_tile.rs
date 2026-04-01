@@ -1,7 +1,6 @@
-use image::imageops::FilterType::Triangle;
 
-use crate::game_data::{TextureManager, screen::renderer::camera_data::CameraData, types::{BlockTriangle, BlockTexture}};
-use super::{casted_chunk::CastedChunk, casted_triangle::CastedTriangle};
+use crate::game_data::{TextureManager, screen::renderer::camera_data::CameraData};
+use super::casted_triangle::CastedTriangle;
 use super::super::{iso_cord_tool};
 
 #[derive(Clone)]

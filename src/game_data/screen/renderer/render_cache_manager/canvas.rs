@@ -1,8 +1,8 @@
 use image::{ImageBuffer, RgbaImage};
-use miniquad::{GlContext, RenderingBackend, TextureFormat, TextureId, TextureParams};
+use miniquad::{GlContext, RenderingBackend, TextureId};
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, debuging::debug_data::DebugData, screen::{render_string, renderer::render_cache_manager::{canvas_chunk::CanvasChunk, canvas_data::CanvasData}}};
+use crate::game_data::{debuging::debug_data::DebugData, screen::renderer::render_cache_manager::{canvas_chunk::CanvasChunk, canvas_data::CanvasData}};
 
 pub struct Canvas {
     texture_id: TextureId,
@@ -25,7 +25,7 @@ impl Canvas {
         let canvas_rez = canvas_data.canvas_rez as u32;
 
 
-        let mut canvas_image: RgbaImage = ImageBuffer::new(canvas_rez, canvas_rez);
+        let canvas_image: RgbaImage = ImageBuffer::new(canvas_rez, canvas_rez);
         let rgba_bytes: Vec<u8> = canvas_image.clone().into_raw();
         let canvas_texture: TextureId = ctx.new_texture_from_rgba8(
             canvas_rez as u16,

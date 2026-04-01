@@ -136,7 +136,7 @@ impl WorldGenManager {
                             
                     
                             let block_to_gen = layer.get_block_type().id();
-                            if (block_to_gen == BlockTexture::Grass.id()) {
+                            if block_to_gen == BlockTexture::Grass.id() {
                                 grass_gen_manager.gen_grass(modded_cords, world);
                             }
                             else {

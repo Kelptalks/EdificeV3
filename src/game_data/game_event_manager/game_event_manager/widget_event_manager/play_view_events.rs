@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, GameEventManager, WidgetEvent}, player_data::locations::location::WorldLocation, screen::widget::{prelude::play_world_view_config::PlayViewRenderingConfig, world_rendering::rendering_config::cursor_config::CursorMode}};
+use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, GameEventManager, WidgetEvent}, screen::widget::{prelude::play_world_view_config::PlayViewRenderingConfig, world_rendering::rendering_config::cursor_config::CursorMode}};
 
 #[derive(Clone)]
 pub enum PlayViewEvent {

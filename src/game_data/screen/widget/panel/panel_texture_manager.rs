@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, screen::widget::{panel::panel_color::PanelColor, widget_calculations}, texture_manager};
+use crate::game_data::{TextureManager, screen::widget::{panel::panel_color::PanelColor, widget_calculations}};
 
 pub struct PanelTextureManager {
     // Apearence

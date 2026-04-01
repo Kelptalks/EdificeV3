@@ -1,4 +1,4 @@
-use crate::game_data::{tik_manager::drones::drone::Drone, types::{block_entity::EntityType, drone_item::DroneItem}};
+use crate::game_data::types::{block_entity::EntityType, drone_item::DroneItem};
 
 pub static TOTAL_BLOCKS: u32 = 400;
 

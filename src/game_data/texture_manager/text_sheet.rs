@@ -1,10 +1,5 @@
-use std::hash::Hash;
-use std::str::Chars;
-use std::collections::HashMap;
 
 use image::RgbaImage;
-use miniquad::gl::GL_TEXTURE_BASE_LEVEL;
-use rand::distr::Map;
 
 use crate::game_data::types::{CharType, FontType};
 

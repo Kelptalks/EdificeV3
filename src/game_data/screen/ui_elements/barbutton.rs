@@ -1,6 +1,6 @@
 use miniquad::MouseButton;
 
-use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndc, ui_elements::button, widget::widget_calculations::TextSize}, types::{FontType, UITextures}};
+use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndc, widget::widget_calculations::TextSize}, types::{FontType, UITextures}};
 
 pub struct BarButton {
     ndc: [f32; 2],

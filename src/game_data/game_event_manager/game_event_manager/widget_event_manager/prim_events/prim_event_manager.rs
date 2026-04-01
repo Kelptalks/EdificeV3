@@ -1,4 +1,4 @@
-use crate::game_data::game_event_manager::widget_event_manager::prim_events::{bool_events::BoolEvent, string_events::StringEvent, usize_events::{self, UsizeEvent}};
+use crate::game_data::game_event_manager::widget_event_manager::prim_events::{bool_events::BoolEvent, string_events::StringEvent, usize_events::UsizeEvent};
 
 #[derive(Clone)]
 pub enum PrimEvent {

@@ -1,6 +1,5 @@
-use std::time::SystemTime;
 
-use crate::game_data::{log_init, screen::text, texture_manager::{texture::Texture, texture_atlas::TextureAtlas, texture_renderer::TextureRenderingManager}, types::{BlockShader, BlockTexture, BlockTriangle, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
+use crate::game_data::{texture_manager::{texture::Texture, texture_atlas::TextureAtlas, texture_renderer::TextureRenderingManager}, types::{BlockShader, BlockTexture, BlockTriangle, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
 use miniquad::*;
 
 // Expander tuning constants - adjust these to control gap prevention
@@ -183,7 +182,7 @@ impl TextureManager {
         }
         let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_font_uv(font, char);
 
-        let mut pos = [
+        let pos = [
             draw_location[0],         // x1 (left)
             draw_location[1],         // y1 (top/bottom) 
             draw_location[0] + scale, // x2 (right)

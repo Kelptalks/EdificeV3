@@ -1,6 +1,5 @@
-use miniquad::ShaderType;
 
-use crate::game_data::{texture_manager, TextureManager, types::{BlockShader, BlockTriangle, BlockTexture, ShaderTriangle}};
+use crate::game_data::{TextureManager, types::{BlockShader, BlockTriangle, BlockTexture, ShaderTriangle}};
 
 #[derive(Clone)]
 pub struct CastedTriangle {

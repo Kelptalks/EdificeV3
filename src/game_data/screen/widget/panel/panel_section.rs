@@ -1,6 +1,5 @@
-use std::fmt::Alignment;
 
-use crate::game_data::{TextureManager, screen::widget::{self, panel::panel::{PanelAlignment, PanelOrientation}, widget::{Widget, WidgetType}, widget_calculations}, texture_manager};
+use crate::game_data::{TextureManager, screen::widget::{panel::panel::{PanelAlignment, PanelOrientation}, widget::{Widget, WidgetType}, widget_calculations}};
 
 
 /*

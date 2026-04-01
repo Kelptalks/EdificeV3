@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, PlayerDataEvent}, player_data::{drone_programming::var::var_type::Var, locations::location::WorldLocation}};
+use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, PlayerDataEvent}, player_data::drone_programming::var::var_type::Var};
 
 
 

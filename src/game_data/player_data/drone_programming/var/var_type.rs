@@ -1,6 +1,4 @@
-use std::fmt::Error;
 
-use image::error;
 
 use crate::game_data::{player_data::drone_programming::var::game_vars::game_var_type::{GameVar, GameVarTypeKind}, texture_manager::texture::Texture};
 

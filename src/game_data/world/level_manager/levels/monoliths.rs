@@ -1,6 +1,6 @@
 use rand::random_range;
 
-use crate::game_data::{level_manager::level::Level, screen::Button, types::{BlockTexture, UITextures}};
+use crate::game_data::{level_manager::level::Level, screen::Button, types::BlockTexture};
 
 pub struct Monoliths {
     name: String,

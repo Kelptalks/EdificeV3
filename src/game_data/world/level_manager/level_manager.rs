@@ -1,4 +1,4 @@
-use crate::game_data::level_manager::{level::Level, levels::{flat_field::{self, FlatField}, monoliths::Monoliths, wall::Wall}};
+use crate::game_data::level_manager::{level::Level, levels::{flat_field::FlatField, monoliths::Monoliths, wall::Wall}};
 
 pub struct LevelManager {
     levels: Vec<Box<dyn Level>>,

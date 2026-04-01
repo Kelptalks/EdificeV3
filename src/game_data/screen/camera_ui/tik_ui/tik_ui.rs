@@ -1,6 +1,6 @@
-use miniquad::{KeyCode, KeyMods};
+use miniquad::KeyCode;
 
-use crate::game_data::{TextureManager, screen::ui_elements, tik_manager::{self, tik_manager::TikManager}, types::UITextures};
+use crate::game_data::{TextureManager, tik_manager::tik_manager::TikManager, types::UITextures};
 
 pub struct TikUI {
     // Controls

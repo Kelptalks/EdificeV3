@@ -1,6 +1,6 @@
-use std::{cell::{Ref, RefCell}, rc::{self, Rc}, sync::{Arc, RwLock}};
+use std::{cell::RefCell, rc::Rc, sync::{Arc, RwLock}};
 
-use crate::game_data::{World, locations::world_area::WorldArea, player_data::{locations::{location::WorldLocation, location_manager::LocationManager}, player_data::PlayerData}, screen::widget::world_rendering::rendering_config::cursor_config::{self, CursorConfig}, types::BlockTexture};
+use crate::game_data::{World, locations::world_area::WorldArea, player_data::{locations::location::WorldLocation, player_data::PlayerData}, screen::widget::world_rendering::rendering_config::cursor_config::CursorConfig, types::BlockTexture};
 
 pub enum CameraMovementType {
     ShiftArea,

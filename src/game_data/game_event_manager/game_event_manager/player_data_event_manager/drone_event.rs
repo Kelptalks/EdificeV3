@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, GameEventManager, PlayerDataEvent}, player_data::drones::{drone::Drone, drone_manager::DroneManager}};
+use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, GameEventManager, PlayerDataEvent}, player_data::drones::drone::Drone};
 
 #[derive(Clone)]
 pub enum DroneEvent {

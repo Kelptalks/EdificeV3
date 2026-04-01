@@ -1,4 +1,4 @@
-use image::{RgbaImage, imageops};
+use image::RgbaImage;
 
 use crate::game_data::types::BlockTexture;
 

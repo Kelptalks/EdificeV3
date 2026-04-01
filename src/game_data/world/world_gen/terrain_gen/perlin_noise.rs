@@ -1,4 +1,3 @@
-use std::f32::consts::PI;
 
 pub struct PerlinNoise {
     permutation: [u8; 512],

@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::screen::widget::{self, scroll_panel::{self, scroll_panel::ScrollPanel}, selection_panel::selection_panel_config::WidgetUpdateManager, widget::{Widget, WidgetType}};
+use crate::game_data::screen::widget::{scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel_config::WidgetUpdateManager, widget::{Widget, WidgetType}};
 
 pub struct SelectionPanel {
     scroll_panel: ScrollPanel,

@@ -22,7 +22,7 @@ impl CastedChunk {
         let y_chunk_tile_cords = (chunk_cords[1] * CHUNK_TILE_DIMENSIONS as i32) as i32;
 
         // Create chunks tile set
-        let mut tiles = std::array::from_fn(|i| {
+        let tiles = std::array::from_fn(|i| {
 
             // Calculate the cast_cor and create tile
             let x_tile_internal_chunk_cor = (i % CHUNK_TILE_DIMENSIONS as usize) as i32;

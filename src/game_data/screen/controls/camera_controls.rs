@@ -1,6 +1,6 @@
 use miniquad::{KeyCode, KeyMods, MouseButton};
 
-use crate::game_data::{game_event_manager::{game_event_manager::EventManager, render_event_manager::render_event_manager::RenderEvent}, screen::{Camera, camera_controls, iso_cord_tool, renderer::camera, screen_data::CurrentMenu, screen_mananager::ScreenManager}};
+use crate::game_data::{game_event_manager::{game_event_manager::EventManager, render_event_manager::render_event_manager::RenderEvent}, screen::{iso_cord_tool, screen_data::CurrentMenu, screen_mananager::ScreenManager}};
 /*
 ####################
 ## CameraControls ##
@@ -104,10 +104,10 @@ pub fn mouse_wheel_event(screen_mananager: &mut ScreenManager, x_scroll_distance
 
     // Use cloned camera data to prevent race conditions due to camera rendering updates
     let mut cloned_camera_data = screen_mananager.get_camera_data().clone();
-    if (y_scroll_distance > 0.0) {
+    if y_scroll_distance > 0.0 {
         cloned_camera_data.mod_scale(1.0 + zoom_speed);
     }
-    else if (y_scroll_distance < 0.0) {
+    else if y_scroll_distance < 0.0 {
         cloned_camera_data.mod_scale(1.0 - zoom_speed);
     }
 

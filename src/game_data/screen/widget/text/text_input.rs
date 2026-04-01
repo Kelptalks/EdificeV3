@@ -1,4 +1,4 @@
-use std::{cell::RefCell, fmt::format, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
 use crate::game_data::{game_event_manager::prelude::{BoolEvent, Event, InputEvent, StringEvent, UsizeEvent}, screen::widget::{panel::panel_texture_manager::PanelTextureManager, text::{header::TextDisplay, text_input_event_constructor}, widget::{Widget, WidgetType}}, texture_manager::texture::Texture};
 

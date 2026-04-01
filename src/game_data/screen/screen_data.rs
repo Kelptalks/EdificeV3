@@ -1,6 +1,6 @@
 use miniquad::{GlContext, MouseButton, RenderingBackend};
 
-use crate::game_data::{World, screen::{camera_data::CameraData, input_data::{Input, InputManager}, iso_cord_tool}};
+use crate::game_data::screen::{camera_data::CameraData, input_data::{Input, InputManager}, iso_cord_tool};
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum CurrentMenu {
@@ -174,7 +174,7 @@ impl ScreenData {
 
     pub fn set_screen_rez(&mut self, screen_rez: [f32; 2], ctx : &mut GlContext) {
         // Calculate and setup viewport and set the correct values 
-        let mut viewport_size: f32;
+        let viewport_size: f32;
 
         // Set up square viewport to allow for consistant rendering
         if screen_rez[0] > screen_rez[1] {

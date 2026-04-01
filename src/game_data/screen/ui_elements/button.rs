@@ -1,4 +1,3 @@
-use miniquad::MouseButton;
 
 use crate::game_data::{TextureManager, screen::{ScreenData, render_centered_string_at_ndc, ui_elements::panel::Panel}, types::{BlockTexture, FontType, UITextures}};
 

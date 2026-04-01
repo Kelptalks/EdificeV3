@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::{Arc, RwLock}};
 
-use miniquad::{KeyCode, KeyMods, MouseButton};
+use miniquad::{KeyCode, MouseButton};
 
 use crate::game_data::{
     TextureManager,

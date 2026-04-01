@@ -1,11 +1,10 @@
 
 use std::{collections::HashMap, sync::{Arc, RwLock}};
 
-use image::imageops::tile;
 
-use crate::game_data::{self, TextureManager, World, log_init, screen::{Camera, renderer::camera_data::CameraData}, texture_manager, types::{BlockTriangle, BlockTexture}};
-use super::{casted_chunk::CastedChunk, casted_tile::CastedTile};
-use super::super::{iso_cord_tool, ray_caster};
+use crate::game_data::{World, screen::renderer::camera_data::CameraData};
+use super::casted_chunk::CastedChunk;
+use super::super::ray_caster;
 
 
 
@@ -93,12 +92,12 @@ impl CastedChunkManager {
         let mut x_tile_internal_cor = cords[0] % CHUNK_TILE_DIMENSIONS as i32;
         let mut y_tile_internal_cor = cords[1] % CHUNK_TILE_DIMENSIONS as i32;
 
-        if (x_tile_internal_cor < 0)
+        if x_tile_internal_cor < 0
         {
             x_tile_internal_cor += CHUNK_TILE_DIMENSIONS as i32;
             x_chunk_casted_cor -= 1;
         }
-        if (y_tile_internal_cor <  0)
+        if y_tile_internal_cor <  0
         {
             y_tile_internal_cor += CHUNK_TILE_DIMENSIONS as i32;
             y_chunk_casted_cor -= 1;

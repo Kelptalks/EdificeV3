@@ -2,7 +2,7 @@ use crate::game_data::{
     TextureManager,
     game_event_manager::{event_manager::EventManager, game_event_manager::GameEvent},
     screen::{
-        ScreenData, render_centered_string_at_ndc, text::render_string_at_ndc, widget::{
+        ScreenData, text::render_string_at_ndc, widget::{
             bar_button::bar_button_texture_manager::BarButtonTextureManager,
             widget::Widget,
             widget_calculations::{self, TextSize},

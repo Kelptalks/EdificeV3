@@ -1,6 +1,6 @@
-use std::{cell::RefCell, collections::HashMap, panic::Location, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::game_data::{game_event_manager::{event_manager, prelude::Event}, locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::game_var_type::{DynamicVar, GameVar}, var_type::Var}, locations::location::WorldLocation}, screen::widget::{selection_panel::{self, selection_panel::SelectionPanel, selection_panel_config::WidgetUpdateManager}, widget::WidgetType}};
+use crate::game_data::{locations::world_area::WorldArea, player_data::locations::location::WorldLocation, screen::widget::selection_panel::selection_panel_config::WidgetUpdateManager};
 
 
 /*

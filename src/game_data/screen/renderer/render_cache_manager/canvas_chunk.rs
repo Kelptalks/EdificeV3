@@ -1,8 +1,6 @@
-use std::sync::{Arc, RwLock};
 
-use miniquad::{GlContext, RenderingBackend, TextureId, TextureParams};
 
-use crate::game_data::{TextureManager, screen::{camera_data, iso_cord_tool, renderer::{casted_block_manager::casted_chunk::CastedChunk, render_cache_manager::canvas_data::{self, CanvasData}}, text}, types::BlockTriangle};
+use crate::game_data::{TextureManager, screen::{iso_cord_tool, renderer::{casted_block_manager::casted_chunk::CastedChunk, render_cache_manager::canvas_data::CanvasData}}};
 
 pub struct CanvasChunk {
     pub iso_cords: [i32; 2],

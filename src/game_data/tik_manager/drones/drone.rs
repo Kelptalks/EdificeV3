@@ -1,11 +1,8 @@
-use std::sync::{Arc, RwLock};
 
-use rand::rand_core::block;
-use rand::thread_rng;
 
-use crate::game_data::tik_manager::drones::drone_inventory::{DroneInventory, InventorySlot};
+use crate::game_data::tik_manager::drones::drone_inventory::DroneInventory;
 use crate::game_data::types::drone_item::DroneItem;
-use crate::game_data::{screen::screen_task_manager, world_task_manager::world_task_manager::WorldTaskManager};
+use crate::game_data::world_task_manager::world_task_manager::WorldTaskManager;
 use crate::game_data::{types::BlockTexture, World};
 
 #[derive(Clone)]

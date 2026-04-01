@@ -1,5 +1,4 @@
 mod world;
-pub use world::WorldChunk;
 pub use world::World;
 
 pub mod level_manager;

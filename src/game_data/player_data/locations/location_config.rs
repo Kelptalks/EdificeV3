@@ -1,6 +1,6 @@
-use std::{cell::{Ref, RefCell}, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::locations::{location::WorldLocation, location_manager::LocationManager}};
+use crate::game_data::player_data::locations::{location::WorldLocation, location_manager::LocationManager};
 
 pub struct WorldLocationConfig {
 
