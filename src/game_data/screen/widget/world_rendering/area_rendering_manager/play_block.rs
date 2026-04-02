@@ -93,13 +93,14 @@ impl PlayBlock {
         }
 
         // Debug
-
+        /*
         let debug_cords = AreaRenderingManager::get_debug_cords(world_area);
         for debug_cord in debug_cords {
             if debug_cord == self.block_world_cords {
                 texture_manager.render_block(BlockTexture::Debug, self.draw_cords, self.ndc_block_scale);
             }
         }
+         */
 
     }
 

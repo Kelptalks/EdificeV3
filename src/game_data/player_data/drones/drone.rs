@@ -1,5 +1,10 @@
 
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use crate::game_data::game_event_manager::prelude::{EventManager, WorldEvent};
+use crate::game_data::locations::world_area::WorldArea;
+use crate::game_data::player_data::locations::location::WorldLocation;
 use crate::game_data::texture_manager::texture::Texture;
 use crate::game_data::tik_manager::drones::drone_inventory::{DroneInventory};
 use crate::game_data::types::drone_item::DroneItem;
@@ -28,6 +33,8 @@ impl DroneDirection {
 pub struct Drone{
     // identity
     id: u32,
+    name: String,
+    world_location: Rc<RefCell<WorldLocation>>,
 
     // Position
     cords: [i32; 3],
@@ -55,6 +62,8 @@ impl Drone {
         let mut drone = Drone {
             // identity
             id: id,
+            name: id.to_string(),
+            world_location: Rc::new(RefCell::new(WorldLocation::new(id.to_string(), WorldArea::new_with_cords([cords; 2]), id))),
 
             // Position
             cords: cords,
@@ -93,8 +102,12 @@ impl Drone {
     }
 
     pub fn get_name(&self) -> String {
-        self.id.to_string()
+        self.name.clone()
     }
+
+    pub fn set_name(&mut self, new_name: String) {
+        self.name = new_name;
+    } 
 
     //=====================================
     // Helpers
@@ -433,6 +446,10 @@ impl Drone {
     //=====================================
 
     pub fn tik_drone(&mut self, world: &World, event_manager: &mut EventManager) {
+        // Update world location
+        self.world_location.borrow_mut().get_mut_area().set_point_1_cords(self.cords);
+        self.world_location.borrow_mut().get_mut_area().set_point_2_cords(self.cords);
+        
         // If dead set drone
         if self.health == 0 {
             event_manager.add_event(WorldEvent::ModBlock(self.cords, BlockTexture::DroneDead).wrap_into_event()); // Clear drone in old location
@@ -469,5 +486,7 @@ impl Drone {
                 event_manager.add_event(WorldEvent::ModBlock(self.cords, BlockTexture::from_id(self.direction.to_block_id())).wrap_into_event()); // Add drone back
             }
         }
+
+        self.move_drone(world, [1, 0, 0], event_manager);
     }
 }

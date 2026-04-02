@@ -7,10 +7,12 @@ pub enum PlayerDataEvent {
     CreateDrone([i32; 3]),
     DroneEvent(Rc<RefCell<Drone>>, DroneEvent),
 
-
+    // Constructors
     CreateLocation(Rc<RefCell<WorldLocationConfig>>),
     CreateLocationWithVar(Rc<RefCell<Var>>, Rc<RefCell<WorldLocation>>),
-
+    
+    CreateDroneWithVar(Rc<RefCell<Var>>, Rc<RefCell<WorldLocation>>),
+    
     LocationEvent(Rc<RefCell<WorldLocation>>, LocationEvent),
 
     VarEvent(VarEvents),
@@ -46,6 +48,11 @@ impl PlayerDataEvent {
             },
             PlayerDataEvent::VarEvent(var_event) => {
                 var_event.execute();
+            },
+            PlayerDataEvent::CreateDroneWithVar(var_ref, location_ref) => {
+                let drone = player_data.get_mut_drone_manager().create_drone_at_cords(location_ref.borrow().get_area().get_point_1_cords());
+
+                *var_ref.borrow_mut() = DynamicVar::Drone(Some(drone)).wrap_into_var();
             },
         }
     }

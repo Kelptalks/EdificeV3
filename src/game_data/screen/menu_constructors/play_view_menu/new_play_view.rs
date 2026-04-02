@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::{Event, UsizeEvent}, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{managmenet_panel, var_ref_hot_bar, world_view}, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, world_rendering::rendering_config::play_world_view_config::PlayViewRenderingConfig}}};
+use crate::game_data::{game_event_manager::prelude::{Event, UsizeEvent}, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{locaton_managmenet_panel, var_ref_hot_bar, world_view}, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, world_rendering::rendering_config::play_world_view_config::PlayViewRenderingConfig}}};
 
 pub enum PlayViewMode {
     Main = 0,
@@ -76,7 +76,7 @@ impl PlayViewConstructionManager {
 
             panel.add_widget(var_ref_hot_bar::get_widget());
             panel.add_widget(world_view::get_widget(&mut self.ref_manager));
-            panel.add_widget(managmenet_panel::get_widget(&mut self.ref_manager));
+            panel.add_widget(locaton_managmenet_panel::get_widget(&mut self.ref_manager));
 
             panel.size();
         }

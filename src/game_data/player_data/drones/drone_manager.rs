@@ -33,7 +33,7 @@ impl DroneManager {
     //=====================================
 
     // Function for creating a drone
-    pub fn create_drone_at_cords(&mut self, cords:[i32; 3]){
+    pub fn create_drone_at_cords(&mut self, cords:[i32; 3]) -> Rc<RefCell<Drone>>{
         // Create drone
         let new_id = self.current_id;
         
@@ -46,12 +46,13 @@ impl DroneManager {
         // self.selection_panel_update_manager.borrow_mut().add_widget(WidgetType::VarSource(widget));
 
         // Add drone to hashmap
-        self.drone_map.insert(new_id, drone);
+        self.drone_map.insert(new_id, drone.clone());
         
 
         println!("Created Drone: ID({})", self.current_id);
         self.current_id += 1; // Update Current Id
 
+        return drone;
     }
 
 

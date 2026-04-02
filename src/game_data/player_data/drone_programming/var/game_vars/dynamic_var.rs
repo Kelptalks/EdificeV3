@@ -65,6 +65,28 @@ impl DynamicVar {
         }
     }
 
+    pub fn rename(&mut self, name: String) {
+        match self {
+            DynamicVar::Location(ref_option) => {
+                if let Some(location_ref) = ref_option {
+                    location_ref.borrow_mut().set_name(name);
+                }
+                else {
+                    eprint!("Tried To Rename Unkown Location");
+                }
+            },
+            DynamicVar::Drone(ref_option) => {
+                if let Some(drone_ref) = ref_option {
+                    drone_ref.borrow_mut().set_name(name);
+                }
+                else {
+                    eprint!("Tried To Rename Unkown Drone");
+                }
+            },
+        }
+    }
+
+
     pub fn get_area(&self) -> Option<WorldArea> {
         match self {
             DynamicVar::Location(option_location_ref) => {
@@ -80,7 +102,7 @@ impl DynamicVar {
                     let drone_cords = drone_rc.borrow().get_cords();
 
                     let mut area = WorldArea::new_blank();
-                    area.set_point_1(drone_cords);
+                    area.set_point_1_cords(drone_cords);
                     area.set_point_2_cords(drone_cords);
 
                     return Some(area);

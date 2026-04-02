@@ -39,7 +39,7 @@ impl WorldArea {
         self.points[index] = new_point;
     }
 
-    pub fn set_point_1(&mut self, cords: [i32; 3]) {
+    pub fn set_point_1_cords(&mut self, cords: [i32; 3]) {
         self.points[0] = WorldPoint::new_with_cords(cords);
     }
 
@@ -317,5 +317,7 @@ impl WorldArea {
 
         return world_block_mod_events;
     }
+
+    
 
 }

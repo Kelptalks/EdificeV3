@@ -1,6 +1,6 @@
-use std::collections::binary_heap;
+use std::{cell::RefCell, collections::binary_heap, rc::Rc};
 
-use crate::game_data::{game_event_manager::{player_data_event_manager::var_event_manager::var_events::{LocationVarEvent, VarEvents}, prelude::{Event, InputEvent}}, locations::world_area_side::WorldAreaSide, screen::{menu_constructors::play_view_menu::new_play_view::RefManager, widget::{button::button::Button, panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel}, widget::WidgetType, widget_calculations::TextSize}}, types::UITextures};
+use crate::game_data::{game_event_manager::{player_data_event_manager::var_event_manager::var_events::{DynamicVarEvent, LocationVarEvent, VarEvents}, prelude::{Event, InputEvent}}, locations::world_area_side::WorldAreaSide, screen::{menu_constructors::play_view_menu::new_play_view::RefManager, widget::{button::button::Button, panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel}, text::text_input::TextInput, widget::WidgetType, widget_calculations::TextSize}}, types::UITextures};
 
 fn get_main_view_panel(ref_manager: &mut RefManager) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
@@ -20,7 +20,7 @@ fn get_main_view_panel(ref_manager: &mut RefManager) -> WidgetType {
 
 
 //=====================================
-// Location Managment
+// Location Scalling
 //=====================================
 fn get_expand_event(ref_manager: &mut RefManager, side: WorldAreaSide) -> Event {
     VarEvents::LocationVarEvent(
@@ -110,6 +110,32 @@ fn get_location_scalling_mods(ref_manager: &mut RefManager) -> WidgetType {
     return panel;
 }
 
+//=====================================
+// Location Naming
+//=====================================
+
+fn get_location_rename_panel(ref_manager: &mut RefManager) -> WidgetType {
+    let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
+    if let WidgetType::Panel(panel) = &mut panel {
+        panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
+        panel.set_color(PanelColor::Dark);
+
+        let rename_ref = Rc::new(RefCell::new(ref_manager.selected_var.borrow().get_name()));
+
+        let text_input = TextInput::new_text_input(&rename_ref);
+        panel.add_widget(WidgetType::TextInput(text_input));
+
+        let button = panel.add_button();
+        button.add_left_click_event(VarEvents::DynamicVarEvent(ref_manager.selected_var.clone(), DynamicVarEvent::Rename(rename_ref)).wrap_into_event());
+
+        panel.size();
+    }
+    return panel;
+}
+
+//=====================================
+// Main Constructor
+//=====================================
 fn get_location_panel(ref_manager: &mut RefManager) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
     if let WidgetType::Panel(panel) = &mut panel {
@@ -126,7 +152,7 @@ fn get_location_panel(ref_manager: &mut RefManager) -> WidgetType {
 
         // Location Modification buttons 
         panel.add_widget(self::get_location_scalling_mods(ref_manager));
-
+        panel.add_widget(self::get_location_rename_panel(ref_manager));
 
 
 

@@ -41,7 +41,7 @@ impl TikManager {
         
 
         Self {
-            paused: true,
+            paused: false,
 
             // Tik Data
             current_tik: 0,

@@ -11,7 +11,6 @@ pub enum CameraMovementType {
 pub struct PlayViewRenderingConfig {
     world_ref: Arc<RwLock<World>>,
 
-    cursor_location: Rc<RefCell<WorldLocation>>,
     zoom: Rc<RefCell<i32>>,
     
     block_ghost: Option<Rc<RefCell<BlockTexture>>>,
@@ -32,14 +31,11 @@ pub struct PlayViewRenderingConfig {
 impl PlayViewRenderingConfig {
     pub fn new(player_data: &mut PlayerData) -> Rc<RefCell<PlayViewRenderingConfig>> {
         
-        let cursor_location = player_data.get_mut_location_manager().create_location("cursor_location".to_string(), WorldArea::new_blank());
         let world_ref = player_data.get_world_ref();
         
         let config = PlayViewRenderingConfig {
             world_ref: world_ref,
             
-            // Cursor
-            cursor_location: cursor_location,
             zoom: Rc::new(RefCell::new(5)),
             block_ghost: None,
 

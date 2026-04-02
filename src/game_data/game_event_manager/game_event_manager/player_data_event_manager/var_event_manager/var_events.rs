@@ -8,7 +8,7 @@ use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, PlayerDat
 #[derive(Clone)]
 pub enum VarEvents {
     LocationVarEvent(Rc<RefCell<Var>>, LocationVarEvent),
-
+    DynamicVarEvent(Rc<RefCell<Var>>, DynamicVarEvent),
 
 
 }
@@ -27,7 +27,6 @@ impl VarEvents {
         match self {
             VarEvents::LocationVarEvent(var_ref, location_var_event) => {
                 let borrow = var_ref.borrow();
-
                 if let Var::Game(GameVar::Dynamic(DynamicVar::Location(location_option_ref))) = &*borrow {
                     if let Some(location) = location_option_ref {
                         location_var_event.execute(location);
@@ -40,11 +39,42 @@ impl VarEvents {
                     eprint!("Cannot execute Location event on var type: {}", borrow.get_name());
                 }
             }
+            VarEvents::DynamicVarEvent(var_ref, dynamic_var_event) => {
+                let mut borrow = var_ref.borrow_mut();
+                if let Var::Game(GameVar::Dynamic(dynamic_var)) = &mut *borrow {
+                    dynamic_var_event.execute(dynamic_var);
+                }
+                else {
+                    eprint!("Cannot execute Dymamic Var Event on var type: {}", borrow.get_name());
+                }
+            },
         }
     }
 }
 
 
+//=====================================
+// DynamicVarEvent
+//=====================================
+#[derive(Clone)]
+pub enum DynamicVarEvent {
+    Rename(Rc<RefCell<String>>),
+}
+
+impl DynamicVarEvent {
+    pub fn execute(&self, dynamic_var: &mut DynamicVar) { 
+        match self {
+            DynamicVarEvent::Rename(string_ref) => {
+                dynamic_var.rename(string_ref.borrow().clone());
+            },
+        }
+    }
+}
+
+
+//=====================================
+// LocationVarEvent
+//=====================================
 #[derive(Clone)]
 pub enum LocationVarEvent {
     ExpandLocationSide(WorldAreaSide),
@@ -52,7 +82,6 @@ pub enum LocationVarEvent {
 }
 
 impl LocationVarEvent {
-
     pub fn execute(&self, location: &Rc<RefCell<WorldLocation>>) { 
         match self {
             LocationVarEvent::ExpandLocationSide(world_area_side) => {

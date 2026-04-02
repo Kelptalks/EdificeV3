@@ -1,4 +1,6 @@
-use crate::game_data::{game_event_manager::{prelude::{PlayerDataEvent}, widget_event_manager::play_view_events::PlayViewEvent}, screen::{menu_constructors::play_view_menu::new_play_view::{PlayViewMode, RefManager}, widget::{panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel, VarSlot}, widget::WidgetType, world_rendering::rendering_config::cursor_config::CursorMode}}, types::{BlockTexture, UITextures}};
+use std::{cell::RefCell, rc::Rc};
+
+use crate::game_data::{game_event_manager::{prelude::{PlayerDataEvent, WorldEvent}, widget_event_manager::play_view_events::PlayViewEvent}, player_data::player_data::PlayerData, screen::{menu_constructors::play_view_menu::new_play_view::{PlayViewMode, RefManager}, widget::{panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel, VarSlot}, widget::WidgetType, world_rendering::rendering_config::cursor_config::CursorMode}}, types::{BlockTexture, UITextures}};
 
 
 //=====================================
@@ -49,6 +51,19 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         show_locations.set_icon(UITextures::AreaIcon);
         show_locations.set_text("Show Locations".to_string());
     
+        // Spawn Drone
+        let spawn_drone = panel.add_button();
+        spawn_drone.add_left_click_event(
+            PlayerDataEvent::CreateDroneWithVar(ref_manager.selected_var.clone(), ref_manager.cursor_location.clone()).wrap_into_event()
+        );;
+
+        spawn_drone.add_left_click_event(
+            PlayViewEvent::SetCursorMode(
+                ref_manager.play_view_rendering_config.clone(),
+                CursorMode::LockedToVar(ref_manager.selected_var.clone())
+            ).wrap_into_event()
+        );
+
         
     }
     return panel;
