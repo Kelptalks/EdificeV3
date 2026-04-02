@@ -35,7 +35,7 @@ fn get_shrink_event(ref_manager: &mut RefManager, side: WorldAreaSide) -> Event 
 }
 
 fn construct_scaling_button(ref_manager: &mut RefManager, icon: UITextures, side: WorldAreaSide) -> WidgetType {
-    let mut button = Button::new([0.0; 4]);
+    let mut button = Button::new();
 
     button.add_left_click_event(get_expand_event(ref_manager, side.clone()));
     button.add_right_click_event(get_shrink_event(ref_manager, side));

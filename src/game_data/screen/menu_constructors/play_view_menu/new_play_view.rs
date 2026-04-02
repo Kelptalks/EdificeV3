@@ -6,6 +6,7 @@ pub enum PlayViewMode {
     Main = 0,
     Location = 1,
     BluePrint = 2,
+    Drone = 3,
 }
 
 impl PlayViewMode {

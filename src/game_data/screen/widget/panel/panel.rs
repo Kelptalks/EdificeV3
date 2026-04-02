@@ -220,7 +220,7 @@ impl Panel {
     //=====================================
 
     pub fn add_button(&mut self) -> &mut Button { 
-        let button = Button::new([0.0; 4]);
+        let button = Button::new();
         self.add_widget(WidgetType::Button(button));
 
         if let WidgetType::Button(button) = self.sections.last_mut().unwrap().get_mut_widget() {

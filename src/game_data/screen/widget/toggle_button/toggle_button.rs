@@ -18,7 +18,7 @@ impl ToggleButton {
 
         let is_toggled = Rc::new(RefCell::new(false));
 
-        let mut button = Button::new([0.0; 4]);
+        let mut button = Button::new();
         button.add_left_click_event(WidgetEvent::ToggleBoolEvent(is_toggled.clone()).wrap_into_event());
 
 

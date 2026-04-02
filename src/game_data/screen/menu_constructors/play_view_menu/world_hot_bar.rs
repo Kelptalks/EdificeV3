@@ -1,10 +1,27 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{prelude::{PlayerDataEvent, WorldEvent}, widget_event_manager::play_view_events::PlayViewEvent}, player_data::player_data::PlayerData, screen::{menu_constructors::play_view_menu::new_play_view::{PlayViewMode, RefManager}, widget::{panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel, VarSlot}, widget::WidgetType, world_rendering::rendering_config::cursor_config::CursorMode}}, types::{BlockTexture, UITextures}};
+use crate::game_data::{game_event_manager::{prelude::{PlayerDataEvent, WorldEvent}, widget_event_manager::play_view_events::PlayViewEvent}, player_data::player_data::PlayerData, screen::{menu_constructors::play_view_menu::new_play_view::{PlayViewMode, RefManager}, widget::{button::button::Button, panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel, VarSlot}, widget::WidgetType, world_rendering::rendering_config::cursor_config::CursorMode}}, types::{BlockTexture, UITextures}};
 
+// Back To Main
+pub fn back_to_main_menu_button(ref_manager: &mut RefManager) -> WidgetType {
+    let mut back_button = Button::new();
+    back_button.set_icon(UITextures::LeftArrowIcon);
+    back_button.add_left_click_event(PlayViewMode::Main.to_tab_panel_event(&ref_manager.play_view_mode));
+    back_button.set_text("Back".to_string());
+
+    // Set the cameras mode to lock into the location
+    back_button.add_left_click_event(
+        PlayViewEvent::SetCursorMode(
+            ref_manager.play_view_rendering_config.clone(),
+            CursorMode::Free()
+        ).wrap_into_event()
+    );
+
+    return WidgetType::Button(back_button);
+}
 
 //=====================================
-// Hotbar Panel Constructors
+// Main Hotbar
 //=====================================
 
 
@@ -55,7 +72,7 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         let spawn_drone = panel.add_button();
         spawn_drone.add_left_click_event(
             PlayerDataEvent::CreateDroneWithVar(ref_manager.selected_var.clone(), ref_manager.cursor_location.clone()).wrap_into_event()
-        );;
+        );
 
         spawn_drone.add_left_click_event(
             PlayViewEvent::SetCursorMode(
@@ -63,12 +80,35 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
                 CursorMode::LockedToVar(ref_manager.selected_var.clone())
             ).wrap_into_event()
         );
+        spawn_drone.add_left_click_event(PlayViewMode::Drone.to_tab_panel_event(&ref_manager.play_view_mode));
 
         
     }
     return panel;
 }
 
+
+//=====================================
+// Drone
+//=====================================
+
+fn get_drone_hotbar(ref_manager: &mut RefManager) -> WidgetType {
+    let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
+
+    if let WidgetType::Panel(panel) = &mut panel {
+        panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
+        panel.set_color(PanelColor::Dark);
+        
+        // Back To Main
+        panel.add_widget(back_to_main_menu_button(ref_manager));
+
+    }
+    return panel;
+}
+
+//=====================================
+// Location Hotbar
+//=====================================
 
 fn get_location_hotbar(ref_manager: &mut RefManager) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
@@ -77,19 +117,7 @@ fn get_location_hotbar(ref_manager: &mut RefManager) -> WidgetType {
         panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
         panel.set_color(PanelColor::Dark);
         
-        // Back To Main
-        let back_button = panel.add_button();
-        back_button.set_icon(UITextures::LeftArrowIcon);
-        back_button.add_left_click_event(PlayViewMode::Main.to_tab_panel_event(&ref_manager.play_view_mode));
-        back_button.set_text("Back".to_string());
-
-        // Set the cameras mode to lock into the location
-        back_button.add_left_click_event(
-            PlayViewEvent::SetCursorMode(
-                ref_manager.play_view_rendering_config.clone(),
-                CursorMode::Free()
-            ).wrap_into_event()
-        );
+        panel.add_widget(back_to_main_menu_button(ref_manager));
 
 
         // Var Source Slot
@@ -125,6 +153,10 @@ fn get_location_hotbar(ref_manager: &mut RefManager) -> WidgetType {
 }
 
 
+//=====================================
+// Blueprint
+//=====================================
+
 fn get_blue_print_hotbar(ref_manager: &mut RefManager) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
 
@@ -158,6 +190,7 @@ pub fn get_widget(ref_manager: &mut RefManager) -> WidgetType {
     tab_panel.add_panel(get_main_hotbar_panel(ref_manager));
     tab_panel.add_panel(get_location_hotbar(ref_manager));
     tab_panel.add_panel(get_blue_print_hotbar(ref_manager));
+    tab_panel.add_panel(get_drone_hotbar(ref_manager));
 
     return tab_panel.wrap_into_widget();
 }

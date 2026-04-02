@@ -32,7 +32,7 @@ pub struct Button {
 }
 
 impl Button {
-    pub fn new(buffers: [f32; 4]) -> Button {
+    pub fn new() -> Button {
 
         let mut button = Button {
             // Parent Rendering
@@ -41,7 +41,7 @@ impl Button {
 
             // Rendering
             needs_resizing: true,
-            external_buffers: buffers,
+            external_buffers: [0.0; 4],
 
             pos: [0.0; 4],
             scale: [0.0; 2],

@@ -437,8 +437,9 @@ impl Widget for PlayWorldViewRender {
             return;
         }
         else {
-            self.handle_camera_panning(screen_data, game_event_manager);
             game_event_manager.add_events(&self.events);
         }
+
+        self.handle_camera_panning(screen_data, game_event_manager);
     }
 }
