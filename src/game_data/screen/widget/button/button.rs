@@ -150,6 +150,16 @@ impl Button {
         }
     }
 
+    //=====================================
+    // Special Rendering
+    //=====================================
+    pub fn set_ndc_pos(&mut self, ndc: [f32; 2]) {
+        self.pos[0] = ndc[0];
+        self.pos[1] = ndc[1];
+        self.pos[2] = ndc[0] + self.scale[0];
+        self.pos[3] = ndc[1] + self.scale[1];
+
+    }
     
 }
 

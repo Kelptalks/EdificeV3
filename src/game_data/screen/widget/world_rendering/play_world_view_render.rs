@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 
-use crate::game_data::{TextureManager, ray_caster::ray::TileRay, screen::{ScreenData, iso_cord_tool, widget::{prelude::play_world_view_config::PlayViewRenderingConfig, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{play_block::PlayBlock, play_view_control_manager::PlayViewControlManager}}}, types::BlockTexture};
+use crate::game_data::{TextureManager, locations::world_area::WorldArea, ray_caster::ray::TileRay, screen::{ScreenData, iso_cord_tool, widget::{button::button::Button, prelude::play_world_view_config::PlayViewRenderingConfig, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{area_rendering_manager::{self, area_rendering_manager::AreaRenderingManager, play_block::PlayBlock}, play_view_control_manager::PlayViewControlManager}}}, types::{BlockTexture, UITextures}};
 
 use crate::game_data::game_event_manager::prelude::*;
 
@@ -267,63 +267,58 @@ impl PlayWorldViewRender {
         let camera_cords = self.get_rendering_center_world_cor();
 
         let area_to_render = self.get_area_to_render();
-        let start_cords = area_to_render[0];
-        let end_cords = area_to_render[1];
+        
+        // Create a world area and shift in the correct location
+        let mut world_area = WorldArea::new_with_cords(area_to_render);
+        world_area.shift_cords(camera_cords);
 
-        // Loop through blocks in zoom
-        for y in start_cords[1]..=end_cords[1] {
-            for x in start_cords[0]..=end_cords[0] {
-                let world_cords = [
-                    camera_cords[0] + x,
-                    camera_cords[1] + y,
-                    camera_cords[2],
-                ];
+        let tiles = AreaRenderingManager::get_casted_tile_rays(&world_area, &world);
+        for tile in tiles {
+            let tile_area_cords = tile.get_area_cords();
 
-                let mut ray = TileRay::new(world_cords, [1; 3], 100);
-                ray.cast(&world);
-                
-                let [left_textures, right_textures] = ray.get_tile_textures();
+            
+            let mut draw_iso_cords = [
+                tile_area_cords[0] - tile_area_cords[2],
+                tile_area_cords[1] - tile_area_cords[2],
+            ];
+            
 
-                let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, [x, y]);
+            let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, draw_iso_cords);
+            draw_cords[0] += ndc_x_draw_center_offset;
+            draw_cords[1] += ndc_y_draw_center_offset;
+            
+            draw_cords[0] += self.camera_ndc_offset[0];
+            draw_cords[1] += self.camera_ndc_offset[1];
 
-                
-                draw_cords[0] += ndc_x_draw_center_offset;
-                draw_cords[1] += ndc_y_draw_center_offset;
-                
-                draw_cords[0] += self.camera_ndc_offset[0];
-                draw_cords[1] += self.camera_ndc_offset[1];
+            let [left_textures, right_textures] = tile.get_tile_textures();
 
+            // Left side 
+            let left_pos = [
+                draw_cords[0],
+                draw_cords[1],
+                draw_cords[0] + self.ndc_block_scale,
+                draw_cords[1] + self.ndc_block_scale,
+            ];
+            for texture in left_textures {
+                texture_manager.render_texture_with_pos(texture, left_pos);
+            }
 
-                // Left side 
-                let left_pos = [
-                    draw_cords[0],
-                    draw_cords[1],
-                    draw_cords[0] + self.ndc_block_scale,
-                    draw_cords[1] + self.ndc_block_scale,
-                ];
-                for texture in left_textures {
-                    texture_manager.render_texture_with_pos(texture, left_pos);
-                }
-
-                // Right side 
-                let right_pos = [
-                    draw_cords[0] + self.ndc_block_scale,
-                    draw_cords[1],
-                    draw_cords[0] + (self.ndc_block_scale * 2.0),
-                    draw_cords[1] + self.ndc_block_scale,
-                ];
-                for texture in right_textures {
-                    texture_manager.render_texture_with_pos(texture, right_pos);
-                }
-                
-                
-
-
+            // Right side 
+            let right_pos = [
+                draw_cords[0] + self.ndc_block_scale,
+                draw_cords[1],
+                draw_cords[0] + (self.ndc_block_scale * 2.0),
+                draw_cords[1] + self.ndc_block_scale,
+            ];
+            for texture in right_textures {
+                texture_manager.render_texture_with_pos(texture, right_pos);
             }
         }
+
     }
 
-    pub fn render_view(&mut self,
+    pub fn render_view(
+        &mut self,
         texture_manager: &mut TextureManager,
     ) {
         self.size();
@@ -389,7 +384,6 @@ impl PlayWorldViewRender {
             }
         }
 
-
     }
 
     //=====================================
@@ -434,8 +428,9 @@ impl Widget for PlayWorldViewRender {
         game_event_manager: &mut EventManager
     ) {
         
-        self.render_view(texture_manager);
-        //self.ray_cast_view(texture_manager);
+        //self.render_view(texture_manager,);
+        
+        self.ray_cast_view(texture_manager);
 
         // Don't handle input if mouse is not on render
         if !screen_data.mouse_on_ndc_pos(self.pos) { 

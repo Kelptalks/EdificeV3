@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, locations::world_area::WorldArea, types::BlockTexture};
+use crate::game_data::{TextureManager, locations::world_area::WorldArea, screen::widget::world_rendering::area_rendering_manager::area_rendering_manager::AreaRenderingManager, types::BlockTexture};
 
 #[derive(Clone, Copy)]
 pub struct PlayBlock {
@@ -80,14 +80,24 @@ impl PlayBlock {
     pub fn render_area(&self, texture_manager: &mut TextureManager, world_area: &WorldArea) {        
         
         if world_area.cords_in_area(self.block_world_cords) {
-            if self.block_type != BlockTexture::Air {
-                texture_manager.render_block(BlockTexture::translucent_green, self.draw_cords, self.ndc_block_scale);
-            }
             if world_area.cords_on_edge(self.block_world_cords) {
                 texture_manager.render_block(BlockTexture::Dot, self.draw_cords, self.ndc_block_scale);
             }
             else if world_area.cords_on_corner(self.block_world_cords) {
                 texture_manager.render_block(BlockTexture::Dot, self.draw_cords, self.ndc_block_scale);
+            }
+
+            
+
+            
+        }
+
+        // Debug
+
+        let debug_cords = AreaRenderingManager::get_debug_cords(world_area);
+        for debug_cord in debug_cords {
+            if debug_cord == self.block_world_cords {
+                texture_manager.render_block(BlockTexture::Debug, self.draw_cords, self.ndc_block_scale);
             }
         }
 

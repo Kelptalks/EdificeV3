@@ -141,4 +141,108 @@ impl WorldAreaSide {
         }
     }
 
+    //=====================================
+    // RayCasting
+    //=====================================
+
+
+    // Get the faces of a side based off it's scale
+    pub fn get_face_origins(&self, area: &WorldArea) -> Vec<[i32; 3]> {
+        let max = area.get_max_point().cords;
+        let min = area.get_min_point().cords;
+
+        match self {
+            // Fixed X, iterate Z and Y
+            WorldAreaSide::XPlus => (min[1]..=max[1]).flat_map(|z|
+                (min[2]..=max[2]).map(move |y| [max[0], z, y])
+            ).collect(),
+
+            WorldAreaSide::XMinus => (min[1]..=max[1]).flat_map(|z|
+                (min[2]..=max[2]).map(move |y| [min[0], z, y])
+            ).collect(),
+
+            // Fixed Z, iterate X and Y
+            WorldAreaSide::ZPlus => (min[0]..=max[0]).flat_map(|x|
+                (min[2]..=max[2]).map(move |y| [x, max[1], y])
+            ).collect(),
+
+            WorldAreaSide::ZMinus => (min[0]..=max[0]).flat_map(|x|
+                (min[2]..=max[2]).map(move |y| [x, min[1], y])
+            ).collect(),
+
+            // Fixed Y, iterate X and Z
+            WorldAreaSide::YPlus => (min[0]..=max[0]).flat_map(|x|
+                (min[1]..=max[1]).map(move |z| [x, z, max[2]])
+            ).collect(),
+
+            WorldAreaSide::YMinus => (min[0]..=max[0]).flat_map(|x|
+                (min[1]..=max[1]).map(move |z| [x, z, min[2]])
+            ).collect(),
+        }
+    }
+
+    pub fn get_face_origins_local(&self, area: &WorldArea) -> Vec<[i32; 3]> {
+        let max = area.get_max_point().cords;
+        let min = area.get_min_point().cords;
+        let size = [max[0] - min[0], max[1] - min[1], max[2] - min[2]];
+
+        match self {
+            WorldAreaSide::XPlus => (0..=size[1]).flat_map(|z|
+                (0..=size[2]).map(move |y| [size[0], z, y])
+            ).collect(),
+
+            WorldAreaSide::XMinus => (0..=size[1]).flat_map(|z|
+                (0..=size[2]).map(move |y| [0, z, y])
+            ).collect(),
+
+            WorldAreaSide::ZPlus => (0..=size[0]).flat_map(|x|
+                (0..=size[2]).map(move |y| [x, size[1], y])
+            ).collect(),
+
+            WorldAreaSide::ZMinus => (0..=size[0]).flat_map(|x|
+                (0..=size[2]).map(move |y| [x, 0, y])
+            ).collect(),
+
+            WorldAreaSide::YPlus => (0..=size[0]).flat_map(|x|
+                (0..=size[1]).map(move |z| [x, z, size[2]])
+            ).collect(),
+
+            WorldAreaSide::YMinus => (0..=size[0]).flat_map(|x|
+                (0..=size[1]).map(move |z| [x, z, 0])
+            ).collect(),
+        }
+    }
+
+    pub fn get_face_origins_paired(&self, area: &WorldArea) -> Vec<([i32; 3], [i32; 3])> {
+        let max = area.get_max_point().cords;
+        let min = area.get_min_point().cords;
+        let size = [max[0] - min[0], max[1] - min[1], max[2] - min[2]];
+
+        match self {
+            WorldAreaSide::XPlus => (min[1]..=max[1]).flat_map(|z|
+                (min[2]..=max[2]).map(move |y| ([max[0], z, y], [size[0], z - min[1], y - min[2]]))
+            ).collect(),
+
+            WorldAreaSide::XMinus => (min[1]..=max[1]).flat_map(|z|
+                (min[2]..=max[2]).map(move |y| ([min[0], z, y], [0, z - min[1], y - min[2]]))
+            ).collect(),
+
+            WorldAreaSide::ZPlus => (min[0]..=max[0]).flat_map(|x|
+                (min[2]..=max[2]).map(move |y| ([x, max[1], y], [x - min[0], size[1], y - min[2]]))
+            ).collect(),
+
+            WorldAreaSide::ZMinus => (min[0]..=max[0]).flat_map(|x|
+                (min[2]..=max[2]).map(move |y| ([x, min[1], y], [x - min[0], 0, y - min[2]]))
+            ).collect(),
+
+            WorldAreaSide::YPlus => (min[0]..=max[0]).flat_map(|x|
+                (min[1]..=max[1]).map(move |z| ([x, z, max[2]], [x - min[0], z - min[1], size[2]]))
+            ).collect(),
+
+            WorldAreaSide::YMinus => (min[0]..=max[0]).flat_map(|x|
+                (min[1]..=max[1]).map(move |z| ([x, z, min[2]], [x - min[0], z - min[1], 0]))
+            ).collect(),
+        }
+    }
+
 }

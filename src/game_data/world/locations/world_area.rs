@@ -28,6 +28,10 @@ impl WorldArea {
         }
     }
 
+    pub fn new_with_cords(cords: [[i32; 3]; 2]) -> WorldArea {
+        WorldArea {points: [WorldPoint::new_with_cords(cords[0]), WorldPoint::new_with_cords(cords[1])] }
+    }
+
     //=====================================
     // points
     //=====================================
@@ -50,6 +54,29 @@ impl WorldArea {
     pub fn get_point_2_cords(&self) -> [i32; 3] {
         return self.points[1].cords;
     }
+
+    pub fn get_max_point(&self) -> WorldPoint {
+        let p1 = self.get_point_1_cords();
+        let p2 = self.get_point_2_cords();
+        let mut max = [0i32; 3];
+        for i in 0..3 {
+            max[i] = p1[i].max(p2[i]);
+        }
+
+        return WorldPoint { cords: max }
+    }
+
+    pub fn get_min_point(&self) -> WorldPoint {
+        let p1 = self.get_point_1_cords();
+        let p2 = self.get_point_2_cords();
+        let mut min = [0i32; 3];
+        for i in 0..3 {
+            min[i] = p1[i].min(p2[i]);
+        }
+
+        return WorldPoint { cords: min }
+    }
+
 
     pub fn get_world_point(&self, index: usize) -> WorldPoint{
         return self.points[index];

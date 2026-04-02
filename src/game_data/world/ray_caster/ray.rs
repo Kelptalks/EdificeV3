@@ -38,20 +38,28 @@ impl RaySide {
 
 pub struct TileRay {
     start_cords: [i32; 3],
+    area_cords: [i32; 3],
+    
     direction: [i32; 3],
     view_distance: u32,
 
     left_side: RaySide,
     right_side: RaySide,
-
 }
 
 
 impl TileRay {
-    pub fn new(start_cords:[i32; 3], direction: [i32; 3], view_distance: u32) -> TileRay {
+    pub fn new(
+        start_cords:[i32; 3], 
+        area_cords: [i32; 3], 
+        direction: [i32; 3], 
+        view_distance: u32
+    ) -> TileRay {
         TileRay {
             // Input
             start_cords,
+            area_cords,
+
             direction,
             view_distance,
 
@@ -63,6 +71,9 @@ impl TileRay {
         }
     }
 
+    pub fn get_area_cords(&self) -> [i32; 3] {
+        return self.area_cords;
+    }
 
     pub fn get_tile_textures(self) -> [Vec<Texture>; 2] {
         return [self.left_side.get_textures(), self.right_side.get_textures()];

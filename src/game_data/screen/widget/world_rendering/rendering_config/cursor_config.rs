@@ -103,8 +103,6 @@ impl CursorConfig {
                             for side in sides_of_cursor_on_location {
                                 let dist_from_side = side.dist_from_side(&area, self.get_point().cords);
                                 events.push(self.construct_shift_event(side.get_area_shift_mod(dist_from_side)));
-                                
-                                println!("Distance From Side {} = {}", side.to_string(), dist_from_side);
                             }
                         }
                     }
