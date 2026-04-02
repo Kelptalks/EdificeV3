@@ -1,4 +1,6 @@
-use crate::game_data::screen::{menu_constructors::play_view_menu::new_play_view::RefManager, widget::{panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel}, widget::WidgetType, widget_calculations::TextSize}};
+use std::collections::binary_heap;
+
+use crate::game_data::{game_event_manager::{player_data_event_manager::var_event_manager::var_events::{LocationVarEvent, VarEvents}, prelude::{Event, InputEvent}}, locations::world_area_side::WorldAreaSide, screen::{menu_constructors::play_view_menu::new_play_view::RefManager, widget::{button::button::Button, panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel}, widget::WidgetType, widget_calculations::TextSize}}, types::UITextures};
 
 fn get_main_view_panel(ref_manager: &mut RefManager) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
@@ -20,13 +22,88 @@ fn get_main_view_panel(ref_manager: &mut RefManager) -> WidgetType {
 //=====================================
 // Location Managment
 //=====================================
+fn get_expand_event(ref_manager: &mut RefManager, side: WorldAreaSide) -> Event {
+    VarEvents::LocationVarEvent(
+        ref_manager.selected_var.clone(), LocationVarEvent::ExpandLocationSide(side)
+    ).wrap_into_event()
+}
+
+fn get_shrink_event(ref_manager: &mut RefManager, side: WorldAreaSide) -> Event {
+    VarEvents::LocationVarEvent(
+        ref_manager.selected_var.clone(), LocationVarEvent::ShrinkLocationSide(side)
+    ).wrap_into_event()
+}
+
+fn construct_scaling_button(ref_manager: &mut RefManager, icon: UITextures, side: WorldAreaSide) -> WidgetType {
+    let mut button = Button::new([0.0; 4]);
+
+    button.add_left_click_event(get_expand_event(ref_manager, side.clone()));
+    button.add_right_click_event(get_shrink_event(ref_manager, side));
+    button.set_icon(icon);
+
+    return WidgetType::Button(button);
+}
+
 fn get_location_scalling_mods(ref_manager: &mut RefManager) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
     if let WidgetType::Panel(panel) = &mut panel {
+        panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
 
 
- 
+        let top_row = panel.add_sub_panel();
+        top_row.set_color(PanelColor::Clear);
 
+        top_row.add_widget(
+            construct_scaling_button(
+                ref_manager, 
+                UITextures::ScallingIconTopLeft, 
+                WorldAreaSide::XMinus
+            )
+        );
+
+        top_row.add_widget(
+            construct_scaling_button(
+                ref_manager, 
+                UITextures::ScallingIconTopMid, 
+                WorldAreaSide::ZPlus
+            )
+        );
+
+        top_row.add_widget(
+            construct_scaling_button(
+                ref_manager, 
+                UITextures::ScallingIconTopRight, 
+                WorldAreaSide::YMinus
+            )
+        );
+
+
+        let bot_row = panel.add_sub_panel();
+        bot_row.set_color(PanelColor::Clear);
+
+        bot_row.add_widget(
+            construct_scaling_button(
+                ref_manager, 
+                UITextures::ScallingIconBotLeft, 
+                WorldAreaSide::YPlus
+            )
+        );
+
+        bot_row.add_widget(
+            construct_scaling_button(
+                ref_manager, 
+                UITextures::ScallingIconBotMid, 
+                WorldAreaSide::ZMinus
+            )
+        );
+
+        bot_row.add_widget(
+            construct_scaling_button(
+                ref_manager, 
+                UITextures::ScallingIconBotRight, 
+                WorldAreaSide::XPlus
+            )
+        );
 
         panel.size();
     }

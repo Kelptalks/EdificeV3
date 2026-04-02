@@ -2,7 +2,7 @@ use crate::game_data::{
     game_event_manager::{
         game_event_manager::EventManager,
         world_event_manager::world_event_manager::WorldEvent,
-    }, locations::world_point::WorldPoint, types::BlockTexture
+    }, locations::{world_area_side::WorldAreaSide, world_point::WorldPoint}, types::BlockTexture
 };
 
 /*
@@ -95,6 +95,18 @@ impl WorldArea {
                 self.points[0].cords[i] += if expand { mod_scale[i] } else { -mod_scale[i] };
             }
         }
+    }
+
+    pub fn expand(&mut self, side: &WorldAreaSide) {
+        let mod_points = side.get_area_point_sizing_mods();
+        self.points[0].add_to_point(mod_points[0]);
+        self.points[1].add_to_point(mod_points[1]);
+    }
+
+    pub fn shrink(&mut self, side: &WorldAreaSide) {
+        let mod_points = side.get_area_point_sizing_mods();
+        self.points[0].sub_from_point(mod_points[0]);
+        self.points[1].sub_from_point(mod_points[1]);
     }
 
     //=====================================

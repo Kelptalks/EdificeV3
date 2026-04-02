@@ -196,13 +196,13 @@ pub enum UITextures {
 
     // Scalling Icons
     ScallingIconTopLeft = 54,
-    ScallingIconTopCenter = 55,
+    ScallingIconTopMid = 55,
     ScallingIconTopRight = 56,
     ScallingIconMidLeft = 57,
     ScallingIconMidCenter = 58,
     ScallingIconMidRight = 59,
     ScallingIconBotLeft = 60,
-    ScallingIconBotCenter = 61,
+    ScallingIconBotMid = 61,
     ScallingIconBotRight = 62,
 }
 

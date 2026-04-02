@@ -19,7 +19,7 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         let create_location_button = panel.add_button();
 
         // Create a new location button
-        create_location_button.add_event(
+        create_location_button.add_left_click_event(
             PlayerDataEvent::CreateLocationWithVar(
                 ref_manager.selected_var.clone(),
                 ref_manager.cursor_location.clone(),
@@ -27,13 +27,13 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         );
 
         // Set the cameras mode to lock into the location
-        create_location_button.add_event(
+        create_location_button.add_left_click_event(
             PlayViewEvent::SetCursorMode(
                 ref_manager.play_view_rendering_config.clone(),
                 CursorMode::LockedToVar(ref_manager.selected_var.clone())
             ).wrap_into_event()
         );
-        create_location_button.add_event(PlayViewMode::Location.to_tab_panel_event(&ref_manager.play_view_mode));
+        create_location_button.add_left_click_event(PlayViewMode::Location.to_tab_panel_event(&ref_manager.play_view_mode));
         create_location_button.set_text("Create Location".to_string());
         create_location_button.set_icon(UITextures::LocationIcon);
 
@@ -65,11 +65,11 @@ fn get_location_hotbar(ref_manager: &mut RefManager) -> WidgetType {
         // Back To Main
         let back_button = panel.add_button();
         back_button.set_icon(UITextures::LeftArrowIcon);
-        back_button.add_event(PlayViewMode::Main.to_tab_panel_event(&ref_manager.play_view_mode));
+        back_button.add_left_click_event(PlayViewMode::Main.to_tab_panel_event(&ref_manager.play_view_mode));
         back_button.set_text("Back".to_string());
 
         // Set the cameras mode to lock into the location
-        back_button.add_event(
+        back_button.add_left_click_event(
             PlayViewEvent::SetCursorMode(
                 ref_manager.play_view_rendering_config.clone(),
                 CursorMode::Free()
@@ -91,7 +91,7 @@ fn get_location_hotbar(ref_manager: &mut RefManager) -> WidgetType {
 
         // Enter BluePrintMode
         let enter_blue_print_mode = panel.add_button();
-        enter_blue_print_mode.add_event(PlayViewMode::BluePrint.to_tab_panel_event(&ref_manager.play_view_mode));
+        enter_blue_print_mode.add_left_click_event(PlayViewMode::BluePrint.to_tab_panel_event(&ref_manager.play_view_mode));
         enter_blue_print_mode.set_icon(UITextures::BluePrintIcon);
         enter_blue_print_mode.set_text("Blue Print Mode".to_string());
         
@@ -120,7 +120,7 @@ fn get_blue_print_hotbar(ref_manager: &mut RefManager) -> WidgetType {
         // Back To Location
         let back_button = panel.add_button();
         back_button.set_icon(UITextures::LeftArrowIcon);
-        back_button.add_event(PlayViewMode::Location.to_tab_panel_event(&ref_manager.play_view_mode));
+        back_button.add_left_click_event(PlayViewMode::Location.to_tab_panel_event(&ref_manager.play_view_mode));
         back_button.set_text("Back".to_string());
         
         

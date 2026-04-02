@@ -74,7 +74,7 @@ pub fn get_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> Widge
 
         // Back button
         let button = panel.add_button();
-        button.add_event(RenderEvent::ChangeMenu(screen_data.get_current_menu()).wrap_into_event());
+        button.add_left_click_event(RenderEvent::ChangeMenu(screen_data.get_current_menu()).wrap_into_event());
         button.set_icon(crate::game_data::types::UITextures::XIcon);
         button.set_text("Back".to_string());
 

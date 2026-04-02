@@ -65,6 +65,7 @@ impl CursorConfig {
         
         // Do not create shift event if side is excluded
         let shift_mod_side = WorldAreaSide::area_shift_mod_to_side(shift);
+
         if let Some(side) = shift_mod_side {
             for exluded_side in excluded_sides {
                 if side == exluded_side {
@@ -91,7 +92,21 @@ impl CursorConfig {
                         let sides_of_cursor_on_location = WorldAreaSide::get_sides_of_point_in_area(
                             &area, &self.get_point()
                         );
-                        events.append(&mut self.construct_shift_event_excluding_sides(sides_of_cursor_on_location, shift));
+                        events.append(
+                            &mut self.construct_shift_event_excluding_sides(
+                                sides_of_cursor_on_location.clone(), shift
+                            )
+                        );
+
+                        // Move cursor back into bounds if it somehow escapes
+                        if !area.cords_in_area(self.get_point().cords) {
+                            for side in sides_of_cursor_on_location {
+                                let dist_from_side = side.dist_from_side(&area, self.get_point().cords);
+                                events.push(self.construct_shift_event(side.get_area_shift_mod(dist_from_side)));
+                                
+                                println!("Distance From Side {} = {}", side.to_string(), dist_from_side);
+                            }
+                        }
                     }
                 }
                 else {
@@ -99,6 +114,7 @@ impl CursorConfig {
                 }
             },
         }
+
 
         return events;
     }

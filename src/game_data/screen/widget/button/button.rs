@@ -17,7 +17,8 @@ pub struct Button {
 
     
     // Input
-    events: Vec<Event>, // The event that will occer when the button is pressed
+    left_click_events: Vec<Event>, // The event that will occer when the button is pressed
+    right_click_events: Vec<Event>, // The event that will occer when the button is pressed
 
     // Apearence
     button_type: UITextures,
@@ -48,7 +49,8 @@ impl Button {
             prefered_scale: [widget_calculations::get_button_scale(); 2],
 
             // Input 
-            events: Vec::new(), 
+            left_click_events: Vec::new(), 
+            right_click_events: Vec::new(), 
 
             // Apearence
             button_type: UITextures::ButtonCircle, 
@@ -97,11 +99,16 @@ impl Button {
     //=====================================
 
     pub fn clear_events(&mut self) {
-        self.events.clear();
+        self.left_click_events.clear();
+        self.right_click_events.clear();
     }
 
-    pub fn add_event(&mut self, event: Event) {
-        self.events.push(event);
+    pub fn add_left_click_event(&mut self, event: Event) {
+        self.left_click_events.push(event);
+    } 
+
+    pub fn add_right_click_event(&mut self, event: Event) {
+        self.right_click_events.push(event);
     } 
 
     //=====================================
@@ -191,7 +198,13 @@ impl Widget for Button {
 
             // If button was clicked
             if screen_data.was_left_released(){
-                for event in &self.events {
+                for event in &self.left_click_events {
+                    game_event_manager.add_event(event.clone());
+                }    
+            }
+
+            if screen_data.was_right_pressed(){
+                for event in &self.right_click_events {
                     game_event_manager.add_event(event.clone());
                 }    
             }

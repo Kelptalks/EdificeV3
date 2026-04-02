@@ -59,7 +59,7 @@ impl TabPanel {
         let button =  self.button_panel.add_button();
         
         // Add Index modifyer event to button
-        button.add_event(
+        button.add_left_click_event(
             WidgetEvent::SetUsizeEvent(self.current_panel_index.clone(), self.sub_panels.len() - 1).wrap_into_event());
 
         return button;

@@ -19,7 +19,7 @@ impl ToggleButton {
         let is_toggled = Rc::new(RefCell::new(false));
 
         let mut button = Button::new([0.0; 4]);
-        button.add_event(WidgetEvent::ToggleBoolEvent(is_toggled.clone()).wrap_into_event());
+        button.add_left_click_event(WidgetEvent::ToggleBoolEvent(is_toggled.clone()).wrap_into_event());
 
 
         let mut toggle_button = ToggleButton {
@@ -47,7 +47,7 @@ impl ToggleButton {
         self.is_toggled = new_ref.clone();
         
         self.button.clear_events();
-        self.button.add_event(BoolEvent::ToggleBool(new_ref.clone()).wrap_into_event());
+        self.button.add_left_click_event(BoolEvent::ToggleBool(new_ref.clone()).wrap_into_event());
     }
     
     pub fn get_toggle_ref(&self) -> Rc<RefCell<bool>> {
