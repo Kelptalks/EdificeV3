@@ -15,7 +15,7 @@ impl BlockSelection {
             
             // Create button and set up it's aperence.
             let mut button = Button::new_blank();
-            button.set_text(block.to_string().to_string());
+            button.set_text(block.get_name().to_string());
             button.set_block(block);
             
             selection_menu.add_button(button);

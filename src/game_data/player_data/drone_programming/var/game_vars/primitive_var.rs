@@ -1,4 +1,6 @@
 
+use std::{cell::RefCell, rc::Rc};
+
 use crate::game_data::{player_data::drone_programming::var::{game_vars::game_var_type::GameVar, var_type::Var}, texture_manager::texture::Texture, types::{BlockTexture, drone_item::DroneItem}};
 
 
@@ -6,6 +8,7 @@ use crate::game_data::{player_data::drone_programming::var::{game_vars::game_var
 pub enum PrimitiveVar {
     DroneItem(DroneItem),
     Block(BlockTexture),
+    Cords([i32; 3]),
 }
 
 impl PrimitiveVar {
@@ -21,6 +24,9 @@ impl PrimitiveVar {
             PrimitiveVar::Block(block_texture) => {
                 return Texture::BlockTexture(*block_texture);
             },
+            PrimitiveVar::Cords(cords) => {
+                return Texture::BlockTexture(BlockTexture::Selector);
+            },
         }
     }
 
@@ -28,13 +34,15 @@ impl PrimitiveVar {
         match self {
             PrimitiveVar::DroneItem(_) => PrimitiveVarTypeKind::DroneItem,
             PrimitiveVar::Block(_) => PrimitiveVarTypeKind::Block,
+            PrimitiveVar::Cords(_) => PrimitiveVarTypeKind::Cords
         }
     }
 
     pub fn get_name(&self) -> String {
         match self {
-            PrimitiveVar::DroneItem(_) => "DroneItem".to_string(),
-            PrimitiveVar::Block(block) => block.to_string().to_string(),
+            PrimitiveVar::DroneItem(drone_item) => drone_item.get_name().to_string(),
+            PrimitiveVar::Block(block) => block.get_name().to_string(),
+            PrimitiveVar::Cords(cords) => format!("({:?})", cords),
         }
     }
 
@@ -46,14 +54,77 @@ impl PrimitiveVar {
             PrimitiveVar::Block(block_texture) => {
                 *block_texture = BlockTexture::Air
             },
+            PrimitiveVar::Cords(cords) => {
+                for f in cords.iter_mut() {
+                    *f = 0;
+                }
+            },
         }
     }
+
+    //=====================================
+    // Constructors
+    //=====================================
+
+    pub fn construct_cords_var_ref(cords: [i32; 3]) -> Rc<RefCell<Var>> {
+        let var = GameVar::Primitive(PrimitiveVar::Cords(cords)).wrap_into_var();
+        return Rc::new(RefCell::new(var));
+    }
+
+    pub fn construct_block_var_ref(block: BlockTexture) -> Rc<RefCell<Var>> {
+        let var = GameVar::Primitive(PrimitiveVar::Block(block)).wrap_into_var();
+        return Rc::new(RefCell::new(var));
+    }
+
+    pub fn construct_item_var_ref(item: DroneItem) -> Rc<RefCell<Var>> {
+        let var = PrimitiveVar::DroneItem(item).wrap_into_var();
+        Rc::new(RefCell::new(var))
+    }
+
+    //=====================================
+    // Getters
+    //=====================================
+
+    pub fn into_drone_cords(var: &Rc<RefCell<Var>>) -> [i32; 3] {
+        let borrow = var.borrow();
+        if let Var::Game(GameVar::Primitive(PrimitiveVar::Cords(cords))) = *borrow {
+            return cords;
+        }
+        else {
+            eprintln!("Failed to convert var {} to cords", borrow.get_name());
+            return [0; 3];
+        }
+    }
+
+    pub fn into_block(var: &Rc<RefCell<Var>>) -> BlockTexture {
+        let borrow = var.borrow();
+        if let Var::Game(GameVar::Primitive(PrimitiveVar::Block(block))) = *borrow {
+            return block;
+        }
+        else {
+            eprintln!("Failed to convert var {} to block", borrow.get_name());
+            return BlockTexture::Air;
+        }
+    }
+
+    pub fn into_drone_item(var: &Rc<RefCell<Var>>) -> DroneItem {
+        let borrow = var.borrow();
+        if let Var::Game(GameVar::Primitive(PrimitiveVar::DroneItem(item))) = *borrow {
+            return item;
+        }
+        else {
+            eprintln!("Failed to convert var {} to drone item", borrow.get_name());
+            return DroneItem::Ash;
+        }
+    }
+
 }
 
 #[derive(PartialEq)]
 pub enum PrimitiveVarTypeKind {
     DroneItem,
     Block,
+    Cords,
 }
 
 impl PrimitiveVarTypeKind {
@@ -65,6 +136,9 @@ impl PrimitiveVarTypeKind {
             PrimitiveVarTypeKind::Block => {
                 return Texture::BlockTexture(BlockTexture::Selector)
             },
+            PrimitiveVarTypeKind::Cords => {
+                return Texture::BlockTexture(BlockTexture::Selector);
+            }
         }
     }
 

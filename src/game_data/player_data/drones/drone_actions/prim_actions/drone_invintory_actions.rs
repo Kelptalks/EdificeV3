@@ -1,6 +1,6 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, fmt::format, rc::Rc};
 
-use crate::game_data::{player_data::{drone_programming::var::var_type::Var, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::drone_prim_actions::DronePrimAction}}}, types::drone_item::DroneItem};
+use crate::game_data::{player_data::{drone_programming::var::{game_vars::primitive_var::PrimitiveVar, var_type::Var}, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::drone_prim_actions::DronePrimAction}}}, types::drone_item::DroneItem};
 
 #[derive(Clone)]
 pub enum DroneInventoryAction {
@@ -31,6 +31,28 @@ impl DroneInventoryAction {
     }
 
 
+    //=====================================
+    // Identity
+    //=====================================
+
+    pub fn get_name(&self) -> String {
+        match self {
+            DroneInventoryAction::CraftItem(drone_item) => {
+                format!("Crafting Item: {}", drone_item.get_name())
+            },
+            DroneInventoryAction::UseItemForFuel(drone_item, amount) => {
+                format!("Using Item For Fuel Item: {} x {}", drone_item.get_name(), amount)
+            },
+            DroneInventoryAction::EquipTool(drone_item) => {
+                format!("Equipping Item: {}", drone_item.get_name())
+            },
+        }
+    }
+
+    //=====================================
+    // Function Construction
+    //=====================================
+
     // Creates a set of var refrenses 
     // Why: used to get the Vars needed for constructing Functions
     pub fn create_param_vars(&self) -> Vec<Rc<RefCell<Var>>> {
@@ -38,13 +60,13 @@ impl DroneInventoryAction {
 
         match self {
             DroneInventoryAction::CraftItem(drone_item) => {
-                params.push(drone_item.create_var());
+                params.push(PrimitiveVar::construct_item_var_ref(*drone_item));
             },
             DroneInventoryAction::UseItemForFuel(drone_item, _) => {
-                params.push(drone_item.create_var());
+                params.push(PrimitiveVar::construct_item_var_ref(*drone_item));
             },
             DroneInventoryAction::EquipTool(drone_item) => {
-                params.push(drone_item.create_var());
+                params.push(PrimitiveVar::construct_item_var_ref(*drone_item));
             },
         }
 
@@ -54,18 +76,22 @@ impl DroneInventoryAction {
     pub fn set_params_from_vars(&mut self, params: &Vec<Rc<RefCell<Var>>>) {
         match self {
             DroneInventoryAction::CraftItem(drone_item) => {
-                *drone_item = DroneItem::from_var(&params[0]);
+                *drone_item = PrimitiveVar::into_drone_item(&params[0]);
             },
             DroneInventoryAction::UseItemForFuel(drone_item, _) => {
-                *drone_item = DroneItem::from_var(&params[0]);
+                *drone_item = PrimitiveVar::into_drone_item(&params[0]);
             },
             DroneInventoryAction::EquipTool(drone_item) => {
-                *drone_item = DroneItem::from_var(&params[0]);
+                *drone_item = PrimitiveVar::into_drone_item(&params[0]);
             },
         }
     }
 
 }
+
+//=====================================
+// Execution
+//=====================================
 
 
 // Craft an item | Error 1 = is busy | Error 2 = Missing item | Error 3 = Item not craftable

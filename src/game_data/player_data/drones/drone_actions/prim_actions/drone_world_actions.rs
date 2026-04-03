@@ -1,4 +1,6 @@
-use crate::game_data::{World, game_event_manager::prelude::{EventManager, WorldEvent}, player_data::drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::drone_prim_actions::DronePrimAction}}, types::BlockTexture};
+use std::{cell::RefCell, rc::Rc};
+
+use crate::game_data::{World, game_event_manager::prelude::{EventManager, WorldEvent}, player_data::{drone_programming::var::{game_vars::primitive_var::PrimitiveVar, var_type::Var}, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::drone_prim_actions::DronePrimAction}}}, types::BlockTexture};
 
 #[derive(Clone)]
 pub enum DroneWorldAction {
@@ -24,6 +26,64 @@ impl DroneWorldAction {
             },
             DroneWorldAction::PlaceBlock(relative_cords, block_texture) => {
                 place_block(drone, world, event_manager, *relative_cords, *block_texture);
+            },
+        }
+    }
+
+    //=====================================
+    // Identity
+    //=====================================
+
+    pub fn get_name(&self) -> String {
+        match self {
+            DroneWorldAction::MoveDrone(cords) => {
+                format!("Moving: {:?}", cords)
+            },
+            DroneWorldAction::MineBlock(cords) => {
+                format!("Mining Block: {:?}", cords)
+            },
+            DroneWorldAction::PlaceBlock(cords, block_texture) => {
+                format!("Placing Block: {:?} | {}", cords, block_texture.get_name())
+            },
+        }
+    }
+
+
+    //=====================================
+    // Function Constructors
+    //=====================================
+
+
+    pub fn create_param_vars(&self) -> Vec<Rc<RefCell<Var>>> {
+        let mut params = Vec::new();
+        
+        match self {
+            DroneWorldAction::MoveDrone(cords) => {
+                params.push(PrimitiveVar::construct_cords_var_ref(*cords));
+            },
+            DroneWorldAction::MineBlock(cords) => {
+                params.push(PrimitiveVar::construct_cords_var_ref(*cords));
+            },
+            DroneWorldAction::PlaceBlock(cords, block_texture) => {
+                params.push(PrimitiveVar::construct_cords_var_ref(*cords));
+                params.push(PrimitiveVar::construct_block_var_ref(*block_texture));
+            },
+        }
+
+        params
+    }
+
+    pub fn set_params_from_vars(&mut self, params: &Vec<Rc<RefCell<Var>>>) {
+        match self {
+            DroneWorldAction::MoveDrone(cords) => {
+                *cords = PrimitiveVar::into_drone_cords(&params[0]);
+            },
+            DroneWorldAction::MineBlock(cords) => {
+                *cords = PrimitiveVar::into_drone_cords(&params[0]);
+            },
+            DroneWorldAction::PlaceBlock(cords, block_texture) => {
+                *cords = PrimitiveVar::into_drone_cords(&params[0]);
+                *block_texture = PrimitiveVar::into_block(&params[1]);
             },
         }
     }

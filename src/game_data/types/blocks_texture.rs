@@ -641,7 +641,7 @@ impl BlockTexture {
         }
     }
 
-    pub fn to_string(&self) -> &'static str {
+    pub fn get_name(&self) -> &'static str {
         BLOCK_PROPERTIES[*self as usize].name
     }
 

@@ -16,6 +16,20 @@ impl DroneAction {
         }
     }
 
+    //=====================================
+    // Identity
+    //=====================================
+
+    pub fn get_name(&self) -> String {
+        match self {
+            DroneAction::PrimAction(drone_prim_action) => drone_prim_action.get_name(),
+        }
+    }
+
+    //=====================================
+    // Execution
+    //=====================================
+
     pub fn create_param_vars(&self) -> Vec<Rc<RefCell<Var>>> {
         match self {
             DroneAction::PrimAction(drone_prim_action) => {

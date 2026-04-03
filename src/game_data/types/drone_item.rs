@@ -187,23 +187,7 @@ impl DroneItem {
         ITEM_PROPERTIES[*self as usize].craft_time
     }
 
-    //=====================================
-    // Var
-    //=====================================
-    pub fn create_var(&self) -> Rc<RefCell<Var>> {
-        Rc::new(RefCell::new(PrimitiveVar::DroneItem(*self).wrap_into_var()))
-    }
-
-    pub fn from_var(var: &Rc<RefCell<Var>>) -> DroneItem {
-        let borrow = var.borrow();
-
-        if let Var::Game(GameVar::Primitive(PrimitiveVar::DroneItem(item))) = *borrow {
-            return item;
-        }
-        else {
-            eprintln!("Failed to convert var {} to drone item", borrow.get_name());
-            return DroneItem::Ash;
-        }
-
+    pub fn get_name(&self) -> &str {
+        return ITEM_PROPERTIES[*self as usize].name;
     }
 }
