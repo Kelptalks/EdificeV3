@@ -67,7 +67,7 @@ impl Panel {
 
             // Self Rendering
             external_buffers: buffers, 
-            internal_buffers: [0.012; 4],   
+            internal_buffers: [widget_calculations::get_panel_spacing_scale(); 4],   
             pos: [0.0; 4],
             scale: [0.0; 2],
             

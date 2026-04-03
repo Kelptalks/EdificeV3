@@ -9,4 +9,4 @@ mod var_ref_hot_bar;
 mod world_view;
 mod world_hot_bar;
 mod manager_panel;
-
+mod selection_panel;

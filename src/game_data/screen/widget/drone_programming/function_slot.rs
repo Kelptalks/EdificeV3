@@ -18,7 +18,8 @@ impl FunctionSlot {
         
         // Constuct var slots
         for var in function.get_params() {
-            let var_slot = VarSlot::new(var);
+            let mut var_slot = VarSlot::new(var);
+            var_slot.set_allowed_type(var.borrow().to_kind());
             panel.add_widget(var_slot.wrap_into_widget());
         }
         panel.size();

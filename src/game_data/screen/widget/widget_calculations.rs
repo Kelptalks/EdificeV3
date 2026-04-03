@@ -35,7 +35,11 @@ pub fn is_pos_contained_within_pos(box_pos: [f32; 4], internal_pos: [f32; 4]) ->
 // Button values
 //=====================================
 pub fn get_button_scale() -> f32 {
-    return 0.07;
+    return 0.06;
+}
+
+pub fn get_panel_spacing_scale() -> f32 {
+    return 0.005;
 }
 
 //=====================================

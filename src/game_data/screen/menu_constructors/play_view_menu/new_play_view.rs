@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::{Event, UsizeEvent}, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{manager_panel, var_ref_hot_bar, world_view}, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, world_rendering::rendering_config::play_world_view_config::PlayViewRenderingConfig}}};
+use crate::game_data::{game_event_manager::prelude::{Event, UsizeEvent}, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{manager_panel, selection_panel, var_ref_hot_bar, world_view}, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, world_rendering::rendering_config::play_world_view_config::PlayViewRenderingConfig}}};
 
 pub enum PlayViewMode {
     Main = 0,
@@ -66,7 +66,7 @@ impl PlayViewConstructionManager {
         }
     }
 
-    pub fn build_panel(&mut self, screen_data: &ScreenData) -> WidgetType {
+    pub fn build_panel(&mut self, screen_data: &ScreenData, player_data: &mut PlayerData) -> WidgetType {
         let mut panel = WidgetType::new_panel(screen_data.get_viewport_uv(), [0.0; 4]);
 
         if let WidgetType::Panel(panel) = &mut panel {
@@ -77,7 +77,10 @@ impl PlayViewConstructionManager {
 
             panel.add_widget(var_ref_hot_bar::get_widget());
             panel.add_widget(world_view::get_widget(&mut self.ref_manager));
+
+
             panel.add_widget(manager_panel::manager_panel::get_widget(&mut self.ref_manager));
+            panel.add_widget(selection_panel::selection_panel::get_var_managment_panel_widget(&mut self.ref_manager));
 
             panel.size();
         }

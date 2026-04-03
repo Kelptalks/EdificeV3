@@ -207,5 +207,5 @@ pub fn var_ref_bar() -> WidgetType {
 pub fn get_new_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> WidgetType {
     let mut play_view_menu_construct = PlayViewConstructionManager::new(player_data);
 
-    return play_view_menu_construct.build_panel(screen_data);
+    return play_view_menu_construct.build_panel(screen_data, player_data);
 }

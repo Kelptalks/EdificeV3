@@ -141,7 +141,6 @@ impl Widget for VarSlot {
     fn size(&mut self) {
         self.pos = widget_calculations::buffer_pos(self.parent_pos, self.external_buffers);
         self.scale = widget_calculations::pos_to_scale(self.pos);
-        self.var_string_ndc = [self.pos[0] + self.scale[0] / 2.0, self.pos[1]];
     }
 
     fn render(
@@ -157,12 +156,18 @@ impl Widget for VarSlot {
         // Try and get var if mouse was released
         if screen_data.mouse_on_ndc_pos(self.pos) {
 
+            // Size and set string
+            let string = self.var_ref.borrow().get_name();
+            let text_scale = widget_calculations::get_button_text_scale();
+            let string_centering_offset = (string.len() as f32 * text_scale) / 2.0;
+            let string_ndc = [(self.pos[0] + self.scale[0] / 2.0) - string_centering_offset, self.pos[1] - text_scale];
+
             render_string_at_ndc(
                 texture_manager, 
-                self.var_ref.borrow().get_name(), 
+                string, 
                 crate::game_data::types::FontType::Basic, 
                 widget_calculations::get_button_text_scale(), 
-                screen_data.get_mouse_ndc(),
+                string_ndc,
             );
     
             

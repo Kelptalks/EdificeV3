@@ -33,7 +33,7 @@ fn get_location_scalling_mods(ref_manager: &mut RefManager) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-
+        panel.add_text_display("scalling controls".to_string()).set_text_scale(TextSize::Small);
 
         let top_row = panel.add_sub_panel();
         top_row.set_color(PanelColor::Clear);
@@ -132,7 +132,7 @@ pub fn get_location_panel(ref_manager: &mut RefManager) -> WidgetType {
         
 
         let location_name = panel.add_text_display(ref_manager.selected_var.borrow().get_name());
-        location_name.set_text_scale(TextSize::Large);
+        location_name.set_text_scale(TextSize::Medium);
 
 
         // Location Modification buttons 
