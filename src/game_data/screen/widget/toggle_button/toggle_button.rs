@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 
-use crate::game_data::{TextureManager, game_event_manager::{event_manager::EventManager, game_event_manager::game_event_manager::GameEvent, prelude::BoolEvent, widget_event_manager::widget_event_manager::WidgetEvent}, screen::{ScreenData, widget::{button::button::Button, widget::Widget, widget_calculations}}, types::{BlockTexture, UITextures}};
+use crate::game_data::{TextureManager, game_event_manager::{event_manager::EventManager, game_event_manager::game_event_manager::GameEvent, prelude::{BoolEvent, Event}, widget_event_manager::widget_event_manager::WidgetEvent}, screen::{ScreenData, widget::{button::button::Button, widget::Widget, widget_calculations}}, types::{BlockTexture, UITextures}};
 
 pub struct ToggleButton {
     // Input handling
@@ -9,8 +9,12 @@ pub struct ToggleButton {
 
     // Rendering
     button: Button,
-    links: Vec<GameEvent>
+    links: Vec<GameEvent>,
 
+
+    // Toggle Events
+    toggle_off_events: Vec<Event>,
+    toggled_on_events: Vec<Event>,
 }
 
 impl ToggleButton {
@@ -29,6 +33,12 @@ impl ToggleButton {
             // Parent Rendering
             button: button,
             links: Vec::new(),
+
+            // Toggle Events
+            toggle_off_events: Vec::new(),
+            toggled_on_events: Vec::new(),
+
+            
         };
 
         toggle_button.size();
@@ -38,6 +48,17 @@ impl ToggleButton {
 
     pub fn set_text_scale(&mut self, size: widget_calculations::TextSize) {
         self.button.set_text_scale(size);
+    }
+
+    //=====================================
+    // Events
+    //=====================================
+    pub fn add_toggle_on_event(&mut self, event: Event) {
+        self.toggled_on_events.push(event);
+    }
+
+    pub fn add_toggle_off_event(&mut self, event: Event) {
+        self.toggle_off_events.push(event);
     }
 
     //=====================================
@@ -114,6 +135,16 @@ impl Widget for ToggleButton {
 
         if *self.is_toggled.borrow() {
             texture_manager.render_ui_element_with_pos(UITextures::XIcon, self.button.get_pos());
+        }
+
+        // Execute toggle events if toggled
+        if screen_data.mouse_on_ndc_pos(self.get_pos()) && screen_data.was_left_pressed() {
+            if *self.is_toggled.borrow() {
+                game_event_manager.add_events(&self.toggled_on_events);
+            }
+            else {
+                game_event_manager.add_events(&self.toggle_off_events);
+            }
         }
 
     }

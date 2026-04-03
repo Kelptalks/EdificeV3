@@ -430,7 +430,7 @@ impl Widget for PlayWorldViewRender {
         
         self.render_view(texture_manager,);
         
-        //self.ray_cast_view(texture_manager);
+        // self.ray_cast_view(texture_manager);
 
         // Don't handle input if mouse is not on render
         if !screen_data.mouse_on_ndc_pos(self.pos) { 
