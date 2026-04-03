@@ -1,13 +1,30 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, PlayerDataEvent}, locations::world_area_side::WorldAreaSide, player_data::{drone_programming::var::{game_vars::{dynamic_var::{self, DynamicVar}, game_var_type::GameVar}, var_type::Var}, locations::location::{self, WorldLocation}}};
+use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, PlayerDataEvent}, locations::world_area_side::WorldAreaSide, player_data::{drone_programming::var::{self, game_vars::{dynamic_var::{self, DynamicVar}, game_var_type::GameVar}, var_type::Var}, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::{drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}, locations::location::{self, WorldLocation}}};
 
 
+//=====================================
+// Helper
+//=====================================
 
+pub fn unpack_var_into_locaton(var_ref: &Rc<RefCell<Var>>) -> Option<Rc<RefCell<WorldLocation>>> {
+    let borrow = var_ref.borrow();
+    if let Var::Game(GameVar::Dynamic(DynamicVar::Location(location_option_ref))) = &*borrow {
+        return location_option_ref.clone();
+    }
+    else {
+        eprintln!("Cannot unpack to location on var type: {}", borrow.get_name());
+        return None;
+    }
+}
 
+//=====================================
+// Var Event
+//=====================================
 #[derive(Clone)]
 pub enum VarEvents {
     LocationVarEvent(Rc<RefCell<Var>>, LocationVarEvent),
+    DroneVarEvent(Rc<RefCell<Var>>, DroneVarEvent),
     DynamicVarEvent(Rc<RefCell<Var>>, DynamicVarEvent),
 
 
@@ -26,17 +43,12 @@ impl VarEvents {
     pub fn execute(&self) {
         match self {
             VarEvents::LocationVarEvent(var_ref, location_var_event) => {
-                let borrow = var_ref.borrow();
-                if let Var::Game(GameVar::Dynamic(DynamicVar::Location(location_option_ref))) = &*borrow {
-                    if let Some(location) = location_option_ref {
-                        location_var_event.execute(location);
-                    }
-                    else {
-                        eprint!("Cannot execute Location Var Event on NULL location");
-                    }
+                let location_option_ref = unpack_var_into_locaton(var_ref);
+                if let Some(location) = location_option_ref {
+                    location_var_event.execute(&location);
                 }
                 else {
-                    eprint!("Cannot execute Location event on var type: {}", borrow.get_name());
+                    eprintln!("Cannot execute Location Var Event on NULL location");
                 }
             }
             VarEvents::DynamicVarEvent(var_ref, dynamic_var_event) => {
@@ -45,7 +57,21 @@ impl VarEvents {
                     dynamic_var_event.execute(dynamic_var);
                 }
                 else {
-                    eprint!("Cannot execute Dymamic Var Event on var type: {}", borrow.get_name());
+                    eprintln!("Cannot execute Dymamic Var Event on var type: {}", borrow.get_name());
+                }
+            },
+            VarEvents::DroneVarEvent(var_ref, drone_var_event) => {
+                let borrow = var_ref.borrow();
+                if let Var::Game(GameVar::Dynamic(DynamicVar::Drone(drone_option_ref))) = &*borrow {
+                    if let Some(drone) = drone_option_ref {
+                        drone_var_event.execute(drone);
+                    }
+                    else {
+                        eprintln!("Cannot execute Location Var Event on NULL location");
+                    }
+                }
+                else {
+                    eprintln!("Cannot execute Location event on var type: {}", borrow.get_name());
                 }
             },
         }
@@ -90,6 +116,34 @@ impl LocationVarEvent {
             LocationVarEvent::ShrinkLocationSide(world_area_side) => {
                 location.borrow_mut().get_mut_area().shrink(world_area_side);
             },
+        }
+    }
+}
+
+//=====================================
+// DroneVarEvent
+//=====================================
+
+#[derive(Clone)]
+pub enum DroneVarEvent {
+    PathToLocationVar(Rc<RefCell<Var>>)
+}
+
+impl DroneVarEvent {
+    pub fn execute(&self, drone: &Rc<RefCell<Drone>>) { 
+        match self {
+            DroneVarEvent::PathToLocationVar(var_ref) => {
+                // Unpack the location
+                let location = unpack_var_into_locaton(var_ref);
+                if let Some(location) = location {
+                    // get_cords for drone to path too
+                    drone.borrow_mut().add_action(DroneWorldAction::MoveDrone([1, 0, 0]));
+                }
+                else {
+                    eprintln!("Drone Cannot Path to Null location");
+                }
+
+            }
         }
     }
 }
