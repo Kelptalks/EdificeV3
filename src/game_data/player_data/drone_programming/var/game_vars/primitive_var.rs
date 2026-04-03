@@ -1,5 +1,5 @@
 
-use crate::game_data::{texture_manager::texture::Texture, types::{BlockTexture, drone_item::DroneItem}};
+use crate::game_data::{player_data::drone_programming::var::{game_vars::game_var_type::GameVar, var_type::Var}, texture_manager::texture::Texture, types::{BlockTexture, drone_item::DroneItem}};
 
 
 #[derive(Clone, PartialEq)]
@@ -9,6 +9,10 @@ pub enum PrimitiveVar {
 }
 
 impl PrimitiveVar {
+    pub fn wrap_into_var(self) -> Var {
+        GameVar::Primitive(self).wrap_into_var()
+    }
+
     pub fn get_texture(&self) -> Texture {
         match self {
             PrimitiveVar::DroneItem(drone_item) => {

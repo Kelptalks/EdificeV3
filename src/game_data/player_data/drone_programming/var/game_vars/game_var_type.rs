@@ -1,5 +1,5 @@
 
-use crate::game_data::texture_manager::texture::Texture;
+use crate::game_data::{player_data::drone_programming::var::var_type::Var, texture_manager::texture::Texture};
 
 pub use super::{
     dynamic_var::{DynamicVar, DynamicVarTypeKind},
@@ -26,6 +26,10 @@ impl PartialEq for GameVar {
 }
 
 impl GameVar {
+    pub fn wrap_into_var(self) -> Var {
+        Var::Game(self)
+    }
+
     pub fn get_texture(&self) -> Texture {
         match self {
             GameVar::Primitive(p) => p.get_texture(),

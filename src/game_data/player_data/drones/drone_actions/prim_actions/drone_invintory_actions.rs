@@ -1,5 +1,8 @@
-use crate::game_data::{player_data::drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::drone_prim_actions::DronePrimAction}}, types::drone_item::DroneItem};
+use std::{cell::RefCell, rc::Rc};
 
+use crate::game_data::{player_data::{drone_programming::var::var_type::Var, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::drone_prim_actions::DronePrimAction}}}, types::drone_item::DroneItem};
+
+#[derive(Clone)]
 pub enum DroneInventoryAction {
     CraftItem(DroneItem),
     UseItemForFuel(DroneItem, i32),
@@ -26,6 +29,42 @@ impl DroneInventoryAction {
             },
         }
     }
+
+
+    // Creates a set of var refrenses 
+    // Why: used to get the Vars needed for constructing Functions
+    pub fn create_param_vars(&self) -> Vec<Rc<RefCell<Var>>> {
+        let mut params = Vec::new();
+
+        match self {
+            DroneInventoryAction::CraftItem(drone_item) => {
+                params.push(drone_item.create_var());
+            },
+            DroneInventoryAction::UseItemForFuel(drone_item, _) => {
+                params.push(drone_item.create_var());
+            },
+            DroneInventoryAction::EquipTool(drone_item) => {
+                params.push(drone_item.create_var());
+            },
+        }
+
+        return params;
+    }
+
+    pub fn set_params_from_vars(&mut self, params: &Vec<Rc<RefCell<Var>>>) {
+        match self {
+            DroneInventoryAction::CraftItem(drone_item) => {
+                *drone_item = DroneItem::from_var(&params[0]);
+            },
+            DroneInventoryAction::UseItemForFuel(drone_item, _) => {
+                *drone_item = DroneItem::from_var(&params[0]);
+            },
+            DroneInventoryAction::EquipTool(drone_item) => {
+                *drone_item = DroneItem::from_var(&params[0]);
+            },
+        }
+    }
+
 }
 
 

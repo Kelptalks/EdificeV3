@@ -1,11 +1,39 @@
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::drones::{drone::Drone, drone_actions::prim_actions::{drone_invintory_actions::DroneInventoryAction, drone_world_actions::DroneWorldAction}}};
+use std::{cell::RefCell, rc::Rc};
 
+use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_programming::var::var_type::Var, drones::{drone::Drone, drone_actions::prim_actions::{drone_invintory_actions::DroneInventoryAction, drone_world_actions::DroneWorldAction}}}};
+
+#[derive(Clone)]
 pub enum DronePrimAction {
     DroneWorldAction(DroneWorldAction),
     DroneInventoryAction(DroneInventoryAction),
 }
 
 impl DronePrimAction {
+    
+    //=====================================
+    // Function Construction
+    //=====================================
+    pub fn create_param_vars(&self) -> Vec<Rc<RefCell<Var>>> {
+        match self {
+            DronePrimAction::DroneWorldAction(drone_world_action) => todo!("DRONE WORLD ACTION PARAM VAR CREATION NOT IMPLEMENTED"),
+            DronePrimAction::DroneInventoryAction(drone_inventory_action) => drone_inventory_action.create_param_vars(),
+        }
+    }
+
+    pub fn set_params_from_vars(&mut self, params: &Vec<Rc<RefCell<Var>>>) {
+        match self {
+            DronePrimAction::DroneWorldAction(drone_world_action) => todo!("HAVE NOT IMPLEMENTED SET PARAMS FROM VARS FOR DRONE WORLD ACTIONS"),
+            DronePrimAction::DroneInventoryAction(drone_inventory_action) => {
+                drone_inventory_action.set_params_from_vars(params);
+            },
+        }
+    } 
+
+
+    //=====================================
+    // Execution
+    //=====================================
+    
     pub fn execute(&self, drone: &mut Drone, world: &World, event_manager: &mut EventManager) {
         match self {
             DronePrimAction::DroneWorldAction(drone_world_action) => {

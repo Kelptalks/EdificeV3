@@ -1,5 +1,6 @@
 use crate::game_data::{World, game_event_manager::prelude::{EventManager, WorldEvent}, player_data::drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::drone_prim_actions::DronePrimAction}}, types::BlockTexture};
 
+#[derive(Clone)]
 pub enum DroneWorldAction {
     MoveDrone([i32; 3]),
     MineBlock([i32; 3]),

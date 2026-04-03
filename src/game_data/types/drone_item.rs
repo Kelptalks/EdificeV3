@@ -1,4 +1,6 @@
-use crate::game_data::{tik_manager::drones::drone_inventory::InventorySlot, types::DroneItemTexture};
+use std::{cell::RefCell, rc::Rc};
+
+use crate::game_data::{player_data::drone_programming::var::{game_vars::{game_var_type::GameVar, primitive_var::PrimitiveVar}, var_type::Var}, tik_manager::drones::drone_inventory::InventorySlot, types::DroneItemTexture};
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum DroneItem {
@@ -183,5 +185,25 @@ impl DroneItem {
 
     pub fn get_craft_time(&self) -> u32 {
         ITEM_PROPERTIES[*self as usize].craft_time
+    }
+
+    //=====================================
+    // Var
+    //=====================================
+    pub fn create_var(&self) -> Rc<RefCell<Var>> {
+        Rc::new(RefCell::new(PrimitiveVar::DroneItem(*self).wrap_into_var()))
+    }
+
+    pub fn from_var(var: &Rc<RefCell<Var>>) -> DroneItem {
+        let borrow = var.borrow();
+
+        if let Var::Game(GameVar::Primitive(PrimitiveVar::DroneItem(item))) = *borrow {
+            return item;
+        }
+        else {
+            eprintln!("Failed to convert var {} to drone item", borrow.get_name());
+            return DroneItem::Ash;
+        }
+
     }
 }

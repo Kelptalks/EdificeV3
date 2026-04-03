@@ -126,23 +126,14 @@ impl LocationVarEvent {
 
 #[derive(Clone)]
 pub enum DroneVarEvent {
-    PathToLocationVar(Rc<RefCell<Var>>)
+    ExecuteActionEvent(DroneAction)
 }
 
 impl DroneVarEvent {
     pub fn execute(&self, drone: &Rc<RefCell<Drone>>) { 
         match self {
-            DroneVarEvent::PathToLocationVar(var_ref) => {
-                // Unpack the location
-                let location = unpack_var_into_locaton(var_ref);
-                if let Some(location) = location {
-                    // get_cords for drone to path too
-                    drone.borrow_mut().add_action(DroneWorldAction::MoveDrone([1, 0, 0]));
-                }
-                else {
-                    eprintln!("Drone Cannot Path to Null location");
-                }
-
+            DroneVarEvent::ExecuteActionEvent(drone_action) => {
+                drone.borrow_mut().add_action(drone_action.clone());
             }
         }
     }

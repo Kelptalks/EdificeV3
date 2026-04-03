@@ -292,7 +292,6 @@ impl Drone {
         let next_action = self.drone_actions.pop();
         if let Some(action) = next_action {
             action.execute(self, world, event_manager);
-            println!("test");
         }
         
     }
