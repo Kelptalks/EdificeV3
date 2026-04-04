@@ -52,8 +52,11 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
 
         // Cursor Location Ref
         let cursor_var_ref = Rc::new(RefCell::new(Var::Game(GameVar::Dynamic(DynamicVar::Location(Some(ref_manager.cursor_location.clone()))))));
-        let cursor_location_var_slot = VarSlot::new(&cursor_var_ref).wrap_into_widget();
-        panel.add_widget(cursor_location_var_slot);
+        let mut cursor_location_var_slot = VarSlot::new(&cursor_var_ref);
+        cursor_location_var_slot.set_dragging_properties(true, false, false);  
+        panel.add_widget(cursor_location_var_slot.wrap_into_widget());
+
+
 
         // Toggle create location
         let create_location_button = panel.add_button();
