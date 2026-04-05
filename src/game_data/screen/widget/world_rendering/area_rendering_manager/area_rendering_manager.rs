@@ -8,24 +8,31 @@ of an area
 
 */
 
-use crate::game_data::{World, locations::{world_area::WorldArea, world_area_side::WorldAreaSide}, ray_caster::{ray::{self, TileRay}, ray_casting_config::{self, RayCastingConfig}}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block_manager::{self, LairBlockManager}, types::BlockTexture};
+use std::{cell::RefCell, rc::Rc};
+
+use crate::game_data::{World, locations::{world_area::WorldArea, world_area_side::WorldAreaSide}, ray_caster::{ray::{self, TileRay}, ray_casting_config::{self, RayCastingConfig}}, screen::widget::{prelude::play_world_view_config::PlayViewRenderingConfig, world_rendering::{area_rendering_manager::block_lair_manager::lair_block_manager::{self, LairBlockManager}, rendering_config}}, types::BlockTexture};
 
 pub struct AreaRenderingManager {
-    area_to_render: WorldArea
+    area_to_render: WorldArea,
 }
 
 // 
 impl AreaRenderingManager {
-    
 
-    pub fn get_casted_tile_rays(world_area: &WorldArea, world: &World) -> Vec<TileRay> {
+    pub fn new(world_area: &WorldArea) -> AreaRenderingManager {
+        AreaRenderingManager {
+            area_to_render: *world_area,
+        }
+    }
+
+    pub fn get_casted_tile_rays(&mut self, world: &World, rendering_config: &PlayViewRenderingConfig) -> Vec<TileRay> {
   
         
           
         // Create an expanded world area for calculating ray start cords
         // Why : This prevents rays from starting inside of a solid block
         let mut expanded_face_orgins_vec: Vec<([i32; 3], [i32; 3])> = Vec::new();
-        let mut expanded_world_area = world_area.clone();
+        let mut expanded_world_area = self.area_to_render.clone();
         for i in 0..1 {
             expanded_world_area.shrink(&WorldAreaSide::XMinus);
             expanded_world_area.shrink(&WorldAreaSide::YMinus);
@@ -41,9 +48,14 @@ impl AreaRenderingManager {
 
 
         // Ray Casting Config
-        let ray_casting_world_area = world_area.clone();
+        let ray_casting_world_area = self.area_to_render.clone();
         let mut lair_block_manager = LairBlockManager::new();
-        
+        if rendering_config.should_render_all_location() {
+            for location in &*rendering_config.get_locations_to_render().borrow() {
+                lair_block_manager.outline_world_area(location.borrow().get_area(), BlockTexture::Dot);
+            }
+        }
+
         let draw_distance = (expanded_world_area.get_dimensions().iter().max()).unwrap().abs() as u32;
         let ray_casting_config = RayCastingConfig::new(
             lair_block_manager, 

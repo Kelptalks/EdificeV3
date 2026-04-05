@@ -12,8 +12,6 @@ pub struct PlayViewRenderingConfig {
     world_ref: Arc<RwLock<World>>,
 
     zoom: Rc<RefCell<i32>>,
-    
-    block_ghost: Option<Rc<RefCell<BlockTexture>>>,
 
     camera_movment_event_type: Rc<RefCell<usize>>,
 
@@ -37,9 +35,6 @@ impl PlayViewRenderingConfig {
             world_ref: world_ref,
             
             zoom: Rc::new(RefCell::new(5)),
-            block_ghost: None,
-
-
             camera_movment_event_type: Rc::new(RefCell::new(0)),
 
             // Focused Location
@@ -69,14 +64,6 @@ impl PlayViewRenderingConfig {
     }
 
     //=====================================
-    // Ref Setters
-    //=====================================
-
-    pub fn set_block_ghost(&mut self, block_ref: Rc<RefCell<BlockTexture>>) {
-        self.block_ghost = Some(block_ref.clone())
-    }
-
-    //=====================================
     // Ref World
     //=====================================
 
@@ -101,19 +88,20 @@ impl PlayViewRenderingConfig {
     }
 
     //=====================================
-    // Locations
+    // Var Getters
     //=====================================
 
-    pub fn get_should_render_all_locations_ref(&self) -> &Rc<RefCell<bool>> {
-        return &self.render_all_locations;
-    }
-
-    pub fn should_render_all_locations(&self) -> bool {
+    pub fn should_render_all_location(&self) -> bool {
         return *self.render_all_locations.borrow();
     }
 
     pub fn get_locations_to_render(&self) -> &Rc<RefCell<Vec<Rc<RefCell<WorldLocation>>>>> {
         return &self.all_locations;
+    }
+
+
+    pub fn get_should_render_all_locations_ref(&self) -> &Rc<RefCell<bool>> {
+        return &self.render_all_locations;
     }
 
     //=====================================
@@ -124,15 +112,6 @@ impl PlayViewRenderingConfig {
         return *self.zoom.borrow();
     }
 
-    pub fn get_block_ghost(&self) -> BlockTexture {
-        if let Some(block_ghost_ref) = &self.block_ghost {
-            return *block_ghost_ref.borrow();
-        }
-        else {
-            return BlockTexture::Air;
-        }
-
-    }
 }
 
 

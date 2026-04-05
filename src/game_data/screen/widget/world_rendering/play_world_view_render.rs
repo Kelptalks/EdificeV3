@@ -1,7 +1,7 @@
 use std::{cell::RefCell, ops::Index, rc::Rc};
 
 
-use crate::game_data::{TextureManager, locations::world_area::WorldArea, ray_caster::ray::TileRay, screen::{ScreenData, iso_cord_tool, widget::{button::button::Button, prelude::play_world_view_config::PlayViewRenderingConfig, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{area_rendering_manager::{self, area_rendering_manager::AreaRenderingManager, play_block::PlayBlock}, play_view_control_manager::PlayViewControlManager}}}, types::{BlockTexture, UITextures}};
+use crate::game_data::{TextureManager, locations::world_area::WorldArea, ray_caster::ray::TileRay, screen::{ScreenData, iso_cord_tool, widget::{button::button::Button, prelude::play_world_view_config::PlayViewRenderingConfig, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{area_rendering_manager::{self, area_rendering_manager::AreaRenderingManager, play_block::PlayBlock}}}}, types::{BlockTexture, UITextures}};
 
 use crate::game_data::game_event_manager::prelude::*;
 
@@ -92,13 +92,6 @@ pub struct PlayWorldViewRender {
 impl PlayWorldViewRender {
     pub fn new(play_view_rendering_config: Rc<RefCell<PlayViewRenderingConfig>>) -> PlayWorldViewRender{
 
-
-        let config = play_view_rendering_config.borrow();
-        let input_manager = PlayViewControlManager::new(
-            config.get_camera_movement_event_type_ref(),
-            config.get_cursor_location_ref()
-        );
-        drop(config);
 
         PlayWorldViewRender {            
            // Parent Rendering
@@ -227,27 +220,6 @@ impl PlayWorldViewRender {
 
     }
 
-    /// Get the starting and ending points render view should loop through
-    /// 
-    /// Why : Based of the location's area and rendering configs zoom level
-    /// the area's shape needs to be determined.
-    /// 
-    pub fn get_area_to_render(&self) -> [[i32; 3]; 2] {
-        let config = self.rendering_config.borrow();
-        let half_dimensions = config.get_cursor_location_ref().borrow().get_area().get_half_dimensions();
-
-        let mut start_cords = half_dimensions.map(|d| -d);
-        for axis in &mut start_cords {
-            *axis -= config.get_zoom();
-        }
-
-        let mut end_cords = half_dimensions;
-        for axis in &mut end_cords {
-            *axis += config.get_zoom();
-        }
-        return [start_cords, end_cords];
-    }
-
     pub fn get_world_area_of_view(&self) -> WorldArea {
         let config = self.rendering_config.borrow();
         let camera_cords = self.get_rendering_center_world_cor();
@@ -276,16 +248,16 @@ impl PlayWorldViewRender {
         let ndc_x_draw_center_offset = self.center_ndc[0] - self.ndc_block_scale;
         let ndc_y_draw_center_offset = self.center_ndc[1] - self.ndc_block_scale;
 
-        let rot = self.camera_direction.rotation_matrix();
-
-        let camera_cords = self.get_rendering_center_world_cor();
-
-        let area_to_render = self.get_area_to_render();
         
         // Create a world area and shift in the correct location
-        let mut world_area = self.get_world_area_of_view();
+        let world_area = self.get_world_area_of_view();
 
-        let tiles = AreaRenderingManager::get_casted_tile_rays(&world_area, &world);
+
+        let mut rendering_manager = AreaRenderingManager::new(&world_area);
+        let config = self.rendering_config.borrow();
+        let tiles = rendering_manager.get_casted_tile_rays(&world, &*config);
+
+
         for tile in tiles {
             let tile_area_cords = tile.get_area_cords();
 
@@ -325,75 +297,6 @@ impl PlayWorldViewRender {
             ];
             for texture in right_textures {
                 texture_manager.render_texture_with_pos(texture, right_pos);
-            }
-        }
-
-    }
-
-    pub fn render_view(
-        &mut self,
-        texture_manager: &mut TextureManager,
-    ) {
-        self.size();
-
-        let world_arc = self.rendering_config.borrow().get_world_ref().clone();
-        let block_ghost = self.rendering_config.borrow().get_block_ghost();
-        let location_rc = self.rendering_config.borrow().get_cursor_location_ref().clone();
-
-        let world = world_arc.read().unwrap();
-
-        let ndc_x_draw_center_offset = self.center_ndc[0] - self.ndc_block_scale;
-        let ndc_y_draw_center_offset = self.center_ndc[1] - self.ndc_block_scale;
-
-        let rot = self.camera_direction.rotation_matrix();
-        
-        let camera_cords = self.get_rendering_center_world_cor();
-
-        let area_to_render = self.get_area_to_render();
-        let start_cords = area_to_render[0];
-        let end_cords = area_to_render[1];
-
-        // Pass 1: Build all play blocks
-        let mut play_blocks: Vec<PlayBlock> = Vec::new();
-
-        for z in start_cords[2]..=end_cords[2] {
-            for y in start_cords[1]..=end_cords[1] {
-                for x in start_cords[0]..=end_cords[0] {
-                    let world_block_cords = [
-                        camera_cords[0] + (rot[0][0] * x + rot[0][1] * y),
-                        camera_cords[1] + (rot[1][0] * x + rot[1][1] * y),
-                        camera_cords[2] + z,
-                    ];
-
-                    let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, [x - z, y - z]);
-                    draw_cords[0] += ndc_x_draw_center_offset + self.camera_ndc_offset[0];
-                    draw_cords[1] += ndc_y_draw_center_offset + self.camera_ndc_offset[1];
-
-                    let mut play_block = PlayBlock::new_blank();
-                    play_block.block_type = BlockTexture::from_id(world.get_world_value(world_block_cords));
-                    play_block.block_world_cords = world_block_cords;
-                    play_block.rendering_block_cords = [x, y, z];
-                    play_block.draw_cords = draw_cords;
-                    play_block.ndc_block_scale = self.ndc_block_scale;
-
-                    play_blocks.push(play_block);
-                }
-            }
-        }
-
-        // Pass 2: Render in order
-        let config = self.rendering_config.borrow();
-        let locations_to_render = config.get_locations_to_render().borrow();
-        let render_all_locations = config.should_render_all_locations();
-
-        for play_block in play_blocks.iter() {
-            play_block.render_block(texture_manager);
-            play_block.render_cursor(texture_manager, block_ghost);
-
-            if render_all_locations {
-                for location in locations_to_render.iter() {
-                    play_block.render_area(texture_manager, location.borrow().get_area());
-                }
             }
         }
 
@@ -440,9 +343,6 @@ impl Widget for PlayWorldViewRender {
         screen_data: &ScreenData, 
         game_event_manager: &mut EventManager
     ) {
-        
-        // self.render_view(texture_manager,);
-        
         self.ray_cast_view(texture_manager);
 
         // Don't handle input if mouse is not on render
