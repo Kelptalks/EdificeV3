@@ -4,4 +4,4 @@ pub mod rendering_config;
 
 mod play_view_control_manager;
 
-mod area_rendering_manager;
+pub mod area_rendering_manager;

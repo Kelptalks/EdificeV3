@@ -125,12 +125,14 @@ impl WorldArea {
     }
 
     pub fn expand(&mut self, side: &WorldAreaSide) {
+        self.normalize_points();
         let mod_points = side.get_area_point_sizing_mods();
         self.points[0].add_to_point(mod_points[0]);
         self.points[1].add_to_point(mod_points[1]);
     }
 
     pub fn shrink(&mut self, side: &WorldAreaSide) {
+        self.normalize_points();
         let mod_points = side.get_area_point_sizing_mods();
         self.points[0].sub_from_point(mod_points[0]);
         self.points[1].sub_from_point(mod_points[1]);
@@ -172,26 +174,10 @@ impl WorldArea {
     //=====================================
 
     pub fn cords_in_area(&self, cords: [i32; 3]) -> bool {
-        let mut min = [i32::MAX; 3];
-        let mut max = [i32::MIN; 3];
+        let min = self.get_min_point().cords;
+        let max = self.get_max_point().cords;
 
-        // Get min and max
-        for point in &self.points {
-            for i in 0..cords.len() {
-                if point.cords[i] < min[i] { min[i] = point.cords[i]; }
-                if point.cords[i] > max[i] { max[i] = point.cords[i]; }
-            }
-        }
-
-        let in_range = true;
-
-        for i in 0..3 {
-            if cords[i] < min[i] || cords[i] > max[i] {
-                return false;
-            }
-        }
-
-        return in_range;
+        (0..3).all(|i| cords[i] >= min[i] && cords[i] <= max[i])
     }
 
     pub fn cords_on_border(&self, cords: [i32; 3]) -> bool {

@@ -1,4 +1,4 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, ops::Index, rc::Rc};
 
 
 use crate::game_data::{TextureManager, locations::world_area::WorldArea, ray_caster::ray::TileRay, screen::{ScreenData, iso_cord_tool, widget::{button::button::Button, prelude::play_world_view_config::PlayViewRenderingConfig, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{area_rendering_manager::{self, area_rendering_manager::AreaRenderingManager, play_block::PlayBlock}, play_view_control_manager::PlayViewControlManager}}}, types::{BlockTexture, UITextures}};
@@ -248,6 +248,20 @@ impl PlayWorldViewRender {
         return [start_cords, end_cords];
     }
 
+    pub fn get_world_area_of_view(&self) -> WorldArea {
+        let config = self.rendering_config.borrow();
+        let camera_cords = self.get_rendering_center_world_cor();
+
+        let mut p1 = [-config.get_zoom(); 3];
+        let mut p2 = [config.get_zoom(); 3];
+        for (i, axis) in camera_cords.iter().enumerate() {
+            p1[i] += axis;
+            p2[i] += axis;
+        }
+
+        return WorldArea::new_with_cords([p1, p2])
+    }
+
     pub fn get_rendering_center_world_cor(&self) -> [i32; 3] {
         let config = self.rendering_config.borrow();
         return config.get_cursor_location_ref().borrow().get_area().get_center_world_cords();
@@ -269,8 +283,7 @@ impl PlayWorldViewRender {
         let area_to_render = self.get_area_to_render();
         
         // Create a world area and shift in the correct location
-        let mut world_area = WorldArea::new_with_cords(area_to_render);
-        world_area.shift_cords(camera_cords);
+        let mut world_area = self.get_world_area_of_view();
 
         let tiles = AreaRenderingManager::get_casted_tile_rays(&world_area, &world);
         for tile in tiles {
@@ -428,9 +441,9 @@ impl Widget for PlayWorldViewRender {
         game_event_manager: &mut EventManager
     ) {
         
-        self.render_view(texture_manager,);
+        // self.render_view(texture_manager,);
         
-        // self.ray_cast_view(texture_manager);
+        self.ray_cast_view(texture_manager);
 
         // Don't handle input if mouse is not on render
         if !screen_data.mouse_on_ndc_pos(self.pos) { 
