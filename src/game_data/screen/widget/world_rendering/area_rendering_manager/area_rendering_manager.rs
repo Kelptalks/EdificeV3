@@ -40,25 +40,24 @@ impl AreaRenderingManager {
     
 
 
-        
-        let mut ray_casting_world_area = world_area.clone();
-        let mut lair_block_manager = LairBlockManager::new();
-
-        lair_block_manager.outline_world_area(&expanded_world_area, BlockTexture::Selector);
-        lair_block_manager.outline_world_area(&ray_casting_world_area, BlockTexture::Debug);
-
-
         // Ray Casting Config
-        let ray_casting_config = RayCastingConfig::new(lair_block_manager, &ray_casting_world_area);
+        let ray_casting_world_area = world_area.clone();
+        let mut lair_block_manager = LairBlockManager::new();
+        
         let draw_distance = (expanded_world_area.get_dimensions().iter().max()).unwrap().abs() as u32;
+        let ray_casting_config = RayCastingConfig::new(
+            lair_block_manager, 
+            &ray_casting_world_area,
+            [1, 1, 1],
+            draw_distance
+        );
+        
 
         let mut tile_rays = Vec::new();
         for (world_cords, local_cords) in expanded_face_orgins_vec {
             let mut tile_ray = TileRay::new(
                 world_cords, 
                 local_cords, 
-                [1, 1, 1], 
-                draw_distance,
             );
 
 

@@ -59,9 +59,6 @@ impl RaySide {
 pub struct TileRay {
     start_cords: [i32; 3],
     area_cords: [i32; 3],
-    
-    direction: [i32; 3],
-    view_distance: u32,
 
     left_side: RaySide,
     right_side: RaySide,
@@ -71,20 +68,14 @@ pub struct TileRay {
 impl TileRay {
     pub fn new(
         start_cords:[i32; 3], 
-        area_cords: [i32; 3], 
-        direction: [i32; 3], 
-        view_distance: u32
+        area_cords: [i32; 3],
     ) -> TileRay {
         TileRay {
             // Input
             start_cords,
             area_cords,
 
-            direction,
-            view_distance,
-
             // Output
-
             left_side: RaySide::new(),
             right_side: RaySide::new(),
 
@@ -102,37 +93,37 @@ impl TileRay {
     fn left_branch(&mut self, world: &World, ray_casting_config: &RayCastingConfig, current_cords: [i32; 3]) {
         let mut left_current_cords = current_cords;
         // x
-        left_current_cords[0] -= self.direction[0];
+        left_current_cords[0] -= ray_casting_config.direction[0];
         if self.left_side.handle_current_block(world, ray_casting_config, left_current_cords, BlockTriangle::RightTop) {return;}
 
         // y
-        left_current_cords[1] -= self.direction[1];
+        left_current_cords[1] -= ray_casting_config.direction[1];
         if self.left_side.handle_current_block(world, ray_casting_config, left_current_cords, BlockTriangle::LeftBot) {return;}
 
         // z
-        left_current_cords[2] -= self.direction[2];
+        left_current_cords[2] -= ray_casting_config.direction[2];
         if self.left_side.handle_current_block(world, ray_casting_config,left_current_cords, BlockTriangle::TopLeft) {return;}
     }
 
     fn right_branch(&mut self, world: &World, ray_casting_config: &RayCastingConfig, current_cords: [i32; 3]) {
         let mut right_current_cords = current_cords;
         // y
-        right_current_cords[1] -= self.direction[1];
+        right_current_cords[1] -= ray_casting_config.direction[1];
         if self.right_side.handle_current_block(world, ray_casting_config, right_current_cords, BlockTriangle::LeftTop) {return;}
 
         // x
-        right_current_cords[0] -= self.direction[0];
+        right_current_cords[0] -= ray_casting_config.direction[0];
         if self.right_side.handle_current_block(world, ray_casting_config, right_current_cords, BlockTriangle::RightBot) {return;}
 
         // z
-        right_current_cords[2] -= self.direction[2];
+        right_current_cords[2] -= ray_casting_config.direction[2];
         if self.right_side.handle_current_block(world, ray_casting_config, right_current_cords, BlockTriangle::TopRight) {return;}
     }
 
     pub fn cast(&mut self, world: &World, ray_casting_config: &RayCastingConfig) {
         let mut current_cords = self.start_cords;
         
-        for _ in 0..self.view_distance {
+        for _ in 0..ray_casting_config.view_distance {
             if !self.left_side.struck { 
                 self.left_branch(world, ray_casting_config, current_cords);
             }
@@ -143,9 +134,9 @@ impl TileRay {
                 return;
             }
 
-            current_cords[0] -= self.direction[0];
-            current_cords[1] -= self.direction[1];
-            current_cords[2] -= self.direction[2];
+            current_cords[0] -= ray_casting_config.direction[0];
+            current_cords[1] -= ray_casting_config.direction[1];
+            current_cords[2] -= ray_casting_config.direction[2];
         }
     }
 }
