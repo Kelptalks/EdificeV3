@@ -1,7 +1,5 @@
 pub mod play_view_menu;
 
-mod control_panel;
-
 
 // New
 pub mod new_play_view;
