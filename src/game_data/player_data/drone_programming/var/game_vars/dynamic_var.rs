@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_programming::var::var_type::Var, drones::drone::Drone, locations::location::WorldLocation}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::game_var_type::GameVar, var_type::Var}, drones::drone::Drone, locations::location::WorldLocation}, texture_manager::texture::Texture, types::BlockTexture};
 
 
 #[derive(Clone)]
@@ -122,6 +122,41 @@ impl DynamicVar {
             DynamicVar::Drone(option_drone_ref) => {
                 *option_drone_ref = None;
             },
+        }
+    }
+
+    //=====================================
+    // Constructor
+    //=====================================
+
+    pub fn construct_location_var_ref(location: &Option<Rc<RefCell<WorldLocation>>>) -> Rc<RefCell<Var>>{
+        if let Some(location_ref) = location {
+            let var = DynamicVar::Location(Some(location_ref.clone())).wrap_into_var();
+            Rc::new(RefCell::new(var))
+        }
+        else {
+            let var = DynamicVar::Location(None).wrap_into_var();
+            Rc::new(RefCell::new(var))
+        }
+    }
+
+    pub fn construct_drone_var_ref(drone: &Rc<RefCell<Drone>>) -> Rc<RefCell<Var>> {
+        let var = DynamicVar::Drone(Some(drone.clone())).wrap_into_var();
+        Rc::new(RefCell::new(var))
+    }
+
+    //=====================================
+    // Getters
+    //=====================================
+
+    pub fn into_location_ref(var: &Rc<RefCell<Var>>) -> Option<Rc<RefCell<WorldLocation>>> {
+        let borrow = var.borrow();
+        if let Var::Game(GameVar::Dynamic(DynamicVar::Location(location_option_ref))) = &*borrow {
+            return location_option_ref.clone()
+        }
+        else {
+            eprintln!("Failed to convert var {} to location", borrow.get_name());
+            return None
         }
     }
 

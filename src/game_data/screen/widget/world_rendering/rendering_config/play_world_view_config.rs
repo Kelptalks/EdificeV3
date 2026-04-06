@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc, sync::{Arc, RwLock}};
 
-use crate::game_data::{World, locations::world_area::WorldArea, player_data::{locations::location::WorldLocation, player_data::PlayerData}, screen::widget::world_rendering::rendering_config::cursor_config::CursorConfig, types::BlockTexture};
+use crate::game_data::{World, locations::world_area::WorldArea, player_data::{drone_programming::var::var_type::Var, locations::location::WorldLocation, player_data::PlayerData}, screen::widget::world_rendering::rendering_config::cursor_config::CursorConfig, types::BlockTexture};
 
 pub enum CameraMovementType {
     ShiftArea,
@@ -15,12 +15,14 @@ pub struct PlayViewRenderingConfig {
 
     camera_movment_event_type: Rc<RefCell<usize>>,
 
-    // Focused Location Rendering
-    focused_location: Option<Rc<RefCell<WorldLocation>>>,
+    // Vars to render
+    vars_to_render: Vec<Rc<RefCell<Var>>>,
 
+    
     // All World Location Rendering
     render_all_locations: Rc<RefCell<bool>>,
     all_locations: Rc<RefCell<Vec<Rc<RefCell<WorldLocation>>>>>,
+
 
     cursor_config: CursorConfig
 
@@ -37,8 +39,8 @@ impl PlayViewRenderingConfig {
             zoom: Rc::new(RefCell::new(5)),
             camera_movment_event_type: Rc::new(RefCell::new(0)),
 
-            // Focused Location
-            focused_location: None,
+            // Vars to render
+            vars_to_render: Vec::new(),
 
             // All World Location Rendering
             render_all_locations: Rc::new(RefCell::new(true)),
@@ -87,9 +89,18 @@ impl PlayViewRenderingConfig {
         return &self.camera_movment_event_type;
     }
 
+
+    pub fn add_var_to_render(&mut self, var: Rc<RefCell<Var>>) {
+        self.vars_to_render.push(var);
+    }
+
     //=====================================
     // Var Getters
     //=====================================
+
+    pub fn get_vars_to_render(&self) -> &Vec<Rc<RefCell<Var>>> {
+        return &self.vars_to_render;
+    }
 
     pub fn should_render_all_location(&self) -> bool {
         return *self.render_all_locations.borrow();

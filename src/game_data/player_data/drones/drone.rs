@@ -6,6 +6,7 @@ use crate::game_data::game_event_manager::prelude::{EventManager, WorldEvent};
 use crate::game_data::locations::world_area::WorldArea;
 use crate::game_data::player_data::drones::drone_actions::drone_actions::DroneAction;
 use crate::game_data::player_data::locations::location::WorldLocation;
+use crate::game_data::screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod;
 use crate::game_data::texture_manager::texture::Texture;
 use crate::game_data::tik_manager::drones::drone_inventory::{DroneInventory};
 use crate::game_data::types::drone_item::DroneItem;
@@ -57,6 +58,8 @@ pub struct Drone{
 
     // Changes
     moved: bool,
+
+    lair_block_mods: Vec<LairBlockMod>
 }
 
 impl Drone {
@@ -87,6 +90,7 @@ impl Drone {
 
             // Changes
             moved: false,
+            lair_block_mods: Vec::new(),
         };
 
         return drone;
@@ -147,6 +151,17 @@ impl Drone {
         return true;
     }
 
+    //=====================================
+    // Rendering
+    //=====================================
+
+    pub fn add_lair_block_mod(&mut self, block_mod: LairBlockMod) {
+        self.lair_block_mods.push(block_mod);
+    }
+
+    pub fn get_lair_block_mods(&self) -> &Vec<LairBlockMod> {
+        &self.lair_block_mods
+    }
 
     //=====================================
     // Setters / Getters

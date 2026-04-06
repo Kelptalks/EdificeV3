@@ -25,6 +25,7 @@ impl AreaRenderingManager {
         }
     }
 
+
     pub fn get_casted_tile_rays(&mut self, world: &World, rendering_config: &PlayViewRenderingConfig) -> Vec<TileRay> {
   
         
@@ -42,19 +43,22 @@ impl AreaRenderingManager {
         expanded_face_orgins_vec.append(&mut WorldAreaSide::XPlus.get_face_origins_paired(&expanded_world_area));
         expanded_face_orgins_vec.append(&mut WorldAreaSide::YPlus.get_face_origins_paired(&expanded_world_area));
         expanded_face_orgins_vec.append(&mut WorldAreaSide::ZPlus.get_face_origins_paired(&expanded_world_area));
-        
-
-    
-
 
         // Ray Casting Config
         let ray_casting_world_area = self.area_to_render.clone();
+
+        // Lair managment
         let mut lair_block_manager = LairBlockManager::new();
         if rendering_config.should_render_all_location() {
             for location in &*rendering_config.get_locations_to_render().borrow() {
                 lair_block_manager.outline_world_area(location.borrow().get_area(), BlockTexture::Dot);
             }
         }
+
+        for var in rendering_config.get_vars_to_render() {
+            lair_block_manager.render_var(var);
+        }
+
 
         let draw_distance = (expanded_world_area.get_dimensions().iter().max()).unwrap().abs() as u32;
         let ray_casting_config = RayCastingConfig::new(

@@ -1,5 +1,9 @@
 use crate::game_data::{texture_manager::texture::Texture, types::BlockTexture};
 
+pub enum LairBlockMod {
+    SetBlock(BlockTexture, [i32; 3])
+}
+
 pub struct LairBlock {
     textures: Vec<BlockTexture>
 }

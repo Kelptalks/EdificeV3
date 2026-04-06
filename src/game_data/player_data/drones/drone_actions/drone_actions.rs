@@ -1,10 +1,11 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_programming::var::var_type::Var, drones::{drone::Drone, drone_actions::prim_actions::drone_prim_actions::DronePrimAction}}};
+use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_programming::var::var_type::Var, drones::{drone::Drone, drone_actions::{advanced_actions::advanced_drone_actions::AdvancedDroneAction, prim_actions::drone_prim_actions::DronePrimAction}}}};
 
 #[derive(Clone)]
 pub enum DroneAction {
     PrimAction(DronePrimAction),
+    AdvancedAction(AdvancedDroneAction)
 }
 
 impl DroneAction {
@@ -12,6 +13,9 @@ impl DroneAction {
         match self {
             DroneAction::PrimAction(drone_prim_action) => {
                 drone_prim_action.execute(drone, world, event_manager);
+            },
+            DroneAction::AdvancedAction(advanced_drone_action) => {
+                advanced_drone_action.execute(drone, world);
             },
         }
     }
@@ -23,6 +27,7 @@ impl DroneAction {
     pub fn get_name(&self) -> String {
         match self {
             DroneAction::PrimAction(drone_prim_action) => drone_prim_action.get_name(),
+            DroneAction::AdvancedAction(advanced_drone_action) => advanced_drone_action.get_name(),
         }
     }
 
@@ -35,6 +40,9 @@ impl DroneAction {
             DroneAction::PrimAction(drone_prim_action) => {
                 drone_prim_action.create_param_vars()
             },
+            DroneAction::AdvancedAction(advanced_drone_action) => {
+                advanced_drone_action.create_param_vars()
+            },
         }
     }
 
@@ -42,6 +50,9 @@ impl DroneAction {
         match self {
             DroneAction::PrimAction(drone_prim_action) => {
                 drone_prim_action.set_params_from_vars(params);
+            },
+            DroneAction::AdvancedAction(advanced_drone_action) => {
+                advanced_drone_action.set_params_from_vars(params);
             },
         }
     }

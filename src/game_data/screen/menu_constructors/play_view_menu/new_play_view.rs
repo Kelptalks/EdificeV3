@@ -39,6 +39,10 @@ impl RefManager {
         let cursor_location =  rendering_config.borrow().get_cursor_location_ref().clone();
         let show_locations_bool = rendering_config.borrow().get_should_render_all_locations_ref().clone();
 
+        let selected_var = Rc::new(RefCell::new(DynamicVar::Location(None).wrap_into_var()));
+
+        rendering_config.borrow_mut().add_var_to_render(selected_var.clone());
+
         RefManager {
             play_view_rendering_config: rendering_config.clone(),
 
@@ -48,7 +52,7 @@ impl RefManager {
             show_locations_toggle: show_locations_bool,
             render_only_selected_location: Rc::new(RefCell::new(false)),
 
-            selected_var: Rc::new(RefCell::new(DynamicVar::Location(None).wrap_into_var())),
+            selected_var: selected_var,
             
             play_view_mode: Rc::new(RefCell::new(0)),
         }

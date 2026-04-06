@@ -63,7 +63,6 @@ impl WorldEvent {
             }
             WorldEvent::ModBlock(cords, block_type) => {
                 world.set_world_value(block_type.id_as_u16(), *cords);
-
                 event_data.add_render_event(RenderEvent::ReRenderBlock(*cords));
             }
             WorldEvent::FillLocation(world_location, block_texture) => {

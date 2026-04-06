@@ -1,6 +1,6 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::drone_programming::var::var_type::Var, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlock, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{locations::world_area::WorldArea, player_data::drone_programming::var::{game_vars::{dynamic_var::DynamicVar, game_var_type::GameVar}, var_type::Var}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::{LairBlock, LairBlockMod}, texture_manager::texture::Texture, types::BlockTexture};
 
 pub struct LairBlockManager {
     // block_hashmap
@@ -20,34 +20,78 @@ impl LairBlockManager {
         }
     }
 
-    // Applys vars rendering modifications
-    pub fn apply_vars(&mut self, vars: Vec<Rc<RefCell<Var>>>) {
 
+
+    //=====================================
+    // Helpers
+    //=====================================
+
+    fn cords_to_key(cords: [i32; 3]) -> u64 {
+        const BITS: u32 = 21;
+        const MASK: u64 = (1 << BITS) - 1; // 0x1FFFFF
+
+        let x = (cords[0] as u64) & MASK;
+        let y = (cords[1] as u64) & MASK;
+        let z = (cords[2] as u64) & MASK;
+
+        x | (y << BITS) | (z << (BITS * 2))
     }
 
-    pub fn debug_fill_location(&mut self, world_area: &WorldArea, block_texture: BlockTexture) {
-        let max = world_area.get_max_point().cords;
-        let min = world_area.get_min_point().cords;
-
-        
-        
-        let corners = [
-            [min[0], min[1], min[2]],
-            [min[0], min[1], max[2]],
-            [min[0], max[1], min[2]],
-            [min[0], max[1], max[2]],
-            [max[0], min[1], min[2]],
-            [max[0], min[1], max[2]],
-            [max[0], max[1], min[2]],
-            [max[0], max[1], max[2]],
-        ];
-
-        for corner in corners {
-            self.add_texture_at_cords(corner, block_texture);
+    fn add_lair_block_mod(&mut self, lair_block_mod: &LairBlockMod) {
+        match lair_block_mod {
+            LairBlockMod::SetBlock(block_texture, cords) => {
+                self.add_texture_at_cords(*cords, *block_texture);
+            },
         }
-        
-
     }
+
+    fn add_lair_block_mods(&mut self, lair_block_mods: &Vec<LairBlockMod>) {
+        for block_mod in lair_block_mods {
+            self.add_lair_block_mod(block_mod);
+        }
+    }
+
+    pub fn render_var(&mut self, var: &Rc<RefCell<Var>>) {
+        let borrow = var.borrow();
+        if let Var::Game(GameVar::Dynamic(DynamicVar::Drone(drone_ref_option))) = &*borrow {
+            if let Some(drone_ref) = drone_ref_option {
+                self.add_lair_block_mods(drone_ref.borrow().get_lair_block_mods());
+            }
+            else {
+                eprintln!("Cannot Apply Block Lair mods for Null Drone");
+            }
+        }
+        else {
+            eprintln!("Lair Mods Support is not implemented for Var {}", borrow.get_name());
+        }
+    }
+
+    //=====================================
+    // Hashmap mangement
+    //=====================================
+
+    // Get a lair block at some cords
+    pub fn get_lair_block_at_cords(&self, cords: [i32; 3]) -> Option<&LairBlock> {
+        let key = Self::cords_to_key(cords);
+        return self.lair_block_map.get(&key);
+    }
+
+    pub fn add_texture_at_cords(&mut self, cords: [i32; 3], texture: BlockTexture) {
+        let key = Self::cords_to_key(cords);
+        let lair_block_at_cords = self.lair_block_map.get_mut(&key);
+        if let Some(lair_block) = lair_block_at_cords {
+            lair_block.add_texture(texture);
+        }
+        else {
+            let mut new_lair_block = LairBlock::new();
+            new_lair_block.add_texture(texture);
+            self.lair_block_map.insert(key, new_lair_block);
+        }
+    }
+    
+    //=====================================
+    // Debug
+    //=====================================
 
     pub fn outline_world_area(&mut self, world_area: &WorldArea, block_texture: BlockTexture) {
         let max = world_area.get_max_point().cords;
@@ -96,48 +140,5 @@ impl LairBlockManager {
             self.add_texture_at_cords([x, y, z], block_texture);
         }
     }
-
-
-    //=====================================
-    // Helpers
-    //=====================================
-
-    fn cords_to_key(cords: [i32; 3]) -> u64 {
-        const BITS: u32 = 21;
-        const MASK: u64 = (1 << BITS) - 1; // 0x1FFFFF
-
-        let x = (cords[0] as u64) & MASK;
-        let y = (cords[1] as u64) & MASK;
-        let z = (cords[2] as u64) & MASK;
-
-        x | (y << BITS) | (z << (BITS * 2))
-    }
-
-
-    //=====================================
-    // Hashmap mangement
-    //=====================================
-
-    // Get a lair block at some cords
-    pub fn get_lair_block_at_cords(&self, cords: [i32; 3]) -> Option<&LairBlock> {
-        let key = Self::cords_to_key(cords);
-        return self.lair_block_map.get(&key);
-    }
-
-    pub fn add_texture_at_cords(&mut self, cords: [i32; 3], texture: BlockTexture) {
-        let key = Self::cords_to_key(cords);
-        let lair_block_at_cords = self.lair_block_map.get_mut(&key);
-        if let Some(lair_block) = lair_block_at_cords {
-            lair_block.add_texture(texture);
-        }
-        else {
-            let mut new_lair_block = LairBlock::new();
-            new_lair_block.add_texture(texture);
-            self.lair_block_map.insert(key, new_lair_block);
-        }
-    }
-
-    // Get
-    
 
 }
