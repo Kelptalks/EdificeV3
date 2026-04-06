@@ -164,6 +164,10 @@ impl Drone {
         &self.lair_block_mods
     }
 
+    pub fn clear_lairblock_mods(&mut self) {
+        self.lair_block_mods.clear();
+    }
+
     //=====================================
     // Setters / Getters
     //=====================================

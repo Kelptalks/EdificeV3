@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use crate::game_data::types::BlockTexture;
+
 
 
 const CHUNK_SIZE: usize = 64;
@@ -192,6 +194,10 @@ impl World {
         {
             return 0;    
         }
+    }
+
+    pub fn get_world_value_as_block(&self, cords : [i32 ; 3]) -> BlockTexture {
+        BlockTexture::from_id(self.get_world_value(cords))
     }
 
     pub fn clear(&mut self) {
