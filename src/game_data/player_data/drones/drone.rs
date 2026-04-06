@@ -5,6 +5,7 @@ use std::rc::Rc;
 use crate::game_data::game_event_manager::prelude::{EventManager, WorldEvent};
 use crate::game_data::locations::world_area::WorldArea;
 use crate::game_data::player_data::drones::drone_actions::drone_actions::DroneAction;
+use crate::game_data::player_data::drones::drone_actions::drone_plan::DronePlan;
 use crate::game_data::player_data::locations::location::WorldLocation;
 use crate::game_data::screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod;
 use crate::game_data::texture_manager::texture::Texture;
@@ -38,7 +39,7 @@ pub struct Drone{
     name: String,
 
     // Actions
-    drone_actions: Vec<DroneAction>,
+    drone_plans: Vec<DronePlan>,
 
     // Position
     cords: [i32; 3],
@@ -70,7 +71,7 @@ impl Drone {
             name: id.to_string(),
             
             // Actions
-            drone_actions: Vec::new(),
+            drone_plans: Vec::new(),
 
             // Position
             cords: cords,
@@ -168,7 +169,13 @@ impl Drone {
     //=====================================
     
     pub fn add_action(&mut self, action: impl Into<DroneAction>) {
-        self.drone_actions.push(action.into());
+        let mut plan = DronePlan::new();
+        plan.add_action(action.into());
+        self.drone_plans.push(plan);
+    }
+
+    pub fn add_plan(&mut self, plan: DronePlan) {
+        self.drone_plans.push(plan);
     }
 
     // Tool
@@ -304,9 +311,27 @@ impl Drone {
         }
 
         // Execute next action
-        let next_action = self.drone_actions.pop();
-        if let Some(action) = next_action {
-            action.execute(self, world, event_manager);
+        let action_option = self.drone_plans.first_mut().and_then(|drone_plan| {
+            if drone_plan.is_completed() || drone_plan.has_failed() { None }
+            else { drone_plan.pop_next_action() }
+        });
+
+        // borrow on drone_plans is fully released here
+        if let Some(action) = action_option {
+            let error_code = action.execute(self, world, event_manager);
+            if error_code != 0 {
+                if let Some(plan) = self.drone_plans.first_mut() {
+                    println!("test");
+                    plan.failed();
+                }
+            }
+        }
+
+        // handle completed/failed plans after execution
+        if let Some(plan) = self.drone_plans.first() {
+            if plan.is_completed() || plan.has_failed() {
+                self.drone_plans.remove(0);
+            }
         }
         
     }

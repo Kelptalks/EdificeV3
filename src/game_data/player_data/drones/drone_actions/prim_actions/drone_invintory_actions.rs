@@ -16,16 +16,16 @@ impl From<DroneInventoryAction> for DroneAction {
 }
 
 impl DroneInventoryAction {
-    pub fn execute(&self, drone: &mut Drone) {
+    pub fn execute(&self, drone: &mut Drone) -> u32 {
         match self {
             DroneInventoryAction::CraftItem(drone_item) => {
-                craft_item(drone, *drone_item);
+                craft_item(drone, *drone_item)
             },
             DroneInventoryAction::UseItemForFuel(drone_item, quantity) => {
-                use_item_for_fuel(drone, *drone_item, *quantity);
+                use_item_for_fuel(drone, *drone_item, *quantity)
             },
             DroneInventoryAction::EquipTool(drone_item) => {
-                equip_tool(drone, *drone_item);
+                equip_tool(drone, *drone_item)
             },
         }
     }
@@ -156,14 +156,16 @@ fn update_drone_stats(drone: &mut Drone) {
 }
 
 // Equip a tool
-fn equip_tool(drone: &mut Drone, drone_item: DroneItem) {
+fn equip_tool(drone: &mut Drone, drone_item: DroneItem) -> u32 {
     for tool_index in 0..drone.get_tools().len() {
         if drone.get_tools()[tool_index].is_none() {
             if drone.get_mut_inventory().remove_item(drone_item, 1) {
                 drone.get_tools()[tool_index] = Some(drone_item);
                 update_drone_stats(drone); // Update the drones stats after tool change
+                return 0;
             }
-            return;
+            return 1;
         }
     }
+    return 2;
 }

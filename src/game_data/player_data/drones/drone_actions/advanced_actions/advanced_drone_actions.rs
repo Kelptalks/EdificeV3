@@ -12,15 +12,16 @@ pub enum AdvancedDroneAction {
 }
 
 impl AdvancedDroneAction {
-    pub fn execute(&self, drone: &mut Drone, world: &World) {
+    pub fn execute(&self, drone: &mut Drone, world: &World) -> u32{
         match self {
             AdvancedDroneAction::PathToLocation(location_ref_option) => {
                 if let Some(location_ref) = location_ref_option {
                     let cords = location_ref.borrow().get_area().get_point_1_cords();
-                    plan_path_to_cords(drone, world, cords);
+                    plan_path_to_cords(drone, world, cords)
                 }
                 else {
                     eprintln!("Drone({}) cannot plan path to NULL Location", drone.get_id());
+                    return 1;
                 }
                 
             }

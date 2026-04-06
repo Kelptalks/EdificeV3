@@ -9,13 +9,13 @@ pub enum DroneAction {
 }
 
 impl DroneAction {
-    pub fn execute(&self, drone: &mut Drone, world: &World, event_manager: &mut EventManager) {
+    pub fn execute(&self, drone: &mut Drone, world: &World, event_manager: &mut EventManager) -> u32 {
         match self {
             DroneAction::PrimAction(drone_prim_action) => {
-                drone_prim_action.execute(drone, world, event_manager);
+                return drone_prim_action.execute(drone, world, event_manager);
             },
             DroneAction::AdvancedAction(advanced_drone_action) => {
-                advanced_drone_action.execute(drone, world);
+                return advanced_drone_action.execute(drone, world);
             },
         }
     }

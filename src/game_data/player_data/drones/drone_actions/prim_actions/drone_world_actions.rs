@@ -16,16 +16,16 @@ impl From<DroneWorldAction> for DroneAction {
 }
 
 impl DroneWorldAction {
-    pub fn execute(&self, drone: &mut Drone, world: &World, event_manager: &mut EventManager) {
+    pub fn execute(&self, drone: &mut Drone, world: &World, event_manager: &mut EventManager) -> u32 {
         match self {
             DroneWorldAction::MoveDrone(relative_cords) => {
-                move_drone(drone, world, *relative_cords, event_manager);           
+                move_drone(drone, world, *relative_cords, event_manager)     
             },
             DroneWorldAction::MineBlock(relative_cords) => {
-                mine_block(drone, *relative_cords, world, event_manager);
+                mine_block(drone, *relative_cords, world, event_manager)
             },
             DroneWorldAction::PlaceBlock(relative_cords, block_texture) => {
-                place_block(drone, world, event_manager, *relative_cords, *block_texture);
+                place_block(drone, world, event_manager, *relative_cords, *block_texture)
             },
         }
     }

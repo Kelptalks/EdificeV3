@@ -13,13 +13,13 @@ impl DronePrimAction {
     //=====================================
     // Execution
     //=====================================
-    pub fn execute(&self, drone: &mut Drone, world: &World, event_manager: &mut EventManager) {
+    pub fn execute(&self, drone: &mut Drone, world: &World, event_manager: &mut EventManager) -> u32 {
         match self {
             DronePrimAction::DroneWorldAction(drone_world_action) => {
-                drone_world_action.execute(drone, world, event_manager);
+                return drone_world_action.execute(drone, world, event_manager)
             },
             DronePrimAction::DroneInventoryAction(drone_inventory_action) => {
-                drone_inventory_action.execute(drone);
+                return drone_inventory_action.execute(drone)
             },
         }
     }

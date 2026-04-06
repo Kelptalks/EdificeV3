@@ -51,16 +51,33 @@ impl LairBlockManager {
         }
     }
 
+
     pub fn render_var(&mut self, var: &Rc<RefCell<Var>>) {
         let borrow = var.borrow();
-        if let Var::Game(GameVar::Dynamic(DynamicVar::Drone(drone_ref_option))) = &*borrow {
-            if let Some(drone_ref) = drone_ref_option {
-                self.add_lair_block_mods(drone_ref.borrow().get_lair_block_mods());
+        
+        
+        // Dynamic Var
+        if let Var::Game(GameVar::Dynamic(dynamic_var)) = &*borrow {
+            if let DynamicVar::Location(location_ref_option) = dynamic_var {
+                if let Some(location_ref) = location_ref_option {
+                    
+                }   
+                else {
+                    eprintln!("Cannot Apply Block Lair mods for Null Location");
+                }
             }
-            else {
-                eprintln!("Cannot Apply Block Lair mods for Null Drone");
+            
+            if let DynamicVar::Drone(drone_ref_option) = dynamic_var {
+                if let Some(drone_ref) = drone_ref_option {
+                    self.add_lair_block_mods(drone_ref.borrow().get_lair_block_mods());
+                }
+                else {
+                    eprintln!("Cannot Apply Block Lair mods for Null Drone");
+                }
             }
+            
         }
+        
         else {
             eprintln!("Lair Mods Support is not implemented for Var {}", borrow.get_name());
         }

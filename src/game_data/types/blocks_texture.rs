@@ -95,7 +95,9 @@ pub enum BlockTexture {
 
     Dot = 84,
 
-    Blank85 = 85, Blank86 = 86, Blank87 = 87, Blank88 = 88, Blank89 = 89,
+    PathingHighlight = 85, 
+    
+    Blank86 = 86, Blank87 = 87, Blank88 = 88, Blank89 = 89,
     Blank90 = 90, Blank91 = 91, Blank92 = 92, Blank93 = 93, Blank94 = 94,
     Blank95 = 95, Blank96 = 96, Blank97 = 97, Blank98 = 98, Blank99 = 99,
     Blank100 = 100, Blank101 = 101, Blank102 = 102, Blank103 = 103, Blank104 = 104,
@@ -259,9 +261,10 @@ static BLOCK_PROPERTIES: [BlockProperties; 400] = [
     BlockProperties { name: "SelectorVertical",   transparent: false, translucent: true,  solid: false, hardness: 0,   friction: 0,   item: DroneItem::PlantMatter,  item_quantity: 1   },
     BlockProperties { name: "SelectorVerticalRed",transparent: false, translucent: true,  solid: false, hardness: 0,   friction: 0,   item: DroneItem::PlantMatter,  item_quantity: 1   },
     BlockProperties { name: "Dot",                transparent: false, translucent: true,  solid: false, hardness: 0,   friction: 0,   item: DroneItem::PlantMatter,  item_quantity: 1   },
+    BlockProperties { name: "PathingHighlight",   transparent: false, translucent: true,  solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank85
+
     
     // Blank reserved slots (85-399)
-    BlockProperties { name: "Blank", transparent: true, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank85
     BlockProperties { name: "Blank", transparent: true, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank86
     BlockProperties { name: "Blank", transparent: true, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank87
     BlockProperties { name: "Blank", transparent: true, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank88
