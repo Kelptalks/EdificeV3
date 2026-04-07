@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::{Event, UsizeEvent}, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{manager_panel, selection_panel, var_ref_hot_bar, world_view}, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, world_rendering::rendering_config::play_world_view_config::PlayViewRenderingConfig}}};
+use crate::game_data::{game_event_manager::{prelude::{Event, GameEvent, InputEvent, UsizeEvent}, render_event_manager::render_event_manager::RenderEvent}, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{manager_panel, selection_panel, var_ref_hot_bar, world_view}, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::WidgetType, world_rendering::rendering_config::play_world_view_config::PlayViewRenderingConfig}}};
 
 pub enum PlayViewMode {
     Main = 0,
@@ -40,6 +40,7 @@ impl RefManager {
         let show_locations_bool = rendering_config.borrow().get_should_render_all_locations_ref().clone();
 
         let selected_var = Rc::new(RefCell::new(DynamicVar::Location(Some(cursor_location.clone())).wrap_into_var()));
+        rendering_config.borrow_mut().set_focused_var(Some(selected_var.clone()));
 
         rendering_config.borrow_mut().add_var_to_render(selected_var.clone());
 
@@ -74,12 +75,14 @@ impl PlayViewConstructionManager {
         let mut panel = WidgetType::new_panel(screen_data.get_viewport_uv(), [0.0; 4]);
 
         if let WidgetType::Panel(panel) = &mut panel {
+            panel.add_event(InputEvent::KeyDown(miniquad::KeyCode::M, vec![RenderEvent::ChangeMenu(CurrentMenu::MapView).wrap_into_event()]).wrap_into_event());
+
             panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::TopLeft);
             panel.set_color(PanelColor::Clear);
             panel.set_new_background(BackgroundType::Scrolling(crate::game_data::types::UITextures::VoidBackground));
 
 
-            panel.add_widget(var_ref_hot_bar::get_widget());
+            panel.add_widget(var_ref_hot_bar::get_widget(&mut self.ref_manager));
             panel.add_widget(world_view::get_widget(&mut self.ref_manager));
 
 

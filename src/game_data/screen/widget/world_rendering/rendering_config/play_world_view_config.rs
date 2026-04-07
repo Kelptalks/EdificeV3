@@ -12,8 +12,10 @@ pub struct PlayViewRenderingConfig {
     world_ref: Arc<RwLock<World>>,
 
     zoom: Rc<RefCell<i32>>,
-
+    
     camera_movment_event_type: Rc<RefCell<usize>>,
+
+    focused_var: Option<Rc<RefCell<Var>>>,
 
     // Vars to render
     vars_to_render: Vec<Rc<RefCell<Var>>>,
@@ -38,6 +40,8 @@ impl PlayViewRenderingConfig {
             
             zoom: Rc::new(RefCell::new(5)),
             camera_movment_event_type: Rc::new(RefCell::new(0)),
+
+            focused_var: None,
 
             // Vars to render
             vars_to_render: Vec::new(),
@@ -97,6 +101,14 @@ impl PlayViewRenderingConfig {
     //=====================================
     // Var Getters
     //=====================================
+
+    pub fn get_focused_var(&self) -> &Option<Rc<RefCell<Var>>> {
+        &self.focused_var
+    }
+
+    pub fn set_focused_var(&mut self, var: Option<Rc<RefCell<Var>>>) {
+        self.focused_var = var
+    }
 
     pub fn get_vars_to_render(&self) -> &Vec<Rc<RefCell<Var>>> {
         return &self.vars_to_render;

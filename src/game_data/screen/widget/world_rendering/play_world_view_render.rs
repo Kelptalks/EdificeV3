@@ -2,13 +2,11 @@ use std::{cell::RefCell, ops::Index, rc::Rc};
 
 
 use crate::game_data::{
-    TextureManager, 
-    locations::world_area::WorldArea, 
-    screen::{
+    TextureManager, game_event_manager::player_data_event_manager::var_event_manager::var_events::VarEvents, locations::world_area::WorldArea, player_data::drone_programming::var::{game_vars::{dynamic_var::{self, DynamicVar}, game_var_type::GameVar}, var_type::Var}, screen::{
         ScreenData, 
         iso_cord_tool, 
-        widget::{prelude::play_world_view_config::PlayViewRenderingConfig, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, }}}
-    },
+        widget::{button::button::Button, prelude::{VarSlot, play_world_view_config::PlayViewRenderingConfig}, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{area_rendering_manager::area_rendering_manager::AreaRenderingManager, rendering_config}}
+    }, tools::cords_tool
 };
 
 use crate::game_data::game_event_manager::prelude::*;
@@ -95,6 +93,7 @@ pub struct PlayWorldViewRender {
     ndc_block_scale: f32,
     ndc_tile_scale: f32,
     ndc_tile_half_scale: f32,
+    ndc_draw_centering_offset: [f32; 3],
 }
 
 impl PlayWorldViewRender {
@@ -130,6 +129,7 @@ impl PlayWorldViewRender {
             ndc_block_scale: 0.0,
             ndc_tile_scale: 0.0,
             ndc_tile_half_scale: 0.0,
+            ndc_draw_centering_offset: [0.0; 3],
         }
     }
 
@@ -226,6 +226,39 @@ impl PlayWorldViewRender {
         self.ndc_tile_scale = self.ndc_block_scale / 2.0;
         self.ndc_tile_half_scale = self.ndc_tile_scale / 2.0;
 
+        self.ndc_draw_centering_offset[0] = self.center_ndc[0] - self.ndc_block_scale;
+        self.ndc_draw_centering_offset[1] = self.center_ndc[1] - self.ndc_block_scale;
+
+    }
+
+    
+
+    pub fn get_rendering_center_world_cor(&self) -> [i32; 3] {
+        let config = self.rendering_config.borrow();
+        return config.get_cursor_location_ref().borrow().get_area().get_center_world_cords();
+    }
+
+    fn world_to_area_cords(&self, cords: [i32; 3]) -> [i32; 3] {
+        cords_tool::diff_cords(
+            cords,
+            self.get_rendering_center_world_cor()
+        )
+    }
+    fn area_to_draw_cords(&self, area_cords: [i32; 3]) -> [f32; 2] {
+        let draw_iso_cords = [
+            area_cords[0] - area_cords[2],
+            area_cords[1] - area_cords[2],
+        ];
+            
+
+        let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, draw_iso_cords);
+        draw_cords[0] += self.ndc_draw_centering_offset[0];
+        draw_cords[1] += self.ndc_draw_centering_offset[1];
+        
+        draw_cords[0] += self.camera_ndc_offset[0];
+        draw_cords[1] += self.camera_ndc_offset[1];
+
+        return draw_cords;
     }
 
     pub fn get_world_area_of_view(&self) -> WorldArea {
@@ -234,55 +267,39 @@ impl PlayWorldViewRender {
 
         let mut p1 = [-config.get_zoom(); 3];
         let mut p2 = [config.get_zoom(); 3];
-        for (i, axis) in camera_cords.iter().enumerate() {
-            p1[i] += axis;
-            p2[i] += axis;
+        for (axis, axis_cord) in camera_cords.iter().enumerate() {
+            p1[axis] += axis_cord;
+            p2[axis] += axis_cord;
         }
 
         return WorldArea::new_with_cords([p1, p2])
     }
 
-    pub fn get_rendering_center_world_cor(&self) -> [i32; 3] {
-        let config = self.rendering_config.borrow();
-        return config.get_cursor_location_ref().borrow().get_area().get_center_world_cords();
-    }
+    
 
-    pub fn ray_cast_view(&mut self, texture_manager: &mut TextureManager) {
+    pub fn ray_cast_view(
+        &mut self, 
+        texture_manager: &mut TextureManager,
+        screen_data: &ScreenData, 
+        game_event_manager: &mut EventManager
+    ) {
         self.size();
 
         let world_arc = self.rendering_config.borrow().get_world_ref().clone();
         let world = world_arc.read().unwrap();
-
-        let ndc_x_draw_center_offset = self.center_ndc[0] - self.ndc_block_scale;
-        let ndc_y_draw_center_offset = self.center_ndc[1] - self.ndc_block_scale;
-
         
         // Create a world area and shift in the correct location
         let world_area = self.get_world_area_of_view();
 
-
-        let mut rendering_manager = AreaRenderingManager::new(&world_area);
+        let mut area_rendering_manager = AreaRenderingManager::new(&world_area);
         let config = self.rendering_config.borrow();
-        let tiles = rendering_manager.get_casted_tile_rays(&world, &*config);
+        let tiles = area_rendering_manager.get_casted_tile_rays(&world, &*config);
 
 
         for tile in tiles {
             let tile_area_cords = tile.get_area_cords();
 
-            
-            let mut draw_iso_cords = [
-                tile_area_cords[0] - tile_area_cords[2],
-                tile_area_cords[1] - tile_area_cords[2],
-            ];
-            
-
-            let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, draw_iso_cords);
-            draw_cords[0] += ndc_x_draw_center_offset;
-            draw_cords[1] += ndc_y_draw_center_offset;
-            
-            draw_cords[0] += self.camera_ndc_offset[0];
-            draw_cords[1] += self.camera_ndc_offset[1];
-
+            let draw_cords = self.area_to_draw_cords(tile_area_cords);
             let [left_textures, right_textures] = tile.get_tile_textures();
 
             // Left side 
@@ -305,6 +322,32 @@ impl PlayWorldViewRender {
             ];
             for texture in right_textures {
                 texture_manager.render_texture_with_pos(texture, right_pos);
+            }
+        }
+
+
+        // Render the variables ui
+
+        for var in config.get_vars_to_render() {
+            let borrow = var.borrow();
+            if let Var::Game(GameVar::Dynamic(dynamic_var)) = &*borrow {
+                if let DynamicVar::Drone(Some(drone_ref_option)) = dynamic_var {
+                    let area_cords = self.world_to_area_cords(drone_ref_option.borrow().get_cords());
+                    let draw_cords = self.area_to_draw_cords(area_cords);
+
+                    let mut var_slot = VarSlot::new(var);
+                    let var_pos = [
+                        draw_cords[0],
+                        draw_cords[1],
+                        draw_cords[0] + widget_calculations::get_button_scale(),
+                        draw_cords[1] + widget_calculations::get_button_scale(),
+                    ];
+                    var_slot.set_parent_pos(var_pos);
+                    
+                    
+                    var_slot.size();
+                    var_slot.render(texture_manager, screen_data, game_event_manager);
+                }   
             }
         }
 
@@ -351,7 +394,7 @@ impl Widget for PlayWorldViewRender {
         screen_data: &ScreenData, 
         game_event_manager: &mut EventManager
     ) {
-        self.ray_cast_view(texture_manager);
+        self.ray_cast_view(texture_manager, screen_data, game_event_manager);
 
         // Don't handle input if mouse is not on render
         if !screen_data.mouse_on_ndc_pos(self.pos) { 

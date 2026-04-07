@@ -7,6 +7,7 @@ use crate::game_data::locations::world_area::WorldArea;
 use crate::game_data::player_data::drones::drone_actions::drone_actions::DroneAction;
 use crate::game_data::player_data::drones::drone_actions::drone_plan::DronePlan;
 use crate::game_data::player_data::locations::location::WorldLocation;
+use crate::game_data::screen::widget::button::button::Button;
 use crate::game_data::screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod;
 use crate::game_data::texture_manager::texture::Texture;
 use crate::game_data::tik_manager::drones::drone_inventory::{DroneInventory};
@@ -60,7 +61,8 @@ pub struct Drone{
     // Changes
     moved: bool,
 
-    lair_block_mods: Vec<LairBlockMod>
+    // Visuals / UI
+    lair_block_mods: Vec<LairBlockMod>,
 }
 
 impl Drone {
@@ -92,7 +94,7 @@ impl Drone {
             // Changes
             moved: false,
 
-            // Visuals
+            // Visuals / UI
             lair_block_mods: Vec::new(),
         };
 
@@ -155,7 +157,7 @@ impl Drone {
     }
 
     //=====================================
-    // Rendering
+    // Visuals / UI
     //=====================================
 
     pub fn add_lair_block_mod(&mut self, block_mod: LairBlockMod) {
@@ -170,8 +172,16 @@ impl Drone {
         self.lair_block_mods.clear();
     }
 
+    // Visual Direction
+    pub fn set_direction(&mut self, direction: DroneDirection) {
+        self.direction = direction;
+    }
+    pub fn get_directoin(&self) -> &DroneDirection {
+        return &self.direction;
+    }
+
     //=====================================
-    // Setters / Getters
+    // Planning
     //=====================================
     
     pub fn add_action(&mut self, action: impl Into<DroneAction>) {
@@ -184,7 +194,11 @@ impl Drone {
         self.drone_plans.push(plan);
     }
 
-    // Tool
+
+    //=====================================
+    // Tools
+    //=====================================
+
     pub fn get_tools(&self) -> [Option<DroneItem>; 3] {
         return self.tools;
     }
@@ -201,6 +215,10 @@ impl Drone {
     pub fn set_chop_power(&mut self, power: u32) {
         self.chop_power = power
     }
+
+    //=====================================
+    // Invintory
+    //=====================================
 
     // Inventory
     pub fn get_inventory(&self) -> &DroneInventory {
@@ -228,14 +246,10 @@ impl Drone {
         return self.id;
     }
 
-    // Visual Direction
-    pub fn set_direction(&mut self, direction: DroneDirection) {
-        self.direction = direction;
-    }
-    pub fn get_directoin(&self) -> &DroneDirection {
-        return &self.direction;
-    }
 
+    //=====================================
+    // Status
+    //=====================================
 
     // Fuel
     pub fn get_fuel(&self) -> u32 {
@@ -264,6 +278,7 @@ impl Drone {
         self.health = health;
     }
 
+    // Movement
     pub fn set_moved(&mut self, moved: bool) {
         self.moved = moved;
     }

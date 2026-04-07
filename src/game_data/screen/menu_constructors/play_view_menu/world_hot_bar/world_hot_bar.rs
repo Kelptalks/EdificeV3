@@ -63,7 +63,7 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
 
         // Create a new location button
         create_location_button.add_left_click_event(
-            PlayerDataEvent::CreateLocationWithVar(
+            PlayerDataEvent::CreateLocationInVar(
                 ref_manager.selected_var.clone(),
                 ref_manager.cursor_location.clone(),
             ).wrap_into_event()
@@ -95,7 +95,7 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         // Spawn Drone
         let spawn_drone = panel.add_button();
         spawn_drone.add_left_click_event(
-            PlayerDataEvent::CreateDroneWithVar(ref_manager.selected_var.clone(), ref_manager.cursor_location.clone()).wrap_into_event()
+            PlayerDataEvent::CreateDroneInVar(ref_manager.selected_var.clone(), ref_manager.cursor_location.clone()).wrap_into_event()
         );
         spawn_drone.add_left_click_event(PlayViewMode::Drone.to_tab_panel_event(&ref_manager.play_view_mode));
         spawn_drone.set_block(BlockTexture::DroneControler);
