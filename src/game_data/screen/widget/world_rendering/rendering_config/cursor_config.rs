@@ -34,8 +34,12 @@ impl CursorConfig {
         return &self.location;
     }
 
-    fn get_point(&self) -> WorldPoint {
+    pub fn get_point(&self) -> WorldPoint {
         return self.location.borrow().get_area().get_world_point(0);
+    }
+
+    pub fn get_cords(&self) -> [i32; 3] {
+        return self.location.borrow().get_area().get_point_1_cords();
     }
 
     

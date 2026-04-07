@@ -1,12 +1,19 @@
 
-use crate::game_data::{World, locations::world_area::WorldArea, ray_caster::ray_casting_config::{self, RayCastingConfig}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block, texture_manager::texture::Texture, types::{BlockTexture, BlockTriangle}};
+use crate::game_data::{
+    World, 
+    screen::widget::world_rendering::area_rendering_manager::{
+        ray_caster::ray_casting_config::RayCastingConfig
+    }, 
+    texture_manager::texture::Texture, 
+    types::{
+        BlockTexture, BlockTriangle
+    }
+};
 
 
 struct RaySide {
     textures: Vec<Texture>,
-    
     struck: bool,
-    cords_struck: [i32; 3],
 }
 
 impl RaySide {
@@ -14,7 +21,6 @@ impl RaySide {
         RaySide {
             textures: Vec::new(), 
             struck: false, 
-            cords_struck: [0; 3], 
         }
     }
 
@@ -35,7 +41,7 @@ impl RaySide {
             return false;
         }
         
-        // Do lair first
+        // Overlay Lair
         let lair_block_to_check = ray_casting_config.lair_manager.get_lair_block_at_cords(current_cords);
         if let Some(lair_block) = lair_block_to_check {
             for texture in lair_block.get_overlay_textures() {
@@ -45,9 +51,25 @@ impl RaySide {
             }
         }
 
-        // 
+        // World Block
         let block_to_check = BlockTexture::from_id(world.get_world_value(current_cords));
-        return self.check_block(block_to_check, triangle);
+        if self.check_block(block_to_check, triangle) {
+            return true;
+        }
+
+        // Underlay Lair
+        let lair_block_to_check = ray_casting_config.lair_manager.get_lair_block_at_cords(current_cords);
+        if let Some(lair_block) = lair_block_to_check {
+            for texture in lair_block.get_underlay_textures() {
+                if self.check_block(*texture, triangle) {
+                    return true;
+                }
+            }
+        }
+
+        
+        return false;
+
     }
 
 

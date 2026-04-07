@@ -9,5 +9,3 @@ pub mod world_gen;
 pub mod world_data_manager;
 
 pub mod locations;
-
-pub mod ray_caster;

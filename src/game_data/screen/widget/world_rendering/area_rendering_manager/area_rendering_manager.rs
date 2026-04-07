@@ -8,9 +8,18 @@ of an area
 
 */
 
-use std::{cell::RefCell, rc::Rc};
-
-use crate::game_data::{World, locations::{world_area::WorldArea, world_area_side::WorldAreaSide}, ray_caster::{ray::{self, TileRay}, ray_casting_config::{self, RayCastingConfig}}, screen::widget::{prelude::play_world_view_config::PlayViewRenderingConfig, world_rendering::{area_rendering_manager::block_lair_manager::lair_block_manager::{self, LairBlockManager}, rendering_config}}, types::BlockTexture};
+use crate::game_data::{
+    World, 
+    locations::{world_area::WorldArea, world_area_side::WorldAreaSide}, 
+    screen::widget::{
+        prelude::play_world_view_config::PlayViewRenderingConfig, 
+        world_rendering::{area_rendering_manager::{block_lair_manager::{lair_block::{LairBlockMod}, 
+        lair_block_manager::{LairBlockManager}}, 
+        ray_caster::{ray::TileRay, ray_casting_config::RayCastingConfig}}, 
+        }
+    }, 
+    types::BlockTexture
+};
 
 pub struct AreaRenderingManager {
     area_to_render: WorldArea,
@@ -34,7 +43,7 @@ impl AreaRenderingManager {
         // Why : This prevents rays from starting inside of a solid block
         let mut expanded_face_orgins_vec: Vec<([i32; 3], [i32; 3])> = Vec::new();
         let mut expanded_world_area = self.area_to_render.clone();
-        for i in 0..1 {
+        for _i in 0..1 {
             expanded_world_area.shrink(&WorldAreaSide::XMinus);
             expanded_world_area.shrink(&WorldAreaSide::YMinus);
             expanded_world_area.shrink(&WorldAreaSide::ZMinus);
@@ -59,7 +68,11 @@ impl AreaRenderingManager {
             lair_block_manager.render_var(var);
         }
 
+        // Render Cursor location
+        let cursor_cords = rendering_config.get_cursor_config().get_cords();
+        lair_block_manager.add_lair_block_mod(&LairBlockMod::Cursor(cursor_cords, rendering_config.get_zoom()));
 
+        
         let draw_distance = (expanded_world_area.get_dimensions().iter().max()).unwrap().abs() as u32;
         let ray_casting_config = RayCastingConfig::new(
             lair_block_manager, 

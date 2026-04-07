@@ -1,10 +1,13 @@
-use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::locations::location::WorldLocation, texture_manager::texture::Texture, types::BlockTexture};
+
+use crate::game_data::{types::BlockTexture};
 
 pub enum LairBlockMod {
-    SetBlock(BlockTexture, [i32; 3]),
+    AddOverlayTexture(BlockTexture, [i32; 3]),
+    AddUnderlayTexture(BlockTexture, [i32; 3]),
+    
     Cursor([i32; 3], i32),
+
 }
 
 pub struct LairBlock {
@@ -29,7 +32,12 @@ impl LairBlock {
         return &self.overlay_textures;
     }
 
+    pub fn add_underlay_texture(&mut self, texture: BlockTexture) {
+        self.underlay_textures.push(texture);
+    }
+
     pub fn get_underlay_textures(&self) -> &Vec<BlockTexture> {
         return &self.underlay_textures;
     }
+
 }

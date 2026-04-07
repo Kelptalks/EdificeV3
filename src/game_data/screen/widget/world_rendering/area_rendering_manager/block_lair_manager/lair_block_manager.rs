@@ -1,6 +1,15 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::drone_programming::var::{game_vars::{dynamic_var::DynamicVar, game_var_type::GameVar}, var_type::Var}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::{LairBlock, LairBlockMod}, texture_manager::texture::Texture, tools::cords_tool, types::BlockTexture};
+use crate::game_data::{
+    locations::world_area::WorldArea, 
+    player_data::drone_programming::var::{
+        game_vars::{dynamic_var::DynamicVar, game_var_type::GameVar}, 
+        var_type::Var
+    }, 
+    screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::{LairBlock, LairBlockMod},  
+    tools::cords_tool, 
+    types::BlockTexture
+};
 
 pub struct LairBlockManager {
     // block_hashmap
@@ -37,21 +46,36 @@ impl LairBlockManager {
         x | (y << BITS) | (z << (BITS * 2))
     }
 
-    fn add_lair_block_mod(&mut self, lair_block_mod: &LairBlockMod) {
+    pub fn add_lair_block_mod(&mut self, lair_block_mod: &LairBlockMod) {
         match lair_block_mod {
-            LairBlockMod::SetBlock(block_texture, cords) => {
-                self.add_texture_at_cords(*cords, *block_texture);
+            LairBlockMod::AddOverlayTexture(block_texture, cords) => {
+                self.add_texture_at_cords(*cords, *block_texture, true);
             },
-            LairBlockMod::Cursor(cords, length) => {
-                let strait_axis = cords_tool::get_strait_axis();
+            LairBlockMod::AddUnderlayTexture(block_texture, cords) => {
+                self.add_texture_at_cords(*cords, *block_texture, false);
+            },
+            LairBlockMod::Cursor(cursor_cords, length) => {
+                let strait_axis = cords_tool::get_strait_directions();
+                self.add_texture_at_cords(*cursor_cords, BlockTexture::Selector, false);
                 for axis in strait_axis {
-                    let BlockTexture::SelectorBarLeft {
 
+                    let texture;
+                    if axis[0] != 0{
+                        texture = BlockTexture::SelectorBarLeft;
+                    }
+                    else if axis[1] != 0 {
+                        texture = BlockTexture::SelectorBarRight;
+                    }
+                    else {
+                        texture = BlockTexture::SelectorVertical;
                     }
                     for i in 1..*length {
                         let cords = [
-
-                        ]
+                            cursor_cords[0] + (axis[0] * i),
+                            cursor_cords[1] + (axis[1] * i),
+                            cursor_cords[2] + (axis[2] * i),
+                        ];
+                        self.add_texture_at_cords(cords, texture, false);
                     }
                 }
             },
@@ -108,15 +132,25 @@ impl LairBlockManager {
         return self.lair_block_map.get(&key);
     }
 
-    pub fn add_texture_at_cords(&mut self, cords: [i32; 3], texture: BlockTexture) {
+    pub fn add_texture_at_cords(&mut self, cords: [i32; 3], texture: BlockTexture, overlay: bool) {
         let key = Self::cords_to_key(cords);
         let lair_block_at_cords = self.lair_block_map.get_mut(&key);
         if let Some(lair_block) = lair_block_at_cords {
-            lair_block.add_overlay_texture(texture);
+            if overlay {
+                lair_block.add_overlay_texture(texture);
+            }
+            else {
+                lair_block.add_underlay_texture(texture);
+            }
         }
         else {
             let mut new_lair_block = LairBlock::new();
-            new_lair_block.add_overlay_texture(texture);
+            if overlay {
+                new_lair_block.add_overlay_texture(texture);
+            }
+            else {
+                new_lair_block.add_underlay_texture(texture);
+            }
             self.lair_block_map.insert(key, new_lair_block);
         }
     }
@@ -160,7 +194,7 @@ impl LairBlockManager {
 
         let steps = dx.abs().max(dy.abs()).max(dz.abs());
         if steps == 0 {
-            self.add_texture_at_cords(start, block_texture);
+            self.add_texture_at_cords(start, block_texture, true);
             return;
         }
 
@@ -169,7 +203,7 @@ impl LairBlockManager {
             let x = start[0] + (dx as f32 * t).round() as i32;
             let y = start[1] + (dy as f32 * t).round() as i32;
             let z = start[2] + (dz as f32 * t).round() as i32;
-            self.add_texture_at_cords([x, y, z], block_texture);
+            self.add_texture_at_cords([x, y, z], block_texture, true);
         }
     }
 

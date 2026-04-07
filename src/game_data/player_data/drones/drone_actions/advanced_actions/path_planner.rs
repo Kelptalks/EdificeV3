@@ -202,7 +202,7 @@ pub fn plan_path_to_cords(drone: &mut Drone, world: &World, goal_cords: [i32; 3]
     
 
     drone.add_plan(plan);
-    drone.add_lair_block_mod(LairBlockMod::SetBlock(BlockTexture::PathingHighlight, goal_cords));
+    drone.add_lair_block_mod(LairBlockMod::AddOverlayTexture(BlockTexture::PathingHighlight, goal_cords));
 
     return 0;
 }
