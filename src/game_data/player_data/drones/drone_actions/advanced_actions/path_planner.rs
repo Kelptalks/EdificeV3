@@ -4,6 +4,21 @@ use crate::game_data::{World, player_data::drones::{drone::Drone, drone_actions:
 
 
 
+const DIRECTIONS_ALLOWED: [[i32; 3]; 12] = [
+    // Cardinal XY
+    [-1, 0, 0], [1, 0, 0],
+    [0, -1, 0], [0, 1, 0],
+
+    // Cardinal + Z
+    [-1, 0, 1], [1, 0, 1],
+    [0, -1, 1], [0, 1, 1],
+
+    // Cardinal - Z
+    [-1, 0, -1], [1, 0, -1],
+    [0, -1, -1], [0, 1, -1],
+];
+
+
 fn get_movement_weight(world: &World, cords: [i32; 3]) -> u64 {
     let block_type = world.get_world_value_as_block(cords);
 
@@ -27,6 +42,7 @@ fn get_distance_weight(node_cords: [i32; 3], goal_cords: [i32; 3]) -> u64 {
         .map(|(a, b)| (a - b).unsigned_abs() as u64)
         .sum()
 }
+
 
 #[derive(Clone, Copy)]
 struct Node {
@@ -61,39 +77,37 @@ impl NodeMap {
         NodeMap { node_map: HashMap::new() }
     }
 
+
+
     pub fn explore_node(&mut self, world: &World, goal_cords: [i32; 3], node: Node) {
         let source_node_cords = node.world_cords;
-        for x in -1..=1 {
-            for y in -1..=1 {
-                for z in -1..=1 {
-                    if x == 0 && y == 0 && z == 0 { continue; }
 
-                    let cords = [
-                        source_node_cords[0] + x,
-                        source_node_cords[1] + y,
-                        source_node_cords[2] + z,
-                    ];
+        for directoin in DIRECTIONS_ALLOWED {
 
-                    let movement_weight = get_movement_weight(world, cords) as u64;
-                    if movement_weight >= 100000 { continue; }
+            let cords = [
+                source_node_cords[0] + directoin[0],
+                source_node_cords[1] + directoin[1],
+                source_node_cords[2] + directoin[2],
+            ];
 
-                    // Only friction accumulates from parent, distance is always fresh
-                    let friction_weight = node.friction_weight + movement_weight;
-                    let distance_weight = get_distance_weight(cords, goal_cords) * 1000;
+            let movement_weight = get_movement_weight(world, cords) as u64;
+            if movement_weight >= 100000 { continue; }
 
-                    let k = cords_to_key(cords);
+            // Only friction accumulates from parent, distance is always fresh
+            let friction_weight = node.friction_weight + movement_weight;
+            let distance_weight = get_distance_weight(cords, goal_cords) * 10;
 
-                    if let Some(existing_node) = self.node_map.get_mut(&k) {
-                        if !existing_node.explored && friction_weight < existing_node.friction_weight {
-                            existing_node.source_node_cords = source_node_cords;
-                            existing_node.friction_weight = friction_weight;
-                            existing_node.distance_weight = distance_weight;
-                        }
-                    } else {
-                        let new_node = Node::new(source_node_cords, cords, friction_weight, distance_weight);
-                        self.node_map.insert(k, new_node);
-                    }
+            let k = cords_to_key(cords);
+
+            if let Some(existing_node) = self.node_map.get_mut(&k) {
+                if !existing_node.explored && friction_weight < existing_node.friction_weight {
+                    existing_node.source_node_cords = source_node_cords;
+                    existing_node.friction_weight = friction_weight;
+                    existing_node.distance_weight = distance_weight;
                 }
+            } else {
+                let new_node = Node::new(source_node_cords, cords, friction_weight, distance_weight);
+                self.node_map.insert(k, new_node);
             }
         }
     }
@@ -128,13 +142,33 @@ pub fn get_path(drone: &mut Drone, world: &World, start_cords: [i32; 3], goal_co
         if let Some(n) = node_map.node_map.get_mut(&cords_to_key(current_node.world_cords)) {
             n.explored = true;
         }
-
-        drone.add_lair_block_mod(LairBlockMod::SetBlock(BlockTexture::Selector, current_node.world_cords));
     }
 
-    println!("actually finished");
 
-    let path = Vec::new();
+    // Construct path
+    let mut path = Vec::new();
+    while current_node.world_cords != start_cords {
+        let next_node_option = node_map.node_map.get(&cords_to_key(current_node.source_node_cords));
+        if let Some(next_node) = next_node_option {
+
+            let path_directions = [
+                current_node.world_cords[0] - next_node.world_cords[0],
+                current_node.world_cords[1] - next_node.world_cords[1],
+                current_node.world_cords[2] - next_node.world_cords[2],
+            ];
+
+            path.push(path_directions);
+            
+            current_node = *next_node;
+        }
+        else {
+            eprintln!("Drone_path_planner.rs: Path Exited early due to null node");
+            return path;
+        }
+
+    }
+
+    
     return path;
 }
 
@@ -150,18 +184,22 @@ fn cords_to_key(cords: [i32; 3]) -> u64 {
 }
 
 pub fn plan_path_to_cords(drone: &mut Drone, world: &World, goal_cords: [i32; 3]) -> u32 {
+    // Clear debug blocks
     drone.clear_lairblock_mods();
-    get_path(drone, world, drone.get_cords(), goal_cords);
-
-    println!("Pathing to Cords");
-
     let mut plan = DronePlan::new();
-    plan.add_action(DroneWorldAction::MoveDrone([1, 0, 0]).into());
-    plan.add_action(DroneWorldAction::MoveDrone([0, 1, 0]).into());
-    plan.add_action(DroneWorldAction::MoveDrone([0, 1, 0]).into());
-    plan.add_action(DroneWorldAction::MoveDrone([0, 1, 0]).into());
-    plan.add_action(DroneWorldAction::MoveDrone([0, 1, 0]).into());
-    plan.add_action(DroneWorldAction::MoveDrone([1, 0, 0]).into());
+    
+    let mut path_directions = get_path(drone, world, drone.get_cords(), goal_cords);
+
+
+
+    // Create drone actions from direction
+    while let Some(direction) = path_directions.pop() {
+        plan.add_action(DroneWorldAction::MoveDrone(direction).into());
+    }
+
+
+
+    
 
     drone.add_plan(plan);
     drone.add_lair_block_mod(LairBlockMod::SetBlock(BlockTexture::PathingHighlight, goal_cords));

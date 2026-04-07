@@ -91,6 +91,8 @@ impl Drone {
 
             // Changes
             moved: false,
+
+            // Visuals
             lair_block_mods: Vec::new(),
         };
 
@@ -325,7 +327,7 @@ impl Drone {
             let error_code = action.execute(self, world, event_manager);
             if error_code != 0 {
                 if let Some(plan) = self.drone_plans.first_mut() {
-                    println!("test");
+                    println!("Plan Failed: {}", error_code);
                     plan.failed();
                 }
             }

@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::prelude::{EventManager, WorldEvent}, player_data::{drone_programming::var::{game_vars::primitive_var::PrimitiveVar, var_type::Var}, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::drone_prim_actions::DronePrimAction}}}, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::prelude::{EventManager, WorldEvent}, player_data::{drone_programming::var::{game_vars::primitive_var::PrimitiveVar, var_type::Var}, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::drone_prim_actions::DronePrimAction}}}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod, types::BlockTexture};
 
 #[derive(Clone)]
 pub enum DroneWorldAction {
@@ -90,6 +90,9 @@ impl DroneWorldAction {
 }
 
 // Mine a block relative to the drone | Error 1 = is busy | Error 2 = Cords out of range | Error 3 = Block out of range
+// Error Codes
+// Tryed to move into solid block
+// 
 fn move_drone(drone: &mut Drone, world: &World, relative_cords: [i32; 3], event_manager: &mut EventManager) -> u32 {
     if drone.is_busy() {
         return 1;
@@ -113,7 +116,7 @@ fn move_drone(drone: &mut Drone, world: &World, relative_cords: [i32; 3], event_
     if Drone::if_cords_within_range(relative_cords, 1) {
         let world_cords = drone.get_relative_world_cords(relative_cords);
         let block_type_of_new_location = BlockTexture::from_id(world.get_world_value(world_cords));
-
+        
         // If block is not solid allow movment
         if !block_type_of_new_location.is_solid() {
             // Get block bellow to calculate move speed
@@ -129,7 +132,9 @@ fn move_drone(drone: &mut Drone, world: &World, relative_cords: [i32; 3], event_
             // Update drones cords
             event_manager.add_event(WorldEvent::ModBlock(drone.get_cords(), BlockTexture::Air).wrap_into_event()); // Clear drone in old location
             
+            
             drone.mod_cords(relative_cords);
+
             
             event_manager.add_event(WorldEvent::ModBlock(drone.get_cords(), BlockTexture::from_id(drone.get_directoin().to_block_id())).wrap_into_event()); // Add drone back in new location
 

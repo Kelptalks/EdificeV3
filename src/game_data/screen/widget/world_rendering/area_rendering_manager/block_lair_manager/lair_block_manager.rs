@@ -1,6 +1,6 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::drone_programming::var::{game_vars::{dynamic_var::DynamicVar, game_var_type::GameVar}, var_type::Var}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::{LairBlock, LairBlockMod}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{locations::world_area::WorldArea, player_data::drone_programming::var::{game_vars::{dynamic_var::DynamicVar, game_var_type::GameVar}, var_type::Var}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::{LairBlock, LairBlockMod}, texture_manager::texture::Texture, tools::cords_tool, types::BlockTexture};
 
 pub struct LairBlockManager {
     // block_hashmap
@@ -42,6 +42,19 @@ impl LairBlockManager {
             LairBlockMod::SetBlock(block_texture, cords) => {
                 self.add_texture_at_cords(*cords, *block_texture);
             },
+            LairBlockMod::Cursor(cords, length) => {
+                let strait_axis = cords_tool::get_strait_axis();
+                for axis in strait_axis {
+                    let BlockTexture::SelectorBarLeft {
+
+                    }
+                    for i in 1..*length {
+                        let cords = [
+
+                        ]
+                    }
+                }
+            },
         }
     }
 
@@ -60,7 +73,9 @@ impl LairBlockManager {
         if let Var::Game(GameVar::Dynamic(dynamic_var)) = &*borrow {
             if let DynamicVar::Location(location_ref_option) = dynamic_var {
                 if let Some(location_ref) = location_ref_option {
-                    
+                    location_ref.borrow().get_lair_block_mods();
+
+
                 }   
                 else {
                     eprintln!("Cannot Apply Block Lair mods for Null Location");
@@ -97,11 +112,11 @@ impl LairBlockManager {
         let key = Self::cords_to_key(cords);
         let lair_block_at_cords = self.lair_block_map.get_mut(&key);
         if let Some(lair_block) = lair_block_at_cords {
-            lair_block.add_texture(texture);
+            lair_block.add_overlay_texture(texture);
         }
         else {
             let mut new_lair_block = LairBlock::new();
-            new_lair_block.add_texture(texture);
+            new_lair_block.add_overlay_texture(texture);
             self.lair_block_map.insert(key, new_lair_block);
         }
     }

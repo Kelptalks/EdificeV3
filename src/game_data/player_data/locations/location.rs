@@ -1,14 +1,18 @@
-use crate::game_data::{locations::world_area::WorldArea, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{locations::world_area::WorldArea, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlock, texture_manager::texture::Texture, types::BlockTexture};
 
 pub struct WorldLocation {
     // Var Texture
     var_texture: Texture,
 
 
-    //
+    // Identity
     area: WorldArea,
     name: String,
-    id: u32
+    id: u32,
+
+
+    // Visual
+    lair_block_mods: Vec<LairBlock>,
 }
 
 impl WorldLocation {
@@ -18,18 +22,30 @@ impl WorldLocation {
         WorldLocation {
             var_texture: Texture::BlockTexture(BlockTexture::Grass),
 
+            // Identity
             area: area,
             name: name,
             id: id,
+
+
+            lair_block_mods: Vec::new(),
         }
     }
 
     //=====================================
-    // Var Converters
+    // Visuals
     //=====================================
 
     pub fn get_texture(&self) -> &Texture {
         return &self.var_texture;
+    }
+
+    pub fn clear_lairblock_mods(&mut self) {
+        self.lair_block_mods.clear();
+    }
+
+    pub fn get_lair_block_mods(&self) -> &Vec<LairBlock> {
+        return &self.lair_block_mods;
     }
 
     //=====================================

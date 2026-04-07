@@ -38,7 +38,7 @@ impl RaySide {
         // Do lair first
         let lair_block_to_check = ray_casting_config.lair_manager.get_lair_block_at_cords(current_cords);
         if let Some(lair_block) = lair_block_to_check {
-            for texture in lair_block.get_textures() {
+            for texture in lair_block.get_overlay_textures() {
                 if self.check_block(*texture, triangle) {
                     return true;
                 }
