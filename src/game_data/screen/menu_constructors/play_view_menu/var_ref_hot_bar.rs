@@ -24,7 +24,7 @@ pub fn get_widget(ref_manager: &RefManager) -> WidgetType {
         source_var_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
         source_var_panel.set_color(PanelColor::Dark);
 
-        source_var_panel.add_text_display("Selected".to_string()).set_text_scale(TextSize::ExtraSmall);
+        // source_var_panel.add_text_display("Selected".to_string()).set_text_scale(TextSize::ExtraSmall);
 
         let mut var_slot = VarSlot::new(&ref_manager.selected_var.clone());
         var_slot.set_dragging_properties(true, true, true);

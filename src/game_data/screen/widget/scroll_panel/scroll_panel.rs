@@ -41,7 +41,7 @@ impl ScrollPanel {
 
             // Self Rendering
             external_buffers: [0.0; 4], 
-            internal_buffers: [0.0; 4],   
+            internal_buffers: [0.001; 4],   
             pos: [0.0; 4],
             scale: [0.0; 2],
 
@@ -177,10 +177,6 @@ impl Widget for ScrollPanel {
         for widget in &mut self.widgets {
             if widget_calculations::is_pos_contained_within_pos(self.pos, widget.get_pos()) {
                 widget.render(texture_manager, screen_data, game_event_manager);
-                println!("On Panel: pos{:?}", widget.get_pos());
-            }
-            else {
-                 println!("Off Panel: pos{:?}", widget.get_pos());
             }
         }
 

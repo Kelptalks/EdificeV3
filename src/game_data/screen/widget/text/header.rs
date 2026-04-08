@@ -19,7 +19,7 @@ pub struct TextDisplay {
 
 impl TextDisplay {
     pub fn new(text: String) -> TextDisplay {
-        let char_scale = TextSize::Small.get_scale();
+        let char_scale = TextSize::ExtraSmall.get_scale();
         let prefered_scale = [char_scale * text.len() as f32, char_scale];
         TextDisplay {
             // Parent
