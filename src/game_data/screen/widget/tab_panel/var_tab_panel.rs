@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_programming::var::{self, game_vars::{dynamic_var::DynamicVar, game_var_type::GameVar, primitive_var::PrimitiveVar}, var_properties::{self, PropKey, PropValue, VarProperty}, var_type::{Var, VarTypeKind}}, screen::{widget::{self, drone_programming::vars::var_slot, panel::panel::Panel, prelude::{TabPanel, VarSlot}, scroll_panel::scroll_panel::ScrollPanel, tab_panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations}, widget_properties::{self, WidgetProperties}}, types::drone_item::DroneItem};
+use crate::game_data::{player_data::drone_programming::var::{self, game_vars::{dynamic_var::DynamicVar, game_var_type::GameVar, primitive_var::PrimitiveVar}, var_properties::{self, PropKey, PropValue, VarProperty}, var_type::{Var, VarTypeKind}}, screen::{widget::{self, drone_programming::vars::var_slot, panel::{panel::Panel, panel_texture_manager::PanelTextureManager}, prelude::{TabPanel, VarSlot}, scroll_panel::scroll_panel::ScrollPanel, tab_panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations}, widget_properties::{self, WidgetProperties}}, types::drone_item::DroneItem};
 
 
 pub struct VarTabPanel {
@@ -13,6 +13,7 @@ pub struct VarTabPanel {
 
     var_slot: VarSlot,
     scroll_panel: ScrollPanel,
+    panel_texture: PanelTextureManager,
 }
 
 
@@ -38,9 +39,11 @@ impl VarTabPanel {
             
 
             var_slot: var_slot,
-            scroll_panel
+            scroll_panel,
+            panel_texture: PanelTextureManager::new(),
         };
 
+        var_tab_panel.widget_properties.internal_buffers = [0.01; 4];
         var_tab_panel.set_prefered_scale([0.5; 2]);
 
         return var_tab_panel;
@@ -51,50 +54,13 @@ impl VarTabPanel {
     }
 
 
-    fn prop_value_to_text_display(prop_key: PropKey, prop_value: PropValue) -> WidgetType {
-        if let PropValue::String(string) = prop_value {
-            let text = format!("{}: {}", prop_key.to_name(), string);
-            TextDisplay::new(text).wrap_into_widget()
-        }
-        else if let PropValue::Num(number) = prop_value {
-            let text = format!("{}: {}", prop_key.to_name(), number);
-            TextDisplay::new(text).wrap_into_widget()
-        }
-        else if let PropValue::Bool(bool) = prop_value {
-            let text = format!("{}: {}", prop_key.to_name(), bool);
-            TextDisplay::new(text).wrap_into_widget()
-        }
-        else {
-            let text = format!("{}: MISSING NUM VALUE", prop_key.to_name());
-            TextDisplay::new(text).wrap_into_widget()
-        }
-        
-    }
-
-    fn prop_to_widget(prop: VarProperty) -> WidgetType {
-        match prop.value {
-            PropValue::Num(_) => {
-                Self::prop_value_to_text_display(prop.key, prop.value)
-            }
-            PropValue::String(_) => {
-                Self::prop_value_to_text_display(prop.key, prop.value)
-            }
-            PropValue::Bool(_) => {
-                Self::prop_value_to_text_display(prop.key, prop.value)
-            }
-            _ => {
-                let text = format!("Widget not implemented for key({})", prop.key.to_name());
-                return TextDisplay::new(text).wrap_into_widget();
-            }
-        }
-    } 
 
     fn get_widgets_for_var(&mut self) -> Vec<WidgetType>{
         let mut widgets = Vec::new();
         
         let var_properties = self.var_ref.borrow().get_properties();
         for prop in var_properties {
-            widgets.push(Self::prop_to_widget(prop));
+            widgets.push(prop.into_widget());
         }
 
         widgets
@@ -148,13 +114,15 @@ impl Widget for VarTabPanel {
 
         // calculate buffers
         let buffer = [
-            0.0,
-            var_prefered_size[1],
-            0.0,
-            0.0,
+            self.widget_properties.internal_buffers[0],
+            self.widget_properties.internal_buffers[1] + var_prefered_size[1],
+            self.widget_properties.internal_buffers[2],
+            self.widget_properties.internal_buffers[3],
         ];
         self.scroll_panel.set_buffers(buffer);
         self.scroll_panel.size();
+
+        self.panel_texture.size(self.get_pos(), self.get_scale());
     }
 
     fn render(
@@ -173,6 +141,7 @@ impl Widget for VarTabPanel {
 
         texture_manager.render_ui_element_with_pos(crate::game_data::types::UITextures::VoidBackground, self.get_pos());
 
+        self.panel_texture.render(texture_manager);
         self.var_slot.render(texture_manager, screen_data, game_event_manager);
         self.scroll_panel.render(texture_manager, screen_data, game_event_manager);
 
