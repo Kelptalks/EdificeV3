@@ -1,9 +1,10 @@
 
 
-use crate::game_data::{player_data::drone_programming::var::game_vars::game_var_type::{GameVar, GameVarTypeKind}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::drone_programming::var::{game_vars::game_var_type::{GameVar, GameVarTypeKind}, var_properties::VarProperty}, texture_manager::texture::Texture};
 
 
 
+#[derive(Clone, Copy)]
 pub enum VarTypeKind {
     Any,
     Game(GameVarTypeKind)
@@ -32,6 +33,8 @@ impl VarTypeKind {
             },
         }
     }
+
+    
 
 }
 
@@ -67,5 +70,14 @@ impl Var {
             Var::Game(game_var) => {game_var.clear()},
         }
     }
+
+    pub fn get_properties(&self) -> Vec<VarProperty> {
+        match self {
+            Var::Game(game_var) => {
+                game_var.get_properties()
+            }
+        }
+    }
+
 
 }

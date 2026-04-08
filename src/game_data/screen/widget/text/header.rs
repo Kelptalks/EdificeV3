@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{screen::{text::render_string_at_ndc, widget::{widget::Widget, widget_calculations::{self, TextSize}}}, types::FontType};
+use crate::game_data::{screen::{text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations::{self, TextSize}}}, types::FontType};
 
 pub struct TextDisplay {
     // Parent rendering
@@ -19,20 +19,26 @@ pub struct TextDisplay {
 
 impl TextDisplay {
     pub fn new(text: String) -> TextDisplay {
+        let char_scale = TextSize::Small.get_scale();
+        let prefered_scale = [char_scale * text.len() as f32, char_scale];
         TextDisplay {
             // Parent
             parent_pos: [0.0; 4],
             parent_scale: [0.0; 2],
-            prefered_scale: [0.0; 2],
-            prefered_char_scale: TextSize::Small.get_scale(),
+            prefered_scale,
+            prefered_char_scale: char_scale,
 
             // Self Rendering
             string_ref: Rc::new(RefCell::new(text)),
             pos: [0.0; 4],
             scale: [0.0; 2],
             external_buffers: [0.0; 4],
-            
+
         }
+    }
+
+    pub fn wrap_into_widget(self) -> WidgetType {
+        WidgetType::TextDisplay(self)
     }
 
     pub fn get_string_ref(&self) -> &Rc<RefCell<String>> {

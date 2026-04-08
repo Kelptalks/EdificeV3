@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::render_event_manager::render_event_manager::RenderEvent, player_data::{drone_programming::var::{game_vars::{game_var_type::{GameVar, GameVarTypeKind}, primitive_var::{PrimitiveVar, PrimitiveVarTypeKind}}, var_type::{Var, VarTypeKind}}, player_data::PlayerData}, screen::{ScreenData, widget::{drone_programming::vars::var_slot::VarSlot, panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::{BlockTexture, drone_item::DroneItem}};
+use crate::game_data::{game_event_manager::render_event_manager::render_event_manager::RenderEvent, player_data::{drone_programming::var::{game_vars::{game_var_type::{GameVar, GameVarTypeKind}, primitive_var::{PrimitiveVar, PrimitiveVarTypeKind}}, var_type::{Var, VarTypeKind}}, player_data::PlayerData}, screen::{ScreenData, widget::{drone_programming::vars::var_slot::VarSlot, panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, tab_panel::var_tab_panel::{self, VarTabPanel}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::{BlockTexture, drone_item::DroneItem}};
 
 
 
@@ -60,6 +60,16 @@ pub fn test_var_slots() -> WidgetType {
 }
 
 
+pub fn test_var_tab_panel() -> WidgetType {
+    let var_ref = Rc::new(RefCell::new(PrimitiveVar::Block(BlockTexture::Hive).wrap_into_var()));
+    let var_tab_panel = VarTabPanel::new(&var_ref);
+
+
+
+    return WidgetType::VarTabPanel(var_tab_panel);
+    
+}
+
 pub fn get_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> WidgetType {
     let mut panel = WidgetType::new_panel(screen_data.get_viewport_uv(), [0.0; 4]);
     
@@ -81,7 +91,8 @@ pub fn get_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> Widge
 
 
         panel.add_widget(test_var_slots());
-
+        panel.add_widget(test_var_tab_panel());
+            
         panel.size();
     }
 

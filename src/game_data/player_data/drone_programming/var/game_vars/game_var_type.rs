@@ -1,5 +1,5 @@
 
-use crate::game_data::{player_data::drone_programming::var::var_type::Var, texture_manager::texture::Texture};
+use crate::game_data::{player_data::drone_programming::var::{var_properties::VarProperty, var_type::Var}, texture_manager::texture::Texture};
 
 pub use super::{
     dynamic_var::{DynamicVar, DynamicVarTypeKind},
@@ -51,6 +51,13 @@ impl GameVar {
         }
     }
 
+    pub fn get_properties(&self) -> Vec<VarProperty> {
+        match self {
+            GameVar::Primitive(primitive_var) => primitive_var.get_properties(),
+            GameVar::Dynamic(dynamic_var) => dynamic_var.get_properties(),
+        }
+    }
+
     pub fn clear(&mut self) {
         match self {
             GameVar::Primitive(primitive_var) => primitive_var.clear(),
@@ -61,7 +68,7 @@ impl GameVar {
 
 // ─── GameVarTypeKind ──────────────────────────────────────────────────────────
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone, Copy)]
 pub enum GameVarTypeKind {
     Primitive(PrimitiveVarTypeKind),
     Dynamic(DynamicVarTypeKind),

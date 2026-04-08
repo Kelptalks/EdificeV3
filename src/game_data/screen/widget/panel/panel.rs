@@ -88,6 +88,10 @@ impl Panel {
         return panel;
     }
 
+    pub fn wrap_into_widget(self) -> WidgetType {
+        WidgetType::Panel(self)
+    }
+
     //=====================================
     // Apearence
     //=====================================
@@ -184,6 +188,7 @@ impl Panel {
         let section = PanelSection::new(widget, self.orientation, self.alignment);
         self.sections.push(section);
     }
+
 
 
     //=====================================

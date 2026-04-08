@@ -1,3 +1,4 @@
+pub mod widget_properties;
 
 pub mod screen_mananager;
 pub mod screen_task_manager;
@@ -28,3 +29,4 @@ pub mod menu_constructors;
 
 // Old
 pub mod camera_ui;
+

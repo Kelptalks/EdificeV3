@@ -142,12 +142,12 @@ impl DroneItem {
         }
     }
 
-    pub fn get_id(&self) -> u32 {
+    pub fn id(&self) -> u32 {
         *self as u32
     }
 
     pub fn to_texture_enum(self) -> DroneItemTexture {
-        DroneItemTexture::from_id(self.get_id())
+        DroneItemTexture::from_id(self.id())
     }
 
     pub fn properties(&self) -> &'static DroneItemProperties {

@@ -2,6 +2,7 @@
 use crate::game_data::types::drone_item::DroneItem;
 
 
+#[derive(Clone, Copy)]
 pub struct InventorySlot {
     item_quantity: i32,
     item_type: Option<DroneItem>
@@ -157,5 +158,9 @@ impl DroneInventory {
             return self.slots[slot_index].get_quantity();
         }
         return 0;
+    }
+
+    pub fn get_slots(&self) -> &Vec<InventorySlot> {
+        return &self.slots;
     }
 }

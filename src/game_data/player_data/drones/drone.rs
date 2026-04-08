@@ -180,6 +180,10 @@ impl Drone {
         return &self.direction;
     }
 
+    pub fn get_location(&self) -> &Rc<RefCell<WorldLocation>> {
+        return &self.world_location;
+    }
+
     //=====================================
     // Planning
     //=====================================

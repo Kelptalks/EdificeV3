@@ -1,4 +1,4 @@
-use crate::game_data::{TextureManager, game_event_manager::game_event_manager::EventManager, screen::{ScreenData, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::{function_slot::FunctionSlot, vars::var_slot::VarSlot}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, tab_panel::tab_panel::TabPanel, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, world_rendering::play_world_view_render::PlayWorldViewRender}}};
+use crate::game_data::{TextureManager, game_event_manager::game_event_manager::EventManager, screen::{ScreenData, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::{function_slot::FunctionSlot, vars::var_slot::VarSlot}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, world_rendering::play_world_view_render::PlayWorldViewRender}}};
 
 pub trait Widget {
     fn get_pos(&self) -> [f32; 4];
@@ -23,6 +23,7 @@ pub enum WidgetType {
     TabPanel(TabPanel),
     ScrollPanel(ScrollPanel),
     SelectionPanel(SelectionPanel),
+    VarTabPanel(VarTabPanel),
 
     // Buttons
     Button(Button),
@@ -60,6 +61,7 @@ macro_rules! widget_match {
             WidgetType::TabPanel(w)    => w.$method($($arg),*),
             WidgetType::ScrollPanel(w) => w.$method($($arg),*),
             WidgetType::SelectionPanel(w) => w.$method($($arg), *),
+            WidgetType::VarTabPanel(w)  => w.$method($($arg), *),
 
             // Buttons
             WidgetType::Button(w)      => w.$method($($arg),*),

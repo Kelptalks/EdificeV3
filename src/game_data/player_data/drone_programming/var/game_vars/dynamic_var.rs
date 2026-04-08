@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::game_var_type::GameVar, var_type::Var}, drones::drone::Drone, locations::location::WorldLocation}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::game_var_type::GameVar, var_properties::{PropKey, PropValue, VarProperty}, var_type::Var}, drones::drone::Drone, locations::location::WorldLocation}, texture_manager::texture::Texture, types::BlockTexture};
 
 
 #[derive(Clone)]
@@ -45,6 +45,52 @@ impl DynamicVar {
         match self {
             DynamicVar::Location(_) => DynamicVarTypeKind::Location,
             DynamicVar::Drone(_) => DynamicVarTypeKind::Drone,
+        }
+    }
+
+    pub fn get_properties(&self) -> Vec<VarProperty> {
+        match self {
+            DynamicVar::Location(location_option_ref) => {
+                if let Some(location) = location_option_ref {
+                    let borrow = location.borrow();
+                    vec![
+                        VarProperty {key: PropKey::Name, value: PropValue::String(borrow.get_name().to_string()), mutible: true},
+                        VarProperty {key: PropKey::Id,   value: PropValue::Num(borrow.get_id() as i32), mutible: true},
+
+                        VarProperty {key: PropKey::Location, value: PropValue::Location(location.clone()), mutible: true},
+                    ]
+                }
+                else {
+                    eprintln!("Cannot Accsess Properties of NULL location var");
+                    return Vec::new();
+                }
+            },
+            DynamicVar::Drone(drone_option_ref) => {
+                if let Some(drone) = drone_option_ref {
+                    let borrow = drone.borrow();
+
+                    vec![
+                        VarProperty {key: PropKey::Name,            value: PropValue::String(borrow.get_name().to_string()),                    mutible: true},
+                        VarProperty {key: PropKey::Id,              value: PropValue::Num(borrow.get_id() as i32),                              mutible: false},
+
+                        VarProperty {key: PropKey::Location,        value: PropValue::Location(borrow.get_location().clone()),                  mutible: false},
+                        VarProperty {key: PropKey::Cords,           value: PropValue::Cords(borrow.get_cords()), mutible: false},
+
+                        VarProperty {key: PropKey::Health,          value: PropValue::Num(borrow.get_chop_power() as i32),                      mutible: true},
+                        VarProperty {key: PropKey::Fuel,            value: PropValue::Num(borrow.get_fuel() as i32),                            mutible: true},
+                        VarProperty {key: PropKey::Busy,            value: PropValue::Num(borrow.get_busy() as i32),                            mutible: true},
+                        VarProperty {key: PropKey::InventorySlots,  value: PropValue::Inventory(borrow.get_inventory().get_slots().clone()),    mutible: true},
+                        
+                        VarProperty {key: PropKey::MinePower,       value: PropValue::Num(borrow.get_mine_power() as i32),                      mutible: true},
+                        VarProperty {key: PropKey::ChopPower,       value: PropValue::Num(borrow.get_chop_power() as i32),                      mutible: true},
+                    ]
+                    
+                }
+                else {
+                    eprintln!("Cannot Accsess Properties of NULL drone var");
+                    return Vec::new();
+                }
+            },
         }
     }
 
@@ -162,7 +208,7 @@ impl DynamicVar {
 
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone, Copy)]
 pub enum DynamicVarTypeKind {
     Location,
     Drone,

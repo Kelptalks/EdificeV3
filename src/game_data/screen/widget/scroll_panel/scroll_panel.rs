@@ -60,6 +60,17 @@ impl ScrollPanel {
         self.widgets.push(widget);
     }
 
+    pub fn add_widgets(&mut self, widgets: Vec<WidgetType>) {
+        
+        for widget in widgets {
+            self.widgets.push(widget);
+        }
+    }
+
+    pub fn clear_widgets(&mut self) {
+        self.widgets.clear();
+    }
+
     pub fn set_prefered_scale(&mut self, scale: f32) {
         self.prefered_scale[1] = scale;
 
@@ -118,7 +129,7 @@ impl Widget for ScrollPanel {
             let widget_prefered_size = widget.get_preffered_scale();
 
             // Calculate buffers based off widget size
-            widget_buffer[2] += self.scale[0] - widget_prefered_size[0];
+            widget_buffer[2] += (self.scale[0] - widget_prefered_size[0]).max(0.0);
             widget_buffer[3] += self.scale[1] - widget_prefered_size[1];
 
             // Offset widget based off pos in window
@@ -166,6 +177,10 @@ impl Widget for ScrollPanel {
         for widget in &mut self.widgets {
             if widget_calculations::is_pos_contained_within_pos(self.pos, widget.get_pos()) {
                 widget.render(texture_manager, screen_data, game_event_manager);
+                println!("On Panel: pos{:?}", widget.get_pos());
+            }
+            else {
+                 println!("Off Panel: pos{:?}", widget.get_pos());
             }
         }
 
