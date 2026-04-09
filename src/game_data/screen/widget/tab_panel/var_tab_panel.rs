@@ -190,7 +190,6 @@ impl Widget for VarTabPanel {
 
         self.scroll_panel.render_shared_widgets(&widgets, texture_manager, screen_data, game_event_manager);
 
-
         
     }
 }

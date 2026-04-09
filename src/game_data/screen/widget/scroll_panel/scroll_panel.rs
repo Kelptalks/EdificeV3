@@ -78,6 +78,16 @@ impl ScrollPanel {
         screen_data: &ScreenData,
         game_event_manager: &mut EventManager,
     ) {
+        // Clamp scroll value
+        if *self.scroll_value.borrow() < 0.0 {
+            *self.scroll_value.borrow_mut() = 0.0;
+        } else if *self.scroll_value.borrow() > self.max_scroll_value {
+            *self.scroll_value.borrow_mut() = self.max_scroll_value;
+        }
+
+        // Size to update button positions before reading their scale
+        self.size();
+
         let mut offset = -*self.scroll_value.borrow() + self.buttons[0].get_scale()[1];
 
         for widget in widgets {
@@ -100,6 +110,28 @@ impl ScrollPanel {
             }
 
             offset += widget_scale[1] + self.internal_buffers[1] + self.internal_buffers[3];
+        }
+
+        self.max_scroll_value = offset;
+
+        for button in &mut self.buttons {
+            button.render(texture_manager, screen_data, game_event_manager);
+        }
+
+        if screen_data.mouse_on_ndc_pos(self.pos) {
+            let inputs = screen_data.get_inputs();
+            for input in inputs {
+                match input {
+                    crate::game_data::screen::input_data::Input::MouseWheel(_x, y) => {
+                        if *y > 0.0 {
+                            game_event_manager.add_widget_event(WidgetEvent::Modf32Event(self.scroll_value.clone(), -0.03));
+                        } else if *y < 0.0 {
+                            game_event_manager.add_widget_event(WidgetEvent::Modf32Event(self.scroll_value.clone(), 0.03));
+                        }
+                    },
+                    _ => {}
+                }
+            }
         }
     }
 

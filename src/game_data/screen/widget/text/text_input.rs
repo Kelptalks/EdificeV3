@@ -5,6 +5,9 @@ use miniquad::KeyCode;
 use crate::game_data::{game_event_manager::prelude::{BoolEvent, Event, InputEvent, StringEvent, UsizeEvent}, screen::widget::{panel::panel_texture_manager::PanelTextureManager, text::{header::TextDisplay, text_input_event_constructor}, widget::{Widget, WidgetType}}, texture_manager::texture::Texture};
 
 pub struct TextInput {
+    pos: [f32; 4],
+    scale: [f32; 2],
+
     text_display: TextDisplay,
     
     focused_bool_ref: Rc<RefCell<bool>>,
@@ -32,16 +35,14 @@ impl TextInput {
         let cursor_index_ref = Rc::new(RefCell::new(0));
 
         // Setup Inputs
-        let mut input_events = text_input_event_constructor::get_text_inputs(string_ref, &cursor_index_ref);
+        let input_events = text_input_event_constructor::get_text_inputs(string_ref, &cursor_index_ref);
         let focused_bool_ref = Rc::new(RefCell::new(false));
-        let unfocus_input_event = 
-            InputEvent::KeyDown(
-                miniquad::KeyCode::Escape, 
-                BoolEvent::SetBool(focused_bool_ref.clone(), false).wrap_into_event_vec()
-            ).wrap_into_event();
-        input_events.push(unfocus_input_event);
+
 
         TextInput {
+            pos: [0.0; 4],
+            scale: [0.0; 2],
+
             text_display: text_display,
 
             focused_bool_ref,
@@ -59,7 +60,7 @@ impl TextInput {
     pub fn get_cursor_pos(&self) -> [f32; 4] {
         let text_pos = self.text_display.get_pos();
 
-        let char_scale = self.text_display.get_char_scale();
+        let char_scale = self.text_display.get_scale()[1];
 
         let cursor_start = char_scale * *self.current_index_ref.borrow() as f32;
 
@@ -72,8 +73,6 @@ impl TextInput {
     }
 
     pub fn set_cursor_to_last_char(&self) {
-        
-        
         let mut current_cursor_index = 0;
         for (i, char) in self.text_display.get_string_ref().borrow().chars().enumerate() {
             if char != ' ' {
@@ -90,15 +89,16 @@ impl TextInput {
 
 impl Widget for TextInput {
     fn get_pos(&self) -> [f32; 4] {
-        self.text_display.get_pos()
+        self.pos
     }
 
     fn get_scale(&self) -> [f32; 2] {
-        self.text_display.get_scale()
+        self.scale
     }
 
     fn get_preffered_scale(&self) -> [f32; 2] {
-        self.text_display.get_preffered_scale()
+        let char_scale = self.text_display.get_char_scale();
+        [char_scale * self.max_string_size as f32, char_scale]
     }
 
     fn set_buffers(&mut self, pos: [f32; 4]) {
@@ -111,9 +111,10 @@ impl Widget for TextInput {
 
     fn size(&mut self) {
         self.text_display.size();
-
-
-        self.panel_texture.size(self.get_pos(), self.text_display.get_scale());
+        let char_scale = self.text_display.get_scale()[1];
+        self.pos = self.text_display.get_pos();
+        self.scale = [char_scale * self.max_string_size as f32, char_scale];
+        self.panel_texture.size(self.pos, self.scale);
     }
 
     fn render(
@@ -150,7 +151,10 @@ impl Widget for TextInput {
                 *self.current_index_ref.borrow_mut() = string_len;
             }
 
-            if screen_data.get_input_manager().was_key_code_pressed(KeyCode::Escape) {
+            // Exit of escape or enter was pressed
+            if screen_data.get_input_manager().was_key_code_pressed(KeyCode::Enter) 
+            || screen_data.get_input_manager().was_key_code_pressed(KeyCode::Escape)
+            {
                 *self.focused_bool_ref.borrow_mut() = false;
             }
 

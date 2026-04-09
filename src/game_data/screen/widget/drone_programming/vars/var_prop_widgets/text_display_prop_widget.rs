@@ -117,8 +117,5 @@ impl Widget for TextDisplayPropWidget {
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager
     ) {
         self.panel.render(texture_manager, screen_data, game_event_manager);
-
-
-
     }
 }

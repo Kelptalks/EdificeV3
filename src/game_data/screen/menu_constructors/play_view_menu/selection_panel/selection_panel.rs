@@ -1,6 +1,19 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::{drone_programming::var::game_vars::primitive_var::PrimitiveVar, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{new_play_view::RefManager, selection_panel::var_creation_panel}, widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel, VarSlot}, selection_panel::selection_panel::SelectionPanel, widget::WidgetType, widget_calculations::TextSize}}, types::{BlockTexture, UITextures, drone_item::DroneItem}};
+use crate::game_data::{
+    player_data::{
+        drone_programming::var::game_vars::primitive_var::PrimitiveVar, 
+        player_data::PlayerData
+    }, 
+    screen::{
+        ScreenData, 
+        menu_constructors::play_view_menu::{new_play_view::RefManager}, 
+        widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, 
+        prelude::{PanelColor, TabPanel, VarSlot}, 
+        selection_panel::selection_panel::SelectionPanel, 
+        widget::WidgetType, widget_calculations::TextSize}
+    }, 
+    types::{BlockTexture, UITextures, drone_item::DroneItem}};
 
 fn get_block_selection_panel() -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
@@ -107,7 +120,6 @@ pub fn get_var_managment_panel_widget(ref_manger: &mut RefManager) -> WidgetType
 
         panel.add_widget(selection_tab_panel.wrap_into_widget());
 
-        panel.add_widget(var_creation_panel::get_var_create_widget());
 
         panel.size();
 

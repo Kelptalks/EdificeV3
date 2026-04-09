@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::{HashMap, btree_map::IterMut}, rc::Rc, thr
 
 use mlua::Value;
 
-use crate::game_data::{game_event_manager::prelude::Event, player_data::locations::location::WorldLocation, screen::widget::{self, drone_programming::vars::var_prop_widgets::text_display_prop_widget::TextDisplayPropWidget, panel::panel::Panel, text::{header::TextDisplay, text_input::TextInput}, widget::{Widget, WidgetType}}, tik_manager::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
+use crate::game_data::{game_event_manager::prelude::Event, player_data::locations::location::WorldLocation, screen::widget::{self, drone_programming::vars::var_prop_widgets::{num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget}, panel::panel::Panel, text::{header::TextDisplay, text_input::TextInput}, widget::{Widget, WidgetType}}, tik_manager::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
 
 
 
@@ -22,7 +22,7 @@ pub enum PropKey {
     // Drones
     Health,
     Fuel,
-    Busy,
+    BusyTime,
     Tools,
     MinePower,
     ChopPower,
@@ -46,7 +46,7 @@ impl PropKey {
             PropKey::InventorySlots => "Invintory".to_string(),
             PropKey::Health => "Health".to_string(),
             PropKey::Fuel => "Fuel".to_string(),
-            PropKey::Busy => "Busy".to_string(),
+            PropKey::BusyTime => "Busy".to_string(),
             PropKey::Tools => "Tools".to_string(),
             PropKey::MinePower => "MinePower".to_string(),
             PropKey::ChopPower => "ChopPower".to_string(),
@@ -66,7 +66,7 @@ impl PropKey {
             PropKey::InventorySlots => PropValue::Inventory(Vec::new()),
             PropKey::Health => PropValue::Num(0),
             PropKey::Fuel => PropValue::Num(0),
-            PropKey::Busy => PropValue::Bool(false),
+            PropKey::BusyTime => PropValue::Num(0),
             PropKey::Tools => PropValue::Bool(false),
             PropKey::MinePower => PropValue::Num(0),
             PropKey::ChopPower => PropValue::Num(0),
@@ -86,7 +86,7 @@ impl PropKey {
             PropKey::InventorySlots,
             PropKey::Health,
             PropKey::Fuel,
-            PropKey::Busy,
+            PropKey::BusyTime,
             PropKey::Tools,
             PropKey::MinePower,
             PropKey::ChopPower,
@@ -118,14 +118,27 @@ pub enum PropValue {
 }
 
 impl PropValue {
-    fn to_text_display(&self, prop_key: &PropKey, mutable: bool) -> WidgetType {
-        TextDisplayPropWidget::new(*prop_key, mutable).wrap_into_widget()
-    }
+
 
     fn to_widget(&self, prop_key: &PropKey, mutable: bool) -> WidgetType {
-        self.to_text_display(prop_key, mutable)
+        match self {
+            PropValue::Num(_) => {
+                NumDisplayPropWidget::new(*prop_key, mutable).wrap_into_widget()
+            }
+            _ => {
+                TextDisplayPropWidget::new(*prop_key, mutable).wrap_into_widget()
+            }
+        }
     }
 
+    pub fn into_num(&self) -> i32 {
+        if let PropValue::Num(num) = self {
+            *num
+        }
+        else {
+            0
+        }
+    }
 
     pub fn into_string(&self) -> String{
         match self {

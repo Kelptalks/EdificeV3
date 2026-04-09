@@ -262,6 +262,9 @@ impl Drone {
     pub fn add_fuel(&mut self, amount: u32) {
         self.fuel += amount;
     }
+    pub fn set_fuel(&mut self, amount: u32) {
+        self.fuel = amount;
+    }
 
     // Busy
     pub fn get_busy(&self) -> u32 {
@@ -273,11 +276,15 @@ impl Drone {
     pub fn add_busy_time(&mut self, time: u32) {
         self.busy_time += time;
     }
+    pub fn set_busy(&mut self, time: u32) {
+        self.busy_time = time;
+    }
 
     // Health
     pub fn get_health(&self) -> u32 {
         return self.health;
     }
+
     pub fn set_health(&mut self, health: u32) {
         self.health = health;
     }

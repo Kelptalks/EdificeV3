@@ -165,7 +165,7 @@ impl Widget for VarSlot {
 
             let string_ndc = [
                 (self.pos[0] + self.scale[0] / 2.0) - string_centering_offset, 
-                self.pos[1] + self.scale[1],
+                self.pos[1] - (self.scale[1] / 4.0),
                 ];
 
             render_string_at_ndc(

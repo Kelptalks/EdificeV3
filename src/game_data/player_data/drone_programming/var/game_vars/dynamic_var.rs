@@ -77,13 +77,13 @@ impl DynamicVar {
 
                         VarProperty {key: PropKey::Cords,           value: PropValue::Cords(borrow.get_cords()), mutible: false},
 
-                        VarProperty {key: PropKey::Health,          value: PropValue::Num(borrow.get_chop_power() as i32),                      mutible: true},
+                        VarProperty {key: PropKey::Health,          value: PropValue::Num(borrow.get_health() as i32),                          mutible: true},
                         VarProperty {key: PropKey::Fuel,            value: PropValue::Num(borrow.get_fuel() as i32),                            mutible: true},
-                        VarProperty {key: PropKey::Busy,            value: PropValue::Num(borrow.get_busy() as i32),                            mutible: true},
-                        VarProperty {key: PropKey::InventorySlots,  value: PropValue::Inventory(borrow.get_inventory().get_slots().clone()),    mutible: true},
+                        VarProperty {key: PropKey::BusyTime,            value: PropValue::Num(borrow.get_busy() as i32),                            mutible: true},
+                        VarProperty {key: PropKey::InventorySlots,  value: PropValue::Inventory(borrow.get_inventory().get_slots().clone()),    mutible: false},
                         
-                        VarProperty {key: PropKey::MinePower,       value: PropValue::Num(borrow.get_mine_power() as i32),                      mutible: true},
-                        VarProperty {key: PropKey::ChopPower,       value: PropValue::Num(borrow.get_chop_power() as i32),                      mutible: true},
+                        VarProperty {key: PropKey::MinePower,       value: PropValue::Num(borrow.get_mine_power() as i32),                      mutible: false},
+                        VarProperty {key: PropKey::ChopPower,       value: PropValue::Num(borrow.get_chop_power() as i32),                      mutible: false},
                     ]
                     
                 }
@@ -119,8 +119,26 @@ impl DynamicVar {
                     PropKey::Name => {
                         drone.borrow_mut().set_name(prop_value.into_string());
                     },
+                    PropKey::Fuel => {
+                        let num = prop_value.into_num();
+                        if num > 0 {
+                            drone.borrow_mut().set_fuel(num as u32);
+                        }
+                    },
+                    PropKey::Health => {
+                        let num = prop_value.into_num();
+                        if num > 0 {
+                            drone.borrow_mut().set_health(num as u32);
+                        }
+                    }
+                    PropKey::BusyTime => {
+                        let num = prop_value.into_num();
+                        if num > 0 {
+                            drone.borrow_mut().set_busy(num as u32);
+                        }
+                    }
                     _ => {
-                        eprintln!("set prop key {} not supported for location", prop_key.to_name());
+                        eprintln!("set prop key {} not supported for drone", prop_key.to_name());
                     }
                 }
         

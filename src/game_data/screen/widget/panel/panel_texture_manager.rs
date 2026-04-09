@@ -28,7 +28,7 @@ impl PanelTextureManager {
 
         }
     }
-
+    
     pub fn set_color(&mut self, color: PanelColor) {
         self.color = color;
     }
