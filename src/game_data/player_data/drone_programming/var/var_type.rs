@@ -1,6 +1,6 @@
 
 
-use crate::game_data::{player_data::drone_programming::var::{game_vars::game_var_type::{GameVar, GameVarTypeKind}, var_properties::{VarPropRequest, VarProperty}}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::drone_programming::var::{game_vars::game_var_type::{GameVar, GameVarTypeKind}, var_properties::{VarPropModRequest, VarProperty}}, texture_manager::texture::Texture};
 
 
 
@@ -79,7 +79,7 @@ impl Var {
         }
     }
 
-    pub fn request_prop(&mut self, request: VarPropRequest) {
+    pub fn request_prop(&mut self, request: VarPropModRequest) {
         match self {
             Var::Game(game_var) => {
                 game_var.request_prop(request)

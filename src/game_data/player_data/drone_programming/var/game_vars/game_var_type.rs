@@ -1,5 +1,5 @@
 
-use crate::game_data::{player_data::drone_programming::var::{var_properties::{VarPropRequest, VarProperty}, var_type::Var}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::drone_programming::var::{var_properties::{VarPropModRequest, VarProperty}, var_type::Var}, texture_manager::texture::Texture};
 
 pub use super::{
     dynamic_var::{DynamicVar, DynamicVarTypeKind},
@@ -58,7 +58,7 @@ impl GameVar {
         }
     }
 
-    pub fn request_prop(&mut self, request: VarPropRequest) {
+    pub fn request_prop(&mut self, request: VarPropModRequest) {
         match self {
             GameVar::Primitive(primitive_var_type_kind) => {
                 eprintln!("NO IMPLEMENTATION IMPLEMENTED FOR MINIPULATING PRIM VARS");

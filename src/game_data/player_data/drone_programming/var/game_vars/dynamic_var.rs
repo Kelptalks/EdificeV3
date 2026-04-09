@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::game_var_type::GameVar, var_properties::{PropKey, PropValue, VarPropRequest, VarProperty}, var_type::Var}, drones::drone::Drone, locations::location::WorldLocation}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::game_var_type::GameVar, var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::Var}, drones::drone::Drone, locations::location::WorldLocation}, texture_manager::texture::Texture, types::BlockTexture};
 
 
 #[derive(Clone)]
@@ -96,9 +96,9 @@ impl DynamicVar {
     }
 
 
-    pub fn handle_location_prop_request(location: &mut Rc<RefCell<WorldLocation>>, request: VarPropRequest) {
+    pub fn handle_location_prop_request(location: &mut Rc<RefCell<WorldLocation>>, request: VarPropModRequest) {
         match request {
-            VarPropRequest::Set(prop_key, prop_value) => {
+            VarPropModRequest::Set(prop_key, prop_value) => {
                 match prop_key {
                     PropKey::Name => {
                         location.borrow_mut().set_name(prop_value.into_string());
@@ -112,9 +112,9 @@ impl DynamicVar {
         }
     }
 
-    pub fn handle_drone_prop_request(drone: &mut Rc<RefCell<Drone>>, request: VarPropRequest) {
+    pub fn handle_drone_prop_request(drone: &mut Rc<RefCell<Drone>>, request: VarPropModRequest) {
         match request {
-            VarPropRequest::Set(prop_key, prop_value) => {
+            VarPropModRequest::Set(prop_key, prop_value) => {
                 match prop_key {
                     PropKey::Name => {
                         drone.borrow_mut().set_name(prop_value.into_string());
@@ -128,7 +128,7 @@ impl DynamicVar {
         }
     }
 
-    pub fn request_prop(&mut self, request: VarPropRequest) {
+    pub fn request_prop(&mut self, request: VarPropModRequest) {
         match self {
             DynamicVar::Location(location_ref_option) => {
                 if let Some(location) = location_ref_option {

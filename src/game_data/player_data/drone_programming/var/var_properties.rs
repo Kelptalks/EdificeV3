@@ -159,7 +159,7 @@ impl PropValue {
     }
 
 
-    pub fn update_widget(self, widget_type: &mut WidgetType) -> Vec<VarPropRequest> {
+    pub fn update_widget(self, widget_type: &mut WidgetType) -> Vec<VarPropModRequest> {
         
         if let WidgetType::VarPropValWidget(widget) = widget_type {
             widget.update_with_val(self)
@@ -182,6 +182,6 @@ impl VarProperty {
 
 
 #[derive(Clone)]
-pub enum VarPropRequest {
+pub enum VarPropModRequest {
     Set(PropKey, PropValue)
 }
