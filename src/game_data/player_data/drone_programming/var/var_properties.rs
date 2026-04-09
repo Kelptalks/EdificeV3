@@ -1,7 +1,14 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, collections::{HashMap, btree_map::IterMut}, rc::Rc, thread::sleep};
 
-use crate::game_data::{player_data::locations::location::WorldLocation, screen::widget::{text::header::TextDisplay, widget::WidgetType}, tik_manager::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
+use mlua::Value;
 
+use crate::game_data::{player_data::locations::location::WorldLocation, screen::widget::{self, drone_programming::vars::var_prop_widgets::text_display_prop_widget::TextDisplayPropWidget, panel::panel::Panel, text::{header::TextDisplay, text_input::TextInput}, widget::{Widget, WidgetType}}, tik_manager::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
+
+
+
+
+
+#[derive(Hash, PartialEq, Eq, Clone, Copy)]
 pub enum PropKey {
     // All
     Name,
@@ -10,7 +17,6 @@ pub enum PropKey {
 
     // Dynamic
     Cords,
-    Location,
     InventorySlots,
 
     // Drones
@@ -26,6 +32,9 @@ pub enum PropKey {
     Transparent,
     Translucent,
     Solid,
+
+    // Items
+    ItemValue
 }
 
 impl PropKey {
@@ -34,7 +43,6 @@ impl PropKey {
             PropKey::Name => "Name".to_string(),
             PropKey::Id => "ID".to_string(),
             PropKey::Cords => "Cords".to_string(),
-            PropKey::Location => "Location".to_string(),
             PropKey::InventorySlots => "Invintory".to_string(),
             PropKey::Health => "Health".to_string(),
             PropKey::Fuel => "Fuel".to_string(),
@@ -46,15 +54,58 @@ impl PropKey {
             PropKey::Transparent => "Transparent".to_string(),
             PropKey::Translucent => "Translucent".to_string(),
             PropKey::Solid => "Solid".to_string(),
+            PropKey::ItemValue => "Cost".to_string(),
         }
     }
+
+    pub fn to_value(&self) -> PropValue {
+        match self {
+            PropKey::Name => PropValue::String(" ".to_string()),
+            PropKey::Id => PropValue::Num(0),
+            PropKey::Cords => PropValue::Cords([0; 3]),
+            PropKey::InventorySlots => PropValue::Inventory(Vec::new()),
+            PropKey::Health => PropValue::Num(0),
+            PropKey::Fuel => PropValue::Num(0),
+            PropKey::Busy => PropValue::Bool(false),
+            PropKey::Tools => PropValue::Bool(false),
+            PropKey::MinePower => PropValue::Num(0),
+            PropKey::ChopPower => PropValue::Num(0),
+            PropKey::Friction => PropValue::Num(0),
+            PropKey::Transparent => PropValue::Bool(false),
+            PropKey::Translucent => PropValue::Bool(false),
+            PropKey::Solid => PropValue::Bool(false),
+            PropKey::ItemValue => PropValue::Inventory(Vec::new()),
+        }
+    }
+
+    pub fn get_all() -> Vec<PropKey> {
+        vec![
+            PropKey::Name,
+            PropKey::Id,
+            PropKey::Cords,
+            PropKey::InventorySlots,
+            PropKey::Health,
+            PropKey::Fuel,
+            PropKey::Busy,
+            PropKey::Tools,
+            PropKey::MinePower,
+            PropKey::ChopPower,
+            PropKey::Friction,
+            PropKey::Transparent,
+            PropKey::Translucent,
+            PropKey::Solid,
+            PropKey::ItemValue,
+        ]
+    }
+
+    pub fn create_widget(&self, mutable: bool) -> WidgetType {
+        self.to_value().to_widget(self, mutable)
+    }
+
+
 }
 
 pub enum PropValue {
-
-    // Location
-    Location(Rc<RefCell<WorldLocation>>),
-    
     // Prims
     String(String),
     Cords([i32; 3]),
@@ -63,7 +114,59 @@ pub enum PropValue {
 
     ItemVec(Vec<DroneItem>),
     Inventory(Vec<InventorySlot>)
+}
 
+impl PropValue {
+    fn to_text_display(&self, prop_key: &PropKey, mutable: bool) -> WidgetType {
+        TextDisplayPropWidget::new(*prop_key, mutable).wrap_into_widget()
+    }
+
+    fn to_widget(&self, prop_key: &PropKey, mutable: bool) -> WidgetType {
+        self.to_text_display(prop_key, mutable)
+    }
+
+
+    pub fn into_string(&self) -> String{
+        match self {
+            PropValue::String(string) => string.clone(),
+            PropValue::Cords(cords) => format!("{:?}", cords),
+            PropValue::Num(num) => num.to_string(),
+            PropValue::Bool(bool) => bool.to_string(),
+            PropValue::ItemVec(drone_items) => {
+                let mut string = "".to_string();
+                for item in drone_items {
+                    string.push_str(&format!("{}, ", item.get_name()));
+                }
+                string
+            },
+            PropValue::Inventory(inventory_slots) => {
+                let mut string = "".to_string();
+                for slot in inventory_slots {
+                    let item_option = slot.get_item();
+                    if let Some(item) = item_option {
+                        let item_amount = slot.get_quantity();
+
+                        string.push_str(&format!("{}({})  , ", item.get_name(), item_amount));
+                    }
+     
+
+
+                }
+                string
+            },
+        }
+    }
+
+
+    pub fn update_widget(self, widget_type: &mut WidgetType) {
+        
+        if let WidgetType::VarPropValWidget(widget) = widget_type {
+            widget.update_with_val(self);
+        }
+        else {
+            
+        }
+    }
 }
 
 pub struct VarProperty {
@@ -74,52 +177,6 @@ pub struct VarProperty {
 
 impl VarProperty {
 
-    fn prop_value_to_text_display(prop_key: &PropKey, prop_value: &PropValue) -> WidgetType {
-        if let PropValue::String(string) = prop_value {
-            let text = format!("{}: {}", prop_key.to_name(), string);
-            TextDisplay::new(text).wrap_into_widget()
-        }
-        else if let PropValue::Num(number) = prop_value {
-            let text = format!("{}: {}", prop_key.to_name(), number);
-            TextDisplay::new(text).wrap_into_widget()
-        }
-        else if let PropValue::Bool(bool) = prop_value {
-            let text = format!("{}: {}", prop_key.to_name(), bool);
-            TextDisplay::new(text).wrap_into_widget()
-        }
-        else if let PropValue::Cords(cords) = prop_value {
-            let text = format!("{}: {:?}", prop_key.to_name(), cords);
-            TextDisplay::new(text).wrap_into_widget()
-        }
-        else {
-            let text = format!("{}: MISSING NUM VALUE", prop_key.to_name());
-            TextDisplay::new(text).wrap_into_widget()
-        }
-    }
-
-    pub fn into_widget(&self) -> WidgetType {
-        match self.value {
-            PropValue::Num(_) => {
-                Self::prop_value_to_text_display(&self.key, &self.value)
-            }
-            PropValue::String(_) => {
-                Self::prop_value_to_text_display(&self.key, &self.value)
-            }
-            PropValue::Bool(_) => {
-                Self::prop_value_to_text_display(&self.key, &self.value)
-            }
-            PropValue::Cords(_) => {
-                Self::prop_value_to_text_display(&self.key, &self.value)
-            }
-            _ => {
-                let text = format!("Widget not implemented for key({})", self.key.to_name());
-                return TextDisplay::new(text).wrap_into_widget();
-            }
-        }
-    } 
-
 }
 
-pub enum PropRequest {
-    Set(PropKey, PropValue)
-} 
+

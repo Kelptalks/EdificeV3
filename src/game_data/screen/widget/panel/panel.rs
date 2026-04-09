@@ -58,7 +58,6 @@ impl Panel {
     //=====================================
 
     pub fn new(parent_pos: [f32; 4], buffers: [f32; 4]) -> Panel {
-        
         let panel = Panel {
             // Parent Rendering
             parent_pos: parent_pos,
@@ -86,6 +85,10 @@ impl Panel {
         };
 
         return panel;
+    }
+
+    pub fn new_blank() -> Panel {
+        return Panel::new([0.0; 4], [0.0; 4])
     }
 
     pub fn wrap_into_widget(self) -> WidgetType {

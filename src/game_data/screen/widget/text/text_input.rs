@@ -46,7 +46,7 @@ impl TextInput {
             focused_bool_ref,
 
             current_index_ref: cursor_index_ref.clone(),
-            max_string_size,
+            max_string_size: 30,
 
             events: input_events,
             panel_texture: PanelTextureManager::new(),
@@ -80,6 +80,10 @@ impl TextInput {
             }
         }
         *self.current_index_ref.borrow_mut() = current_cursor_index;
+    }
+
+    pub fn get_focused_ref(&self) -> &Rc<RefCell<bool>> {
+        return &self.focused_bool_ref;
     }
 }
 

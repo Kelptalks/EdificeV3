@@ -43,20 +43,22 @@ impl PrimitiveVar {
             PrimitiveVar::DroneItem(drone_item) => {
                 vec![
                     VarProperty {key: PropKey::Name, value: PropValue::String(drone_item.get_name().to_string()), mutible: false},
-                    VarProperty {key: PropKey::Id,   value: PropValue::Num(drone_item.id() as i32),               mutible: true},
+                    VarProperty {key: PropKey::Id,   value: PropValue::Num(drone_item.id() as i32),               mutible: false},
                 ]
                 
             },
             PrimitiveVar::Block(block_texture) => {
                 vec![
                     VarProperty {key: PropKey::Name,        value: PropValue::String(block_texture.get_name().to_string()), mutible: false},
-                    VarProperty {key: PropKey::Id,           value: PropValue::Num(block_texture.id() as i32),          mutible: true},
+                    VarProperty {key: PropKey::Id,           value: PropValue::Num(block_texture.id() as i32),              mutible: false},
                     VarProperty {key: PropKey::Friction,    value: PropValue::Num(block_texture.friction() as i32),         mutible: false},
                     VarProperty {key: PropKey::Health,      value: PropValue::Num(block_texture.hardness() as i32),         mutible: false},
 
                     VarProperty {key: PropKey::Solid,       value: PropValue::Bool(block_texture.is_solid()),               mutible: false},
                     VarProperty {key: PropKey::Translucent, value: PropValue::Bool(block_texture.is_translucent()),         mutible: false},
                     VarProperty {key: PropKey::Transparent, value: PropValue::Bool(block_texture.is_transparent()),         mutible: false},
+
+                    VarProperty {key: PropKey::ItemValue,   value: PropValue::Inventory(block_texture.get_place_cost()),    mutible: false}
                 ]
             },
             PrimitiveVar::Cords(cords) => {

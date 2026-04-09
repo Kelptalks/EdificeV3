@@ -1,6 +1,6 @@
 use std::{cell::{RefCell}, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::GameEvent, widget_event_manager::widget_event_manager::WidgetEvent}, screen::widget::{bar_button::bar_button::BarButtonWidget, widget::{Widget, WidgetType}, widget_calculations}};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::GameEvent, prelude::EventManager, widget_event_manager::widget_event_manager::WidgetEvent}, screen::{ScreenData, widget::{self, bar_button::bar_button::BarButtonWidget, widget::{Widget, WidgetType}, widget_calculations}}};
 
 pub struct ScrollPanel {
     // Parent rendering
@@ -71,6 +71,38 @@ impl ScrollPanel {
         self.widgets.clear();
     }
 
+    pub fn render_shared_widgets(
+        &mut self,
+        widgets: &Vec<Rc<RefCell<WidgetType>>>,
+        texture_manager: &mut TextureManager,
+        screen_data: &ScreenData,
+        game_event_manager: &mut EventManager,
+    ) {
+        let mut offset = -*self.scroll_value.borrow() + self.buttons[0].get_scale()[1];
+
+        for widget in widgets {
+            let mut w = widget.borrow_mut();
+            let mut widget_buffer = self.internal_buffers;
+            let preferred = w.get_preffered_scale();
+
+            widget_buffer[2] += (self.scale[0] - preferred[0]).max(0.0);
+            widget_buffer[3] += self.scale[1] - preferred[1];
+            widget_buffer[1] += offset;
+            widget_buffer[3] -= offset;
+
+            w.set_parent_pos(self.pos);
+            w.set_buffers(widget_buffer);
+            w.size();
+
+            let widget_scale = w.get_scale();
+            if widget_calculations::is_pos_contained_within_pos(self.pos, w.get_pos()) {
+                w.render(texture_manager, screen_data, game_event_manager);
+            }
+
+            offset += widget_scale[1] + self.internal_buffers[1] + self.internal_buffers[3];
+        }
+    }
+
     pub fn set_prefered_scale(&mut self, scale: f32) {
         self.prefered_scale[1] = scale;
 
@@ -84,6 +116,8 @@ impl ScrollPanel {
         }
         self.prefered_scale[0] = largest_widget_prefered_x_scale + 0.001;
     }
+
+
 }
 
 impl Widget for ScrollPanel {

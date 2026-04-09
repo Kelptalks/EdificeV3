@@ -1,19 +1,42 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc};
 
-use crate::game_data::{player_data::drone_programming::var::{self, game_vars::{dynamic_var::DynamicVar, game_var_type::GameVar, primitive_var::PrimitiveVar}, var_properties::{self, PropKey, PropValue, VarProperty}, var_type::{Var, VarTypeKind}}, screen::{widget::{self, drone_programming::vars::var_slot, panel::{panel::Panel, panel_texture_manager::PanelTextureManager}, prelude::{TabPanel, VarSlot}, scroll_panel::scroll_panel::ScrollPanel, tab_panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations}, widget_properties::{self, WidgetProperties}}, types::drone_item::DroneItem};
+use crate::game_data::{player_data::drone_programming::var::{self, game_vars::{dynamic_var::DynamicVar, game_var_type::GameVar, primitive_var::PrimitiveVar}, var_properties::{self, PropKey, PropValue, VarProperty}, var_type::{self, Var, VarTypeKind}}, screen::{widget::{self, drone_programming::vars::var_slot, panel::{panel::Panel, panel_texture_manager::PanelTextureManager}, prelude::{TabPanel, VarSlot}, scroll_panel::scroll_panel::ScrollPanel, tab_panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations}, widget_properties::{self, WidgetProperties}}, types::drone_item::DroneItem};
 
+
+pub struct PropWidgetPool {
+    pub mutable: HashMap<PropKey, Rc<RefCell<WidgetType>>>,
+    pub non_mutable: HashMap<PropKey, Rc<RefCell<WidgetType>>>,
+}
+
+impl PropWidgetPool {
+    pub fn new() -> PropWidgetPool {
+        PropWidgetPool {
+            mutable: HashMap::new(),
+            non_mutable: HashMap::new(),
+        }
+    }
+
+    pub fn create_widgets_for_all_keys(&mut self) {
+        let prop_keys = PropKey::get_all();
+        for key in prop_keys {
+            self.non_mutable.insert(key, Rc::new(RefCell::new(key.create_widget(false))));
+            self.mutable.insert(key, Rc::new(RefCell::new(key.create_widget(true))));      
+        }
+    }
+
+}
 
 pub struct VarTabPanel {
     widget_properties: WidgetProperties,
     
     var_ref: Rc<RefCell<Var>>,
     
-    
-    index_ref: Rc<RefCell<usize>>,
 
     var_slot: VarSlot,
     scroll_panel: ScrollPanel,
     panel_texture: PanelTextureManager,
+
+    widget_pool: PropWidgetPool, 
 }
 
 
@@ -25,23 +48,20 @@ impl VarTabPanel {
         
         let var_slot = VarSlot::new(var_ref);
 
-        let index_ref = Rc::new(RefCell::new(0));
-
-        let mut scroll_panel = ScrollPanel::new();
+        let scroll_panel = ScrollPanel::new();
 
         let mut var_tab_panel = VarTabPanel {
             widget_properties: WidgetProperties::new_blank(),
-
             var_ref: var_ref.clone(),
-
-
-            index_ref: index_ref.clone(),
-            
 
             var_slot: var_slot,
             scroll_panel,
             panel_texture: PanelTextureManager::new(),
+
+            widget_pool: PropWidgetPool::new(), 
         };
+
+        var_tab_panel.widget_pool.create_widgets_for_all_keys();
 
         var_tab_panel.widget_properties.internal_buffers = [0.01; 4];
         var_tab_panel.set_prefered_scale([0.5; 2]);
@@ -55,12 +75,25 @@ impl VarTabPanel {
 
 
 
-    fn get_widgets_for_var(&mut self) -> Vec<WidgetType>{
+    fn get_widgets_for_var(&self) -> Vec<Rc<RefCell<WidgetType>>>{
         let mut widgets = Vec::new();
         
         let var_properties = self.var_ref.borrow().get_properties();
         for prop in var_properties {
-            widgets.push(prop.into_widget());
+            
+            let widget_option;
+            if prop.mutible {
+                widget_option = self.widget_pool.mutable.get(&prop.key);
+            }
+            else {
+                widget_option = self.widget_pool.non_mutable.get(&prop.key);
+            }
+            
+            
+            if let Some(widget) = widget_option {
+                prop.value.update_widget(&mut widget.borrow_mut());
+                widgets.push(widget.clone());
+            } 
         }
 
         widgets
@@ -135,15 +168,18 @@ impl Widget for VarTabPanel {
         // Set tab index based off var type
         self.scroll_panel.clear_widgets();
         
-        let widgets = self.get_widgets_for_var();
-        self.scroll_panel.add_widgets(widgets);
+    
         
 
         texture_manager.render_ui_element_with_pos(crate::game_data::types::UITextures::VoidBackground, self.get_pos());
 
         self.panel_texture.render(texture_manager);
         self.var_slot.render(texture_manager, screen_data, game_event_manager);
-        self.scroll_panel.render(texture_manager, screen_data, game_event_manager);
+
+
+        let widgets = self.get_widgets_for_var();
+
+        self.scroll_panel.render_shared_widgets(&widgets, texture_manager, screen_data, game_event_manager);
 
 
         

@@ -55,9 +55,7 @@ impl DynamicVar {
                     let borrow = location.borrow();
                     vec![
                         VarProperty {key: PropKey::Name, value: PropValue::String(borrow.get_name().to_string()), mutible: true},
-                        VarProperty {key: PropKey::Id,   value: PropValue::Num(borrow.get_id() as i32), mutible: true},
-
-                        VarProperty {key: PropKey::Location, value: PropValue::Location(location.clone()), mutible: true},
+                        VarProperty {key: PropKey::Id,   value: PropValue::Num(borrow.get_id() as i32),           mutible: false},
                     ]
                 }
                 else {
@@ -73,7 +71,6 @@ impl DynamicVar {
                         VarProperty {key: PropKey::Name,            value: PropValue::String(borrow.get_name().to_string()),                    mutible: true},
                         VarProperty {key: PropKey::Id,              value: PropValue::Num(borrow.get_id() as i32),                              mutible: false},
 
-                        VarProperty {key: PropKey::Location,        value: PropValue::Location(borrow.get_location().clone()),                  mutible: false},
                         VarProperty {key: PropKey::Cords,           value: PropValue::Cords(borrow.get_cords()), mutible: false},
 
                         VarProperty {key: PropKey::Health,          value: PropValue::Num(borrow.get_chop_power() as i32),                      mutible: true},

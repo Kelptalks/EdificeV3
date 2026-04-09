@@ -53,6 +53,10 @@ impl TextDisplay {
         self.prefered_char_scale = size.get_scale();
     }
 
+    pub fn set_text(&mut self, text: String) {
+        *self.string_ref.borrow_mut() = text;
+    }
+
     pub fn size(&mut self) {
         self.pos = widget_calculations::buffer_pos(self.parent_pos, self.external_buffers);
         self.scale = widget_calculations::pos_to_scale(self.pos);

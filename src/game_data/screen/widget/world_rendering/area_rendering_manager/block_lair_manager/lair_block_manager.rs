@@ -118,7 +118,7 @@ impl LairBlockManager {
         }
         
         else {
-            eprintln!("Lair Mods Support is not implemented for Var {}", borrow.get_name());
+            // eprintln!("Lair Mods Support is not implemented for Var {}", borrow.get_name());
         }
     }
 

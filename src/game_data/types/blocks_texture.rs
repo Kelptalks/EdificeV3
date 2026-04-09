@@ -1,4 +1,4 @@
-use crate::game_data::types::{block_entity::EntityType, drone_item::DroneItem};
+use crate::game_data::{tik_manager::drones::drone_inventory::InventorySlot, types::{block_entity::EntityType, drone_item::DroneItem}};
 
 pub static TOTAL_BLOCKS: u32 = 400;
 
@@ -630,6 +630,15 @@ impl BlockTexture {
 
     pub fn item_quantity(&self) -> u32 {
         BLOCK_PROPERTIES[*self as usize].item_quantity
+    }
+
+    pub fn get_place_cost(&self) -> Vec<InventorySlot> {
+        let mut slot = InventorySlot::new();
+        
+        slot.set_item(self.item());
+        slot.set_quantity(self.item_quantity() as i32);
+
+        vec![slot]
     }
 
     pub fn get_total_blocks() -> u32 {
