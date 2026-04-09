@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::game_var_type::GameVar, var_properties::{PropKey, PropValue, VarProperty}, var_type::Var}, drones::drone::Drone, locations::location::WorldLocation}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::game_var_type::GameVar, var_properties::{PropKey, PropValue, VarPropRequest, VarProperty}, var_type::Var}, drones::drone::Drone, locations::location::WorldLocation}, texture_manager::texture::Texture, types::BlockTexture};
 
 
 #[derive(Clone)]
@@ -48,6 +48,10 @@ impl DynamicVar {
         }
     }
 
+    //=====================================
+    // Prop Managment
+    //=====================================
+
     pub fn get_properties(&self) -> Vec<VarProperty> {
         match self {
             DynamicVar::Location(location_option_ref) => {
@@ -86,6 +90,54 @@ impl DynamicVar {
                 else {
                     eprintln!("Cannot Accsess Properties of NULL drone var");
                     return Vec::new();
+                }
+            },
+        }
+    }
+
+
+    pub fn handle_location_prop_request(location: &mut Rc<RefCell<WorldLocation>>, request: VarPropRequest) {
+        match request {
+            VarPropRequest::Set(prop_key, prop_value) => {
+                match prop_key {
+                    PropKey::Name => {
+                        location.borrow_mut().set_name(prop_value.into_string());
+                    },
+                    _ => {
+                        eprintln!("set prop key {} not supported for location", prop_key.to_name());
+                    }
+                }
+        
+            },
+        }
+    }
+
+    pub fn handle_drone_prop_request(drone: &mut Rc<RefCell<Drone>>, request: VarPropRequest) {
+        match request {
+            VarPropRequest::Set(prop_key, prop_value) => {
+                match prop_key {
+                    PropKey::Name => {
+                        drone.borrow_mut().set_name(prop_value.into_string());
+                    },
+                    _ => {
+                        eprintln!("set prop key {} not supported for location", prop_key.to_name());
+                    }
+                }
+        
+            },
+        }
+    }
+
+    pub fn request_prop(&mut self, request: VarPropRequest) {
+        match self {
+            DynamicVar::Location(location_ref_option) => {
+                if let Some(location) = location_ref_option {
+                    Self::handle_location_prop_request(location, request)
+                }
+            },
+            DynamicVar::Drone(drone_ref_option) => {
+                if let Some(drone) = drone_ref_option {
+                    Self::handle_drone_prop_request(drone, request);
                 }
             },
         }

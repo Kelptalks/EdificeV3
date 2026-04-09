@@ -1,4 +1,4 @@
-use crate::game_data::{game_event_manager::widget_event_manager::play_view_events::PlayViewEvent, screen::{menu_constructors::play_view_menu::{new_play_view::RefManager, world_hot_bar::world_hot_bar}, widget::{panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, PlayWorldViewRender}, widget::WidgetType}}};
+use crate::game_data::{game_event_manager::{render_event_manager::render_event_manager::RenderEvent, widget_event_manager::play_view_events::PlayViewEvent}, screen::{menu_constructors::play_view_menu::{new_play_view::RefManager, world_hot_bar::world_hot_bar}, screen_data::CurrentMenu, widget::{panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, PlayWorldViewRender}, widget::WidgetType}}};
 
 use miniquad::KeyCode;
 
@@ -15,6 +15,8 @@ pub fn get_widget(ref_manager: &mut RefManager) -> WidgetType {
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
         panel.set_color(PanelColor::Clear);
+
+        panel.add_event(InputEvent::KeyDown(miniquad::KeyCode::M, vec![RenderEvent::ChangeMenu(CurrentMenu::MapView).wrap_into_event()]).wrap_into_event());
 
         let mut inputs = Vec::new();
         let mut play_view = PlayWorldViewRender::new(ref_manager.play_view_rendering_config.clone());

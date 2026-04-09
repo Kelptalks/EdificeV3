@@ -1,6 +1,6 @@
 use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc};
 
-use crate::game_data::{player_data::drone_programming::var::{self, game_vars::{dynamic_var::DynamicVar, game_var_type::GameVar, primitive_var::PrimitiveVar}, var_properties::{self, PropKey, PropValue, VarProperty}, var_type::{self, Var, VarTypeKind}}, screen::{widget::{self, drone_programming::vars::var_slot, panel::{panel::Panel, panel_texture_manager::PanelTextureManager}, prelude::{TabPanel, VarSlot}, scroll_panel::scroll_panel::ScrollPanel, tab_panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations}, widget_properties::{self, WidgetProperties}}, types::drone_item::DroneItem};
+use crate::game_data::{game_event_manager::{self, event_manager, player_data_event_manager::var_event_manager::var_events::VarEvents, prelude::{EventManager, PlayerDataEvent}}, player_data::drone_programming::var::{self, game_vars::{dynamic_var::DynamicVar, game_var_type::GameVar, primitive_var::PrimitiveVar}, var_properties::{self, PropKey, PropValue, VarProperty}, var_type::{self, Var, VarTypeKind}}, screen::{widget::{self, drone_programming::vars::var_slot, panel::{panel::Panel, panel_texture_manager::PanelTextureManager}, prelude::{TabPanel, VarSlot}, scroll_panel::scroll_panel::ScrollPanel, tab_panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations}, widget_properties::{self, WidgetProperties}}, types::drone_item::DroneItem};
 
 
 pub struct PropWidgetPool {
@@ -75,9 +75,9 @@ impl VarTabPanel {
 
 
 
-    fn get_widgets_for_var(&self) -> Vec<Rc<RefCell<WidgetType>>>{
+    fn get_widgets_for_var(&self, game_event_manager: &mut EventManager) -> Vec<Rc<RefCell<WidgetType>>>{
         let mut widgets = Vec::new();
-        
+
         let var_properties = self.var_ref.borrow().get_properties();
         for prop in var_properties {
             
@@ -91,7 +91,16 @@ impl VarTabPanel {
             
             
             if let Some(widget) = widget_option {
-                prop.value.update_widget(&mut widget.borrow_mut());
+                let requests = prop.value.update_widget(&mut widget.borrow_mut());
+
+                let mut events = Vec::new();
+                
+                for request in requests {
+                    events.push(VarEvents::RequestEvent(self.var_ref.clone(), request).wrap_into_event());
+                }   
+                
+                game_event_manager.add_events(&events);
+
                 widgets.push(widget.clone());
             } 
         }
@@ -177,7 +186,7 @@ impl Widget for VarTabPanel {
         self.var_slot.render(texture_manager, screen_data, game_event_manager);
 
 
-        let widgets = self.get_widgets_for_var();
+        let widgets = self.get_widgets_for_var(game_event_manager);
 
         self.scroll_panel.render_shared_widgets(&widgets, texture_manager, screen_data, game_event_manager);
 

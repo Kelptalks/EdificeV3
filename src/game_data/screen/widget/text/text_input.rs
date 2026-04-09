@@ -1,5 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
+use miniquad::KeyCode;
+
 use crate::game_data::{game_event_manager::prelude::{BoolEvent, Event, InputEvent, StringEvent, UsizeEvent}, screen::widget::{panel::panel_texture_manager::PanelTextureManager, text::{header::TextDisplay, text_input_event_constructor}, widget::{Widget, WidgetType}}, texture_manager::texture::Texture};
 
 pub struct TextInput {
@@ -23,7 +25,6 @@ impl TextInput {
     pub fn new_text_input(string_ref: &Rc<RefCell<String>>) -> TextInput {
 
         // Init text_display with max size for propper positioning
-        let max_string_size = string_ref.borrow().len();
         let mut text_display = TextDisplay::new(" ".to_string()); 
         text_display.set_string_ref(&string_ref.clone());
 
@@ -147,6 +148,10 @@ impl Widget for TextInput {
             let cursor_index = *self.current_index_ref.borrow();
             if string_len < cursor_index {
                 *self.current_index_ref.borrow_mut() = string_len;
+            }
+
+            if screen_data.get_input_manager().was_key_code_pressed(KeyCode::Escape) {
+                *self.focused_bool_ref.borrow_mut() = false;
             }
 
             texture_manager.render_texture_with_pos(Texture::UITexture(crate::game_data::types::UITextures::ButtonCircle), self.get_cursor_pos());

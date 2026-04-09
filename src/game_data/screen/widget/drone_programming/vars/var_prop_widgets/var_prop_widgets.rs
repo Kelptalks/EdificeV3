@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_programming::var::var_properties::PropValue, screen::widget::{drone_programming::vars::var_prop_widgets::text_display_prop_widget::TextDisplayPropWidget, widget::{Widget, WidgetType}}};
+use crate::game_data::{player_data::drone_programming::var::var_properties::{PropValue, VarPropRequest}, screen::widget::{drone_programming::vars::var_prop_widgets::text_display_prop_widget::TextDisplayPropWidget, widget::{Widget, WidgetType}}};
 
 pub enum VarPropVal {
     String(TextDisplayPropWidget),
@@ -9,10 +9,10 @@ pub enum VarPropVal {
 
 
 impl VarPropVal {
-    pub fn update_with_val(&mut self, val: PropValue) {
+    pub fn update_with_val(&mut self, val: PropValue) -> Vec<VarPropRequest>{
         match self {
             VarPropVal::String(string_prop_widget) => {
-                string_prop_widget.update_with_val(val);
+                string_prop_widget.update_with_val(val)
             },
         }
     }

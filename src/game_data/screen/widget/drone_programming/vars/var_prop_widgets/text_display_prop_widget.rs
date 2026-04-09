@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_programming::var::var_properties::{PropKey, PropValue}, screen::widget::{drone_programming::vars::var_prop_widgets::var_prop_widgets::VarPropVal, panel::panel::Panel, text::text_input::TextInput, widget::{Widget, WidgetType}}};
+use crate::game_data::{player_data::drone_programming::var::var_properties::{PropKey, PropValue, VarPropRequest}, screen::widget::{drone_programming::vars::var_prop_widgets::var_prop_widgets::VarPropVal, panel::panel::Panel, text::text_input::TextInput, widget::{Widget, WidgetType}}};
 
 pub struct TextDisplayPropWidget {
     
@@ -55,20 +55,24 @@ impl TextDisplayPropWidget {
     }
 
 
-    pub fn update_with_val(&mut self, val: PropValue) {
+    pub fn update_with_val(&mut self, val: PropValue) -> Vec<VarPropRequest> {
+        let mut prop_requests = Vec::new();
+        
         // Don't update if the text input is focused on
         if self.mutable {
             if let Some(focused) = &self.input_focused_ref {
                 if *focused.borrow() {
-                    return;
+                    prop_requests.push(VarPropRequest::Set(self.key, PropValue::String(self.string_ref.borrow().clone())));
+                    return prop_requests;
                 }
             }
         }
         
-        
+
         *self.string_ref.borrow_mut() = val.into_string();
         self.panel.size();
-        
+
+        return prop_requests;
     }
 
 
@@ -113,5 +117,8 @@ impl Widget for TextDisplayPropWidget {
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager
     ) {
         self.panel.render(texture_manager, screen_data, game_event_manager);
+
+
+
     }
 }

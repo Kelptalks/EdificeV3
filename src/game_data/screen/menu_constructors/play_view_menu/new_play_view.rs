@@ -75,7 +75,6 @@ impl PlayViewConstructionManager {
         let mut panel = WidgetType::new_panel(screen_data.get_viewport_uv(), [0.0; 4]);
 
         if let WidgetType::Panel(panel) = &mut panel {
-            panel.add_event(InputEvent::KeyDown(miniquad::KeyCode::M, vec![RenderEvent::ChangeMenu(CurrentMenu::MapView).wrap_into_event()]).wrap_into_event());
 
             panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::TopLeft);
             panel.set_color(PanelColor::Clear);

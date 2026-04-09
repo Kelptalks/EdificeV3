@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::{HashMap, btree_map::IterMut}, rc::Rc, thr
 
 use mlua::Value;
 
-use crate::game_data::{player_data::locations::location::WorldLocation, screen::widget::{self, drone_programming::vars::var_prop_widgets::text_display_prop_widget::TextDisplayPropWidget, panel::panel::Panel, text::{header::TextDisplay, text_input::TextInput}, widget::{Widget, WidgetType}}, tik_manager::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
+use crate::game_data::{game_event_manager::prelude::Event, player_data::locations::location::WorldLocation, screen::widget::{self, drone_programming::vars::var_prop_widgets::text_display_prop_widget::TextDisplayPropWidget, panel::panel::Panel, text::{header::TextDisplay, text_input::TextInput}, widget::{Widget, WidgetType}}, tik_manager::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
 
 
 
@@ -105,6 +105,7 @@ impl PropKey {
 
 }
 
+#[derive(Clone)]
 pub enum PropValue {
     // Prims
     String(String),
@@ -158,13 +159,13 @@ impl PropValue {
     }
 
 
-    pub fn update_widget(self, widget_type: &mut WidgetType) {
+    pub fn update_widget(self, widget_type: &mut WidgetType) -> Vec<VarPropRequest> {
         
         if let WidgetType::VarPropValWidget(widget) = widget_type {
-            widget.update_with_val(self);
+            widget.update_with_val(self)
         }
         else {
-            
+            Vec::new()
         }
     }
 }
@@ -180,3 +181,7 @@ impl VarProperty {
 }
 
 
+#[derive(Clone)]
+pub enum VarPropRequest {
+    Set(PropKey, PropValue)
+}

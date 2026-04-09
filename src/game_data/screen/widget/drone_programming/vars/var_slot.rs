@@ -94,12 +94,13 @@ impl VarSlot {
     fn try_and_set_var(&mut self, var_held_by_mouse: &Option<Rc<RefCell<Var>>>) {
         if self.allow_setting {
             if let Some(var_held_by_mouse) = var_held_by_mouse {
-                // Make sure the var held by mouse is not the same as this var
                 if var_held_by_mouse == &self.var_ref {
                     return;
                 }
-                else if var_held_by_mouse.borrow().to_kind() == self.var_type_kind_allowed {
-                    *self.var_ref.borrow_mut() = var_held_by_mouse.borrow().clone();
+                
+                let cloned = var_held_by_mouse.borrow().clone();
+                if cloned.to_kind() == self.var_type_kind_allowed {
+                    *self.var_ref.borrow_mut() = cloned;
                 }
             }
         }
@@ -160,13 +161,18 @@ impl Widget for VarSlot {
             let string = self.var_ref.borrow().get_name();
             let text_scale = widget_calculations::get_button_text_scale();
             let string_centering_offset = (string.len() as f32 * text_scale) / 2.0;
-            let string_ndc = [(self.pos[0] + self.scale[0] / 2.0) - string_centering_offset, self.pos[1] - text_scale];
+            
+
+            let string_ndc = [
+                (self.pos[0] + self.scale[0] / 2.0) - string_centering_offset, 
+                self.pos[1] + self.scale[1],
+                ];
 
             render_string_at_ndc(
                 texture_manager, 
                 string, 
                 crate::game_data::types::FontType::Basic, 
-                widget_calculations::get_button_text_scale(), 
+                widget_calculations::TextSize::ExtraSmall.get_scale(), 
                 string_ndc,
             );
     

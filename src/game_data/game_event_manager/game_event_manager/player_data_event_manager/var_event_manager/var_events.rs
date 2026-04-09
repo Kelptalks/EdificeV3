@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 
-use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, PlayerDataEvent}, locations::world_area_side::WorldAreaSide, player_data::{drone_programming::{function::function::Function, var::{self, game_vars::{dynamic_var::{self, DynamicVar}, game_var_type::GameVar}, var_type::Var}}, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::{drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}, locations::location::{self, WorldLocation}}};
+use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, PlayerDataEvent}, locations::world_area_side::WorldAreaSide, player_data::{drone_programming::{function::function::Function, var::{self, game_vars::{dynamic_var::{self, DynamicVar}, game_var_type::GameVar}, var_properties::VarPropRequest, var_type::Var}}, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::{drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}, locations::location::{self, WorldLocation}}};
 
 
 //=====================================
@@ -24,6 +24,8 @@ pub fn unpack_var_into_locaton(var_ref: &Rc<RefCell<Var>>) -> Option<Rc<RefCell<
 //=====================================
 #[derive(Clone)]
 pub enum VarEvents {
+    RequestEvent(Rc<RefCell<Var>>, VarPropRequest),
+    
     LocationVarEvent(Rc<RefCell<Var>>, LocationVarEvent),
     DroneVarEvent(Rc<RefCell<Var>>, DroneVarEvent),
     DynamicVarEvent(Rc<RefCell<Var>>, DynamicVarEvent),
@@ -43,6 +45,9 @@ impl VarEvents {
 
     pub fn execute(&self) {
         match self {
+            VarEvents::RequestEvent(ref_cell, request) => {
+                ref_cell.borrow_mut().request_prop(request.clone());
+            },
             VarEvents::LocationVarEvent(var_ref, location_var_event) => {
                 let location_option_ref = unpack_var_into_locaton(var_ref);
                 if let Some(location) = location_option_ref {
