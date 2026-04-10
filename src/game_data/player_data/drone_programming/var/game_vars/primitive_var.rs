@@ -162,13 +162,13 @@ impl PrimitiveVarTypeKind {
     pub fn get_texture(&self) -> Texture {
         match self {
             PrimitiveVarTypeKind::DroneItem => {
-                return Texture::DroneItemTexture(crate::game_data::types::DroneItemTexture::Ash)
+                Texture::UITexture(crate::game_data::types::UITextures::ItemVarIcon)
             },
             PrimitiveVarTypeKind::Block => {
-                return Texture::BlockTexture(BlockTexture::Selector)
+                Texture::UITexture(crate::game_data::types::UITextures::BlockVarIcon)
             },
             PrimitiveVarTypeKind::Cords => {
-                return Texture::BlockTexture(BlockTexture::Selector);
+                Texture::BlockTexture(BlockTexture::Selector)
             }
         }
     }

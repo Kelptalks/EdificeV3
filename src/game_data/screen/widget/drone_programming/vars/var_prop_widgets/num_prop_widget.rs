@@ -88,6 +88,14 @@ impl NumDisplayPropWidget {
         WidgetType::VarPropValWidget(VarPropVal::Num(self))
     }
 
+    pub fn get_root_mut_panel(&mut self) -> &mut Panel {
+        return &mut self.panel;
+    }
+
+    pub fn get_root_panel(&self) -> &Panel {
+        return &self.panel;
+    }
+
 }
 
 

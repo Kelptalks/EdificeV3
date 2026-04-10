@@ -77,45 +77,14 @@ impl TextDisplayPropWidget {
 
 
 
+    pub fn get_root_mut_panel(&mut self) -> &mut Panel {
+        return &mut self.panel
+    }
 
-
+    pub fn get_root_panel(&self) -> &Panel {
+        return &self.panel;
+    }
 
     
 }
 
-
-
-impl Widget for TextDisplayPropWidget {
-    fn get_pos(&self) -> [f32; 4] {
-        self.panel.get_pos()
-    }
-
-    fn get_scale(&self) -> [f32; 2] {
-        self.panel.get_scale()
-    }
-
-    fn get_preffered_scale(&self) -> [f32; 2] {
-        self.panel.get_preffered_scale()
-    }
-
-    fn set_buffers(&mut self, pos: [f32; 4]) {
-        self.panel.set_buffers(pos)
-    }
-
-    fn set_parent_pos(&mut self, pos: [f32; 4]) {
-        self.panel.set_parent_pos(pos);
-    }
-
-    fn size(&mut self) {
-        self.panel.size();
-    }
-
-    fn render(
-        &mut self,
-        texture_manager: &mut crate::game_data::TextureManager,
-        screen_data: &crate::game_data::screen::ScreenData,
-        game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager
-    ) {
-        self.panel.render(texture_manager, screen_data, game_event_manager);
-    }
-}

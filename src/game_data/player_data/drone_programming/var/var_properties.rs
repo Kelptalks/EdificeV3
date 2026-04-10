@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::{HashMap, btree_map::IterMut}, rc::Rc, thr
 
 use mlua::Value;
 
-use crate::game_data::{game_event_manager::prelude::Event, player_data::locations::location::WorldLocation, screen::widget::{self, drone_programming::vars::var_prop_widgets::{num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget}, panel::panel::Panel, text::{header::TextDisplay, text_input::TextInput}, widget::{Widget, WidgetType}}, tik_manager::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
+use crate::game_data::{game_event_manager::prelude::Event, player_data::locations::location::WorldLocation, screen::widget::{self, drone_programming::vars::var_prop_widgets::{invintory_display_prop_widget::InvintoryDisplayPropWidget, num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget}, panel::panel::Panel, text::{header::TextDisplay, text_input::TextInput}, widget::{Widget, WidgetType}}, tik_manager::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
 
 
 
@@ -124,6 +124,9 @@ impl PropValue {
         match self {
             PropValue::Num(_) => {
                 NumDisplayPropWidget::new(*prop_key, mutable).wrap_into_widget()
+            }
+            PropValue::Inventory(_) => {
+                InvintoryDisplayPropWidget::new(*prop_key, mutable).wrap_into_widget()
             }
             _ => {
                 TextDisplayPropWidget::new(*prop_key, mutable).wrap_into_widget()

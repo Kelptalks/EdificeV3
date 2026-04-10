@@ -1,6 +1,6 @@
 
 
-use crate::game_data::{player_data::drone_programming::var::{game_vars::game_var_type::{GameVar, GameVarTypeKind}, var_properties::{VarPropModRequest, VarProperty}}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::drone_programming::var::{game_vars::game_var_type::{GameVar, GameVarTypeKind}, var_properties::{VarPropModRequest, VarProperty}}, texture_manager::texture::Texture, types::BlockTexture};
 
 
 
@@ -26,7 +26,7 @@ impl VarTypeKind {
     pub fn get_texture(&self) -> Texture {
         match self {
             VarTypeKind::Any => {
-                return Texture::UITexture(crate::game_data::types::UITextures::ScallingIconMidCenter);
+                return Texture::BlockTexture(BlockTexture::Air);
             },
             VarTypeKind::Game(game_var_type_kind) => {
                 return game_var_type_kind.get_texture();
