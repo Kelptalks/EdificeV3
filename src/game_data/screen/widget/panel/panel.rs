@@ -62,7 +62,7 @@ impl Panel {
             // Parent Rendering
             parent_pos: parent_pos,
             parent_scale: [0.0; 2],
-            prefered_scale: [0.2; 2],
+            prefered_scale: [widget_calculations::get_button_scale(); 2],
 
             // Self Rendering
             external_buffers: buffers, 

@@ -151,7 +151,10 @@ impl Widget for VarSlot {
         game_event_manager: &mut EventManager
     ) {
         
-        texture_manager.render_texture_with_pos(self.var_type_kind_allowed.get_texture(), self.pos);
+        if self.allow_clearing {
+            texture_manager.render_texture_with_pos(self.var_type_kind_allowed.get_texture(), self.pos);
+        }
+        
         texture_manager.render_texture_with_pos(self.var_ref.borrow().get_texture(), self.pos);
 
         // Try and get var if mouse was released

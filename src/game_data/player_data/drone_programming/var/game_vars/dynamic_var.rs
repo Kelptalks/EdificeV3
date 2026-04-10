@@ -285,7 +285,7 @@ impl DynamicVarTypeKind {
     pub fn get_texture(&self) -> Texture {
         match self {
             DynamicVarTypeKind::Location => {
-                return Texture::UITexture(crate::game_data::types::UITextures::LocationIcon)
+                return Texture::UITexture(crate::game_data::types::UITextures::LocationVarIcon)
             },
             DynamicVarTypeKind::Drone => {
                 return Texture::BlockTexture(BlockTexture::DroneUpRight)

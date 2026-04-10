@@ -38,7 +38,7 @@ pub enum DroneItem {
     PurpleLog = 31,
     GoldOar = 32,
     GoldIngot = 33,
-    AirDrone = 34,
+    Null = 34,
 }
 
 #[derive(Copy, Clone)]
@@ -93,7 +93,7 @@ static ITEM_PROPERTIES: [DroneItemProperties; 35] = [
     DroneItemProperties { name: "Purple Log",       fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
     DroneItemProperties { name: "Gold Oar",         fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
     DroneItemProperties { name: "Gold Ingot",       fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
-    DroneItemProperties { name: "Air Drone",        fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
+    DroneItemProperties { name: "Null Item",        fuel_value: 0,   is_tool: false, mine_power: 1, chop_power: 1, is_craftable: false, craft_cost: &[],               craft_time: 0   },
 ];
 
 impl DroneItem {
@@ -137,7 +137,7 @@ impl DroneItem {
             31 => DroneItem::PurpleLog,
             32 => DroneItem::GoldOar,
             33 => DroneItem::GoldIngot,
-            34 => DroneItem::AirDrone,
+            34 => DroneItem::Null,
             _ => DroneItem::DroneChassis,
         }
     }

@@ -2,12 +2,12 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::game_data::{
     player_data::{
-        drone_programming::var::game_vars::primitive_var::PrimitiveVar, 
+        drone_programming::var::{game_vars::{game_var_type::GameVarTypeKind, primitive_var::PrimitiveVar}, var_type::VarTypeKind}, 
         player_data::PlayerData
     }, 
     screen::{
         ScreenData, 
-        menu_constructors::play_view_menu::{new_play_view::RefManager}, 
+        menu_constructors::play_view_menu::new_play_view::RefManager, 
         widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, 
         prelude::{PanelColor, TabPanel, VarSlot}, 
         selection_panel::selection_panel::SelectionPanel, 
@@ -43,6 +43,7 @@ fn get_block_selection_panel() -> WidgetType {
                     let var_ref = PrimitiveVar::construct_block_var_ref(block_type);
                     let mut var_slot = VarSlot::new(&var_ref);
                     var_slot.set_dragging_properties(true, false, false);
+                                        
                     row_panel.add_widget(var_slot.wrap_into_widget());
                     
                 }

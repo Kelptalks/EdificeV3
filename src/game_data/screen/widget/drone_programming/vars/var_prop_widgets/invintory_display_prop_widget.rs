@@ -1,6 +1,6 @@
 use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc};
 
-use crate::game_data::{player_data::drone_programming::var::{game_vars::primitive_var::PrimitiveVar, var_properties::{PropKey, PropValue, VarPropModRequest}}, screen::{ui_elements::panel, widget::{drone_programming::vars::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, text::header::TextDisplay, widget::{Widget, WidgetType}}}, types::drone_item::DroneItem};
+use crate::game_data::{player_data::drone_programming::var::{game_vars::{game_var_type::GameVarTypeKind, primitive_var::{PrimitiveVar, PrimitiveVarTypeKind}}, var_properties::{PropKey, PropValue, VarPropModRequest}, var_type::VarTypeKind}, screen::{ui_elements::panel, widget::{drone_programming::vars::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, text::header::TextDisplay, widget::{Widget, WidgetType}}}, types::drone_item::DroneItem};
 
 pub struct InvintoryDisplayPropWidget {
     mutable: bool,
@@ -11,8 +11,8 @@ pub struct InvintoryDisplayPropWidget {
 
 impl InvintoryDisplayPropWidget {
     pub fn new(key: PropKey, mutable: bool) -> InvintoryDisplayPropWidget {
-        let mut panel = Panel::new_blank();
-        
+        let panel = Panel::new_blank();
+
         
 
         InvintoryDisplayPropWidget {
@@ -39,7 +39,8 @@ impl InvintoryDisplayPropWidget {
 
         // Add item var slot
         let var = Rc::new(RefCell::new(PrimitiveVar::DroneItem(item).wrap_into_var()));
-        let var_slot = var_slot::VarSlot::new(&var);
+        let mut var_slot = var_slot::VarSlot::new(&var);
+        var_slot.set_dragging_properties(true, false, false);
         panel.add_widget(var_slot.wrap_into_widget());
 
         // add quantity text display
@@ -54,22 +55,42 @@ impl InvintoryDisplayPropWidget {
         pub fn update_with_val(&mut self, val: PropValue) -> Vec<VarPropModRequest> {
         let mut prop_requests = Vec::new();
         
+        // Create new panel
+        self.panel = Panel::new_blank();
+        self.panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+        self.panel.add_text_display(self.key.to_name());
         
+
+        let slots_per_row = 3;
+        let mut current_row_pos = 0;
+        let mut sub_panel = self.panel.add_sub_panel();
+
         if let PropValue::Inventory(slots) = val {
-            self.panel = Panel::new_blank();
             for slot in slots {
-                if let Some(item) = slot.get_item() {
-                    self.panel.add_widget(Self::get_item_slots_panel(item, slot.get_quantity()));
+                
+                // Create next row
+                if current_row_pos == slots_per_row {
+                    sub_panel = self.panel.add_sub_panel();
+                    current_row_pos = 0;
                 }
+                
+                if let Some(item) = slot.get_item() {
+                    sub_panel.add_widget(Self::get_item_slots_panel(item, slot.get_quantity()));
+                }
+                else {
+                    sub_panel.add_widget(Self::get_item_slots_panel(DroneItem::Null, slot.get_quantity()));
+                }
+                
+                current_row_pos += 1;
+
             }
         }
         else if let PropValue::ItemVec(items) = val {
-            self.panel = Panel::new_blank();
             for item in items {
                 self.panel.add_widget(Self::get_item_panel(item));
             }
         }
-
+        self.panel.size();
 
         return prop_requests;
     }

@@ -26,7 +26,7 @@ impl VarTypeKind {
     pub fn get_texture(&self) -> Texture {
         match self {
             VarTypeKind::Any => {
-                return Texture::BlockTexture(BlockTexture::Air);
+                return Texture::UITexture(crate::game_data::types::UITextures::AnyVarIcon);
             },
             VarTypeKind::Game(game_var_type_kind) => {
                 return game_var_type_kind.get_texture();

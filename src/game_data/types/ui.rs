@@ -129,6 +129,8 @@ pub const UI_TEXTURES: &[UITextureData] = &[
     UITextureData { id: 66, name: "ScallingIconBotCenter", rect: [112, 128, 16, 16], pressed_variant: None },
     UITextureData { id: 67, name: "ScallingIconBotRight",  rect: [128, 128, 16, 16], pressed_variant: None },
 
+    UITextureData { id: 68, name: "AnyVarIcon",       rect: self::get_icon_src_rect(14), pressed_variant: None },
+
 ];
 
 // Keep enum for type safety if you want
@@ -214,6 +216,7 @@ pub enum UITextures {
     ScallingIconBotLeft = 65,
     ScallingIconBotMid = 66,
     ScallingIconBotRight = 67,
+    AnyVarIcon = 68,
 }
 
 impl UITextures {
