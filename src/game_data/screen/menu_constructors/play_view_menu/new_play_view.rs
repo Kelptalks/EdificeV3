@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{prelude::{Event, GameEvent, InputEvent, UsizeEvent}, render_event_manager::render_event_manager::RenderEvent}, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{manager_panel, selection_panel, var_ref_hot_bar, world_view}, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, tab_panel::var_tab_panel::VarTabPanel, widget::WidgetType, world_rendering::rendering_config::play_world_view_config::PlayViewRenderingConfig}}};
+use crate::game_data::{game_event_manager::{prelude::{Event, GameEvent, InputEvent, UsizeEvent}, render_event_manager::render_event_manager::RenderEvent}, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{manager_panel, selection_panel, var_ref_hot_bar, world_view}, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, prelude::TabPanel, tab_panel::var_tab_panel::VarTabPanel, widget::WidgetType, world_rendering::rendering_config::play_world_view_config::PlayViewRenderingConfig}}};
 
 pub enum PlayViewMode {
     Main = 0,
@@ -81,16 +81,30 @@ impl PlayViewConstructionManager {
             panel.set_new_background(BackgroundType::Scrolling(crate::game_data::types::UITextures::VoidBackground));
 
 
+            // Play view 
             panel.add_widget(var_ref_hot_bar::get_widget(&mut self.ref_manager));
             panel.add_widget(world_view::get_widget(&mut self.ref_manager));
 
 
-            // panel.add_widget(manager_panel::manager_panel::get_widget(&mut self.ref_manager));
-            let mut tab_panel = VarTabPanel::new(&self.ref_manager.selected_var);
-            tab_panel.set_prefered_scale([0.55, 1.9]);
-            panel.add_widget(WidgetType::VarTabPanel(tab_panel));
+            // Manager Panel
+            let mut manager_tab_panel = TabPanel::new(&Rc::new(RefCell::new(0)));
             
+
+            // Var_Tab Panel Sub Widget
+            let mut var_tab_panel = VarTabPanel::new(&self.ref_manager.selected_var);
+            var_tab_panel.set_prefered_scale([0.55, 1.9]);
+            let var_tab_panel_button = manager_tab_panel.add_panel(WidgetType::VarTabPanel(var_tab_panel));
+            var_tab_panel_button.set_icon(crate::game_data::types::UITextures::AnyVarIcon);
+
+
+            panel.add_widget(manager_tab_panel.wrap_into_widget());
+
+
+            // Selection Panel
             panel.add_widget(selection_panel::selection_panel::get_var_managment_panel_widget(&mut self.ref_manager));
+
+
+            
 
             panel.size();
         }
