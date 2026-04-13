@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::{HashMap, btree_map::IterMut}, rc::Rc, thr
 
 use mlua::Value;
 
-use crate::game_data::{game_event_manager::prelude::Event, player_data::locations::location::WorldLocation, screen::widget::{self, drone_programming::vars::var_prop_widgets::{invintory_display_prop_widget::InvintoryDisplayPropWidget, num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget}, panel::panel::Panel, text::{header::TextDisplay, text_input::TextInput}, widget::{Widget, WidgetType}}, tik_manager::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
+use crate::game_data::{game_event_manager::prelude::Event, player_data::{drone_programming::{script::Script, var::var_type::Var}, locations::location::WorldLocation}, screen::widget::{self, drone_programming::vars::var_prop_widgets::{invintory_display_prop_widget::InvintoryDisplayPropWidget, num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget, var_prop_widget::VarPropWidget}, panel::panel::Panel, text::{header::TextDisplay, text_input::TextInput}, widget::{Widget, WidgetType}}, tik_manager::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
 
 
 
@@ -14,10 +14,10 @@ pub enum PropKey {
     Name,
     Id,
     
-
     // Dynamic
     Cords,
     InventorySlots,
+    Script,
 
     // Drones
     Health,
@@ -55,6 +55,7 @@ impl PropKey {
             PropKey::Translucent => "Translucent".to_string(),
             PropKey::Solid => "Solid".to_string(),
             PropKey::ItemValue => "Cost".to_string(),
+            PropKey::Script => "Script".to_string(),
         }
     }
 
@@ -75,6 +76,7 @@ impl PropKey {
             PropKey::Translucent => PropValue::Bool(false),
             PropKey::Solid => PropValue::Bool(false),
             PropKey::ItemValue => PropValue::Inventory(Vec::new()),
+            PropKey::Script => PropValue::Var(None),
         }
     }
 
@@ -95,6 +97,7 @@ impl PropKey {
             PropKey::Translucent,
             PropKey::Solid,
             PropKey::ItemValue,
+            PropKey::Script,
         ]
     }
 
@@ -114,7 +117,10 @@ pub enum PropValue {
     Bool(bool),
 
     ItemVec(Vec<DroneItem>),
-    Inventory(Vec<InventorySlot>)
+    Inventory(Vec<InventorySlot>),
+
+
+    Var(Option<Rc<RefCell<Var>>>)
 }
 
 impl PropValue {
@@ -127,6 +133,9 @@ impl PropValue {
             }
             PropValue::Inventory(_) => {
                 InvintoryDisplayPropWidget::new(*prop_key, mutable).wrap_into_widget()
+            }
+            PropValue::Var(_) => {
+                VarPropWidget::new(*prop_key, mutable).wrap_into_widget()
             }
             _ => {
                 TextDisplayPropWidget::new(*prop_key, mutable).wrap_into_widget()
@@ -171,6 +180,25 @@ impl PropValue {
                 }
                 string
             },
+            PropValue::Var(script_ref_option) => {
+                if let Some(script_ref) = script_ref_option {
+                    format!("Script: {}", script_ref.borrow().get_name())
+                }
+                else {
+                    "Null Script".to_string()
+                }
+            }
+        }
+    }
+
+    pub fn into_var(&self) -> &Option<Rc<RefCell<Var>>> {
+        match self {
+            PropValue::Var(var) => {
+                return var
+            }
+            _ => {
+                &None
+            }
         }
     }
 

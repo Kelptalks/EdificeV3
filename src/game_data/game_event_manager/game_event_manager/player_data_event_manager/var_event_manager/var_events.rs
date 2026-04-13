@@ -141,9 +141,7 @@ impl DroneVarEvent {
             DroneVarEvent::ExecuteActionEvent(function_ref) => {
                 let constructed_action = function_ref.borrow_mut().into_drone_action();
                 println!("Adding Action ({}) To Drone ({})", constructed_action.get_name(), drone.borrow().get_name());
-
-
-                drone.borrow_mut().add_action(constructed_action);
+                eprintln!("Event No longer used");
             }
         }
     }

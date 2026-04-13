@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::prelude::{EventManager, WorldEvent}, player_data::{drone_programming::var::{game_vars::primitive_var::PrimitiveVar, var_type::Var}, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::drone_prim_actions::DronePrimAction}}}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::prelude::{EventManager, WorldEvent}, player_data::{drone_programming::{function::function_return_value::{ErrorCode, FunctionReturnValue}, var::{game_vars::primitive_var::PrimitiveVar, var_type::Var}}, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, prim_actions::drone_prim_actions::DronePrimAction}}}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod, types::BlockTexture};
 
 #[derive(Clone)]
 pub enum DroneWorldAction {
@@ -16,7 +16,7 @@ impl From<DroneWorldAction> for DroneAction {
 }
 
 impl DroneWorldAction {
-    pub fn execute(&self, drone: &mut Drone, world: &World, event_manager: &mut EventManager) -> u32 {
+    pub fn execute(&self, drone: &mut Drone, world: &World, event_manager: &mut EventManager) -> FunctionReturnValue {
         match self {
             DroneWorldAction::MoveDrone(relative_cords) => {
                 move_drone(drone, world, *relative_cords, event_manager)     
@@ -108,23 +108,23 @@ impl DroneWorldAction {
 // Error Codes
 // Tryed to move into solid block
 // 
-fn move_drone(drone: &mut Drone, world: &World, relative_cords: [i32; 3], event_manager: &mut EventManager) -> u32 {
+fn move_drone(drone: &mut Drone, world: &World, relative_cords: [i32; 3], event_manager: &mut EventManager) -> FunctionReturnValue {
     if drone.is_busy() {
-        return 1;
+        return DroneActionError::Busy.wrap();
     }
 
     // Prevent x, y axis diagonal movement.
     if (relative_cords[0].abs() + relative_cords[1].abs()) > 1 {
-        return 4;
+        return DroneActionError::OutOfRange.wrap();
     }
 
     // Prevent diagonal z movement if there is a block above the drone
-    if relative_cords[1] == 1 {
+    if relative_cords[2] == 1 {
         // Get block above drone
         let world_cords = drone.get_relative_world_cords([0, 0, 1]);
         let block_type_of_new_location = BlockTexture::from_id(world.get_world_value(world_cords));
         if block_type_of_new_location.is_solid() {
-            return 3;
+            return DroneActionError::BlockInWay.wrap();
         }
     }
 
@@ -140,7 +140,7 @@ fn move_drone(drone: &mut Drone, world: &World, relative_cords: [i32; 3], event_
 
             // Don't allow movement if falling
             if !BlockTexture::is_solid(&block_below_drone) {
-                return 3;
+                return DroneActionError::Falling.wrap();
             }
 
             drone.set_direction(Drone::relative_move_cords_to_direction(relative_cords));
@@ -159,20 +159,20 @@ fn move_drone(drone: &mut Drone, world: &World, relative_cords: [i32; 3], event_
             drone.add_busy_time(block_below_drone.friction() as u32);
             drone.set_moved(true);
 
-            return 0;
+            return FunctionReturnValue::Ok();
         }
         else {
-            return 4;
+            return DroneActionError::BlockInWay.wrap();
         }
     }
-    return 2;
+    return DroneActionError::OutOfRange.wrap();
 }
 
 // Mine a block relative to the drone | Error 1 = is busy | Error 2 = Cords out of range
-fn mine_block(drone: &mut Drone, relative_cords: [i32; 3], world: &World, event_manager: &mut EventManager) -> u32 {
+fn mine_block(drone: &mut Drone, relative_cords: [i32; 3], world: &World, event_manager: &mut EventManager) -> FunctionReturnValue {
     if drone.is_busy() {
         println!("Drone {} cannot mine because busy", drone.get_id());
-        return 1;
+        return DroneActionError::Busy.wrap();
     }
 
     // check if scan is in mine range
@@ -188,10 +188,10 @@ fn mine_block(drone: &mut Drone, relative_cords: [i32; 3], world: &World, event_
 
         // Add block to inventory
         drone.get_mut_inventory().add_item(block_to_mine.item(), block_to_mine.item_quantity() as i32);
-        return 0;
+        return FunctionReturnValue::Ok();
     }
 
-    return 2;
+    return DroneActionError::OutOfRange.wrap();
 }
 
 /// Place a block relative to the drone
@@ -203,9 +203,9 @@ fn mine_block(drone: &mut Drone, relative_cords: [i32; 3], world: &World, event_
 ///     - Error 4 = Cannot place block as solid block is in the way
 ///     - Error 5 = Cannot piller with block type
 ///
-fn place_block(drone: &mut Drone, world: &World, event_manager: &mut EventManager, relative_cords: [i32; 3], block: BlockTexture) -> u32 {
+fn place_block(drone: &mut Drone, world: &World, event_manager: &mut EventManager, relative_cords: [i32; 3], block: BlockTexture) -> FunctionReturnValue {
     if drone.is_busy() {
-        return 1;
+        return DroneActionError::Busy.wrap();
     }
 
     if Drone::if_cords_within_range(relative_cords, 1) {
@@ -220,23 +220,23 @@ fn place_block(drone: &mut Drone, world: &World, event_manager: &mut EventManage
                     move_drone(drone, world, [0, 0, 1], event_manager);
                 }
                 else {
-                    return 5
+                    return DroneActionError::CannotPiller.wrap()
                 }
             }
             else {
-                return 4
+                return DroneActionError::BlockInWay.wrap()
             }
         }
 
         // Remove the requried item from the invintory
         if !drone.get_mut_inventory().remove_item(block.item(), block.item_quantity() as i32) {
-            return 3;
+            return DroneActionError::MissingItem.wrap();
         }
 
         // Set the block
         event_manager.add_event(WorldEvent::ModBlock(world_cords, block).wrap_into_event());
 
-        return 0;
+        return FunctionReturnValue::Ok();
     }
-    return 2;
+    return DroneActionError::OutOfRange.wrap();
 }

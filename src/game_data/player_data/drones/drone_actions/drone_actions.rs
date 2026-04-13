@@ -1,6 +1,50 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_programming::var::var_type::Var, drones::{drone::Drone, drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, prim_actions::drone_prim_actions::DronePrimAction}}}};
+use crate::game_data::{
+    World, 
+    game_event_manager::prelude::EventManager, 
+    player_data::{
+        drone_programming::{
+            function::function_return_value::{ErrorCode, FunctionReturnValue}, 
+            var::var_type::Var
+        }, 
+        drones::{
+            drone::Drone, 
+            drone_actions::{advanced_actions::advanced_drone_actions::{DroneAdvancedAction}, prim_actions::drone_prim_actions::DronePrimAction}}}};
+
+#[derive(Clone)]
+pub enum DroneActionError {
+    Busy,
+    FailedToPath,
+    OutOfRange,
+    BlockInWay,
+    Falling,
+    CannotPiller,
+    MissingItem,
+    UncraftableItem,
+    MissingSlot,
+}
+
+
+impl DroneActionError {
+    pub fn wrap(self) -> FunctionReturnValue {
+        FunctionReturnValue::Fail(ErrorCode::DroneActionError(self))
+    }
+
+    pub fn to_string(&self) -> String {
+        match self {
+            DroneActionError::Busy => "busy".to_string(),
+            DroneActionError::FailedToPath => "FailedToPath".to_string(),
+            DroneActionError::OutOfRange => "OutOfRange".to_string(),
+            DroneActionError::BlockInWay => "BlockInWay".to_string(),
+            DroneActionError::Falling => "Falling".to_string(),
+            DroneActionError::CannotPiller => "CannotPiller".to_string(),
+            DroneActionError::MissingItem => "MissingItem".to_string(),
+            DroneActionError::UncraftableItem => "UncraftableItem".to_string(),
+            DroneActionError::MissingSlot => "MissingSlot".to_string(),
+        }
+    }
+}
 
 #[derive(Clone)]
 pub enum DroneAction {
@@ -9,7 +53,7 @@ pub enum DroneAction {
 }
 
 impl DroneAction {
-    pub fn execute(&self, drone: &mut Drone, world: &World, event_manager: &mut EventManager) -> u32 {
+    pub fn execute(&self, drone: &mut Drone, world: &World, event_manager: &mut EventManager) -> FunctionReturnValue {
         match self {
             DroneAction::PrimAction(drone_prim_action) => {
                 return drone_prim_action.execute(drone, world, event_manager);

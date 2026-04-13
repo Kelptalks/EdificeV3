@@ -106,7 +106,8 @@ impl Widget for ScriptingPanel {
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager
     ) {
 
-        self.size();
+        
+
         if screen_data.mouse_on_ndc_pos(self.get_pos()) {
             // Add var
             if screen_data.was_left_released() {
@@ -125,9 +126,7 @@ impl Widget for ScriptingPanel {
 
             let elements = &*borrow.get_elements();
 
-            for element in elements {
-                let string = format!("Element: {}", element.get_name());
-                
+            for element in elements {                
                 if let ScriptElement::Function(funciton) = element {
                     let function_slot = FunctionSlot::new_with_function_ref(funciton.clone());
                     self.scroll_panel.add_widget(function_slot.wrap_into_widget());
@@ -136,6 +135,7 @@ impl Widget for ScriptingPanel {
             }
         }
 
+        self.size();
 
         self.panel.render(texture_manager, screen_data, game_event_manager);
         self.scroll_panel.render(texture_manager, screen_data, game_event_manager);

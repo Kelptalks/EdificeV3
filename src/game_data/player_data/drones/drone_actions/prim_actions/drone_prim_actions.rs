@@ -1,6 +1,11 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_programming::var::var_type::Var, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::{drone_invintory_actions::DroneInventoryAction, drone_world_actions::DroneWorldAction}}}}};
+use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_programming::{function::{function::Function, function_return_value::FunctionReturnValue}, var::var_type::Var}, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::{drone_invintory_actions::DroneInventoryAction, drone_world_actions::DroneWorldAction}}}}};
+
+
+pub enum DroneFunctionError {
+    
+}
 
 #[derive(Clone)]
 pub enum DronePrimAction {
@@ -13,7 +18,7 @@ impl DronePrimAction {
     //=====================================
     // Execution
     //=====================================
-    pub fn execute(&self, drone: &mut Drone, world: &World, event_manager: &mut EventManager) -> u32 {
+    pub fn execute(&self, drone: &mut Drone, world: &World, event_manager: &mut EventManager) -> FunctionReturnValue {
         match self {
             DronePrimAction::DroneWorldAction(drone_world_action) => {
                 return drone_world_action.execute(drone, world, event_manager)

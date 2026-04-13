@@ -1,4 +1,4 @@
-use crate::game_data::player_data::drone_programming::{function::function::Function, script_element::ScriptElement};
+use crate::game_data::player_data::{drone_programming::{function::function::Function, script_element::ScriptElement}, drones::drone_actions::drone_actions::DroneAction};
 
 
 
@@ -34,6 +34,21 @@ impl Script {
 
     pub fn add_function(&mut self, index: usize, function: Function) {
         self.elements.insert(index, ScriptElement::Function(function));
+    }
+
+
+    pub fn tik(&mut self) -> Vec<DroneAction> {
+        let mut drone_actions = Vec::new();
+
+        for element in &mut self.elements {
+            if let ScriptElement::Function(function) = element {
+                drone_actions.push(function.into_drone_action());
+            }
+        }
+
+        println!("tiking");
+
+        return drone_actions;
     }
 }
 

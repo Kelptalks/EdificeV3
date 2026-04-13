@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 
-use crate::game_data::{TextureManager, game_event_manager::{event_manager::EventManager, game_event_manager::game_event_manager::GameEvent, prelude::{BoolEvent, Event}, widget_event_manager::widget_event_manager::WidgetEvent}, screen::{ScreenData, widget::{button::button::Button, widget::Widget, widget_calculations}}, types::{BlockTexture, UITextures}};
+use crate::game_data::{TextureManager, game_event_manager::{event_manager::EventManager, game_event_manager::game_event_manager::GameEvent, prelude::{BoolEvent, Event}, widget_event_manager::widget_event_manager::WidgetEvent}, screen::{ScreenData, widget::{button::button::Button, widget::{Widget, WidgetType}, widget_calculations}}, types::{BlockTexture, UITextures}};
 
 pub struct ToggleButton {
     // Input handling
@@ -44,6 +44,10 @@ impl ToggleButton {
         toggle_button.size();
 
         return toggle_button;
+    }
+
+    pub fn wrap_into_widget(self) -> WidgetType {
+        WidgetType::ToggleButton(self)
     }
 
     pub fn set_text_scale(&mut self, size: widget_calculations::TextSize) {

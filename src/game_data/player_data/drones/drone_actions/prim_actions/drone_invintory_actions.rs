@@ -1,6 +1,6 @@
 use std::{cell::RefCell, fmt::format, rc::Rc};
 
-use crate::game_data::{player_data::{drone_programming::var::{game_vars::primitive_var::PrimitiveVar, var_type::Var}, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::drone_prim_actions::DronePrimAction}}}, types::drone_item::DroneItem};
+use crate::game_data::{player_data::{drone_programming::{function::function_return_value::FunctionReturnValue, var::{game_vars::primitive_var::PrimitiveVar, var_type::Var}}, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, prim_actions::drone_prim_actions::DronePrimAction}}}, types::drone_item::DroneItem};
 
 #[derive(Clone)]
 pub enum DroneInventoryAction {
@@ -16,7 +16,7 @@ impl From<DroneInventoryAction> for DroneAction {
 }
 
 impl DroneInventoryAction {
-    pub fn execute(&self, drone: &mut Drone) -> u32 {
+    pub fn execute(&self, drone: &mut Drone) -> FunctionReturnValue {
         match self {
             DroneInventoryAction::CraftItem(drone_item) => {
                 craft_item(drone, *drone_item)
@@ -109,9 +109,9 @@ impl DroneInventoryAction {
 
 
 // Craft an item | Error 1 = is busy | Error 2 = Missing item | Error 3 = Item not craftable
-fn craft_item(drone: &mut Drone, drone_item: DroneItem) -> u32 {
+fn craft_item(drone: &mut Drone, drone_item: DroneItem) -> FunctionReturnValue {
     if drone.is_busy() {
-        return 1;
+        return DroneActionError::Busy.wrap()
     }
     
     if drone_item.is_craftable() {
@@ -122,7 +122,7 @@ fn craft_item(drone: &mut Drone, drone_item: DroneItem) -> u32 {
             let item_type = slot.get_item().unwrap();
             let item_quantity = slot.get_quantity();
             if !drone.get_inventory().has_item(item_type, item_quantity) {
-                return 2;
+                return DroneActionError::MissingItem.wrap()
             }
         }
 
@@ -131,26 +131,30 @@ fn craft_item(drone: &mut Drone, drone_item: DroneItem) -> u32 {
             let item_type = slot.get_item().unwrap();
             let item_quantity = slot.get_quantity();
             if !drone.get_mut_inventory().remove_item(item_type, item_quantity) {
-                return 1;
+                return DroneActionError::MissingItem.wrap();
             }
         }
 
         // Add busy time and craft item
         drone.add_busy_time(drone_item.get_craft_time());
         drone.get_mut_inventory().add_item(drone_item, 1);
+        
+        return FunctionReturnValue::Ok()
     }
+    else {
 
-    return 3;
+        return DroneActionError::UncraftableItem.wrap();
+    }
 }
 
 // Use an item for fuel | Error 1 = missing item
-fn use_item_for_fuel(drone: &mut Drone, drone_item: DroneItem, quantity: i32) -> u32{
+fn use_item_for_fuel(drone: &mut Drone, drone_item: DroneItem, quantity: i32) -> FunctionReturnValue{
     if drone.get_mut_inventory().remove_item(drone_item, quantity) {
         drone.add_fuel(drone_item.to_fuel_value() * quantity as u32);
-        return 0;
+        return FunctionReturnValue::Ok();
     }
     else {
-        return 1;
+        return DroneActionError::MissingItem.wrap();
     }
 }
 
@@ -170,16 +174,16 @@ fn update_drone_stats(drone: &mut Drone) {
 }
 
 // Equip a tool
-fn equip_tool(drone: &mut Drone, drone_item: DroneItem) -> u32 {
+fn equip_tool(drone: &mut Drone, drone_item: DroneItem) -> FunctionReturnValue {
     for tool_index in 0..drone.get_tools().len() {
         if drone.get_tools()[tool_index].is_none() {
             if drone.get_mut_inventory().remove_item(drone_item, 1) {
                 drone.get_tools()[tool_index] = Some(drone_item);
                 update_drone_stats(drone); // Update the drones stats after tool change
-                return 0;
+                return FunctionReturnValue::Ok();
             }
-            return 1;
+            return DroneActionError::MissingItem.wrap();
         }
     }
-    return 2;
+    return DroneActionError::MissingSlot.wrap();
 }

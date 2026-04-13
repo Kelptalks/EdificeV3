@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_programming::var::{game_vars::game_var_type::GameVar, var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::Var}, drones::drone::Drone, locations::location::WorldLocation}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_programming::var::{self, game_vars::game_var_type::GameVar, programming_vars::programming_var::ProgrammingVar, var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::Var}, drones::drone::Drone, locations::location::WorldLocation}, texture_manager::texture::Texture, types::BlockTexture};
 
 
 #[derive(Clone)]
@@ -84,6 +84,17 @@ impl DynamicVar {
                         
                         VarProperty {key: PropKey::MinePower,       value: PropValue::Num(borrow.get_mine_power() as i32),                      mutible: false},
                         VarProperty {key: PropKey::ChopPower,       value: PropValue::Num(borrow.get_chop_power() as i32),                      mutible: false},
+
+                        VarProperty {
+                            key: PropKey::Script,          
+                            value: PropValue::Var(
+                                match borrow.get_script() {
+                                    Some(script) => Some(ProgrammingVar::construct_script_var(script)),
+                                    None => None,
+                                }
+                            ),                              
+                            mutible: true
+                        },
                     ]
                     
                 }
@@ -139,6 +150,16 @@ impl DynamicVar {
                         if num > 0 {
                             drone.borrow_mut().set_busy(num as u32);
                         }
+                    }
+                    PropKey::Script => {
+                        let var_ref_option = prop_value.into_var();
+                        if let Some(var_ref) = var_ref_option {
+                            let borrow = var_ref.borrow();
+                            if let Var::ProgrammingVar(ProgrammingVar::Script(script)) = &*borrow {
+                                drone.borrow_mut().set_script(Some(script.clone()));
+                            }
+                        }
+                        
                     }
                     _ => {
                         eprintln!("set prop key {} not supported for drone", prop_key.to_name());

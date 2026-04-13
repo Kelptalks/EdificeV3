@@ -1,11 +1,12 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_programming::var::var_properties::{PropValue, VarPropModRequest}, screen::widget::{drone_programming::vars::var_prop_widgets::{invintory_display_prop_widget::InvintoryDisplayPropWidget, num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget}, panel::panel::Panel, widget::{Widget, WidgetType}}};
+use crate::game_data::{player_data::drone_programming::var::var_properties::{PropValue, VarPropModRequest}, screen::widget::{drone_programming::vars::var_prop_widgets::{invintory_display_prop_widget::InvintoryDisplayPropWidget, num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget, var_prop_widget::VarPropWidget}, panel::panel::Panel, widget::{Widget, WidgetType}}};
 
 pub enum VarPropVal {
     String(TextDisplayPropWidget),
     Num(NumDisplayPropWidget),
     Invintory(InvintoryDisplayPropWidget),
+    Var(VarPropWidget)
 }
 
 
@@ -16,7 +17,8 @@ impl VarPropVal {
                 string_prop_widget.update_with_val(val)
             },
             VarPropVal::Num(w) => w.update_with_val(val),
-            VarPropVal::Invintory(w) => w.update_with_val(val)
+            VarPropVal::Invintory(w) => w.update_with_val(val),
+            VarPropVal::Var(w) => w.update_with_val(val),
         }
     }
 
@@ -25,6 +27,7 @@ impl VarPropVal {
             VarPropVal::String(w) => w.get_root_mut_panel(),
             VarPropVal::Num(w) => w.get_root_mut_panel(),
             VarPropVal::Invintory(w) => w.get_root_mut_panel(),
+            VarPropVal::Var(w) => w.get_root_mut_panel(),
         }
     }
 
@@ -33,6 +36,7 @@ impl VarPropVal {
             VarPropVal::String(w) => w.get_root_panel(),
             VarPropVal::Num(w) => w.get_root_panel(),
             VarPropVal::Invintory(w) => w.get_root_panel(),
+            VarPropVal::Var(w) => w.get_root_panel(),
         }
     }
 }

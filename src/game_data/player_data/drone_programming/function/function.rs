@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::{drone_programming::var::var_type::Var, drones::drone_actions::{drone_actions::DroneAction, prim_actions::{drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}, screen::{camera_controls, widget::prelude::VarSlot}};
+use crate::game_data::{player_data::{drone_programming::{function::function_return_value::FunctionReturnValue, var::var_type::Var}, drones::drone_actions::{drone_actions::DroneAction, prim_actions::{drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}, screen::{camera_controls, widget::prelude::VarSlot}};
 
 #[derive(Clone)]
 pub struct Function {
@@ -8,7 +8,8 @@ pub struct Function {
     
     action: DroneAction,
 
-    return_var: Option<Rc<RefCell<Var>>>,
+    return_value: Option<FunctionReturnValue>,
+
 }
 
 impl PartialEq for Function {
@@ -19,14 +20,13 @@ impl PartialEq for Function {
 }
 
 impl Function {
-
     pub fn new_blank() -> Function {
         Function {
             params: Vec::new(),
             
             action: DroneWorldAction::MoveDrone([0, 0, 0]).wrap_into_action(),
 
-            return_var: None,
+            return_value: None,
         }
     }
 
@@ -37,7 +37,7 @@ impl Function {
             
             action,
 
-            return_var: None,
+            return_value: None,
         }
     }
 
@@ -52,8 +52,8 @@ impl Function {
         return constructed_action;
     }
 
-    pub fn get_return_var(&self) -> &Option<Rc<RefCell<Var>>> {
-        &self.return_var
+    pub fn get_return_value(&self) -> &Option<FunctionReturnValue> {
+        &self.return_value
     }
 
 

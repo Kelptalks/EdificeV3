@@ -1,18 +1,15 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, drones::{drone::Drone, drone_actions::{advanced_actions::path_planner::plan_path_to_cords, drone_actions::DroneAction}}, locations::location::WorldLocation}};
+use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_programming::{function::function_return_value::{ErrorCode, FunctionReturnValue}, var::{game_vars::dynamic_var::DynamicVar, var_type::Var}}, drones::{drone::Drone, drone_actions::{advanced_actions::path_planner::plan_path_to_cords, drone_actions::{DroneAction, DroneActionError}}}, locations::location::WorldLocation}};
 
 
 #[derive(Clone)]
 pub enum DroneAdvancedAction {
     PathToLocation(Option<Rc<RefCell<WorldLocation>>>),
-
-
-
 }
 
 impl DroneAdvancedAction {
-    pub fn execute(&self, drone: &mut Drone, world: &World) -> u32{
+    pub fn execute(&self, drone: &mut Drone, world: &World) -> FunctionReturnValue {
         match self {
             DroneAdvancedAction::PathToLocation(location_ref_option) => {
                 if let Some(location_ref) = location_ref_option {
@@ -21,7 +18,7 @@ impl DroneAdvancedAction {
                 }
                 else {
                     eprintln!("Drone({}) cannot plan path to NULL Location", drone.get_id());
-                    return 1;
+                    return DroneActionError::FailedToPath.wrap();
                 }
                 
             }
