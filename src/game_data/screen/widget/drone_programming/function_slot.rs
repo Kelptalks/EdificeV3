@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::{drone_programming::function::function::Function, drones::drone_actions::drone_actions::DroneAction}, screen::widget::{panel::panel::Panel, prelude::VarSlot, widget::{Widget, WidgetType}}};
+use crate::game_data::{player_data::{drone_programming::function::function::Function, drones::drone_actions::drone_actions::DroneAction}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, widget::{Widget, WidgetType}, widget_calculations::TextSize}};
 
 
 
@@ -11,20 +11,26 @@ pub struct FunctionSlot {
 }
 
 impl FunctionSlot {
-    pub fn new(drone_action_type: DroneAction) -> FunctionSlot {
-        let mut panel = Panel::new([0.0; 4], [0.0; 4]);
-        let function=  Function::new_from_drone_action(drone_action_type);
-        
+
+    pub fn new_with_function_ref(function: Function) -> FunctionSlot {
+        let mut panel = Panel::new_blank();
+        panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
+
+        panel.add_text_display(function.get_name()).set_text_scale(TextSize::ExtraSmall);
+
+        let param_sub_panel = panel.add_sub_panel();
         // Constuct var slots
         for var in function.get_params() {
             let mut var_slot = VarSlot::new(var);
             var_slot.set_allowed_type(var.borrow().to_kind());
-            panel.add_widget(var_slot.wrap_into_widget());
+            param_sub_panel.add_widget(var_slot.wrap_into_widget());
         }
+
         panel.size();
 
+
         FunctionSlot {
-            panel: panel,
+            panel: panel, 
             function: Rc::new(RefCell::new(function)),
         }
     }

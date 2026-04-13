@@ -79,7 +79,7 @@ impl Var {
     pub fn clear(&mut self) {
         match self {
             Var::Game(game_var) => {game_var.clear()},
-            Var::ProgrammingVar(programming_var) => {todo!()}
+            Var::ProgrammingVar(programming_var) => {programming_var.clear();}
         }
     }
 

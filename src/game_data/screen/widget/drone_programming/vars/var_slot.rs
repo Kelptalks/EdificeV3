@@ -1,6 +1,6 @@
-use std::{cell::{Ref, RefCell}, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::EventManager, player_data::drone_programming::var::{game_vars::{game_var_type::GameVar, primitive_var::PrimitiveVar}, var_type::{Var, VarTypeKind}}, screen::{ScreenData, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations}}, types::drone_item::DroneItem};
+use crate::game_data::{game_event_manager::prelude::EventManager, player_data::drone_programming::var::var_type::{Var, VarTypeKind}, screen::{ScreenData, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations}}};
 
 
 
@@ -193,7 +193,7 @@ impl Widget for VarSlot {
 
             // Clear
             if self.allow_setting && screen_data.was_right_pressed() {
-                self.var_ref = Rc::new(RefCell::new(PrimitiveVar::DroneItem(DroneItem::Null).wrap_into_var()));
+                self.var_ref.borrow_mut().clear();
             }
         }
     }

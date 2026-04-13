@@ -6,7 +6,7 @@ use crate::game_data::{player_data::drone_programming::{condition::condition::Co
 
 #[derive(Clone, PartialEq)]
 pub enum ProgrammingVar {
-    Script(Script),
+    Script(Rc<RefCell<Script>>),
     Function(Function),
     Condition(Condition),
 }
@@ -34,9 +34,17 @@ impl ProgrammingVar {
 
     pub fn get_name(&self) -> String {
         match self {
-            ProgrammingVar::Script(script) =>           script.get_name(),
+            ProgrammingVar::Script(script) =>           script.borrow().get_name(),
             ProgrammingVar::Function(function) =>     function.get_name(),
             ProgrammingVar::Condition(condition) =>  condition.get_name(),
+        }
+    }
+
+    pub fn clear(&mut self) {
+        match self {
+            ProgrammingVar::Script(script) => *script = Rc::new(RefCell::new(Script::new())),
+            ProgrammingVar::Function(function) => *function = Function::new_blank(),
+            ProgrammingVar::Condition(condition) => *condition = Condition::new(),
         }
     }
 
@@ -63,7 +71,7 @@ impl ProgrammingVar {
     pub fn request_prop(&mut self, request: VarPropModRequest) { 
         match self {
             ProgrammingVar::Script(script) => {
-                eprintln!("No props requests for Var Script Exist");
+                Self::handle_script_prop_request(script, request);
             },
             ProgrammingVar::Function(function) => {
                 eprintln!("No props requests for Var Function Exist");
@@ -75,9 +83,50 @@ impl ProgrammingVar {
     }
     
 
+    pub fn handle_script_prop_request(script: &Rc<RefCell<Script>>, request: VarPropModRequest) {
+        match request {
+            VarPropModRequest::Set(prop_key, prop_value) => {
+                match prop_key {
+                    PropKey::Name => {
+                        if let PropValue::String(new_name)  = prop_value {
+                            script.borrow_mut().set_name(new_name);
+                        }
+                    },
+                    _ => {
+                        eprintln!("Key({}) Not supported for ProgrammingVar::Script", prop_key.to_name());
+                    }
+                }
+            },
+            _ => {
+                eprintln!("Request({}) not supported for ProgrammingVar::Script", request.get_name());
+            }
+        }
+    }
+
+    //=====================================
+    // Into
+    //=====================================
+
+
+    pub fn into_script(var: &Rc<RefCell<Var>>) -> Option<Rc<RefCell<Script>>> {
+        let borrow = var.borrow();
+        if let Var::ProgrammingVar(ProgrammingVar::Script(script)) = &*borrow {
+            Some(script.clone())
+        }
+        else {
+            None
+        }
+    }
+
+
     //=====================================
     // Var Constructors
     //=====================================
+
+    pub fn construct_script_var(script: Rc<RefCell<Script>>) -> Rc<RefCell<Var>> {
+        let var = ProgrammingVar::Script(script).wrap_into_var();
+        return Rc::new(RefCell::new(var))
+    }
 
     pub fn construct_function_var(function: Function) -> Rc<RefCell<Var>> {
         let var = ProgrammingVar::Function(function).wrap_into_var();

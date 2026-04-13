@@ -202,3 +202,13 @@ pub enum VarPropModRequest {
     Set(PropKey, PropValue),
     Add(PropKey, PropValue),
 }
+
+impl VarPropModRequest {
+    pub fn get_name(&self) -> String {
+        match self {
+            VarPropModRequest::Set(prop_key, prop_value) => "Set".to_string(),
+            VarPropModRequest::Add(prop_key, prop_value) => "Add".to_string(),
+        }
+    }
+}
+

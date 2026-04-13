@@ -13,19 +13,10 @@ pub fn get_drone_managment_panel(ref_manager: &mut RefManager) -> WidgetType {
         let panel_title = panel.add_text_display("Drone Panel".to_string());
         panel_title.set_text_scale(TextSize::Large);
         
-        let function_slot = FunctionSlot::new(DroneAction::AdvancedAction(DroneAdvancedAction::PathToLocation(None)));
-        let function_ref = function_slot.get_function_ref().clone();
-        
-        panel.add_widget(function_slot.wrap_into_widget());
+
 
         let execute_button = panel.add_button();
 
-        execute_button.add_left_click_event(
-            VarEvents::DroneVarEvent(
-                ref_manager.selected_var.clone(), 
-                DroneVarEvent::ExecuteActionEvent(function_ref)
-            ).wrap_into_event()
-        );
 
         panel.size();
     }

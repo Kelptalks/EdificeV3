@@ -11,3 +11,13 @@ impl PartialEq for ScriptElement {
         self == other
     }
 }
+
+
+impl ScriptElement {
+    pub fn get_name(&self) -> String {
+        match self {
+            ScriptElement::Function(function) => function.get_name(),
+            ScriptElement::Condition(condition) => condition.get_name(),
+        }
+    }
+}
