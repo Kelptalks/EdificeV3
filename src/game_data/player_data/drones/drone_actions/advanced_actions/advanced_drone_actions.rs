@@ -1,20 +1,20 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, drones::{drone::Drone, drone_actions::advanced_actions::path_planner::plan_path_to_cords}, locations::location::WorldLocation}};
+use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, drones::{drone::Drone, drone_actions::{advanced_actions::path_planner::plan_path_to_cords, drone_actions::DroneAction}}, locations::location::WorldLocation}};
 
 
 #[derive(Clone)]
-pub enum AdvancedDroneAction {
+pub enum DroneAdvancedAction {
     PathToLocation(Option<Rc<RefCell<WorldLocation>>>),
 
 
 
 }
 
-impl AdvancedDroneAction {
+impl DroneAdvancedAction {
     pub fn execute(&self, drone: &mut Drone, world: &World) -> u32{
         match self {
-            AdvancedDroneAction::PathToLocation(location_ref_option) => {
+            DroneAdvancedAction::PathToLocation(location_ref_option) => {
                 if let Some(location_ref) = location_ref_option {
                     let cords = location_ref.borrow().get_area().get_point_1_cords();
                     plan_path_to_cords(drone, world, cords)
@@ -28,13 +28,25 @@ impl AdvancedDroneAction {
         }
     }
 
+    pub fn wrap_into_action(self) -> DroneAction {
+        DroneAction::AdvancedAction(self)
+    }
+
+    pub fn get_all_actions() -> Vec<DroneAction> {
+        let mut all_actions = Vec::new();
+    
+        all_actions.push(DroneAdvancedAction::PathToLocation(None).wrap_into_action());
+        
+        return all_actions;
+    }
+
     //=====================================
     // Identity
     //=====================================
 
     pub fn get_name(&self) -> String {
         match self {
-            AdvancedDroneAction::PathToLocation(location_ref_option) => {
+            DroneAdvancedAction::PathToLocation(location_ref_option) => {
                 if let Some(location_ref) = location_ref_option {
                     return format!("Pathing to Location: {}", location_ref.borrow().get_name());
                 }
@@ -53,7 +65,7 @@ impl AdvancedDroneAction {
     pub fn create_param_vars(&self) -> Vec<Rc<RefCell<Var>>> {
         let mut params = Vec::new();
         match self {
-            AdvancedDroneAction::PathToLocation(location_ref) => {
+            DroneAdvancedAction::PathToLocation(location_ref) => {
                 params.push(DynamicVar::construct_location_var_ref(location_ref));
             },
         }
@@ -62,7 +74,7 @@ impl AdvancedDroneAction {
 
     pub fn set_params_from_vars(&mut self, params: &Vec<Rc<RefCell<Var>>>) {
         match self {
-            AdvancedDroneAction::PathToLocation(location_ref) => {
+            DroneAdvancedAction::PathToLocation(location_ref) => {
                 let var_location_option_ref =  DynamicVar::into_location_ref(&params[0]);
                 *location_ref = var_location_option_ref;
             },

@@ -31,6 +31,20 @@ impl DroneInventoryAction {
     }
 
 
+    pub fn wrap_into_action(self) -> DroneAction {
+        DronePrimAction::DroneInventoryAction(self).wrap_into_action()
+    }
+
+    pub fn get_all_actions() -> Vec<DroneAction> {
+        let mut all_actions = Vec::new();
+    
+        all_actions.push(DroneInventoryAction::CraftItem(DroneItem::Null).wrap_into_action());
+        all_actions.push(DroneInventoryAction::UseItemForFuel(DroneItem::Null, 0).wrap_into_action());
+        all_actions.push(DroneInventoryAction::EquipTool(DroneItem::Null).wrap_into_action());
+        
+        return all_actions;
+    }
+
     //=====================================
     // Identity
     //=====================================

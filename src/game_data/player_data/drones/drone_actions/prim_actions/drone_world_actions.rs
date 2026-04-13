@@ -30,6 +30,21 @@ impl DroneWorldAction {
         }
     }
 
+    pub fn wrap_into_action(self) -> DroneAction {
+        DronePrimAction::DroneWorldAction(self).wrap_into_action()
+    }
+
+    pub fn get_all_actions() -> Vec<DroneAction> {
+        let mut all_actions = Vec::new();
+    
+        all_actions.push(DroneWorldAction::wrap_into_action(Self::MoveDrone([0; 3])));
+        all_actions.push(DroneWorldAction::wrap_into_action(Self::MineBlock([0; 3])));
+        all_actions.push(DroneWorldAction::wrap_into_action(Self::PlaceBlock([0; 3], BlockTexture::Air)));
+        
+        return all_actions;
+    }
+
+
     //=====================================
     // Identity
     //=====================================

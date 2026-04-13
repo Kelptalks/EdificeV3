@@ -2,16 +2,12 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::game_data::{
     player_data::{
-        drone_programming::var::{game_vars::{game_var_type::GameVarTypeKind, primitive_var::PrimitiveVar}, var_type::VarTypeKind}, 
-        player_data::PlayerData
+        drone_programming::{function::function::Function, var::{game_vars::{game_var_type::GameVarTypeKind, primitive_var::PrimitiveVar}, programming_vars::programming_var::ProgrammingVar, var_type::VarTypeKind}}, drones::drone_actions::drone_actions::DroneAction, player_data::PlayerData
     }, 
     screen::{
         ScreenData, 
         menu_constructors::play_view_menu::new_play_view::RefManager, 
-        widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, 
-        prelude::{PanelColor, TabPanel, VarSlot}, 
-        selection_panel::selection_panel::SelectionPanel, 
-        widget::WidgetType, widget_calculations::TextSize}
+        widget::{drone_programming::function_slot::FunctionSlot, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel, VarSlot}, selection_panel::selection_panel::SelectionPanel, widget::WidgetType, widget_calculations::TextSize}
     }, 
     types::{BlockTexture, UITextures, drone_item::DroneItem}};
 
@@ -98,6 +94,35 @@ fn get_item_selection_panel() -> WidgetType {
 }
 
 
+fn get_function_selection_panel() -> WidgetType {
+    let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
+    if let WidgetType::Panel(panel) = &mut panel {
+        panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+        panel.set_color(PanelColor::Dark);
+
+        // Header
+        let text_display = panel.add_text_display("Items".to_string());
+        text_display.set_text_scale(TextSize::Medium);
+
+        let scroll_panel = panel.add_scroll_panel();
+        
+        let all_actions_for_functions = DroneAction::get_all_actions();
+        for action in all_actions_for_functions {
+            let function = Function::new_from_drone_action(action);
+            let var = ProgrammingVar::construct_function_var(function);
+
+            let var_slot = VarSlot::new(&var);
+            scroll_panel.add_widget(var_slot.wrap_into_widget());
+
+        }
+
+        scroll_panel.set_prefered_scale(0.5);
+        panel.size();
+    }
+
+    return panel;
+}
+
 
 pub fn get_var_managment_panel_widget(ref_manger: &mut RefManager) -> WidgetType {
     
@@ -111,11 +136,16 @@ pub fn get_var_managment_panel_widget(ref_manger: &mut RefManager) -> WidgetType
         // Add Block selection
         let button = selection_tab_panel.add_panel(get_block_selection_panel());
         button.set_text("Blocks".to_string());
-        button.set_block(crate::game_data::types::BlockTexture::Grass);
+        button.set_icon(UITextures::BlockVarIcon);
 
         // Add Item selection
         let button = selection_tab_panel.add_panel(get_item_selection_panel());
         button.set_text("Items".to_string());
+        button.set_icon(UITextures::ItemVarIcon);
+
+        // Add function selection
+        let button = selection_tab_panel.add_panel(get_function_selection_panel());
+        button.set_text("Functions".to_string());
         button.set_icon(UITextures::ScallingIconMidCenter);
 
 

@@ -8,7 +8,6 @@ pub struct FunctionSlot {
     panel: Panel,
 
     function: Rc<RefCell<Function>>,
-
 }
 
 impl FunctionSlot {

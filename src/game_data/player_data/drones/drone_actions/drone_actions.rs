@@ -1,11 +1,11 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_programming::var::var_type::Var, drones::{drone::Drone, drone_actions::{advanced_actions::advanced_drone_actions::AdvancedDroneAction, prim_actions::drone_prim_actions::DronePrimAction}}}};
+use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_programming::var::var_type::Var, drones::{drone::Drone, drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, prim_actions::drone_prim_actions::DronePrimAction}}}};
 
 #[derive(Clone)]
 pub enum DroneAction {
     PrimAction(DronePrimAction),
-    AdvancedAction(AdvancedDroneAction)
+    AdvancedAction(DroneAdvancedAction)
 }
 
 impl DroneAction {
@@ -18,6 +18,15 @@ impl DroneAction {
                 return advanced_drone_action.execute(drone, world);
             },
         }
+    }
+
+    pub fn get_all_actions() -> Vec<DroneAction> {
+        let mut all_actions = Vec::new();
+    
+        all_actions.append(&mut DronePrimAction::get_all_actions());
+        all_actions.append(&mut DroneAdvancedAction::get_all_actions());
+        
+        return all_actions;
     }
 
     //=====================================

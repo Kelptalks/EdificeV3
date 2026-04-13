@@ -2,11 +2,20 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::game_data::{player_data::{drone_programming::var::var_type::Var, drones::drone_actions::drone_actions::DroneAction}, screen::{camera_controls, widget::prelude::VarSlot}};
 
+#[derive(Clone)]
 pub struct Function {
     params: Vec<Rc<RefCell<Var>>>,
     
-    drone_action: DroneAction,
+    action: DroneAction,
 
+    return_var: Option<Rc<RefCell<Var>>>,
+}
+
+impl PartialEq for Function {
+    fn eq(&self, other: &Self) -> bool {
+        eprintln!("Part Equal not implemented for Function");
+        todo!()
+    }
 }
 
 impl Function {
@@ -14,7 +23,10 @@ impl Function {
         let params = action.create_param_vars();
         Function {
             params: params,
-            drone_action: action
+            
+            action,
+
+            return_var: None,
         }
     }
 
@@ -24,9 +36,19 @@ impl Function {
     }
 
     pub fn into_drone_action(&self) -> DroneAction {
-        let mut constructed_action = self.drone_action.clone();
+        let mut constructed_action = self.action.clone();
         constructed_action.set_params_from_vars(&self.params);
         return constructed_action;
+    }
+
+    pub fn get_return_var(&self) -> &Option<Rc<RefCell<Var>>> {
+        &self.return_var
+    }
+
+
+    pub fn get_name(&self) -> String {
+        
+        return self.action.get_name();
     }
 
 

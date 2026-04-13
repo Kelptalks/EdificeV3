@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{prelude::{Event, GameEvent, InputEvent, UsizeEvent}, render_event_manager::render_event_manager::RenderEvent}, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{manager_panel, selection_panel, var_ref_hot_bar, world_view}, screen_data::CurrentMenu, widget::{panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, prelude::TabPanel, tab_panel::var_tab_panel::VarTabPanel, widget::WidgetType, world_rendering::rendering_config::play_world_view_config::PlayViewRenderingConfig}}};
+use crate::game_data::{game_event_manager::{prelude::{Event, GameEvent, InputEvent, UsizeEvent}, render_event_manager::render_event_manager::RenderEvent}, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{manager_panel, selection_panel, var_ref_hot_bar, world_view}, screen_data::CurrentMenu, widget::{drone_programming::scripting_panel::scripting_panel::ScriptingPanel, panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, prelude::TabPanel, tab_panel::var_tab_panel::VarTabPanel, widget::WidgetType, world_rendering::rendering_config::play_world_view_config::PlayViewRenderingConfig}}};
 
 pub enum PlayViewMode {
     Main = 0,
@@ -96,6 +96,10 @@ impl PlayViewConstructionManager {
             let var_tab_panel_button = manager_tab_panel.add_panel(WidgetType::VarTabPanel(var_tab_panel));
             var_tab_panel_button.set_icon(crate::game_data::types::UITextures::AnyVarIcon);
 
+
+            // Scripting Panel
+            let mut scipting_panel = ScriptingPanel::new();
+            manager_tab_panel.add_panel(scipting_panel.wrap_into_widget());
 
             panel.add_widget(manager_tab_panel.wrap_into_widget());
 
