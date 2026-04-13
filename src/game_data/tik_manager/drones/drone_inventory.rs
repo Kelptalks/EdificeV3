@@ -144,6 +144,20 @@ impl DroneInventory {
         return false;
     }
 
+
+    // Adding other invintorys
+
+    pub fn add_inventory_slot(&mut self, slot: InventorySlot) {
+        if let Some(item) = slot.get_item() {
+            self.add_item(item, slot.get_quantity());    
+        }
+    }
+    pub fn add_inventory_slots(&mut self, slots: Vec<InventorySlot>) {
+        for slot in slots {
+            self.add_inventory_slot(slot);
+        }
+    }
+
     // Get the item type in a slot
     pub fn get_slot_item_type(&self, slot_index: usize) -> Option<DroneItem> {
         if slot_index < self.total_slots as usize {

@@ -79,8 +79,8 @@ impl DynamicVar {
 
                         VarProperty {key: PropKey::Health,          value: PropValue::Num(borrow.get_health() as i32),                          mutible: true},
                         VarProperty {key: PropKey::Fuel,            value: PropValue::Num(borrow.get_fuel() as i32),                            mutible: true},
-                        VarProperty {key: PropKey::BusyTime,            value: PropValue::Num(borrow.get_busy() as i32),                            mutible: true},
-                        VarProperty {key: PropKey::InventorySlots,  value: PropValue::Inventory(borrow.get_inventory().get_slots().clone()),    mutible: false},
+                        VarProperty {key: PropKey::BusyTime,            value: PropValue::Num(borrow.get_busy() as i32),                        mutible: true},
+                        VarProperty {key: PropKey::InventorySlots,  value: PropValue::Inventory(borrow.get_inventory().get_slots().clone()),    mutible: true},
                         
                         VarProperty {key: PropKey::MinePower,       value: PropValue::Num(borrow.get_mine_power() as i32),                      mutible: false},
                         VarProperty {key: PropKey::ChopPower,       value: PropValue::Num(borrow.get_chop_power() as i32),                      mutible: false},
@@ -108,6 +108,9 @@ impl DynamicVar {
                     }
                 }
         
+            },
+            VarPropModRequest::Add(prop_key, prop_value) => {
+                
             },
         }
     }
@@ -142,6 +145,18 @@ impl DynamicVar {
                     }
                 }
         
+            },
+            VarPropModRequest::Add(prop_key, prop_value) => {
+                match prop_key {
+                    PropKey::InventorySlots => {
+                        if let PropValue::Inventory(slots) = prop_value {
+                            drone.borrow_mut().get_mut_inventory().add_inventory_slots(slots);
+                        }
+                    },
+                    _ => {
+
+                    }
+                }
             },
         }
     }

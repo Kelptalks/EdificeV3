@@ -199,5 +199,6 @@ impl VarProperty {
 
 #[derive(Clone)]
 pub enum VarPropModRequest {
-    Set(PropKey, PropValue)
+    Set(PropKey, PropValue),
+    Add(PropKey, PropValue),
 }

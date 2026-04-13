@@ -38,7 +38,6 @@ impl NumDisplayPropWidget {
             add_button.add_left_click_event(I32Event::mod_i32(num_ref.clone(), 1).wrap_into_event());
             add_button.add_right_click_event(I32Event::mod_i32(num_ref.clone(), -1).wrap_into_event());
             add_button.set_icon(crate::game_data::types::UITextures::ModIcon);
-
         }
         else {
 
