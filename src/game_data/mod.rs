@@ -11,7 +11,7 @@ pub use world::*;
 mod texture_manager;
 pub use texture_manager::TextureManager;
 
-mod player_data;
+pub mod player_data;
 
 mod game_event_manager;
 

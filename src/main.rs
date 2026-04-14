@@ -1,7 +1,5 @@
 
-mod game_data;
-
-use game_data::GameData;
+use EdificeV3::game_data::GameData;
 use image::EncodableLayout;
 use image::imageops::FilterType;
 use miniquad::{conf::Icon, *};
@@ -95,6 +93,8 @@ pub fn get_icon() -> Option<Icon> {
 
 fn main() {
     
+    
+
     miniquad::start(
         conf::Conf {
             window_title: "Edifice V3".to_owned(),

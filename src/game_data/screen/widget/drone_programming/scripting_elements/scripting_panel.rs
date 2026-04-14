@@ -6,6 +6,7 @@ pub struct ScriptingPanel {
     panel : Panel,
     scroll_panel: ScrollPanel,
 
+    root_function: Rc<RefCell<Function>>
 }
 
 impl ScriptingPanel {
@@ -16,22 +17,29 @@ impl ScriptingPanel {
         panel.add_text_display("Scripting Panel".to_string());
         
 
+        
+
 
         let mut function = Function::new_blank();
-        
-        let script_element = Function::new_blank().to_script_element();
-        function.add_script_element(0, script_element);
+        let sub_function = Function::new_from_drone_action(DroneAction::GetterAction(DroneGetterAction::IsBusy));
+        function.add_script_element(0, sub_function.to_script_element());
 
+        let elements = function.compile(0);
+        for (indent, compiled_element) in elements {
+            let indent = "-".repeat(indent);
 
-        panel.add_widget(function.to_script_element().construct_widget());
-        
+            println!("{}>{}", indent, compiled_element.get_name());
+        }
         
 
         ScriptingPanel {
             
             panel: panel,
 
-            scroll_panel: ScrollPanel::new()
+            scroll_panel: ScrollPanel::new(),
+
+
+            root_function: Rc::new(RefCell::new(function))
         }
     }
 
@@ -44,9 +52,6 @@ impl ScriptingPanel {
         let borrow = var_held_by_mouse.borrow_mut();
         if let Var::ProgrammingVar(programming_var) = &*borrow {
             if let ProgrammingVar::Function(function) = programming_var{
-
-            }
-            else if let ProgrammingVar::Condition(condition) = programming_var {
 
             }
         }
@@ -116,11 +121,14 @@ impl Widget for ScriptingPanel {
 
         }
 
-        // self.scroll_panel.clear_widgets();
+        self.scroll_panel.clear_widgets();
 
+        self.size();
         self.panel.render(texture_manager, screen_data, game_event_manager);
         
-        // self.scroll_panel.render(texture_manager, screen_data, game_event_manager);
+        
+    
+        self.scroll_panel.render(texture_manager, screen_data, game_event_manager);
         
     }
 }

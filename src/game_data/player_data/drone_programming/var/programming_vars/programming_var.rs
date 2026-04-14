@@ -2,12 +2,11 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_programming::{control_flow::control_flow::ControlFlow, function::function::Function, var::{var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::Var}}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::drone_programming::{function::function::Function, var::{var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::Var}}, texture_manager::texture::Texture};
 
 #[derive(Clone, PartialEq)]
 pub enum ProgrammingVar {
     Function(Function),
-    Condition(ControlFlow),
 }
 
 impl ProgrammingVar {
@@ -26,21 +25,18 @@ impl ProgrammingVar {
     pub fn to_kind(&self) -> ProgrammingVarKind {
         match self {
             ProgrammingVar::Function(_) =>  ProgrammingVarKind::Function(),
-            ProgrammingVar::Condition(_) => ProgrammingVarKind::Condition(),
         }
     }
 
     pub fn get_name(&self) -> String {
         match self {
             ProgrammingVar::Function(function) =>     function.get_name(),
-            ProgrammingVar::Condition(condition) =>  condition.get_name(),
         }
     }
 
     pub fn clear(&mut self) {
         match self {
             ProgrammingVar::Function(function) => *function = Function::new_blank(),
-            ProgrammingVar::Condition(condition) => *condition = ControlFlow::new(),
         }
     }
 
@@ -50,9 +46,6 @@ impl ProgrammingVar {
 
         match self {
             ProgrammingVar::Function(function) => {
-                props.push(VarProperty { key: PropKey::Name, value: PropValue::String(self.get_name()), mutible: false });
-            },
-            ProgrammingVar::Condition(condition) => {
                 props.push(VarProperty { key: PropKey::Name, value: PropValue::String(self.get_name()), mutible: false });
             },
         }
@@ -65,9 +58,6 @@ impl ProgrammingVar {
         match self {
             ProgrammingVar::Function(function) => {
                 eprintln!("No props requests for Var Function Exist");
-            },
-            ProgrammingVar::Condition(condition) => {
-                eprintln!("No props requests for Var Condition Exist");
             },
         }
     }

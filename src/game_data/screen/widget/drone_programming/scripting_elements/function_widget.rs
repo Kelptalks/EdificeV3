@@ -103,13 +103,9 @@ impl FunctionWidget {
             if let ProgrammingVar::Function(function) = programming_var{
                 self.function_ref.borrow_mut().add_script_element(0, function.clone().to_script_element());
                 
-                println!("test");
                 self.rebuild();    
 
                 self.panel.set_color(PanelColor::Dark);
-            }
-            else if let ProgrammingVar::Condition(condition) = programming_var {
-                
             }
         }
     }
