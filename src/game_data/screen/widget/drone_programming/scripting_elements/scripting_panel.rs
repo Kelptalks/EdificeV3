@@ -1,10 +1,8 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_programming::{function, script::{self, Script}, script_element::ScriptElement, var::{programming_vars::programming_var::{self, ProgrammingVar}, var_type::Var}}, screen::{ui_elements::panel, widget::{drone_programming::function_slot::FunctionSlot, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, scroll_panel::{self, scroll_panel::ScrollPanel}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::{self, buffer_pos}}}};
+use crate::game_data::{player_data::{drone_programming::{function::{self, function::Function}, script_element::ScriptElement, var::{programming_vars::programming_var::{self, ProgrammingVar}, var_type::Var}}, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, getter_actions::getter_actions::DroneGetterAction}}, screen::{ui_elements::panel, widget::{drone_programming::function_slot::FunctionSlot, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, scroll_panel::{self, scroll_panel::ScrollPanel}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::{self, buffer_pos}}}};
 
 pub struct ScriptingPanel {
-    script_var: Rc<RefCell<Var>>,
-    
     panel : Panel,
     scroll_panel: ScrollPanel,
 
@@ -18,20 +16,20 @@ impl ScriptingPanel {
         panel.add_text_display("Scripting Panel".to_string());
         
 
-        let script_ref = Rc::new(RefCell::new(Script::new()));
-        let var = ProgrammingVar::construct_script_var(script_ref);
-        let mut var_slot = VarSlot::new(&var);
-        var_slot.set_dragging_properties(true, false, false);
 
-        panel.add_widget(var_slot.wrap_into_widget());
+        let function = Function::new_from_drone_action(DroneAction::AdvancedAction(DroneAdvancedAction::PathToLocation(None)));
+        panel.add_widget(function.to_script_element().construct_widget());
+        
+
+        let function = Function::new_from_drone_action(DroneAction::GetterAction(DroneGetterAction::IsBusy)).to_script_element();
+        panel.add_widget(function.construct_widget());
+        
 
         ScriptingPanel {
-            script_var: var,
             
             panel: panel,
 
             scroll_panel: ScrollPanel::new()
-            
         }
     }
 
@@ -44,10 +42,7 @@ impl ScriptingPanel {
         let borrow = var_held_by_mouse.borrow_mut();
         if let Var::ProgrammingVar(programming_var) = &*borrow {
             if let ProgrammingVar::Function(function) = programming_var{
-                let script_ref_option = ProgrammingVar::into_script(&self.script_var);
-                if let Some(script_ref) = script_ref_option {
-                    script_ref.borrow_mut().add_function(0, function.clone());
-                } 
+
             }
             else if let ProgrammingVar::Condition(condition) = programming_var {
 
@@ -120,20 +115,7 @@ impl Widget for ScriptingPanel {
         }
 
         self.scroll_panel.clear_widgets();
-        let script_ref_option = ProgrammingVar::into_script(&self.script_var);
-        if let Some(script_ref) = script_ref_option {
-            let borrow = script_ref.borrow();
 
-            let elements = &*borrow.get_elements();
-
-            for element in elements {                
-                if let ScriptElement::Function(funciton) = element {
-                    let function_slot = FunctionSlot::new_with_function_ref(funciton.clone());
-                    self.scroll_panel.add_widget(function_slot.wrap_into_widget());
-                }
-                
-            }
-        }
 
         self.size();
 

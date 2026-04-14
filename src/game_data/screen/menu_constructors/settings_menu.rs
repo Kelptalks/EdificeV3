@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::render_event_manager::render_event_manager::RenderEvent, player_data::{drone_programming::var::{game_vars::{game_var_type::{GameVar, GameVarTypeKind}, primitive_var::{PrimitiveVar, PrimitiveVarTypeKind}}, var_type::{Var, VarTypeKind}}, player_data::PlayerData}, screen::{ScreenData, widget::{drone_programming::vars::var_slot::VarSlot, panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, tab_panel::var_tab_panel::{self, VarTabPanel}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::{BlockTexture, drone_item::DroneItem}};
+use crate::game_data::{game_event_manager::render_event_manager::render_event_manager::RenderEvent, player_data::{drone_programming::{control_flow::control_flow::ControlFlow, function::function::Function, script_element, var::{game_vars::{game_var_type::{GameVar, GameVarTypeKind}, primitive_var::{PrimitiveVar, PrimitiveVarTypeKind}}, var_type::{Var, VarTypeKind}}}, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, getter_actions::getter_actions::DroneGetterAction}, player_data::PlayerData}, screen::{ScreenData, widget::{drone_programming::{scripting_elements::scripting_panel, vars::var_slot::VarSlot}, panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, tab_panel::var_tab_panel::{self, VarTabPanel}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::{BlockTexture, drone_item::DroneItem}};
 
 
 
@@ -59,7 +59,6 @@ pub fn test_var_slots() -> WidgetType {
     return panel;
 }
 
-
 pub fn test_var_tab_panel() -> WidgetType {
     let var_ref = Rc::new(RefCell::new(PrimitiveVar::Block(BlockTexture::Hive).wrap_into_var()));
     let var_tab_panel = VarTabPanel::new(&var_ref);
@@ -68,6 +67,23 @@ pub fn test_var_tab_panel() -> WidgetType {
 
     return WidgetType::VarTabPanel(var_tab_panel);
     
+}
+
+
+pub fn test_script_panel() -> WidgetType {
+
+    let mut panel = Panel::new_blank();
+
+    let function = Function::new_from_drone_action(DroneAction::AdvancedAction(DroneAdvancedAction::PathToLocation(None)));
+    panel.add_widget(function.to_script_element().construct_widget());
+    
+
+    let function = Function::new_from_drone_action(DroneAction::GetterAction(DroneGetterAction::IsBusy)).to_script_element();
+    panel.add_widget(function.construct_widget());
+
+
+    return panel.wrap_into_widget()
+
 }
 
 pub fn get_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> WidgetType {
@@ -89,10 +105,9 @@ pub fn get_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> Widge
         button.set_text("Back".to_string());
 
 
+        panel.add_widget(test_script_panel());
+  
 
-        panel.add_widget(test_var_slots());
-        panel.add_widget(test_var_tab_panel());
-            
         panel.size();
     }
 

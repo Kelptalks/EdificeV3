@@ -10,9 +10,9 @@ use crate::game_data::{
         }, 
         drones::{
             drone::Drone, 
-            drone_actions::{advanced_actions::advanced_drone_actions::{DroneAdvancedAction}, prim_actions::drone_prim_actions::DronePrimAction}}}};
+            drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::drone_prim_actions::DronePrimAction}}}};
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum DroneActionError {
     Busy,
     FailedToPath,
@@ -49,7 +49,8 @@ impl DroneActionError {
 #[derive(Clone)]
 pub enum DroneAction {
     PrimAction(DronePrimAction),
-    AdvancedAction(DroneAdvancedAction)
+    AdvancedAction(DroneAdvancedAction),
+    GetterAction(DroneGetterAction)
 }
 
 impl DroneAction {
@@ -61,6 +62,9 @@ impl DroneAction {
             DroneAction::AdvancedAction(advanced_drone_action) => {
                 return advanced_drone_action.execute(drone, world);
             },
+            DroneAction::GetterAction(drone_getter_action) => {
+                drone_getter_action.execute(drone)
+            },
         }
     }
 
@@ -69,7 +73,8 @@ impl DroneAction {
     
         all_actions.append(&mut DronePrimAction::get_all_actions());
         all_actions.append(&mut DroneAdvancedAction::get_all_actions());
-        
+        all_actions.append(&mut DroneGetterAction::get_all_actions());
+
         return all_actions;
     }
 
@@ -81,11 +86,12 @@ impl DroneAction {
         match self {
             DroneAction::PrimAction(drone_prim_action) => drone_prim_action.get_name(),
             DroneAction::AdvancedAction(advanced_drone_action) => advanced_drone_action.get_name(),
+            DroneAction::GetterAction(drone_getter_action) => drone_getter_action.get_name(),
         }
     }
 
     //=====================================
-    // Execution
+    // Function Managment
     //=====================================
 
     pub fn create_param_vars(&self) -> Vec<Rc<RefCell<Var>>> {
@@ -95,6 +101,9 @@ impl DroneAction {
             },
             DroneAction::AdvancedAction(advanced_drone_action) => {
                 advanced_drone_action.create_param_vars()
+            },
+            DroneAction::GetterAction(drone_getter_action) => {
+                Vec::new()
             },
         }
     }
@@ -107,6 +116,17 @@ impl DroneAction {
             DroneAction::AdvancedAction(advanced_drone_action) => {
                 advanced_drone_action.set_params_from_vars(params);
             },
+            DroneAction::GetterAction(getter_action) => {
+
+            }
+        }
+    }
+
+    pub fn create_return_values(&self) -> Vec<FunctionReturnValue> {
+        match self {
+            DroneAction::PrimAction(drone_prim_action) => Vec::new(),
+            DroneAction::AdvancedAction(drone_advanced_action) => Vec::new(),
+            DroneAction::GetterAction(drone_getter_action) => drone_getter_action.create_return_values(),
         }
     }
 }

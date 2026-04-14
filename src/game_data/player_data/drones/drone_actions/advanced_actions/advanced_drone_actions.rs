@@ -44,12 +44,7 @@ impl DroneAdvancedAction {
     pub fn get_name(&self) -> String {
         match self {
             DroneAdvancedAction::PathToLocation(location_ref_option) => {
-                if let Some(location_ref) = location_ref_option {
-                    return format!("Pathing to Location: {}", location_ref.borrow().get_name());
-                }
-                else {
-                    return format!("Pathing to Location: NULL");
-                }
+                "PathToLocation".to_string()
                 
             },
         }

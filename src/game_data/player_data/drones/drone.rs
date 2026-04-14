@@ -5,7 +5,6 @@ use std::rc::Rc;
 use crate::game_data::game_event_manager::prelude::{EventManager, WorldEvent};
 use crate::game_data::locations::world_area::WorldArea;
 use crate::game_data::player_data::drone_programming::function::function_return_value::FunctionReturnValue;
-use crate::game_data::player_data::drone_programming::script::Script;
 use crate::game_data::player_data::drones::drone_actions::drone_actions::DroneAction;
 use crate::game_data::player_data::drones::drone_actions::drone_plan::DronePlan;
 use crate::game_data::player_data::locations::location::WorldLocation;
@@ -42,7 +41,6 @@ pub struct Drone{
     name: String,
 
     // Actions
-    drone_script: Option<Rc<RefCell<Script>>>,
     drone_plans: Vec<DronePlan>,
 
     // Position
@@ -76,7 +74,6 @@ impl Drone {
             name: id.to_string(),
             
             // Actions
-            drone_script: None,
             drone_plans: Vec::new(),
 
             // Position
@@ -202,14 +199,6 @@ impl Drone {
         self.drone_plans.push(plan);
     }
 
-    pub fn set_script(&mut self, script: Option<Rc<RefCell<Script>>>) {
-        self.drone_script = script;
-    }
-
-    pub fn get_script(&self) -> Option<Rc<RefCell<Script>>> {
-        self.drone_script.clone()
-    }
-
 
     //=====================================
     // Tools
@@ -311,7 +300,14 @@ impl Drone {
     //=====================================
 
     fn handle_current_plan(&mut self, world: &World, event_manager: &mut EventManager) {
-        // Execute next action
+        // handle completed/failed plans after execution
+        if let Some(plan) = self.drone_plans.first() {
+            if plan.is_completed() || plan.has_failed() {
+                self.drone_plans.remove(0);
+            }
+        }
+        
+        // Get Next action
         let action_option = self.drone_plans.first_mut().and_then(|drone_plan| {
             if drone_plan.is_completed() || drone_plan.has_failed() { None }
             else { drone_plan.pop_next_action() }
@@ -325,13 +321,6 @@ impl Drone {
                     println!("Plan Failed: {}", error_code.to_string());
                     plan.failed();
                 }
-            }
-        }
-
-        // handle completed/failed plans after execution
-        if let Some(plan) = self.drone_plans.first() {
-            if plan.is_completed() || plan.has_failed() {
-                self.drone_plans.remove(0);
             }
         }
     }
@@ -388,15 +377,7 @@ impl Drone {
         if self.drone_plans.len() > 0 {
             self.handle_current_plan(world, event_manager);
         }
-        else {
-            if let Some(script) = &self.drone_script {
-                // get next action
-                let actions = script.borrow_mut().tik();
-                for action in actions  {
-                    self.add_action(action);
-                }
-            }
-        }
+
         
     }
 }

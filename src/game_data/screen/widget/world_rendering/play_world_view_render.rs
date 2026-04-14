@@ -346,7 +346,7 @@ impl PlayWorldViewRender {
                     
                     
                     var_slot.size();
-                    var_slot.render(texture_manager, screen_data, game_event_manager);
+                    // var_slot.render(texture_manager, screen_data, game_event_manager);
                 }   
             }
         }

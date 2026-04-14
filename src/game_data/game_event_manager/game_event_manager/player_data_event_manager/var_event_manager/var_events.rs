@@ -139,8 +139,8 @@ impl DroneVarEvent {
     pub fn execute(&self, drone: &Rc<RefCell<Drone>>) { 
         match self {
             DroneVarEvent::ExecuteActionEvent(function_ref) => {
-                let constructed_action = function_ref.borrow_mut().into_drone_action();
-                println!("Adding Action ({}) To Drone ({})", constructed_action.get_name(), drone.borrow().get_name());
+                // let constructed_action = function_ref.borrow_mut().call();
+                // println!("Adding Action ({}) To Drone ({})", constructed_action.get_name(), drone.borrow().get_name());
                 eprintln!("Event No longer used");
             }
         }
