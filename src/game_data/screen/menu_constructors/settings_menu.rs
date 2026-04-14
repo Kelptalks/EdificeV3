@@ -74,14 +74,6 @@ pub fn test_script_panel() -> WidgetType {
 
     let mut panel = Panel::new_blank();
 
-    let function = Function::new_from_drone_action(DroneAction::AdvancedAction(DroneAdvancedAction::PathToLocation(None)));
-    panel.add_widget(function.to_script_element().construct_widget());
-    
-
-    let function = Function::new_from_drone_action(DroneAction::GetterAction(DroneGetterAction::IsBusy)).to_script_element();
-    panel.add_widget(function.construct_widget());
-
-
     return panel.wrap_into_widget()
 
 }

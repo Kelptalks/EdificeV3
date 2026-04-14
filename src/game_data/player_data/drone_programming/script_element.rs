@@ -1,6 +1,10 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::{drone_programming::{control_flow::control_flow::ControlFlow, function::function::Function}, drones::drone_actions::drone_actions::DroneAction}, screen::widget::{drone_programming::scripting_elements::scripting_element_widgets::{control_flow_widget::ControlFlowWidget, function_widget::FunctionWidget}, widget::WidgetType}};
+use crate::game_data::{
+    player_data::{
+        drone_programming::{control_flow::control_flow::ControlFlow, function::function::Function}, 
+        drones::drone_actions::drone_actions::DroneAction}, 
+    screen::widget::{drone_programming::scripting_elements::function_widget::FunctionWidget, widget::WidgetType}};
 
 #[derive(Clone)]
 pub enum ScriptElement {
@@ -25,13 +29,13 @@ impl ScriptElement {
         }
     }
 
-    pub fn construct_widget(&self) -> WidgetType {
+    pub fn construct_widget(&self, nest_level: usize) -> WidgetType {
         match self {
             ScriptElement::Function(function) => {
-                return FunctionWidget::new(function).wrap_into_widget()
+                return WidgetType::FunctionWidget(FunctionWidget::new(function, nest_level))
             },
             ScriptElement::ControlFlow(control_flow) => {
-                return ControlFlowWidget::new(control_flow).wrap_into_widget()
+                todo!()
             },
             ScriptElement::Action(drone_action) => {
                 todo!()

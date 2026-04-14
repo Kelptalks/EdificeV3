@@ -1,4 +1,4 @@
-use crate::game_data::screen::widget::widget_calculations;
+use crate::game_data::screen::widget::{widget::WidgetType, widget_calculations};
 
 pub struct WidgetProperties {
     // Parent rendering
@@ -37,5 +37,14 @@ impl WidgetProperties {
     pub fn scale_based_off_parent(&mut self) {
         self.pos =   widget_calculations::buffer_pos(self.parent_pos, self.external_buffers);
         self.scale = widget_calculations::pos_to_scale(self.pos);
+    }
+
+    pub fn calculate_prefered_scale_from_widget_list(&mut self, widgets: &Vec<WidgetType>) {
+        let largest_x_scale = 0;
+        let total_y_scale = 0;
+
+        for widget in widgets {
+
+        }
     }
 }

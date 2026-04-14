@@ -18,11 +18,11 @@ impl ScriptingPanel {
 
 
         let function = Function::new_from_drone_action(DroneAction::AdvancedAction(DroneAdvancedAction::PathToLocation(None)));
-        panel.add_widget(function.to_script_element().construct_widget());
+        panel.add_widget(function.to_script_element().construct_widget(0));
         
 
         let function = Function::new_from_drone_action(DroneAction::GetterAction(DroneGetterAction::IsBusy)).to_script_element();
-        panel.add_widget(function.construct_widget());
+        panel.add_widget(function.construct_widget(0));
         
 
         ScriptingPanel {
