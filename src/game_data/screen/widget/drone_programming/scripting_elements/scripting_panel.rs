@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::{drone_programming::{function::{self, function::Function}, script_element::ScriptElement, var::{programming_vars::programming_var::{self, ProgrammingVar}, var_type::Var}}, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, getter_actions::getter_actions::DroneGetterAction}}, screen::{ui_elements::panel, widget::{drone_programming::function_slot::FunctionSlot, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, scroll_panel::{self, scroll_panel::ScrollPanel}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::{self, buffer_pos}}}};
+use crate::game_data::{player_data::{drone_programming::{function::{self, function::Function}, script_element::{self, ScriptElement}, var::{programming_vars::programming_var::{self, ProgrammingVar}, var_type::Var}}, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, getter_actions::getter_actions::DroneGetterAction}}, screen::{ui_elements::panel, widget::{drone_programming::function_slot::FunctionSlot, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, scroll_panel::{self, scroll_panel::ScrollPanel}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::{self, buffer_pos}}}};
 
 pub struct ScriptingPanel {
     panel : Panel,
@@ -17,12 +17,14 @@ impl ScriptingPanel {
         
 
 
-        let function = Function::new_from_drone_action(DroneAction::AdvancedAction(DroneAdvancedAction::PathToLocation(None)));
-        panel.add_widget(function.to_script_element().construct_widget(0));
+        let mut function = Function::new_blank();
         
+        let script_element = Function::new_blank().to_script_element();
+        function.add_script_element(0, script_element);
 
-        let function = Function::new_from_drone_action(DroneAction::GetterAction(DroneGetterAction::IsBusy)).to_script_element();
-        panel.add_widget(function.construct_widget(0));
+
+        panel.add_widget(function.to_script_element().construct_widget());
+        
         
 
         ScriptingPanel {
@@ -114,13 +116,11 @@ impl Widget for ScriptingPanel {
 
         }
 
-        self.scroll_panel.clear_widgets();
-
-
-        self.size();
+        // self.scroll_panel.clear_widgets();
 
         self.panel.render(texture_manager, screen_data, game_event_manager);
-        self.scroll_panel.render(texture_manager, screen_data, game_event_manager);
+        
+        // self.scroll_panel.render(texture_manager, screen_data, game_event_manager);
         
     }
 }

@@ -29,10 +29,10 @@ impl ScriptElement {
         }
     }
 
-    pub fn construct_widget(&self, nest_level: usize) -> WidgetType {
+    pub fn construct_widget(&self) -> WidgetType {
         match self {
             ScriptElement::Function(function) => {
-                return WidgetType::FunctionWidget(FunctionWidget::new(function, nest_level))
+                return WidgetType::FunctionWidget(FunctionWidget::new(function))
             },
             ScriptElement::ControlFlow(control_flow) => {
                 todo!()
