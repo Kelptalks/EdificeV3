@@ -7,7 +7,6 @@ use crate::game_data::{player_data::{drone_programming::function::function::Func
 pub struct FunctionSlot {
     panel: Panel,
 
-    function: Rc<RefCell<Function>>,
 }
 
 impl FunctionSlot {
@@ -40,7 +39,6 @@ impl FunctionSlot {
         panel.size();
         FunctionSlot {
             panel: panel, 
-            function: function.clone(),
         }
     }
 
@@ -48,9 +46,6 @@ impl FunctionSlot {
         WidgetType::FunctionSlot(self)
     }
 
-    pub fn get_function_ref(&self) -> &Rc<RefCell<Function>> {
-        return &self.function;
-    }
 
 }
 

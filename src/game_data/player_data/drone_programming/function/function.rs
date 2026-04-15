@@ -1,6 +1,6 @@
-use std::{cell::{Ref, RefCell}, collections::HashMap, rc::Rc};
+use std::{cell::{Ref, RefCell}, collections::HashMap, rc::Rc, usize};
 
-use crate::game_data::{player_data::{drone_programming::{compiled_script_element::CompiledScripElement, function::function_return_value::FunctionReturnValue, script_element::{self, ScriptElement}, var::{var_properties::VarPropModRequest, var_type::Var}}, drones::drone_actions::{drone_actions::DroneAction, prim_actions::{drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}, screen::{camera_controls, widget::prelude::VarSlot}};
+use crate::game_data::{player_data::{drone_programming::{compiled_script_element::CompiledScripElement, function::{self, function_return_value::FunctionReturnValue}, script_element::{self, ScriptElement}, var::{var_properties::VarPropModRequest, var_type::Var}}, drones::drone_actions::{drone_actions::DroneAction, prim_actions::{drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}, screen::{camera_controls, widget::prelude::VarSlot}};
 
 #[derive(Clone)]
 pub struct Function {
@@ -70,14 +70,83 @@ impl Function {
     }
 
 
-    pub fn to_script_element(self) -> ScriptElement {
-        ScriptElement::Function(Rc::new(RefCell::new(self)))
+    pub fn to_script_element(&self) -> ScriptElement {
+        ScriptElement::Function(Rc::new(RefCell::new(self.clone())))
     }
 
     pub fn get_name(&self) -> String {
         self.name.clone()
     }
+    pub fn set_name(&mut self, new_name: &str) {
+        self.name = new_name.to_string();
+    }
 
+
+    pub fn get_all_sub_functions(&self) -> Vec<&ScriptElement> {
+        let mut functions = Vec::new();
+        
+        // Count sub functions in body
+        for script_element in &self.script_elements {
+            if let ScriptElement::Function(function) = script_element {
+                functions.push(script_element);
+            }
+        }
+
+        // Count return functions
+        for (_, script_element) in &self.return_functions {
+            if let ScriptElement::Function(function) = script_element {
+                functions.push(script_element)
+            }
+        }
+
+
+        return functions;
+    }
+
+    pub fn get_function_length(&self) -> usize {
+        // Start by counting itself
+        let mut length = 1;
+        
+
+        // Count sub functions in body
+        for script_element in self.get_all_sub_functions() {
+            if let ScriptElement::Function(function) = script_element {
+                length += function.borrow().get_function_length();
+            }
+        }
+
+
+        return length;
+    }
+
+    pub fn get_function_at_index(&self, index: usize) -> Option<ScriptElement> {
+
+        println!("Looking in {} at index {}",self.name, index);
+
+        if index == 0 {
+            return Some(self.to_script_element());
+        }
+        
+        let mut current_index = index;
+        
+        for script_element in self.get_all_sub_functions() {
+            
+            if let ScriptElement::Function(function) = script_element {
+                let function_length = function.borrow().get_function_length();
+
+                
+                if current_index > function_length {
+                    current_index -= function.borrow().get_function_length();
+                }
+                else {
+                    return function.borrow().get_function_at_index(current_index - 1)
+                }
+                
+            }
+        }
+        
+        return None;
+    } 
 
     //=====================================
     // Conditional
@@ -160,33 +229,18 @@ impl Function {
     pub fn flatten_functions(&mut self, indent: usize) -> Vec<(usize, ScriptElement)> {
         let mut flattened_elements = Vec::new();
 
+    
+        // Self
+        flattened_elements.push((indent, self.to_script_element()));
+
         // Body
-        for script_element in &mut self.script_elements {
-            flattened_elements.push((indent, script_element.clone()));
-            match script_element {
-                ScriptElement::Function(ref_cell) => {
-                    flattened_elements.append(&mut ref_cell.borrow_mut().flatten_functions(indent + 1));
-                },
-                _ => {
-
-                }
+        for script_element in self.get_all_sub_functions() {
+            if let ScriptElement::Function(ref_cell) = script_element {
+                flattened_elements.append(&mut ref_cell.borrow_mut().flatten_functions(indent + 1));
             }
         }
+
         
-
-        // Return
-        for (return_value, script_element) in &mut self.return_functions {
-            flattened_elements.push((indent, script_element.clone()));
-            
-            match script_element {
-                ScriptElement::Function(ref_cell) => {
-                    flattened_elements.append(&mut ref_cell.borrow_mut().flatten_functions(indent + 1));
-                },
-                _ => {
-
-                }
-            }
-        }
 
         // Calculate index skips based off function length    
         flattened_elements

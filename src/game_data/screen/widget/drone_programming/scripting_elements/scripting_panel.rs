@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::{drone_programming::{compiled_script_element, function::{self, function::Function}, script_element::{self, ScriptElement}, var::{programming_vars::programming_var::{self, ProgrammingVar}, var_type::Var}}, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::{drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}, screen::{ScreenData, screen_data, ui_elements::panel, widget::{self, drone_programming::function_slot::FunctionSlot, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, scroll_panel::{self, scroll_panel::ScrollPanel}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::{self, buffer_pos}}}};
+use crate::game_data::{player_data::{drone_programming::{compiled_script_element, function::{self, function::Function}, script_element::{self, ScriptElement}, var::{programming_vars::programming_var::{self, ProgrammingVar}, var_type::Var}}, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::{drone_invintory_actions::DroneInventoryAction, drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}, screen::{ScreenData, screen_data, ui_elements::panel, widget::{self, drone_programming::function_slot::FunctionSlot, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, scroll_panel::{self, scroll_panel::ScrollPanel}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::{self, buffer_pos}}}};
 
 pub struct ScriptingPanel {
     panel : Panel,
@@ -20,11 +20,13 @@ impl ScriptingPanel {
         // TESTING 
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         let mut function = Function::new_blank();
+        function.set_name("Root");
+
         let mut sub_function = Function::new_from_drone_action(DroneAction::GetterAction(DroneGetterAction::IsBusy));
         let return_values = sub_function.get_return();
         for (return_value, script_element) in return_values {
             if let ScriptElement::Function(script_element) = script_element{
-                let test_function = Function::new_from_drone_action(DroneAction::PrimAction(DronePrimAction::DroneWorldAction(DroneWorldAction::MineBlock([0, 0, 1]))));
+                let test_function = Function::new_from_drone_action(DroneAction::PrimAction(DronePrimAction::DroneInventoryAction(DroneInventoryAction::CraftItem(crate::game_data::types::drone_item::DroneItem::Null))));
                 script_element.borrow_mut().add_script_element(0, test_function.clone().to_script_element());
                 script_element.borrow_mut().add_script_element(0, test_function.clone().to_script_element());
                 script_element.borrow_mut().add_script_element(0, test_function.clone().to_script_element());
@@ -51,7 +53,7 @@ impl ScriptingPanel {
         
 
 
-        ScriptingPanel {
+        let mut scripting_panel = ScriptingPanel {
             
             panel: panel,
 
@@ -59,7 +61,11 @@ impl ScriptingPanel {
 
 
             root_function: Rc::new(RefCell::new(function))
-        }
+        };
+
+        scripting_panel.refresh_scripting_widgets();
+
+        scripting_panel
     }
 
     pub fn wrap_into_widget(self) -> WidgetType {
@@ -81,11 +87,10 @@ impl ScriptingPanel {
     // Script Rendering
     //=====================================
 
-    fn get_refreshed_scripting_widgets(&mut self) -> Vec<WidgetType> {
+    fn refresh_scripting_widgets(&mut self) {
         let flattened_script = self.root_function.borrow_mut().flatten_functions(0);
         
         // Init widgets
-        let mut widgets = Vec::new();
 
 
         for (indent, flattened_element) in flattened_script {
@@ -97,29 +102,32 @@ impl ScriptingPanel {
                 let mut indented_panel = Panel::new_blank();
                 indented_panel.add_text_display("-".repeat(indent));
                 indented_panel.add_widget(flattened_element.construct_widget());
-                widgets.push(indented_panel.wrap_into_widget());
+                self.scroll_panel.add_widget(indented_panel.wrap_into_widget());
             }
 
         }
 
-        widgets
     }
 
     //=====================================
     // Script Editing
     //=====================================
 
-    fn get_mouse_script_index(&mut self, screen_data: &ScreenData) -> Option<usize> {
-        let widgets = self.scroll_panel.get_mut_widgets();
-        let mut widget_current_offset = 0.0; 
+    fn get_mouse_script_index(&mut self) -> Option<usize> {
+        let widgets = self.scroll_panel.get_mut_widgets(); 
+        let mut index = None;
         for (i, widget) in widgets.iter_mut().enumerate() {
             if let WidgetType::Panel(panel) = widget {
                 if panel.is_mouse_on() {
-                    return Some(i);
+                    panel.set_color(widget::prelude::PanelColor::Dark);
+                    index = Some(i);
+                }
+                else {
+                    panel.set_color(widget::prelude::PanelColor::Light);
                 }
             }
         }
-        return None;
+        return index;
     }
 
 
@@ -186,29 +194,23 @@ impl Widget for ScriptingPanel {
             }
         }
 
-        let mouse_script_index = self.get_mouse_script_index(screen_data);
-
-
-        self.scroll_panel.clear_widgets();
-        
-        
-        // Add the widgets to scroll panel
-        let widgets = self.get_refreshed_scripting_widgets();
-        
+        let mouse_script_index = self.get_mouse_script_index();
 
         if let Some(mouse_script_index) = mouse_script_index {
-            for (i, mut widget) in widgets.into_iter().enumerate() {
-                
-                if i == mouse_script_index {
-                    if let WidgetType::Panel(panel) = &mut widget {
-                        panel.set_color(widget::prelude::PanelColor::Dark);
-                    }
-                }
+            if screen_data.was_left_pressed() {
+                let element_option = self.root_function.borrow().get_function_at_index(mouse_script_index);
 
-                self.scroll_panel.add_widget(widget);
-            
+                if let Some(element) = element_option {
+                    println!("{}", element.get_name());
+                }
+                else {
+                    println!("None");
+                }
+                
             }
         }
+
+    
 
 
 
