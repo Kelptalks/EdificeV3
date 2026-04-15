@@ -1,4 +1,6 @@
 
+use image::flat;
+
 use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::EventManager, prelude::Event}, screen::{ScreenData, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::scroll_panel::ScrollPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations}}};
 
 
@@ -49,6 +51,7 @@ pub struct Panel {
 
     // Control
     events: Vec<Event>,
+    mouse_on: bool,
 }
 
 impl Panel {
@@ -82,6 +85,7 @@ impl Panel {
 
             // Control
             events: Vec::new(),
+            mouse_on: false,
         };
 
         return panel;
@@ -291,6 +295,10 @@ impl Panel {
         self.events.append(events);
     }
 
+    pub fn is_mouse_on(&self) -> bool {
+        self.mouse_on
+    }
+
 }
 
 
@@ -334,6 +342,10 @@ impl Widget for Panel {
 
         if screen_data.mouse_on_ndc_pos(self.pos) {
             game_event_manager.add_events(&self.events);
+            self.mouse_on = true;
+        }
+        else {
+            self.mouse_on = false;
         }
     }
 }

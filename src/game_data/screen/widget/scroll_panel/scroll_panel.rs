@@ -55,16 +55,18 @@ impl ScrollPanel {
         }
     }
 
-
     pub fn add_widget(&mut self, widget: WidgetType) {
         self.widgets.push(widget);
     }
 
     pub fn add_widgets(&mut self, widgets: Vec<WidgetType>) {
-        
         for widget in widgets {
             self.widgets.push(widget);
         }
+    }
+
+    pub fn get_mut_widgets(&mut self) -> &mut Vec<WidgetType> {
+        &mut self.widgets
     }
 
     pub fn clear_widgets(&mut self) {

@@ -1,4 +1,4 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, fmt::format, rc::Rc};
 
 use crate::game_data::{player_data::{drone_programming::function::function::Function, drones::drone_actions::drone_actions::DroneAction}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, widget::{Widget, WidgetType}, widget_calculations::TextSize}};
 
@@ -12,26 +12,35 @@ pub struct FunctionSlot {
 
 impl FunctionSlot {
 
-    pub fn new_with_function_ref(function: Function) -> FunctionSlot {
+    pub fn new_with_function_ref(function: &Rc<RefCell<Function>>) -> FunctionSlot {
         let mut panel = Panel::new_blank();
-        panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
+        
+        // panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
 
-        panel.add_text_display(function.get_name()).set_text_scale(TextSize::ExtraSmall);
+        panel.add_text_display(function.borrow().get_name()).set_text_scale(TextSize::ExtraSmall);
 
-        let param_sub_panel = panel.add_sub_panel();
-        // Constuct var slots
-        for var in function.get_params() {
-            let mut var_slot = VarSlot::new(var);
-            var_slot.set_allowed_type(var.borrow().to_kind());
-            param_sub_panel.add_widget(var_slot.wrap_into_widget());
+        // Function Conditional
+        if let Some(conditional) = function.borrow().get_conditional() {
+            let conditional_sub_panel = panel.add_sub_panel();
+            let conditional_string = format!("Condition: {}", conditional.to_string());
+            conditional_sub_panel.add_text_display(conditional_string);
+        }
+
+        // Function Params
+        if function.borrow().get_params().len() > 0 {
+            let param_sub_panel = panel.add_sub_panel();
+            // Constuct var slots
+            for var in function.borrow().get_params() {
+                let mut var_slot = VarSlot::new(var);
+                var_slot.set_allowed_type(var.borrow().to_kind());
+                param_sub_panel.add_widget(var_slot.wrap_into_widget());
+            }
         }
 
         panel.size();
-
-
         FunctionSlot {
             panel: panel, 
-            function: Rc::new(RefCell::new(function)),
+            function: function.clone(),
         }
     }
 

@@ -1,11 +1,13 @@
 use std::{cell::{Ref, RefCell}, collections::HashMap, rc::Rc};
 
-use crate::game_data::{player_data::{drone_programming::{compiled_script_element::CompiledScripElement, function::function_return_value::FunctionReturnValue, script_element::{self, ScriptElement}, var::var_type::Var}, drones::drone_actions::{drone_actions::DroneAction, prim_actions::{drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}, screen::{camera_controls, widget::prelude::VarSlot}};
+use crate::game_data::{player_data::{drone_programming::{compiled_script_element::CompiledScripElement, function::function_return_value::FunctionReturnValue, script_element::{self, ScriptElement}, var::{var_properties::VarPropModRequest, var_type::Var}}, drones::drone_actions::{drone_actions::DroneAction, prim_actions::{drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}, screen::{camera_controls, widget::prelude::VarSlot}};
 
 #[derive(Clone)]
 pub struct Function {
     name: String,
     
+    conditional: Option<FunctionReturnValue>,
+
     params: Vec<Rc<RefCell<Var>>>,
 
     script_elements: Vec<ScriptElement>,
@@ -25,6 +27,7 @@ impl Function {
         Function {
             name: "Blank Function".to_string(),
 
+            conditional: None,
             params: Vec::new(),
             
             script_elements: Vec::new(),
@@ -47,7 +50,10 @@ impl Function {
         let return_values = action.create_return_values();
         for return_value in return_values {
             let mut function = Function::new_blank();
-            function.name = return_value.to_string();
+            
+            
+            function.name = "Case".to_string();
+            function.conditional = Some(return_value.clone());
             return_functions.push((return_value, function.to_script_element()))
         }
         
@@ -56,6 +62,7 @@ impl Function {
             name: name,
             params: params,  
 
+            conditional: None,
             script_elements: script_elements,            
 
             return_functions: return_functions,
@@ -67,10 +74,31 @@ impl Function {
         ScriptElement::Function(Rc::new(RefCell::new(self)))
     }
 
+    pub fn get_name(&self) -> String {
+        self.name.clone()
+    }
+
+
+    //=====================================
+    // Conditional
+    //=====================================
+
+    pub fn get_conditional(&self) -> &Option<FunctionReturnValue> {
+        return &self.conditional;
+    }
+
+
+    //=====================================
+    // Params
+    //=====================================
 
     pub fn get_params(&self) -> &Vec<Rc<RefCell<Var>>> {
         &self.params
     }
+
+    //=====================================
+    // Body
+    //=====================================
 
     pub fn add_script_element(&mut self, index: usize, script_element: ScriptElement) {
         self.script_elements.push(script_element);
@@ -79,6 +107,11 @@ impl Function {
     pub fn get_script_elements(&self) -> &Vec<ScriptElement> {
         return &self.script_elements
     }
+
+
+    //=====================================
+    // Return
+    //=====================================
 
     pub fn get_return_functions(&self) -> Vec<ScriptElement> {
         self.return_functions
@@ -91,9 +124,9 @@ impl Function {
         &mut self.return_functions
     }
 
-    pub fn get_name(&self) -> String {
-        self.name.clone()
-    }
+    //=====================================
+    // Compilation
+    //=====================================
 
     pub fn get_length(&self) -> usize {
         let mut length = 0;
@@ -102,6 +135,9 @@ impl Function {
             match script_element {
                 ScriptElement::Function(ref_cell) => length += ref_cell.borrow().get_length(),
                 ScriptElement::Action(drone_action) => length += 1,
+                _ => {
+
+                }
             }
         }
         
@@ -109,6 +145,9 @@ impl Function {
             match script_element {
                 ScriptElement::Function(ref_cell) => length += ref_cell.borrow().get_length(),
                 ScriptElement::Action(drone_action) => length += 1,
+                _ => {
+                    
+                }
             }
         }
 
@@ -116,21 +155,17 @@ impl Function {
     }    
 
 
-    pub fn flatten(&mut self, indent: usize) -> Vec<(usize, ScriptElement)> {
+    /// Flatten returns all elements in an orginized array
+    /// Similer to compiled but used for minipulating things like params before rendering
+    pub fn flatten_functions(&mut self, indent: usize) -> Vec<(usize, ScriptElement)> {
         let mut flattened_elements = Vec::new();
 
-        // LOOP THROUGH ALL ELEMENTS
-
-        for var in &self.params {
-            
-        }
-
-
+        // Body
         for script_element in &mut self.script_elements {
             flattened_elements.push((indent, script_element.clone()));
             match script_element {
                 ScriptElement::Function(ref_cell) => {
-                    flattened_elements.append(&mut ref_cell.borrow_mut().flatten(indent + 1));
+                    flattened_elements.append(&mut ref_cell.borrow_mut().flatten_functions(indent + 1));
                 },
                 _ => {
 
@@ -138,12 +173,14 @@ impl Function {
             }
         }
         
+
+        // Return
         for (return_value, script_element) in &mut self.return_functions {
             flattened_elements.push((indent, script_element.clone()));
             
             match script_element {
                 ScriptElement::Function(ref_cell) => {
-                    flattened_elements.append(&mut ref_cell.borrow_mut().flatten(indent + 1));
+                    flattened_elements.append(&mut ref_cell.borrow_mut().flatten_functions(indent + 1));
                 },
                 _ => {
 
@@ -180,19 +217,19 @@ impl Function {
             }
         }
         
-        let mut return_function = Vec::new();
         for (return_value, script_element) in &mut self.return_functions {
             match script_element {
                 ScriptElement::Function(ref_cell) => {
-                    let element = 
+                    // Add return value type element
+                    let return_value_as_element = 
                         CompiledScripElement::ReturnValueToIndexMod(
                             return_value.clone(), 
                             ref_cell.borrow().get_length()
                         );
-                    compiled_elements.push((indent, element));
+                    compiled_elements.push((indent, return_value_as_element));
                     
-                    
-                    return_function.append(&mut ref_cell.borrow_mut().compile(indent));
+                    // Add the function after the return value 
+                    compiled_elements.append(&mut ref_cell.borrow_mut().compile(indent));
                 },
                 ScriptElement::Action(action) => {
                     compiled_elements.push((indent, CompiledScripElement::DroneAction(action.clone())));
@@ -202,8 +239,6 @@ impl Function {
                 }
             }
         }
-
-        compiled_elements.append(&mut return_function);
 
         // Calculate index skips based off function length
         
