@@ -120,9 +120,6 @@ impl Function {
     }
 
     pub fn get_function_at_index(&self, index: usize) -> Option<ScriptElement> {
-
-        println!("Looking in {} at index {}",self.name, index);
-
         if index == 0 {
             return Some(self.to_script_element());
         }
@@ -146,6 +143,32 @@ impl Function {
         }
         
         return None;
+    }
+
+    pub fn add_function_at_index(&mut self, index: usize, new_function: Function) {
+        if index == 0 {
+            self.add_script_element(0, new_function.to_script_element());
+            return;
+        }
+        
+        let mut current_index = index;
+        
+        for script_element in self.get_all_sub_functions() {
+            
+            if let ScriptElement::Function(function) = script_element {
+                let function_length = function.borrow().get_function_length();
+
+                
+                if current_index > function_length {
+                    current_index -= function.borrow().get_function_length();
+                }
+                else {
+                    function.borrow_mut().add_function_at_index(current_index - 1, new_function);
+                    return;
+                }
+                
+            }
+        }
     } 
 
     //=====================================

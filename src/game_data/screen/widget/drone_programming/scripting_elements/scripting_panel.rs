@@ -77,7 +77,11 @@ impl ScriptingPanel {
         let borrow = var_held_by_mouse.borrow_mut();
         if let Var::ProgrammingVar(programming_var) = &*borrow {
             if let ProgrammingVar::Function(function) = programming_var{
-
+                let mouse_script_index = self.get_mouse_script_index();
+                if let Some(mouse_script_index) = mouse_script_index {
+                    self.root_function.borrow_mut().add_function_at_index(mouse_script_index, function.clone());
+                    self.refresh_scripting_widgets();
+                }
             }
         }
     }
@@ -90,7 +94,7 @@ impl ScriptingPanel {
     fn refresh_scripting_widgets(&mut self) {
         let flattened_script = self.root_function.borrow_mut().flatten_functions(0);
         
-        // Init widgets
+        self.scroll_panel.clear_widgets();
 
 
         for (indent, flattened_element) in flattened_script {
@@ -198,14 +202,9 @@ impl Widget for ScriptingPanel {
 
         if let Some(mouse_script_index) = mouse_script_index {
             if screen_data.was_left_pressed() {
-                let element_option = self.root_function.borrow().get_function_at_index(mouse_script_index);
 
-                if let Some(element) = element_option {
-                    println!("{}", element.get_name());
-                }
-                else {
-                    println!("None");
-                }
+
+            
                 
             }
         }
