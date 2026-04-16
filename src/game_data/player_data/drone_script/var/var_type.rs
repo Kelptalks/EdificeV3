@@ -1,6 +1,6 @@
 
 
-use crate::game_data::{player_data::drone_programming::var::{game_vars::game_var_type::{GameVar, GameVarTypeKind}, programming_vars::programming_var::{self, ProgrammingVar, ProgrammingVarKind}, var_properties::{VarPropModRequest, VarProperty}}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::{GameVarType, GameVarTypeKind}, programming_vars::programming_var::{self, ProgrammingVar, ProgrammingVarKind}, var::Var, var_properties::{VarPropModRequest, VarProperty}}, texture_manager::texture::Texture, types::BlockTexture};
 
 
 
@@ -44,26 +44,37 @@ impl VarTypeKind {
 
 
 #[derive(Clone, PartialEq)]
-pub enum Var {
-    Game(GameVar),
+pub enum VarType {
+    Null(),
+    Game(GameVarType),
     ProgrammingVar(ProgrammingVar),
 }
 
-impl Var {
+impl VarType {
+    pub fn create_var(self) -> Var {
+        Var::new_with_var_type(self)
+    }
+
     pub fn get_texture(&self) -> Texture {
         match self {
-            Var::Game(game_var_type) => game_var_type.get_texture(),
-            Var::ProgrammingVar(programming_var) => programming_var.get_texture(),
+            VarType::Null() => {
+                Texture::BlockTexture(BlockTexture::Air)
+            },
+            VarType::Game(game_var_type) => game_var_type.get_texture(),
+            VarType::ProgrammingVar(programming_var) => programming_var.get_texture(),
         }
     }
 
     pub fn to_kind(&self) -> VarTypeKind {
         match self {
-            Var::Game(game_var_type) => {
+            VarType::Null() => {
+                VarTypeKind::Any
+            },
+            VarType::Game(game_var_type) => {
                 VarTypeKind::Game(game_var_type.to_kind())
                 
             },
-            Var::ProgrammingVar(programming_var) => {
+            VarType::ProgrammingVar(programming_var) => {
                 VarTypeKind::ProgrammingVar(programming_var.to_kind())
             }
         }
@@ -71,24 +82,33 @@ impl Var {
 
     pub fn get_name(&self) -> String {
         match self {
-            Var::Game(game_var) => game_var.get_name(),
-            Var::ProgrammingVar(programming_var) => programming_var.get_name(),
+            VarType::Null() => {
+                return "NULL".to_string()
+            },
+            VarType::Game(game_var) => game_var.get_name(),
+            VarType::ProgrammingVar(programming_var) => programming_var.get_name(),
         }
     }
 
     pub fn clear(&mut self) {
         match self {
-            Var::Game(game_var) => {game_var.clear()},
-            Var::ProgrammingVar(programming_var) => {programming_var.clear();}
+            VarType::Null() => {
+
+            }
+            VarType::Game(game_var) => {game_var.clear()},
+            VarType::ProgrammingVar(programming_var) => {programming_var.clear();}
         }
     }
 
     pub fn get_properties(&self) -> Vec<VarProperty> {
         match self {
-            Var::Game(game_var) => {
+            VarType::Null() => {
+                return Vec::new()
+            }
+            VarType::Game(game_var) => {
                 game_var.get_properties()
             }
-            Var::ProgrammingVar(programming_var) => {
+            VarType::ProgrammingVar(programming_var) => {
                 programming_var.get_properties()
             }
         }
@@ -96,13 +116,15 @@ impl Var {
 
     pub fn request_prop(&mut self, request: VarPropModRequest) {
         match self {
-            Var::Game(game_var) => {
+            VarType::Null() => {
+
+            },
+            VarType::Game(game_var) => {
                 game_var.request_prop(request)
             },
-            Var::ProgrammingVar(programming_var) => {
+            VarType::ProgrammingVar(programming_var) => {
                 programming_var.request_prop(request);
             }
         }
     } 
-
 }

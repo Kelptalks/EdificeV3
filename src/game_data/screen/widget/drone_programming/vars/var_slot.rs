@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::EventManager, player_data::drone_programming::var::var_type::{Var, VarTypeKind}, screen::{ScreenData, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations}}};
+use crate::game_data::{game_event_manager::prelude::EventManager, player_data::drone_script::var::var_type::{VarType, VarTypeKind}, screen::{ScreenData, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations}}};
 
 
 
@@ -16,7 +16,7 @@ pub struct VarSlot {
     pos: [f32; 4],
     scale: [f32; 2],
     
-    var_ref: Rc<RefCell<Var>>,
+    var_ref: Rc<RefCell<VarType>>,
     var_string_ndc: [f32; 2],
 
 
@@ -40,7 +40,7 @@ Var Slots contain an RC that can be used in events, or just to manage values
 */
 
 impl VarSlot {
-    pub fn new(var_instance: &Rc<RefCell<Var>>) -> VarSlot {
+    pub fn new(var_instance: &Rc<RefCell<VarType>>) -> VarSlot {
 
         VarSlot {
             // Parent Rendering
@@ -91,7 +91,7 @@ impl VarSlot {
 
 
     // Set the variable of the slot if var released matches both type allowed and settings is allowed
-    fn try_and_set_var(&mut self, var_held_by_mouse: &Option<Rc<RefCell<Var>>>) {
+    fn try_and_set_var(&mut self, var_held_by_mouse: &Option<Rc<RefCell<VarType>>>) {
         if self.allow_setting {
             if let Some(var_held_by_mouse) = var_held_by_mouse {
                 if var_held_by_mouse == &self.var_ref {
@@ -107,7 +107,7 @@ impl VarSlot {
     }
 
     // Get the value of the slot ref if it allows
-    fn try_and_get_var(&mut self) -> Option<Rc<RefCell<Var>>> {
+    fn try_and_get_var(&mut self) -> Option<Rc<RefCell<VarType>>> {
         if self.allow_dragging {
             return Some(self.var_ref.clone());
         }

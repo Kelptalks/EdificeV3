@@ -2,9 +2,9 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::game_data::{
     locations::world_area::WorldArea, 
-    player_data::drone_programming::var::{
-        game_vars::{dynamic_var::DynamicVar, game_var_type::GameVar}, 
-        var_type::Var
+    player_data::drone_script::var::{
+        game_vars::{dynamic_var::DynamicVarType, game_var_type::GameVarType}, 
+        var_type::VarType
     }, 
     screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::{LairBlock, LairBlockMod},  
     tools::cords_tool, 
@@ -89,13 +89,13 @@ impl LairBlockManager {
     }
 
 
-    pub fn render_var(&mut self, var: &Rc<RefCell<Var>>) {
+    pub fn render_var(&mut self, var: &Rc<RefCell<VarType>>) {
         let borrow = var.borrow();
         
         
         // Dynamic Var
-        if let Var::Game(GameVar::Dynamic(dynamic_var)) = &*borrow {
-            if let DynamicVar::Location(location_ref_option) = dynamic_var {
+        if let VarType::Game(GameVarType::Dynamic(dynamic_var)) = &*borrow {
+            if let DynamicVarType::Location(location_ref_option) = dynamic_var {
                 if let Some(location_ref) = location_ref_option {
                     location_ref.borrow().get_lair_block_mods();
 
@@ -106,7 +106,7 @@ impl LairBlockManager {
                 }
             }
             
-            if let DynamicVar::Drone(drone_ref_option) = dynamic_var {
+            if let DynamicVarType::Drone(drone_ref_option) = dynamic_var {
                 if let Some(drone_ref) = drone_ref_option {
                     self.add_lair_block_mods(drone_ref.borrow().get_lair_block_mods());
                 }

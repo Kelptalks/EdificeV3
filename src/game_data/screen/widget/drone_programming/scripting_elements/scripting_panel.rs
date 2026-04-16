@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::{drone_programming::{compiled_script_element, function::{self, function::Function}, script_element::{self, ScriptElement}, var::{programming_vars::programming_var::{self, ProgrammingVar}, var_type::Var}}, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::{drone_invintory_actions::DroneInventoryAction, drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}, screen::{ScreenData, screen_data, ui_elements::panel, widget::{self, drone_programming::function_slot::FunctionSlot, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, scroll_panel::{self, scroll_panel::ScrollPanel}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::{self, buffer_pos}}}};
+use crate::game_data::{player_data::{drone_script::{compiled_script_element, function::{self, function::Function}, script_element::{self, ScriptElement}, var::{programming_vars::programming_var::{self, ProgrammingVar}, var_type::VarType}}, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::{drone_invintory_actions::DroneInventoryAction, drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}, screen::{ScreenData, screen_data, ui_elements::panel, widget::{self, drone_programming::function_slot::FunctionSlot, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, scroll_panel::{self, scroll_panel::ScrollPanel}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::{self, buffer_pos}}}};
 
 pub struct ScriptingPanel {
     panel : Panel,
@@ -15,42 +15,10 @@ impl ScriptingPanel {
 
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
         panel.add_text_display("Scripting Panel".to_string());
-        
 
-        // TESTING 
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        let mut function = Function::new_blank();
-        function.set_name("Root");
 
-        let mut sub_function = Function::new_from_drone_action(DroneAction::GetterAction(DroneGetterAction::IsBusy));
-        let return_values = sub_function.get_return();
-        for (return_value, script_element) in return_values {
-            if let ScriptElement::Function(script_element) = script_element{
-                let test_function = Function::new_from_drone_action(DroneAction::PrimAction(DronePrimAction::DroneInventoryAction(DroneInventoryAction::CraftItem(crate::game_data::types::drone_item::DroneItem::Null))));
-                script_element.borrow_mut().add_script_element(0, test_function.clone().to_script_element());
-                script_element.borrow_mut().add_script_element(0, test_function.clone().to_script_element());
-                script_element.borrow_mut().add_script_element(0, test_function.clone().to_script_element());
 
-                // sub function
-                let mut sub_sub_function = Function::new_from_drone_action(DroneAction::GetterAction(DroneGetterAction::IsBusy));
-                
-
-                let sub_return_values = sub_sub_function.get_return();
-
-                for (sub_return_values, sub_script_element) in sub_return_values {
-                    if let ScriptElement::Function(sub_script_element) = sub_script_element {
-                        sub_script_element.borrow_mut().add_script_element(0, test_function.clone().to_script_element());
-                    }
-                }
-
-                script_element.borrow_mut().add_script_element(0, sub_sub_function.to_script_element());
-
-            }
-            
-        }
-        function.add_script_element(0, sub_function.to_script_element());
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        
+        let function = Function::new_blank();
 
 
         let mut scripting_panel = ScriptingPanel {
@@ -73,10 +41,10 @@ impl ScriptingPanel {
     }
 
 
-    fn handle_released_var(&mut self, var_held_by_mouse: &Rc<RefCell<Var>>) {
+    fn handle_released_var(&mut self, var_held_by_mouse: &Rc<RefCell<VarType>>) {
         let borrow = var_held_by_mouse.borrow_mut();
-        if let Var::ProgrammingVar(programming_var) = &*borrow {
-            if let ProgrammingVar::Function(function) = programming_var{
+        if let VarType::ProgrammingVar(programming_var) = &*borrow {
+            if let ProgrammingVar::FunctionCall(function) = programming_var{
                 let mouse_script_index = self.get_mouse_script_index();
                 if let Some(mouse_script_index) = mouse_script_index {
                     self.root_function.borrow_mut().add_function_at_index(mouse_script_index, function.clone());

@@ -1,4 +1,4 @@
-use crate::game_data::player_data::{drone_programming::function::function_return_value::FunctionReturnValue, drones::{drone::Drone, drone_actions::drone_actions::DroneAction}};
+use crate::game_data::player_data::{drone_script::var::var::Var, drones::{drone::Drone, drone_actions::drone_actions::{DroneAction, DroneActionError}}};
 
 #[derive(Clone)]
 pub enum DroneGetterAction {
@@ -10,9 +10,9 @@ impl DroneGetterAction {
         DroneAction::GetterAction(self)
     }
     
-    pub fn execute(&self, drone: &mut Drone) -> FunctionReturnValue {
+    pub fn execute(&self, drone: &mut Drone) -> Var {
         match self {
-            DroneGetterAction::IsBusy => FunctionReturnValue::Bool(drone.is_busy()),
+            DroneGetterAction::IsBusy => DroneActionError::Ok.wrap_into_var_type().create_var(),
         }
     }
 
@@ -38,12 +38,12 @@ impl DroneGetterAction {
     // Function Managment
     //=====================================
 
-    pub fn create_return_values(&self) -> Vec<FunctionReturnValue> {
+    pub fn create_return_values(&self) -> Vec<DroneVar> {
         let mut return_values=  Vec::new();
         match self {
             DroneGetterAction::IsBusy => {
-                return_values.push(FunctionReturnValue::Bool(true));
-                return_values.push(FunctionReturnValue::Bool(false));
+                return_values.push(DroneVar::Bool(true));
+                return_values.push(DroneVar::Bool(false));
             }
         }
         return_values

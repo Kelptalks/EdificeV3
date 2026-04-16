@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_programming::var::{game_vars::primitive_var::PrimitiveVar, programming_vars::programming_var::ProgrammingVar, var_properties::{PropKey, PropValue, VarPropModRequest}, var_type::Var}, screen::widget::{drone_programming::vars::var_prop_widgets::var_prop_widgets::VarPropVal, panel::panel::Panel, prelude::VarSlot, text::text_input::TextInput, toggle_button::{self, toggle_button::ToggleButton}, widget::{Widget, WidgetType}}, types::drone_item::DroneItem};
+use crate::game_data::{player_data::drone_script::var::{game_vars::primitive_var::PrimitiveVarType, programming_vars::programming_var::ProgrammingVar, var_properties::{PropKey, PropValue, VarPropModRequest}, var_type::VarType}, screen::widget::{drone_programming::vars::var_prop_widgets::var_prop_widgets::VarPropVal, panel::panel::Panel, prelude::VarSlot, text::text_input::TextInput, toggle_button::{self, toggle_button::ToggleButton}, widget::{Widget, WidgetType}}, types::drone_item::DroneItem};
 
 pub struct VarPropWidget {
     // Mutable
@@ -11,7 +11,7 @@ pub struct VarPropWidget {
 
 
     set_var_bool: Rc<RefCell<bool>>,
-    var: Rc<RefCell<Var>>,
+    var: Rc<RefCell<VarType>>,
 }
 
 impl VarPropWidget {
@@ -20,7 +20,7 @@ impl VarPropWidget {
         let mut panel = Panel::new_blank();
         
         // Var Slot
-        let var = Rc::new(RefCell::new(PrimitiveVar::DroneItem(DroneItem::Ash).wrap_into_var()));
+        let var = Rc::new(RefCell::new(PrimitiveVarType::DroneItem(DroneItem::Ash).wrap_into_var()));
         let var_slot = VarSlot::new(&var);
         panel.add_widget(var_slot.wrap_into_widget());
         

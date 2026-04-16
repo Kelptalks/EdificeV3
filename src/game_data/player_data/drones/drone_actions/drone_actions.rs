@@ -1,19 +1,12 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{
-    World, 
-    game_event_manager::prelude::EventManager, 
-    player_data::{
-        drone_programming::{
-            function::function_return_value::{ErrorCode, FunctionReturnValue}, 
-            var::var_type::Var
-        }, 
-        drones::{
-            drone::Drone, 
-            drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::drone_prim_actions::DronePrimAction}}}};
+use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_script::var::{game_vars::action_var::{ActionVarType, ErrorCode}, var::Var, var_type::VarType}, drones::{drone::Drone, drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::drone_prim_actions::DronePrimAction}}}};
+
+
 
 #[derive(Clone, PartialEq)]
 pub enum DroneActionError {
+    Ok,
     Busy,
     FailedToPath,
     OutOfRange,
@@ -27,12 +20,13 @@ pub enum DroneActionError {
 
 
 impl DroneActionError {
-    pub fn wrap(self) -> FunctionReturnValue {
-        FunctionReturnValue::Fail(ErrorCode::DroneActionError(self))
+    pub fn wrap_into_var_type(self) -> VarType {
+        ActionVarType::Status(ErrorCode::DroneActionError(self)).wrap_into_var_type()
     }
 
-    pub fn to_string(&self) -> String {
+    pub fn get_name(&self) -> String {
         match self {
+            DroneActionError::Ok => "Ok".to_string(),
             DroneActionError::Busy => "busy".to_string(),
             DroneActionError::FailedToPath => "FailedToPath".to_string(),
             DroneActionError::OutOfRange => "OutOfRange".to_string(),
@@ -54,7 +48,7 @@ pub enum DroneAction {
 }
 
 impl DroneAction {
-    pub fn execute(&self, drone: &mut Drone, world: &World, event_manager: &mut EventManager) -> FunctionReturnValue {
+    pub fn execute(&self, drone: &mut Drone, world: &World, event_manager: &mut EventManager) -> Var {
         match self {
             DroneAction::PrimAction(drone_prim_action) => {
                 return drone_prim_action.execute(drone, world, event_manager);
@@ -94,10 +88,10 @@ impl DroneAction {
     // Function Managment
     //=====================================
 
-    pub fn create_param_vars(&self) -> Vec<Rc<RefCell<Var>>> {
+    pub fn param_var_types(&self) -> Vec<Var> {
         match self {
             DroneAction::PrimAction(drone_prim_action) => {
-                drone_prim_action.create_param_vars()
+                drone_prim_action.get_param_var_types()
             },
             DroneAction::AdvancedAction(advanced_drone_action) => {
                 advanced_drone_action.create_param_vars()
@@ -108,7 +102,7 @@ impl DroneAction {
         }
     }
 
-    pub fn set_params_from_vars(&mut self, params: &Vec<Rc<RefCell<Var>>>) {
+    pub fn set_params_from_vars(&mut self, params: &Vec<Rc<RefCell<VarType>>>) {
         match self {
             DroneAction::PrimAction(drone_prim_action) => {
                 drone_prim_action.set_params_from_vars(params);
@@ -119,14 +113,6 @@ impl DroneAction {
             DroneAction::GetterAction(getter_action) => {
 
             }
-        }
-    }
-
-    pub fn create_return_values(&self) -> Vec<FunctionReturnValue> {
-        match self {
-            DroneAction::PrimAction(drone_prim_action) => Vec::new(),
-            DroneAction::AdvancedAction(drone_advanced_action) => Vec::new(),
-            DroneAction::GetterAction(drone_getter_action) => drone_getter_action.create_return_values(),
         }
     }
 }

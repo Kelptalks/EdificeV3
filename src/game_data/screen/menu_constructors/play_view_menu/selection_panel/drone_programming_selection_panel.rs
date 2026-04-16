@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::{drone_programming::{function::function::Function, var::programming_vars::programming_var::ProgrammingVar}, drones::drone_actions::drone_actions::DroneAction}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel, VarSlot}, widget::WidgetType, widget_calculations::TextSize}, types::UITextures};
+use crate::game_data::{player_data::{drone_script::{function::function::Function, var::programming_vars::programming_var::ProgrammingVar}, drones::drone_actions::drone_actions::DroneAction}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel, VarSlot}, widget::WidgetType, widget_calculations::TextSize}, types::UITextures};
 
 
 
@@ -33,7 +33,7 @@ fn get_function_selection_panel() -> WidgetType {
             
 
             let function = Function::new_from_drone_action(action);
-            let var = ProgrammingVar::construct_function_var(function);
+            let var = ProgrammingVar::construct_function_call_var(function);
 
             let mut var_slot = VarSlot::new(&var);
             var_slot.set_dragging_properties(true, false, false);

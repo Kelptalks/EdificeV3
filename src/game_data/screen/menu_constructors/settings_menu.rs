@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::render_event_manager::render_event_manager::RenderEvent, player_data::{drone_programming::{function::function::Function, script_element, var::{game_vars::{game_var_type::{GameVar, GameVarTypeKind}, primitive_var::{PrimitiveVar, PrimitiveVarTypeKind}}, var_type::{Var, VarTypeKind}}}, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, getter_actions::getter_actions::DroneGetterAction}, player_data::PlayerData}, screen::{ScreenData, widget::{drone_programming::{scripting_elements::scripting_panel, vars::var_slot::VarSlot}, panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, tab_panel::var_tab_panel::{self, VarTabPanel}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::{BlockTexture, drone_item::DroneItem}};
+use crate::game_data::{game_event_manager::render_event_manager::render_event_manager::RenderEvent, player_data::{drone_script::{function::function::Function, script_element, var::{game_vars::{game_var_type::{GameVarType, GameVarTypeKind}, primitive_var::{PrimitiveVarType, PrimitiveVarTypeKind}}, var_type::{VarType, VarTypeKind}}}, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, getter_actions::getter_actions::DroneGetterAction}, player_data::PlayerData}, screen::{ScreenData, widget::{drone_programming::{scripting_elements::scripting_panel, vars::var_slot::VarSlot}, panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, tab_panel::var_tab_panel::{self, VarTabPanel}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::{BlockTexture, drone_item::DroneItem}};
 
 
 
@@ -15,7 +15,7 @@ pub fn test_var_slots() -> WidgetType {
         let block_sub_panel = panel.add_sub_panel();
         let blocks = [BlockTexture::Air, BlockTexture::Stone, BlockTexture::Granite, BlockTexture::Grass, BlockTexture::BlueGrass];
         for i in 0..blocks.len() {
-            let var_instance = Rc::new(RefCell::new(Var::Game(GameVar::Primitive(PrimitiveVar::Block(blocks[i])))));
+            let var_instance = Rc::new(RefCell::new(VarType::Game(GameVarType::Primitive(PrimitiveVarType::Block(blocks[i])))));
             let mut var_slot = VarSlot::new(&var_instance);
 
             var_slot.set_allowed_type(VarTypeKind::Game(GameVarTypeKind::Primitive(PrimitiveVarTypeKind::Block)));
@@ -30,7 +30,7 @@ pub fn test_var_slots() -> WidgetType {
         let item_sub_panel = panel.add_sub_panel();
         let items = [DroneItem::Ash, DroneItem::Dirt, DroneItem::PlantMatter, DroneItem::IronBattery, DroneItem::DroneChassis];
         for i in 0..items.len() {
-            let var_instance = Rc::new(RefCell::new(Var::Game(GameVar::Primitive(PrimitiveVar::DroneItem(items[i])))));
+            let var_instance = Rc::new(RefCell::new(VarType::Game(GameVarType::Primitive(PrimitiveVarType::DroneItem(items[i])))));
             let mut var_slot = VarSlot::new(&var_instance);
 
             var_slot.set_allowed_type(VarTypeKind::Game(GameVarTypeKind::Primitive(PrimitiveVarTypeKind::DroneItem)));
@@ -46,7 +46,7 @@ pub fn test_var_slots() -> WidgetType {
         let slot_sub_panel = panel.add_sub_panel();
         
         
-        let var_instance = Rc::new(RefCell::new(Var::Game(GameVar::Primitive(PrimitiveVar::DroneItem(DroneItem::Ash)))));
+        let var_instance = Rc::new(RefCell::new(VarType::Game(GameVarType::Primitive(PrimitiveVarType::DroneItem(DroneItem::Ash)))));
         let mut var_slot = VarSlot::new(&var_instance);
 
 
@@ -60,7 +60,7 @@ pub fn test_var_slots() -> WidgetType {
 }
 
 pub fn test_var_tab_panel() -> WidgetType {
-    let var_ref = Rc::new(RefCell::new(PrimitiveVar::Block(BlockTexture::Hive).wrap_into_var()));
+    let var_ref = Rc::new(RefCell::new(PrimitiveVarType::Block(BlockTexture::Hive).wrap_into_var()));
     let var_tab_panel = VarTabPanel::new(&var_ref);
 
 

@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{prelude::{Event, PlayerDataEvent, WorldEvent}, widget_event_manager::play_view_events::PlayViewEvent}, player_data::{drone_programming::var::{game_vars::{dynamic_var::DynamicVar, game_var_type::GameVar}, var_type::Var}, player_data::PlayerData}, screen::{menu_constructors::play_view_menu::new_play_view::{PlayViewMode, RefManager}, widget::{button::button::Button, panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel, VarSlot}, toggle_button, widget::WidgetType, world_rendering::rendering_config::cursor_config::CursorMode}}, types::{BlockTexture, UITextures}};
+use crate::game_data::{game_event_manager::{prelude::{Event, PlayerDataEvent, WorldEvent}, widget_event_manager::play_view_events::PlayViewEvent}, player_data::{drone_script::var::{game_vars::{dynamic_var::DynamicVarType, game_var_type::GameVarType}, var_type::VarType}, player_data::PlayerData}, screen::{menu_constructors::play_view_menu::new_play_view::{PlayViewMode, RefManager}, widget::{button::button::Button, panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel, VarSlot}, toggle_button, widget::WidgetType, world_rendering::rendering_config::cursor_config::CursorMode}}, types::{BlockTexture, UITextures}};
 
 //=====================================
 // Helper
@@ -51,7 +51,7 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         panel.set_color(PanelColor::Dark);
 
         // Cursor Location Ref
-        let cursor_var_ref = Rc::new(RefCell::new(Var::Game(GameVar::Dynamic(DynamicVar::Location(Some(ref_manager.cursor_location.clone()))))));
+        let cursor_var_ref = Rc::new(RefCell::new(VarType::Game(GameVarType::Dynamic(DynamicVarType::Location(Some(ref_manager.cursor_location.clone()))))));
         let mut cursor_location_var_slot = VarSlot::new(&cursor_var_ref);
         cursor_location_var_slot.set_dragging_properties(true, false, false);  
         panel.add_widget(cursor_location_var_slot.wrap_into_widget());

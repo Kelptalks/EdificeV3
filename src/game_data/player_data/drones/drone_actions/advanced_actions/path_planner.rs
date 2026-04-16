@@ -1,6 +1,8 @@
 use std::{clone, collections::HashMap, u32::MAX};
 
-use crate::game_data::{World, player_data::{drone_programming::function::function_return_value::FunctionReturnValue, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, drone_plan::DronePlan, prim_actions::{drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod, types::BlockTexture};
+use crate::game_data::{
+    World, 
+    player_data::{drone_script::var::var::Var, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, drone_plan::DronePlan, prim_actions::{drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod, types::BlockTexture};
 
 pub enum PathingErrorCode {
     NullLocation,
@@ -191,7 +193,7 @@ fn cords_to_key(cords: [i32; 3]) -> u64 {
     x | (y << BITS) | (z << (BITS * 2))
 }
 
-pub fn plan_path_to_cords(drone: &mut Drone, world: &World, goal_cords: [i32; 3]) -> FunctionReturnValue {
+pub fn plan_path_to_cords(drone: &mut Drone, world: &World, goal_cords: [i32; 3]) -> Var {
     // Clear debug blocks
     drone.clear_lairblock_mods();
     let mut plan = DronePlan::new();
@@ -212,5 +214,5 @@ pub fn plan_path_to_cords(drone: &mut Drone, world: &World, goal_cords: [i32; 3]
     drone.add_plan(plan);
     drone.add_lair_block_mod(LairBlockMod::AddOverlayTexture(BlockTexture::PathingHighlight, goal_cords));
 
-    return FunctionReturnValue::Ok()
+    return DroneActionError::Ok.wrap_into_var_type().create_var()
 }

@@ -1,11 +1,11 @@
 use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc};
 
-use crate::game_data::{game_event_manager::widget_event_manager::prim_events::i32_event::I32Event, player_data::drone_programming::var::{game_vars::{game_var_type::{GameVar, GameVarTypeKind}, primitive_var::{PrimitiveVar, PrimitiveVarTypeKind}}, var_properties::{PropKey, PropValue, VarPropModRequest}, var_type::{Var, VarTypeKind}}, screen::{ui_elements::panel, widget::{drone_programming::vars::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, text::header::TextDisplay, widget::{Widget, WidgetType}}}, tik_manager::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
+use crate::game_data::{game_event_manager::widget_event_manager::prim_events::i32_event::I32Event, player_data::drone_script::var::{game_vars::{game_var_type::{GameVarType, GameVarTypeKind}, primitive_var::{PrimitiveVarType, PrimitiveVarTypeKind}}, var_properties::{PropKey, PropValue, VarPropModRequest}, var_type::{VarType, VarTypeKind}}, screen::{ui_elements::panel, widget::{drone_programming::vars::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, text::header::TextDisplay, widget::{Widget, WidgetType}}}, tik_manager::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
 
 pub struct InvintoryDisplayPropWidget {
     mutable: bool,
 
-    item_to_mod_ref: Rc<RefCell<Var>>,
+    item_to_mod_ref: Rc<RefCell<VarType>>,
     item_amount_to_mod: Rc<RefCell<i32>>,
     
     key: PropKey,
@@ -21,7 +21,7 @@ impl InvintoryDisplayPropWidget {
         InvintoryDisplayPropWidget {
             mutable: mutable,
 
-            item_to_mod_ref: Rc::new(RefCell::new(PrimitiveVar::DroneItem(DroneItem::Ash).wrap_into_var())),
+            item_to_mod_ref: Rc::new(RefCell::new(PrimitiveVarType::DroneItem(DroneItem::Ash).wrap_into_var())),
             item_amount_to_mod: Rc::new(RefCell::new(0)),
             
 
@@ -35,7 +35,7 @@ impl InvintoryDisplayPropWidget {
         let mut panel = Panel::new_blank();
 
         // Add item var slot
-        let var = Rc::new(RefCell::new(PrimitiveVar::DroneItem(item).wrap_into_var()));
+        let var = Rc::new(RefCell::new(PrimitiveVarType::DroneItem(item).wrap_into_var()));
         let var_slot = var_slot::VarSlot::new(&var);
         panel.add_widget(var_slot.wrap_into_widget());
 
@@ -46,7 +46,7 @@ impl InvintoryDisplayPropWidget {
         let mut panel = Panel::new_blank();
 
         // Add item var slot
-        let var = Rc::new(RefCell::new(PrimitiveVar::DroneItem(item).wrap_into_var()));
+        let var = Rc::new(RefCell::new(PrimitiveVarType::DroneItem(item).wrap_into_var()));
         let mut var_slot = var_slot::VarSlot::new(&var);
         var_slot.set_dragging_properties(true, false, false);
         panel.add_widget(var_slot.wrap_into_widget());
@@ -113,7 +113,7 @@ impl InvintoryDisplayPropWidget {
 
                 // Handle inputs
                 if *self.item_amount_to_mod.borrow() > 0 {
-                    let item = PrimitiveVar::into_drone_item(&self.item_to_mod_ref);
+                    let item = PrimitiveVarType::into_drone_item(&self.item_to_mod_ref);
                     let mut invintory_slot = InventorySlot::new();
                     invintory_slot.set_item(item);
                     invintory_slot.set_quantity(1);

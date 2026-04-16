@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, player_data_event_manager::location_event::LocationEvent}, player_data_event_manager::{drone_event::DroneEvent, var_event_manager::var_events::VarEvents}, prelude::{Event, GameEvent}}, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, drones::drone::Drone, locations::{location::WorldLocation, location_config::WorldLocationConfig}, player_data::PlayerData}};
+use crate::game_data::{game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, player_data_event_manager::location_event::LocationEvent}, player_data_event_manager::{drone_event::DroneEvent, var_event_manager::var_events::VarEvents}, prelude::{Event, GameEvent}}, player_data::{drone_script::var::{game_vars::dynamic_var::DynamicVarType, var_type::VarType}, drones::drone::Drone, locations::{location::WorldLocation, location_config::WorldLocationConfig}, player_data::PlayerData}};
 
 #[derive(Clone)]
 pub enum PlayerDataEvent {
@@ -9,9 +9,9 @@ pub enum PlayerDataEvent {
 
     // Constructors
     CreateLocation(Rc<RefCell<WorldLocationConfig>>),
-    CreateLocationInVar(Rc<RefCell<Var>>, Rc<RefCell<WorldLocation>>),
+    CreateLocationInVar(Rc<RefCell<VarType>>, Rc<RefCell<WorldLocation>>),
     
-    CreateDroneInVar(Rc<RefCell<Var>>, Rc<RefCell<WorldLocation>>),
+    CreateDroneInVar(Rc<RefCell<VarType>>, Rc<RefCell<WorldLocation>>),
     
     LocationEvent(Rc<RefCell<WorldLocation>>, LocationEvent),
 
@@ -44,7 +44,7 @@ impl PlayerDataEvent {
                         "name".to_string(), 
                         *location_ref.borrow().get_area()
                     );
-                *var_ref.borrow_mut() = DynamicVar::Location(Some(new_location)).wrap_into_var();
+                *var_ref.borrow_mut() = DynamicVarType::Location(Some(new_location)).wrap_into_var();
             },
             PlayerDataEvent::VarEvent(var_event) => {
                 var_event.execute();
@@ -52,7 +52,7 @@ impl PlayerDataEvent {
             PlayerDataEvent::CreateDroneInVar(var_ref, location_ref) => {
                 let drone = player_data.get_mut_drone_manager().create_drone_at_cords(location_ref.borrow().get_area().get_point_1_cords());
 
-                *var_ref.borrow_mut() = DynamicVar::Drone(Some(drone)).wrap_into_var();
+                *var_ref.borrow_mut() = DynamicVarType::Drone(Some(drone)).wrap_into_var();
             },
         }
     }

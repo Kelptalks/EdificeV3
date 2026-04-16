@@ -1,41 +1,41 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_programming::var::{self, game_vars::game_var_type::GameVar, programming_vars::programming_var::ProgrammingVar, var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::Var}, drones::drone::Drone, locations::location::WorldLocation}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_script::var::{self, game_vars::game_var_type::GameVarType, programming_vars::programming_var::ProgrammingVar, var::Var, var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::VarType}, drones::drone::Drone, locations::location::WorldLocation}, texture_manager::texture::Texture, types::BlockTexture};
 
 
 #[derive(Clone)]
-pub enum DynamicVar {
+pub enum DynamicVarType {
     Location(Option<Rc<RefCell<WorldLocation>>>),
     Drone(Option<Rc<RefCell<Drone>>>),
 }
 
-impl PartialEq for DynamicVar {
+impl PartialEq for DynamicVarType {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (DynamicVar::Location(Some(a)), DynamicVar::Location(Some(b))) => Rc::ptr_eq(a, b),
-            (DynamicVar::Location(None), DynamicVar::Location(None)) => true,
+            (DynamicVarType::Location(Some(a)), DynamicVarType::Location(Some(b))) => Rc::ptr_eq(a, b),
+            (DynamicVarType::Location(None), DynamicVarType::Location(None)) => true,
             _ => false,
         }
     }
 }
 
-impl DynamicVar {
-    pub fn wrap_into_var(self) -> Var {
-        Var::Game(super::game_var_type::GameVar::Dynamic(self))
+impl DynamicVarType {
+    pub fn wrap_into_var(self) -> VarType {
+        VarType::Game(super::game_var_type::GameVarType::Dynamic(self))
     }
 
     pub fn get_texture(&self) -> Texture {
         match self {
-            DynamicVar::Location(Some(location)) => {
+            DynamicVarType::Location(Some(location)) => {
                 return location.borrow().get_texture().clone();
             },
-            DynamicVar::Location(None) => {
+            DynamicVarType::Location(None) => {
                 return Texture::BlockTexture(BlockTexture::Air);
             },
-            DynamicVar::Drone(Some(drone_ref)) => {
+            DynamicVarType::Drone(Some(drone_ref)) => {
                 return drone_ref.borrow().get_texture();
             },
-            DynamicVar::Drone(None) => {
+            DynamicVarType::Drone(None) => {
                 return Texture::BlockTexture(BlockTexture::Air);
             },
         }
@@ -43,8 +43,8 @@ impl DynamicVar {
 
     pub fn to_kind(&self) -> DynamicVarTypeKind {
         match self {
-            DynamicVar::Location(_) => DynamicVarTypeKind::Location,
-            DynamicVar::Drone(_) => DynamicVarTypeKind::Drone,
+            DynamicVarType::Location(_) => DynamicVarTypeKind::Location,
+            DynamicVarType::Drone(_) => DynamicVarTypeKind::Drone,
         }
     }
 
@@ -54,7 +54,7 @@ impl DynamicVar {
 
     pub fn get_properties(&self) -> Vec<VarProperty> {
         match self {
-            DynamicVar::Location(location_option_ref) => {
+            DynamicVarType::Location(location_option_ref) => {
                 if let Some(location) = location_option_ref {
                     let borrow = location.borrow();
                     vec![
@@ -67,7 +67,7 @@ impl DynamicVar {
                     return Vec::new();
                 }
             },
-            DynamicVar::Drone(drone_option_ref) => {
+            DynamicVarType::Drone(drone_option_ref) => {
                 if let Some(drone) = drone_option_ref {
                     let borrow = drone.borrow();
 
@@ -165,12 +165,12 @@ impl DynamicVar {
 
     pub fn request_prop(&mut self, request: VarPropModRequest) {
         match self {
-            DynamicVar::Location(location_ref_option) => {
+            DynamicVarType::Location(location_ref_option) => {
                 if let Some(location) = location_ref_option {
                     Self::handle_location_prop_request(location, request)
                 }
             },
-            DynamicVar::Drone(drone_ref_option) => {
+            DynamicVarType::Drone(drone_ref_option) => {
                 if let Some(drone) = drone_ref_option {
                     Self::handle_drone_prop_request(drone, request);
                 }
@@ -180,13 +180,13 @@ impl DynamicVar {
 
     pub fn get_name(&self) -> String {
         match self {
-            DynamicVar::Location(location_option_ref) => {
+            DynamicVarType::Location(location_option_ref) => {
                 if let Some(location) = location_option_ref {
                     return location.borrow().get_name().to_string();
                 }
                 return "UNKOWN LOCATION".to_string();
             },
-            DynamicVar::Drone(drone_option_ref) => {
+            DynamicVarType::Drone(drone_option_ref) => {
                 if let Some(drone) = drone_option_ref {
                     return drone.borrow().get_name();
                 }
@@ -197,7 +197,7 @@ impl DynamicVar {
 
     pub fn rename(&mut self, name: String) {
         match self {
-            DynamicVar::Location(ref_option) => {
+            DynamicVarType::Location(ref_option) => {
                 if let Some(location_ref) = ref_option {
                     location_ref.borrow_mut().set_name(name);
                 }
@@ -205,7 +205,7 @@ impl DynamicVar {
                     eprint!("Tried To Rename Unkown Location");
                 }
             },
-            DynamicVar::Drone(ref_option) => {
+            DynamicVarType::Drone(ref_option) => {
                 if let Some(drone_ref) = ref_option {
                     drone_ref.borrow_mut().set_name(name);
                 }
@@ -219,7 +219,7 @@ impl DynamicVar {
 
     pub fn get_area(&self) -> Option<WorldArea> {
         match self {
-            DynamicVar::Location(option_location_ref) => {
+            DynamicVarType::Location(option_location_ref) => {
                 if let Some(location_rc) = option_location_ref {
                     return Some(*location_rc.borrow().get_area());
                 }
@@ -227,7 +227,7 @@ impl DynamicVar {
                     return None;
                 }
             },
-            DynamicVar::Drone(option_drone_ref) => {
+            DynamicVarType::Drone(option_drone_ref) => {
                 if let Some(drone_rc) = option_drone_ref {
                     let drone_cords = drone_rc.borrow().get_cords();
 
@@ -246,10 +246,10 @@ impl DynamicVar {
 
     pub fn clear(&mut self) {
         match self {
-            DynamicVar::Location(option_location_ref) => {
+            DynamicVarType::Location(option_location_ref) => {
                 *option_location_ref = None;
             },
-            DynamicVar::Drone(option_drone_ref) => {
+            DynamicVarType::Drone(option_drone_ref) => {
                 *option_drone_ref = None;
             },
         }
@@ -259,29 +259,29 @@ impl DynamicVar {
     // Constructor
     //=====================================
 
-    pub fn construct_location_var_ref(location: &Option<Rc<RefCell<WorldLocation>>>) -> Rc<RefCell<Var>>{
+    pub fn construct_location_var(location: &Option<Rc<RefCell<WorldLocation>>>) -> Var {
         if let Some(location_ref) = location {
-            let var = DynamicVar::Location(Some(location_ref.clone())).wrap_into_var();
-            Rc::new(RefCell::new(var))
+            let var = DynamicVarType::Location(Some(location_ref.clone())).wrap_into_var();
+            Var::new_with_var_type(var)
         }
         else {
-            let var = DynamicVar::Location(None).wrap_into_var();
-            Rc::new(RefCell::new(var))
+            let var = DynamicVarType::Location(None).wrap_into_var();
+            Var::new_with_var_type(var)
         }
     }
 
-    pub fn construct_drone_var_ref(drone: &Rc<RefCell<Drone>>) -> Rc<RefCell<Var>> {
-        let var = DynamicVar::Drone(Some(drone.clone())).wrap_into_var();
-        Rc::new(RefCell::new(var))
+    pub fn construct_drone_var(drone: &Rc<RefCell<Drone>>) -> Var {
+        let var = DynamicVarType::Drone(Some(drone.clone())).wrap_into_var();
+        Var::new_with_var_type(var)
     }
 
     //=====================================
     // Getters
     //=====================================
 
-    pub fn into_location_ref(var: &Rc<RefCell<Var>>) -> Option<Rc<RefCell<WorldLocation>>> {
+    pub fn into_location_ref(var: &Rc<RefCell<VarType>>) -> Option<Rc<RefCell<WorldLocation>>> {
         let borrow = var.borrow();
-        if let Var::Game(GameVar::Dynamic(DynamicVar::Location(location_option_ref))) = &*borrow {
+        if let VarType::Game(GameVarType::Dynamic(DynamicVarType::Location(location_option_ref))) = &*borrow {
             return location_option_ref.clone()
         }
         else {

@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_programming::var::{self, game_vars::{game_var_type::GameVar, primitive_var::PrimitiveVar}, var_type::Var}, screen::{menu_constructors::play_view_menu::new_play_view::RefManager, widget::{drone_programming::vars::var_slot::VarSlot, panel::{panel::{PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget::WidgetType, widget_calculations::TextSize}}};
+use crate::game_data::{player_data::drone_script::var::{self, game_vars::{game_var_type::GameVarType, primitive_var::PrimitiveVarType}, var_type::VarType}, screen::{menu_constructors::play_view_menu::new_play_view::RefManager, widget::{drone_programming::vars::var_slot::VarSlot, panel::{panel::{PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget::WidgetType, widget_calculations::TextSize}}};
 
 
 
@@ -38,7 +38,7 @@ pub fn get_widget(ref_manager: &RefManager) -> WidgetType {
 
         for _i in 0..11 {
             // Init Ref
-            let blank_var = Var::Game(GameVar::Primitive(PrimitiveVar::Block(crate::game_data::types::BlockTexture::Air)));
+            let blank_var = VarType::Game(GameVarType::Primitive(PrimitiveVarType::Block(crate::game_data::types::BlockTexture::Air)));
             let var_instance = Rc::new(RefCell::new(blank_var));
             
             // Init Widget

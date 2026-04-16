@@ -1,6 +1,6 @@
 use std::{cell::RefCell, fmt::format, rc::Rc};
 
-use crate::game_data::{player_data::{drone_programming::{function::function_return_value::FunctionReturnValue, var::{game_vars::primitive_var::PrimitiveVar, var_type::Var}}, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, prim_actions::drone_prim_actions::DronePrimAction}}}, types::drone_item::DroneItem};
+use crate::game_data::{player_data::{drone_script::var::{game_vars::primitive_var::PrimitiveVarType, var::Var, var_type::VarType}, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, prim_actions::drone_prim_actions::DronePrimAction}}}, types::drone_item::DroneItem};
 
 #[derive(Clone)]
 pub enum DroneInventoryAction {
@@ -16,7 +16,7 @@ impl From<DroneInventoryAction> for DroneAction {
 }
 
 impl DroneInventoryAction {
-    pub fn execute(&self, drone: &mut Drone) -> FunctionReturnValue {
+    pub fn execute(&self, drone: &mut Drone) -> Var {
         match self {
             DroneInventoryAction::CraftItem(drone_item) => {
                 craft_item(drone, *drone_item)
@@ -69,34 +69,34 @@ impl DroneInventoryAction {
 
     // Creates a set of var refrenses 
     // Why: used to get the Vars needed for constructing Functions
-    pub fn create_param_vars(&self) -> Vec<Rc<RefCell<Var>>> {
+    pub fn create_param_vars(&self) -> Vec<Var> {
         let mut params = Vec::new();
 
         match self {
             DroneInventoryAction::CraftItem(drone_item) => {
-                params.push(PrimitiveVar::construct_item_var_ref(*drone_item));
+                params.push(PrimitiveVarType::construct_item_var_ref(*drone_item));
             },
             DroneInventoryAction::UseItemForFuel(drone_item, _) => {
-                params.push(PrimitiveVar::construct_item_var_ref(*drone_item));
+                params.push(PrimitiveVarType::construct_item_var_ref(*drone_item));
             },
             DroneInventoryAction::EquipTool(drone_item) => {
-                params.push(PrimitiveVar::construct_item_var_ref(*drone_item));
+                params.push(PrimitiveVarType::construct_item_var_ref(*drone_item));
             },
         }
 
         return params;
     }
 
-    pub fn set_params_from_vars(&mut self, params: &Vec<Rc<RefCell<Var>>>) {
+    pub fn set_params_from_vars(&mut self, params: &Vec<Rc<RefCell<VarType>>>) {
         match self {
             DroneInventoryAction::CraftItem(drone_item) => {
-                *drone_item = PrimitiveVar::into_drone_item(&params[0]);
+                *drone_item = PrimitiveVarType::into_drone_item(&params[0]);
             },
             DroneInventoryAction::UseItemForFuel(drone_item, _) => {
-                *drone_item = PrimitiveVar::into_drone_item(&params[0]);
+                *drone_item = PrimitiveVarType::into_drone_item(&params[0]);
             },
             DroneInventoryAction::EquipTool(drone_item) => {
-                *drone_item = PrimitiveVar::into_drone_item(&params[0]);
+                *drone_item = PrimitiveVarType::into_drone_item(&params[0]);
             },
         }
     }
@@ -109,9 +109,9 @@ impl DroneInventoryAction {
 
 
 // Craft an item | Error 1 = is busy | Error 2 = Missing item | Error 3 = Item not craftable
-fn craft_item(drone: &mut Drone, drone_item: DroneItem) -> FunctionReturnValue {
+fn craft_item(drone: &mut Drone, drone_item: DroneItem) -> Var {
     if drone.is_busy() {
-        return DroneActionError::Busy.wrap()
+        return DroneActionError::Busy.wrap_into_var_type().create_var()
     }
     
     if drone_item.is_craftable() {
@@ -122,7 +122,7 @@ fn craft_item(drone: &mut Drone, drone_item: DroneItem) -> FunctionReturnValue {
             let item_type = slot.get_item().unwrap();
             let item_quantity = slot.get_quantity();
             if !drone.get_inventory().has_item(item_type, item_quantity) {
-                return DroneActionError::MissingItem.wrap()
+                return DroneActionError::MissingItem.wrap_into_var_type().create_var()
             }
         }
 
@@ -131,7 +131,7 @@ fn craft_item(drone: &mut Drone, drone_item: DroneItem) -> FunctionReturnValue {
             let item_type = slot.get_item().unwrap();
             let item_quantity = slot.get_quantity();
             if !drone.get_mut_inventory().remove_item(item_type, item_quantity) {
-                return DroneActionError::MissingItem.wrap();
+                return DroneActionError::MissingItem.wrap_into_var_type().create_var()
             }
         }
 
@@ -139,22 +139,22 @@ fn craft_item(drone: &mut Drone, drone_item: DroneItem) -> FunctionReturnValue {
         drone.add_busy_time(drone_item.get_craft_time());
         drone.get_mut_inventory().add_item(drone_item, 1);
         
-        return FunctionReturnValue::Ok()
+        return DroneActionError::Ok.wrap_into_var_type().create_var()
     }
     else {
 
-        return DroneActionError::UncraftableItem.wrap();
+        return DroneActionError::UncraftableItem.wrap_into_var_type().create_var()
     }
 }
 
 // Use an item for fuel | Error 1 = missing item
-fn use_item_for_fuel(drone: &mut Drone, drone_item: DroneItem, quantity: i32) -> FunctionReturnValue{
+fn use_item_for_fuel(drone: &mut Drone, drone_item: DroneItem, quantity: i32) -> Var {
     if drone.get_mut_inventory().remove_item(drone_item, quantity) {
         drone.add_fuel(drone_item.to_fuel_value() * quantity as u32);
-        return FunctionReturnValue::Ok();
+        return DroneActionError::Ok.wrap_into_var_type().create_var();
     }
     else {
-        return DroneActionError::MissingItem.wrap();
+        return DroneActionError::MissingItem.wrap_into_var_type().create_var();
     }
 }
 
@@ -174,16 +174,16 @@ fn update_drone_stats(drone: &mut Drone) {
 }
 
 // Equip a tool
-fn equip_tool(drone: &mut Drone, drone_item: DroneItem) -> FunctionReturnValue {
+fn equip_tool(drone: &mut Drone, drone_item: DroneItem) -> Var {
     for tool_index in 0..drone.get_tools().len() {
         if drone.get_tools()[tool_index].is_none() {
             if drone.get_mut_inventory().remove_item(drone_item, 1) {
                 drone.get_tools()[tool_index] = Some(drone_item);
                 update_drone_stats(drone); // Update the drones stats after tool change
-                return FunctionReturnValue::Ok();
+                return DroneActionError::Ok.wrap_into_var_type().create_var();
             }
-            return DroneActionError::MissingItem.wrap();
+            return DroneActionError::MissingItem.wrap_into_var_type().create_var();
         }
     }
-    return DroneActionError::MissingSlot.wrap();
+    return DroneActionError::MissingSlot.wrap_into_var_type().create_var();
 }

@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{prelude::{Event, GameEvent, InputEvent, UsizeEvent}, render_event_manager::render_event_manager::RenderEvent}, player_data::{drone_programming::var::{game_vars::dynamic_var::DynamicVar, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{manager_panel, selection_panel, var_ref_hot_bar, world_view}, screen_data::CurrentMenu, widget::{drone_programming::scripting_elements::scripting_panel::ScriptingPanel, panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, prelude::TabPanel, tab_panel::var_tab_panel::VarTabPanel, widget::WidgetType, world_rendering::rendering_config::play_world_view_config::PlayViewRenderingConfig}}};
+use crate::game_data::{game_event_manager::{prelude::{Event, GameEvent, InputEvent, UsizeEvent}, render_event_manager::render_event_manager::RenderEvent}, player_data::{drone_script::var::{game_vars::dynamic_var::DynamicVarType, var_type::VarType}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{manager_panel, selection_panel, var_ref_hot_bar, world_view}, screen_data::CurrentMenu, widget::{drone_programming::scripting_elements::scripting_panel::ScriptingPanel, panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, prelude::TabPanel, tab_panel::var_tab_panel::VarTabPanel, widget::WidgetType, world_rendering::rendering_config::play_world_view_config::PlayViewRenderingConfig}}};
 
 pub enum PlayViewMode {
     Main = 0,
@@ -29,7 +29,7 @@ pub struct RefManager {
     pub render_only_selected_location: Rc<RefCell<bool>>,
 
 
-    pub selected_var: Rc<RefCell<Var>>,
+    pub selected_var: Rc<RefCell<VarType>>,
     pub play_view_mode: Rc<RefCell<usize>>,
 }
 
@@ -39,7 +39,7 @@ impl RefManager {
         let cursor_location =  rendering_config.borrow().get_cursor_location_ref().clone();
         let show_locations_bool = rendering_config.borrow().get_should_render_all_locations_ref().clone();
 
-        let selected_var = Rc::new(RefCell::new(DynamicVar::Location(Some(cursor_location.clone())).wrap_into_var()));
+        let selected_var = Rc::new(RefCell::new(DynamicVarType::Location(Some(cursor_location.clone())).wrap_into_var()));
         rendering_config.borrow_mut().set_focused_var(Some(selected_var.clone()));
 
         rendering_config.borrow_mut().add_var_to_render(selected_var.clone());

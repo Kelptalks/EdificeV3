@@ -1,16 +1,16 @@
 use std::{cell::RefCell, rc::Rc};
 
 
-use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, PlayerDataEvent}, locations::world_area_side::WorldAreaSide, player_data::{drone_programming::{function::function::Function, var::{self, game_vars::{dynamic_var::{self, DynamicVar}, game_var_type::GameVar}, var_properties::VarPropModRequest, var_type::Var}}, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::{drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}, locations::location::{self, WorldLocation}}};
+use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, PlayerDataEvent}, locations::world_area_side::WorldAreaSide, player_data::{drone_script::{function::function::Function, var::{self, game_vars::{dynamic_var::{self, DynamicVarType}, game_var_type::GameVarType}, var_properties::VarPropModRequest, var_type::VarType}}, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::{drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}, locations::location::{self, WorldLocation}}};
 
 
 //=====================================
 // Helper
 //=====================================
 
-pub fn unpack_var_into_locaton(var_ref: &Rc<RefCell<Var>>) -> Option<Rc<RefCell<WorldLocation>>> {
+pub fn unpack_var_into_locaton(var_ref: &Rc<RefCell<VarType>>) -> Option<Rc<RefCell<WorldLocation>>> {
     let borrow = var_ref.borrow();
-    if let Var::Game(GameVar::Dynamic(DynamicVar::Location(location_option_ref))) = &*borrow {
+    if let VarType::Game(GameVarType::Dynamic(DynamicVarType::Location(location_option_ref))) = &*borrow {
         return location_option_ref.clone();
     }
     else {
@@ -24,11 +24,11 @@ pub fn unpack_var_into_locaton(var_ref: &Rc<RefCell<Var>>) -> Option<Rc<RefCell<
 //=====================================
 #[derive(Clone)]
 pub enum VarEvents {
-    RequestEvent(Rc<RefCell<Var>>, VarPropModRequest),
+    RequestEvent(Rc<RefCell<VarType>>, VarPropModRequest),
     
-    LocationVarEvent(Rc<RefCell<Var>>, LocationVarEvent),
-    DroneVarEvent(Rc<RefCell<Var>>, DroneVarEvent),
-    DynamicVarEvent(Rc<RefCell<Var>>, DynamicVarEvent),
+    LocationVarEvent(Rc<RefCell<VarType>>, LocationVarEvent),
+    DroneVarEvent(Rc<RefCell<VarType>>, DroneVarEvent),
+    DynamicVarEvent(Rc<RefCell<VarType>>, DynamicVarEvent),
 
 
 }
@@ -59,7 +59,7 @@ impl VarEvents {
             }
             VarEvents::DynamicVarEvent(var_ref, dynamic_var_event) => {
                 let mut borrow = var_ref.borrow_mut();
-                if let Var::Game(GameVar::Dynamic(dynamic_var)) = &mut *borrow {
+                if let VarType::Game(GameVarType::Dynamic(dynamic_var)) = &mut *borrow {
                     dynamic_var_event.execute(dynamic_var);
                 }
                 else {
@@ -68,7 +68,7 @@ impl VarEvents {
             },
             VarEvents::DroneVarEvent(var_ref, drone_var_event) => {
                 let borrow = var_ref.borrow();
-                if let Var::Game(GameVar::Dynamic(DynamicVar::Drone(drone_option_ref))) = &*borrow {
+                if let VarType::Game(GameVarType::Dynamic(DynamicVarType::Drone(drone_option_ref))) = &*borrow {
                     if let Some(drone) = drone_option_ref {
                         drone_var_event.execute(drone);
                     }
@@ -94,7 +94,7 @@ pub enum DynamicVarEvent {
 }
 
 impl DynamicVarEvent {
-    pub fn execute(&self, dynamic_var: &mut DynamicVar) { 
+    pub fn execute(&self, dynamic_var: &mut DynamicVarType) { 
         match self {
             DynamicVarEvent::Rename(string_ref) => {
                 dynamic_var.rename(string_ref.borrow().clone());

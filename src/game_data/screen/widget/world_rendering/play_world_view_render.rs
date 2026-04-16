@@ -2,7 +2,7 @@ use std::{cell::RefCell, ops::Index, rc::Rc};
 
 
 use crate::game_data::{
-    TextureManager, game_event_manager::player_data_event_manager::var_event_manager::var_events::VarEvents, locations::world_area::WorldArea, player_data::drone_programming::var::{game_vars::{dynamic_var::{self, DynamicVar}, game_var_type::GameVar}, var_type::Var}, screen::{
+    TextureManager, game_event_manager::player_data_event_manager::var_event_manager::var_events::VarEvents, locations::world_area::WorldArea, player_data::drone_script::var::{game_vars::{dynamic_var::{self, DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}, screen::{
         ScreenData, 
         iso_cord_tool, 
         widget::{button::button::Button, prelude::{VarSlot, play_world_view_config::PlayViewRenderingConfig}, widget::{Widget, WidgetType}, widget_calculations, world_rendering::{area_rendering_manager::area_rendering_manager::AreaRenderingManager, rendering_config}}
@@ -330,8 +330,8 @@ impl PlayWorldViewRender {
 
         for var in config.get_vars_to_render() {
             let borrow = var.borrow();
-            if let Var::Game(GameVar::Dynamic(dynamic_var)) = &*borrow {
-                if let DynamicVar::Drone(Some(drone_ref_option)) = dynamic_var {
+            if let VarType::Game(GameVarType::Dynamic(dynamic_var)) = &*borrow {
+                if let DynamicVarType::Drone(Some(drone_ref_option)) = dynamic_var {
                     let area_cords = self.world_to_area_cords(drone_ref_option.borrow().get_cords());
                     let draw_cords = self.area_to_draw_cords(area_cords);
 

@@ -1,6 +1,9 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::prelude::{EventManager, WorldEvent}, player_data::{drone_programming::{function::function_return_value::{ErrorCode, FunctionReturnValue}, var::{game_vars::primitive_var::PrimitiveVar, var_type::Var}}, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, prim_actions::drone_prim_actions::DronePrimAction}}}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod, types::BlockTexture};
+use crate::game_data::{
+    World, 
+    game_event_manager::prelude::{EventManager, WorldEvent}, 
+    player_data::{drone_script::{var::{game_vars::primitive_var::PrimitiveVarType, var::{Var, VarRef}, var_type::VarType}}, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, prim_actions::drone_prim_actions::DronePrimAction}}}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod, types::BlockTexture};
 
 #[derive(Clone)]
 pub enum DroneWorldAction {
@@ -16,7 +19,7 @@ impl From<DroneWorldAction> for DroneAction {
 }
 
 impl DroneWorldAction {
-    pub fn execute(&self, drone: &mut Drone, world: &World, event_manager: &mut EventManager) -> FunctionReturnValue {
+    pub fn execute(&self, drone: &mut Drone, world: &World, event_manager: &mut EventManager) -> Var {
         match self {
             DroneWorldAction::MoveDrone(relative_cords) => {
                 move_drone(drone, world, *relative_cords, event_manager)     
@@ -69,36 +72,36 @@ impl DroneWorldAction {
     //=====================================
 
 
-    pub fn create_param_vars(&self) -> Vec<Rc<RefCell<Var>>> {
+    pub fn create_param_vars(&self) -> Vec<Var> {
         let mut params = Vec::new();
         
         match self {
             DroneWorldAction::MoveDrone(cords) => {
-                params.push(PrimitiveVar::construct_cords_var_ref(*cords));
+                params.push(PrimitiveVarType::construct_cords_var(*cords));
             },
             DroneWorldAction::MineBlock(cords) => {
-                params.push(PrimitiveVar::construct_cords_var_ref(*cords));
+                params.push(PrimitiveVarType::construct_cords_var(*cords));
             },
             DroneWorldAction::PlaceBlock(cords, block_texture) => {
-                params.push(PrimitiveVar::construct_cords_var_ref(*cords));
-                params.push(PrimitiveVar::construct_block_var_ref(*block_texture));
+                params.push(PrimitiveVarType::construct_cords_var(*cords));
+                params.push(PrimitiveVarType::construct_block_var_ref(*block_texture));
             },
         }
 
         params
     }
 
-    pub fn set_params_from_vars(&mut self, params: &Vec<Rc<RefCell<Var>>>) {
+    pub fn set_params_from_vars(&mut self, params: &Vec<Rc<RefCell<VarType>>>) {
         match self {
             DroneWorldAction::MoveDrone(cords) => {
-                *cords = PrimitiveVar::into_drone_cords(&params[0]);
+                *cords = PrimitiveVarType::into_drone_cords(&params[0]);
             },
             DroneWorldAction::MineBlock(cords) => {
-                *cords = PrimitiveVar::into_drone_cords(&params[0]);
+                *cords = PrimitiveVarType::into_drone_cords(&params[0]);
             },
             DroneWorldAction::PlaceBlock(cords, block_texture) => {
-                *cords = PrimitiveVar::into_drone_cords(&params[0]);
-                *block_texture = PrimitiveVar::into_block(&params[1]);
+                *cords = PrimitiveVarType::into_drone_cords(&params[0]);
+                *block_texture = PrimitiveVarType::into_block(&params[1]);
             },
         }
     }
@@ -108,14 +111,14 @@ impl DroneWorldAction {
 // Error Codes
 // Tryed to move into solid block
 // 
-fn move_drone(drone: &mut Drone, world: &World, relative_cords: [i32; 3], event_manager: &mut EventManager) -> FunctionReturnValue {
+fn move_drone(drone: &mut Drone, world: &World, relative_cords: [i32; 3], event_manager: &mut EventManager) -> Var {
     if drone.is_busy() {
-        return DroneActionError::Busy.wrap();
+        return DroneActionError::Busy.wrap_into_var_type().create_var();
     }
 
     // Prevent x, y axis diagonal movement.
     if (relative_cords[0].abs() + relative_cords[1].abs()) > 1 {
-        return DroneActionError::OutOfRange.wrap();
+        return DroneActionError::OutOfRange.wrap_into_var_type().create_var();
     }
 
     // Prevent diagonal z movement if there is a block above the drone
@@ -124,7 +127,7 @@ fn move_drone(drone: &mut Drone, world: &World, relative_cords: [i32; 3], event_
         let world_cords = drone.get_relative_world_cords([0, 0, 1]);
         let block_type_of_new_location = BlockTexture::from_id(world.get_world_value(world_cords));
         if block_type_of_new_location.is_solid() {
-            return DroneActionError::BlockInWay.wrap();
+            return DroneActionError::BlockInWay.wrap_into_var_type().create_var();
         }
     }
 
@@ -140,7 +143,7 @@ fn move_drone(drone: &mut Drone, world: &World, relative_cords: [i32; 3], event_
 
             // Don't allow movement if falling
             if !BlockTexture::is_solid(&block_below_drone) {
-                return DroneActionError::Falling.wrap();
+                return DroneActionError::Falling.wrap_into_var_type().create_var();
             }
 
             drone.set_direction(Drone::relative_move_cords_to_direction(relative_cords));
@@ -159,20 +162,20 @@ fn move_drone(drone: &mut Drone, world: &World, relative_cords: [i32; 3], event_
             drone.add_busy_time(block_below_drone.friction() as u32);
             drone.set_moved(true);
 
-            return FunctionReturnValue::Ok();
+            return DroneActionError::Ok.wrap_into_var_type().create_var();
         }
         else {
-            return DroneActionError::BlockInWay.wrap();
+            return DroneActionError::BlockInWay.wrap_into_var_type().create_var();
         }
     }
-    return DroneActionError::OutOfRange.wrap();
+    return DroneActionError::OutOfRange.wrap_into_var_type().create_var();
 }
 
 // Mine a block relative to the drone | Error 1 = is busy | Error 2 = Cords out of range
-fn mine_block(drone: &mut Drone, relative_cords: [i32; 3], world: &World, event_manager: &mut EventManager) -> FunctionReturnValue {
+fn mine_block(drone: &mut Drone, relative_cords: [i32; 3], world: &World, event_manager: &mut EventManager) -> Var {
     if drone.is_busy() {
         println!("Drone {} cannot mine because busy", drone.get_id());
-        return DroneActionError::Busy.wrap();
+        return DroneActionError::Busy.wrap_into_var_type().create_var();
     }
 
     // check if scan is in mine range
@@ -188,10 +191,10 @@ fn mine_block(drone: &mut Drone, relative_cords: [i32; 3], world: &World, event_
 
         // Add block to inventory
         drone.get_mut_inventory().add_item(block_to_mine.item(), block_to_mine.item_quantity() as i32);
-        return FunctionReturnValue::Ok();
+        return DroneActionError::Ok.wrap_into_var_type().create_var();
     }
 
-    return DroneActionError::OutOfRange.wrap();
+    return DroneActionError::OutOfRange.wrap_into_var_type().create_var();
 }
 
 /// Place a block relative to the drone
@@ -203,9 +206,9 @@ fn mine_block(drone: &mut Drone, relative_cords: [i32; 3], world: &World, event_
 ///     - Error 4 = Cannot place block as solid block is in the way
 ///     - Error 5 = Cannot piller with block type
 ///
-fn place_block(drone: &mut Drone, world: &World, event_manager: &mut EventManager, relative_cords: [i32; 3], block: BlockTexture) -> FunctionReturnValue {
+fn place_block(drone: &mut Drone, world: &World, event_manager: &mut EventManager, relative_cords: [i32; 3], block: BlockTexture) -> Var {
     if drone.is_busy() {
-        return DroneActionError::Busy.wrap();
+        return DroneActionError::Busy.wrap_into_var_type().create_var();
     }
 
     if Drone::if_cords_within_range(relative_cords, 1) {
@@ -220,23 +223,23 @@ fn place_block(drone: &mut Drone, world: &World, event_manager: &mut EventManage
                     move_drone(drone, world, [0, 0, 1], event_manager);
                 }
                 else {
-                    return DroneActionError::CannotPiller.wrap()
+                    return DroneActionError::CannotPiller.wrap_into_var_type().create_var()
                 }
             }
             else {
-                return DroneActionError::BlockInWay.wrap()
+                return DroneActionError::BlockInWay.wrap_into_var_type().create_var()
             }
         }
 
         // Remove the requried item from the invintory
         if !drone.get_mut_inventory().remove_item(block.item(), block.item_quantity() as i32) {
-            return DroneActionError::MissingItem.wrap();
+            return DroneActionError::MissingItem.wrap_into_var_type().create_var();
         }
 
         // Set the block
         event_manager.add_event(WorldEvent::ModBlock(world_cords, block).wrap_into_event());
 
-        return FunctionReturnValue::Ok();
+        return DroneActionError::Ok.wrap_into_var_type().create_var();
     }
-    return DroneActionError::OutOfRange.wrap();
+    return DroneActionError::OutOfRange.wrap_into_var_type().create_var();
 }

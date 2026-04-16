@@ -1,11 +1,11 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::{Event, EventManager, LocationEvent, PlayerDataEvent}, locations::{world_area::WorldArea, world_area_side::WorldAreaSide, world_point::WorldPoint}, player_data::{drone_programming::var::{game_vars::{game_var_type::GameVar}, var_type::Var}, locations::location::WorldLocation, player_data::PlayerData}};
+use crate::game_data::{game_event_manager::prelude::{Event, EventManager, LocationEvent, PlayerDataEvent}, locations::{world_area::WorldArea, world_area_side::WorldAreaSide, world_point::WorldPoint}, player_data::{drone_script::var::{game_vars::{game_var_type::GameVarType}, var_type::VarType}, locations::location::WorldLocation, player_data::PlayerData}};
 
 #[derive(Clone)]
 pub enum CursorMode {
     Free(), // Do not restric movment of cursor
-    LockedToVar(Rc<RefCell<Var>>), // Prevent the cursor from leaveing the locations bounds
+    LockedToVar(Rc<RefCell<VarType>>), // Prevent the cursor from leaveing the locations bounds
 
 }
 
@@ -91,7 +91,7 @@ impl CursorConfig {
             },
             CursorMode::LockedToVar(var_ref) => {
                 let borrowed = var_ref.borrow();
-                if let Var::Game(GameVar::Dynamic(dynamic_var)) = &*borrowed {
+                if let VarType::Game(GameVarType::Dynamic(dynamic_var)) = &*borrowed {
                     if let Some(area) = dynamic_var.get_area() {
                         let sides_of_cursor_on_location = WorldAreaSide::get_sides_of_point_in_area(
                             &area, &self.get_point()

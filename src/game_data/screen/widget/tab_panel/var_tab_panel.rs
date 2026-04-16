@@ -1,6 +1,6 @@
 use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc};
 
-use crate::game_data::{game_event_manager::{self, event_manager, player_data_event_manager::var_event_manager::var_events::VarEvents, prelude::{EventManager, PlayerDataEvent}}, player_data::drone_programming::var::{self, game_vars::{dynamic_var::DynamicVar, game_var_type::GameVar, primitive_var::PrimitiveVar}, var_properties::{self, PropKey, PropValue, VarProperty}, var_type::{self, Var, VarTypeKind}}, screen::{widget::{self, drone_programming::vars::var_slot, panel::{panel::Panel, panel_texture_manager::PanelTextureManager}, prelude::{TabPanel, VarSlot}, scroll_panel::scroll_panel::ScrollPanel, tab_panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations}, widget_properties::{self, WidgetProperties}}, types::drone_item::DroneItem};
+use crate::game_data::{game_event_manager::{self, event_manager, player_data_event_manager::var_event_manager::var_events::VarEvents, prelude::{EventManager, PlayerDataEvent}}, player_data::drone_script::var::{self, game_vars::{dynamic_var::DynamicVarType, game_var_type::GameVarType, primitive_var::PrimitiveVarType}, var_properties::{self, PropKey, PropValue, VarProperty}, var_type::{self, VarType, VarTypeKind}}, screen::{widget::{self, drone_programming::vars::var_slot, panel::{panel::Panel, panel_texture_manager::PanelTextureManager}, prelude::{TabPanel, VarSlot}, scroll_panel::scroll_panel::ScrollPanel, tab_panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations}, widget_properties::{self, WidgetProperties}}, types::drone_item::DroneItem};
 
 
 pub struct PropWidgetPool {
@@ -29,7 +29,7 @@ impl PropWidgetPool {
 pub struct VarTabPanel {
     widget_properties: WidgetProperties,
     
-    var_ref: Rc<RefCell<Var>>,
+    var_ref: Rc<RefCell<VarType>>,
     
 
     var_slot: VarSlot,
@@ -44,7 +44,7 @@ impl VarTabPanel {
 
     
 
-    pub fn new(var_ref: &Rc<RefCell<Var>>) -> VarTabPanel {
+    pub fn new(var_ref: &Rc<RefCell<VarType>>) -> VarTabPanel {
         
         let var_slot = VarSlot::new(var_ref);
 

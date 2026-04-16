@@ -4,7 +4,6 @@ use std::rc::Rc;
 
 use crate::game_data::game_event_manager::prelude::{EventManager, WorldEvent};
 use crate::game_data::locations::world_area::WorldArea;
-use crate::game_data::player_data::drone_programming::function::function_return_value::FunctionReturnValue;
 use crate::game_data::player_data::drones::drone_actions::drone_actions::DroneAction;
 use crate::game_data::player_data::drones::drone_actions::drone_plan::DronePlan;
 use crate::game_data::player_data::locations::location::WorldLocation;
@@ -313,16 +312,6 @@ impl Drone {
             else { drone_plan.pop_next_action() }
         });
 
-        // borrow on drone_plans is fully released here
-        if let Some(action) = action_option {
-            let return_value = action.execute(self, world, event_manager);
-            if let FunctionReturnValue::Fail(error_code) = return_value {
-                if let Some(plan) = self.drone_plans.first_mut() {
-                    println!("Plan Failed: {}", error_code.to_string());
-                    plan.failed();
-                }
-            }
-        }
     }
 
     pub fn tik_drone(&mut self, world: &World, event_manager: &mut EventManager) {
