@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::EventManager, player_data::drone_script::var::{var::{Var, VarRef}, var_type::{VarType, VarTypeKind}}, screen::{ScreenData, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations}}, texture_manager::texture::Texture};
+use crate::game_data::{game_event_manager::prelude::EventManager, player_data::drone_script::var::{var::{Var, VarRef}, var_type::{VarType, VarTypeKind}}, screen::{ScreenData, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations}}, texture_manager::texture::Texture, types::UITextures};
 
 
 
@@ -289,6 +289,11 @@ impl Widget for VarSlot {
                 widget_calculations::TextSize::ExtraSmall.get_scale(), 
                 string_ndc,
             );
+
+            match self.var_slot_type {
+                VarSlotType::Owned(_) => texture_manager.render_ui_element_with_pos(UITextures::SourceIcon, self.pos),
+                VarSlotType::Ref(_) => texture_manager.render_ui_element_with_pos(UITextures::RefIcon, self.pos),
+            }
     
             
             // Set

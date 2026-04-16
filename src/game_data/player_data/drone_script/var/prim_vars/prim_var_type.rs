@@ -16,7 +16,7 @@ impl PrimitiveVarType {
     
     pub fn get_texture(&self) -> Texture {
         match self {
-            PrimitiveVarType::Bool(_) => Texture::UITexture(UITextures::AnyVarIcon),
+            PrimitiveVarType::Bool(_) => Texture::UITexture(UITextures::BoolVarIcon),
         }
     }
 

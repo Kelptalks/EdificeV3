@@ -130,6 +130,9 @@ pub const UI_TEXTURES: &[UITextureData] = &[
     UITextureData { id: 67, name: "ScallingIconBotRight",  rect: [128, 128, 16, 16], pressed_variant: None },
 
     UITextureData { id: 68, name: "AnyVarIcon",       rect: self::get_icon_src_rect(14), pressed_variant: None },
+    UITextureData { id: 69, name: "BoolVarIcon",      rect: self::get_icon_src_rect(15), pressed_variant: None },
+    UITextureData { id: 70, name: "RefIcon",          rect: self::get_icon_src_rect(16), pressed_variant: None },
+    UITextureData { id: 71, name: "SourceIcon",       rect: self::get_icon_src_rect(17), pressed_variant: None },
 
 ];
 
@@ -217,6 +220,9 @@ pub enum UITextures {
     ScallingIconBotMid = 66,
     ScallingIconBotRight = 67,
     AnyVarIcon = 68,
+    BoolVarIcon = 69,
+    RefIcon = 70,
+    SourceIcon = 71,
 }
 
 impl UITextures {
