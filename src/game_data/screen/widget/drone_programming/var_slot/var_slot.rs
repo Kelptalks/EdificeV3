@@ -129,6 +129,54 @@ impl VarSlot {
         }
     }
 
+    pub fn new_with_var(var: Var) -> VarSlot {
+        VarSlot {
+            // Parent Rendering
+            parent_pos: [0.0; 4],
+            parent_scale: [0.0; 2],
+            prefered_scale: [widget_calculations::get_button_scale(); 2],
+
+            // Self Rendering
+            external_buffers: [0.0; 4], 
+            internal_buffers: [0.012; 4],   
+            pos: [0.0; 4],
+            scale: [0.0; 2],
+
+
+            var_slot_type: VarSlotType::Owned(var),
+            var_string_ndc: [0.0; 2],
+
+            // Options
+            allow_setting: true,
+            allow_dragging: true,
+            allow_clearing: true,
+        }
+    }
+
+    pub fn new_with_var_ref(var_ref: VarRef) -> VarSlot {
+        VarSlot {
+            // Parent Rendering
+            parent_pos: [0.0; 4],
+            parent_scale: [0.0; 2],
+            prefered_scale: [widget_calculations::get_button_scale(); 2],
+
+            // Self Rendering
+            external_buffers: [0.0; 4], 
+            internal_buffers: [0.012; 4],   
+            pos: [0.0; 4],
+            scale: [0.0; 2],
+
+
+            var_slot_type: VarSlotType::Ref(var_ref),
+            var_string_ndc: [0.0; 2],
+
+            // Options
+            allow_setting: true,
+            allow_dragging: true,
+            allow_clearing: true,
+        }
+    }
+
     pub fn wrap_into_widget(self) -> WidgetType {
         return WidgetType::VarSlot(self);
     }

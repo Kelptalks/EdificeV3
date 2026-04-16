@@ -10,7 +10,17 @@ pub enum ActionType {
 impl ActionType {
     pub fn get_param_var_types(&self) -> Vec<VarType> {
         match self {
-            ActionType::DroneAction(drone_action) => todo!(),
+            ActionType::DroneAction(drone_action) => {
+                drone_action.get_param_var_types()
+            },
+        }
+    }
+
+    pub fn get_name(&self) -> String {
+        match self {
+            ActionType::DroneAction(drone_action) => {
+                drone_action.get_name()
+            },
         }
     }
 }

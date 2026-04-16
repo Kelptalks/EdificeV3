@@ -52,13 +52,13 @@ impl DroneInventoryAction {
     pub fn get_name(&self) -> String {
         match self {
             DroneInventoryAction::CraftItem(drone_item) => {
-                format!("Crafting Item: {}", drone_item.get_name())
+                format!("CraftItem")
             },
             DroneInventoryAction::UseItemForFuel(drone_item, amount) => {
-                format!("Using Item For Fuel Item: {} x {}", drone_item.get_name(), amount)
+                format!("UseItemForFuel")
             },
             DroneInventoryAction::EquipTool(drone_item) => {
-                format!("Equipping Item: {}", drone_item.get_name())
+                format!("EquipTool")
             },
         }
     }
@@ -69,18 +69,18 @@ impl DroneInventoryAction {
 
     // Creates a set of var refrenses 
     // Why: used to get the Vars needed for constructing Functions
-    pub fn create_param_vars(&self) -> Vec<Var> {
+    pub fn get_param_var_types(&self) -> Vec<VarType> {
         let mut params = Vec::new();
 
         match self {
             DroneInventoryAction::CraftItem(drone_item) => {
-                params.push(PrimitiveVarType::construct_item_var_ref(*drone_item));
+                params.push(PrimitiveVarType::DroneItem(*drone_item).wrap_into_var_type());
             },
             DroneInventoryAction::UseItemForFuel(drone_item, _) => {
-                params.push(PrimitiveVarType::construct_item_var_ref(*drone_item));
+                params.push(PrimitiveVarType::DroneItem(*drone_item).wrap_into_var_type());
             },
             DroneInventoryAction::EquipTool(drone_item) => {
-                params.push(PrimitiveVarType::construct_item_var_ref(*drone_item));
+                params.push(PrimitiveVarType::DroneItem(*drone_item).wrap_into_var_type());
             },
         }
 

@@ -54,11 +54,11 @@ impl DroneAdvancedAction {
     // Execution
     //=====================================
 
-    pub fn create_param_vars(&self) -> Vec<Var> {
+    pub fn create_param_vars(&self) -> Vec<VarType> {
         let mut params = Vec::new();
         match self {
             DroneAdvancedAction::PathToLocation(location_ref) => {
-                params.push(DynamicVarType::construct_location_var(location_ref));
+                params.push(DynamicVarType::Location(location_ref.clone()).wrap_into_var_type());
             },
         }
         params

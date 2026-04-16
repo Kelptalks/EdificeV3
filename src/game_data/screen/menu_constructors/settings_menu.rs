@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::render_event_manager::render_event_manager::RenderEvent, player_data::{drone_script::{function::function::Function, script_element, var::{game_vars::{game_var_type::{GameVarType, GameVarTypeKind}, primitive_var::{PrimitiveVarType, PrimitiveVarTypeKind}}, var_type::{VarType, VarTypeKind}}}, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, getter_actions::getter_actions::DroneGetterAction}, player_data::PlayerData}, screen::{ScreenData, widget::{drone_programming::{scripting_elements::scripting_panel, vars::var_slot::VarSlot}, panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, tab_panel::var_tab_panel::{self, VarTabPanel}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::{BlockTexture, drone_item::DroneItem}};
+use crate::game_data::{game_event_manager::render_event_manager::render_event_manager::RenderEvent, player_data::{drone_script::{action::{action::Action, action_type::ActionType}, function::function::Function, script_element, var::{game_vars::{game_var_type::{GameVarType, GameVarTypeKind}, primitive_var::{PrimitiveVarType, PrimitiveVarTypeKind}}, var_type::{VarType, VarTypeKind}}}, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::{drone_invintory_actions::DroneInventoryAction, drone_prim_actions::DronePrimAction}}, player_data::PlayerData}, screen::{ScreenData, widget::{drone_programming::{action_slot::ActionSlot, scripting_elements::scripting_panel, var_slot::var_slot::VarSlot}, panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, tab_panel::var_tab_panel::{self, VarTabPanel}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::{BlockTexture, drone_item::DroneItem}};
 
 
 
@@ -19,6 +19,23 @@ pub fn test_var_tab_panel() -> WidgetType {
 pub fn test_script_panel() -> WidgetType {
 
     let mut panel = Panel::new_blank();
+
+
+    let action = 
+        Action::new(
+            ActionType::DroneAction(
+                DroneAction::PrimAction(
+                    DronePrimAction::DroneInventoryAction(
+                        DroneInventoryAction::CraftItem(
+                            DroneItem::ClayBrick
+                        )
+                    )
+                )
+            )
+        );
+    let action_widget = ActionSlot::new(action);
+
+    panel.add_widget(action_widget.wrap_into_widget());
 
     return panel.wrap_into_widget()
 

@@ -44,16 +44,3 @@ impl ScriptElement {
     }
 
 }
-
-
-/*
-ScriptElement::Params(paramas) => {
-                let mut string = "Params (".to_string();
-                for param in paramas {
-                    string = format!("{} {}", string, param.borrow().get_name());
-                }
-
-
-                return string;
-            }
-*/

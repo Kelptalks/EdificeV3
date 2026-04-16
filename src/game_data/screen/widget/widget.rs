@@ -6,8 +6,7 @@ use crate::game_data::{
             bar_button::bar_button::BarButtonWidget, 
             button::button::Button, 
             drone_programming::{
-                function_slot::FunctionSlot, 
-                scripting_elements::{scripting_panel::ScriptingPanel}, vars::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, world_rendering::play_world_view_render::PlayWorldViewRender}}};
+                action_slot::ActionSlot, function_slot::FunctionSlot, scripting_elements::scripting_panel::ScriptingPanel, var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, world_rendering::play_world_view_render::PlayWorldViewRender}}};
 
 pub trait Widget {
     fn get_pos(&self) -> [f32; 4];
@@ -50,6 +49,8 @@ pub enum WidgetType {
     VarSlot(VarSlot),
     VarPropValWidget(VarPropVal),
     FunctionSlot(FunctionSlot),
+    ActionSlot(ActionSlot),
+
 
     ScriptingPanel(ScriptingPanel),
 
@@ -90,6 +91,7 @@ macro_rules! widget_match {
             WidgetType::TextInput(w)      => w.$method($($arg),*),
             WidgetType::FunctionSlot(w)   => w.$method($($arg),*),
             WidgetType::VarPropValWidget(w)   => w.$method($($arg),*),
+            WidgetType::ActionSlot(w)   => w.$method($($arg),*),
             WidgetType::ScriptingPanel(w)   => w.$method($($arg),*),
         }
     };

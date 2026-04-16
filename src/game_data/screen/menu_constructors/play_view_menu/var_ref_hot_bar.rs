@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::{self, game_vars::{game_var_type::GameVarType, primitive_var::PrimitiveVarType}, var_type::VarType}, screen::{menu_constructors::play_view_menu::new_play_view::RefManager, widget::{drone_programming::vars::var_slot::VarSlot, panel::{panel::{PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget::WidgetType, widget_calculations::TextSize}}};
+use crate::game_data::{player_data::drone_script::var::{self, game_vars::{game_var_type::GameVarType, primitive_var::PrimitiveVarType}, var_type::VarType}, screen::{menu_constructors::play_view_menu::new_play_view::RefManager, widget::{drone_programming::var_slot::var_slot::VarSlot, panel::{panel::{PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget::WidgetType, widget_calculations::TextSize}}};
 
 
 

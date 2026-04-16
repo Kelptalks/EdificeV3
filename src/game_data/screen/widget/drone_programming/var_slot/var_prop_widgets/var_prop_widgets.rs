@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::var_properties::{PropValue, VarPropModRequest}, screen::widget::{drone_programming::vars::var_prop_widgets::{invintory_display_prop_widget::InvintoryDisplayPropWidget, num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget, var_prop_widget::VarPropWidget}, panel::panel::Panel, widget::{Widget, WidgetType}}};
+use crate::game_data::{player_data::drone_script::var::var_properties::{PropValue, VarPropModRequest}, screen::widget::{drone_programming::var_slot::var_prop_widgets::{invintory_display_prop_widget::InvintoryDisplayPropWidget, num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget, var_prop_widget::VarPropWidget}, panel::panel::Panel, widget::{Widget, WidgetType}}};
 
 pub enum VarPropVal {
     String(TextDisplayPropWidget),

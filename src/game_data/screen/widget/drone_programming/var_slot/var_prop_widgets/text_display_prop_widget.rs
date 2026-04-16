@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::var_properties::{PropKey, PropValue, VarPropModRequest}, screen::widget::{drone_programming::vars::var_prop_widgets::var_prop_widgets::VarPropVal, panel::panel::Panel, text::text_input::TextInput, widget::{Widget, WidgetType}}};
+use crate::game_data::{player_data::drone_script::var::var_properties::{PropKey, PropValue, VarPropModRequest}, screen::widget::{drone_programming::var_slot::var_prop_widgets::var_prop_widgets::VarPropVal, panel::panel::Panel, text::text_input::TextInput, widget::{Widget, WidgetType}}};
 
 pub struct TextDisplayPropWidget {
     

@@ -55,13 +55,13 @@ impl DroneWorldAction {
     pub fn get_name(&self) -> String {
         match self {
             DroneWorldAction::MoveDrone(cords) => {
-                format!("Moving: {:?}", cords)
+                format!("MoveDrone")
             },
             DroneWorldAction::MineBlock(cords) => {
-                format!("Mining Block: {:?}", cords)
+                format!("MineBlock")
             },
             DroneWorldAction::PlaceBlock(cords, block_texture) => {
-                format!("Placing Block: {:?} | {}", cords, block_texture.get_name())
+                format!("PlaceBlock")
             },
         }
     }
@@ -72,19 +72,19 @@ impl DroneWorldAction {
     //=====================================
 
 
-    pub fn create_param_vars(&self) -> Vec<Var> {
+    pub fn get_param_var_types(&self) -> Vec<VarType> {
         let mut params = Vec::new();
         
         match self {
             DroneWorldAction::MoveDrone(cords) => {
-                params.push(PrimitiveVarType::construct_cords_var(*cords));
+                params.push(PrimitiveVarType::Cords(*cords).wrap_into_var_type());
             },
             DroneWorldAction::MineBlock(cords) => {
-                params.push(PrimitiveVarType::construct_cords_var(*cords));
+                params.push(PrimitiveVarType::Cords(*cords).wrap_into_var_type());
             },
             DroneWorldAction::PlaceBlock(cords, block_texture) => {
-                params.push(PrimitiveVarType::construct_cords_var(*cords));
-                params.push(PrimitiveVarType::construct_block_var_ref(*block_texture));
+                params.push(PrimitiveVarType::Cords(*cords).wrap_into_var_type());
+                params.push(PrimitiveVarType::Block(*block_texture).wrap_into_var_type());
             },
         }
 
