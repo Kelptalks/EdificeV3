@@ -25,7 +25,8 @@ impl ActionSlot {
         let return_var_option = action.get_return_var();
         if let Some(return_var) = return_var_option {
             let return_sub_panel = panel.add_sub_panel();
-            let var_slot = VarSlot::new_with_var(return_var.clone());
+            let mut var_slot = VarSlot::new_with_var(return_var.clone());
+            var_slot.set_dragging_properties(true, false, false);
             return_sub_panel.add_widget(var_slot.wrap_into_widget());
         } 
 

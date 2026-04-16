@@ -1,4 +1,4 @@
-use crate::game_data::player_data::drone_script::{action::action_type::ActionType, var::var::{Var, VarRef}};
+use crate::game_data::player_data::drone_script::{action::action_type::ActionType, var::{prim_vars::prim_var_type::PrimitiveVarType, var::{Var, VarRef}, var_type::VarType}};
 
 
 #[derive(Clone)]
@@ -29,7 +29,7 @@ impl Action {
             action_type: action_type,
             params: var_refs,
 
-            return_var: Some(Var::new_with_var_type(crate::game_data::player_data::drone_script::var::var_type::VarType::Null())),
+            return_var: Some(Var::new_with_var_type(VarType::Prim(PrimitiveVarType::Bool(false)))),
         }
     }
     

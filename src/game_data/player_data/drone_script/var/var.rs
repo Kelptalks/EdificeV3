@@ -160,11 +160,15 @@ impl VarRef {
     //=====================================
 
     pub fn set_with_var(&mut self, var: &Var) {
-        self.var_type_ref = Some(var.get_var_type_ref().clone());
+        if var.get_kind() == self.var_kind {
+            self.var_type_ref = Some(var.get_var_type_ref().clone());
+        }
     }
 
     pub fn set_with_var_type_ref(&mut self, var_type_ref: &Rc<RefCell<VarType>>) {
-        self.var_type_ref = Some(var_type_ref.clone());
+        if var_type_ref.borrow().to_kind() == self.var_kind {
+            self.var_type_ref = Some(var_type_ref.clone());
+        }
     }
 
     pub fn clear(&mut self) {

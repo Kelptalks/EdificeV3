@@ -21,6 +21,19 @@ pub fn test_script_panel() -> WidgetType {
     let mut panel = Panel::new_blank();
 
 
+    let var_slot = VarSlot::new(PrimitiveVarType::Block(BlockTexture::Battery1).wrap_into_var_type());
+    panel.add_widget(var_slot.wrap_into_widget());
+    
+    let var_ref_slot = VarSlot::new_ref(VarTypeKind::Any);
+    panel.add_widget(var_ref_slot.wrap_into_widget());
+    
+    let var_ref_slot = VarSlot::new_ref(VarTypeKind::Any);
+    panel.add_widget(var_ref_slot.wrap_into_widget());
+    
+    let var_ref_slot = VarSlot::new_ref(VarTypeKind::Any);
+    panel.add_widget(var_ref_slot.wrap_into_widget());
+
+
     let action = 
         Action::new(
             ActionType::DroneAction(
@@ -33,6 +46,7 @@ pub fn test_script_panel() -> WidgetType {
                 )
             )
         );
+        
     let action_widget = ActionSlot::new(action);
 
     panel.add_widget(action_widget.wrap_into_widget());
