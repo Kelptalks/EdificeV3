@@ -9,10 +9,10 @@ Var
 Action
 
 function 
-    - Function call | Params = Vec<var ref>
+    - Function call | Params = Vec<var refs>
     - [
         Head : Contains params that you can create and set of a specific type
-        
+            - Apon compilation the params from function Call will be 
         Body of function can contain elements
 
         Exit : display a var ref on the exit
@@ -21,11 +21,6 @@ function
 Condition 
     - Condition can take in a Var / Var ref and compaire using basic conditonals
     
-var :
-    - [VarRef | Var ]
-    - I want one side to be the Var and one side to be the decliration
-    - I need a way to visualize the diffrence betteen var and var_refs
-
 condition 
 
 enum script_value: Things like bool and such

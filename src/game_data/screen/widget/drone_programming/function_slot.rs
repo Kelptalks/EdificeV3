@@ -18,23 +18,7 @@ impl FunctionSlot {
 
         panel.add_text_display(function.get_name()).set_text_scale(TextSize::ExtraSmall);
 
-        // Function Conditional
-        if let Some(conditional) = function.get_conditional() {
-            let conditional_sub_panel = panel.add_sub_panel();
-            let conditional_string = format!("Condition: {}", conditional.to_string());
-            conditional_sub_panel.add_text_display(conditional_string);
-        }
 
-        // Function Params
-        if function.get_params().len() > 0 {
-            let param_sub_panel = panel.add_sub_panel();
-            // Constuct var slots
-            for var in function.get_params() {
-                let mut var_slot = VarSlot::new(var);
-                var_slot.set_allowed_type(var.borrow().to_kind());
-                param_sub_panel.add_widget(var_slot.wrap_into_widget());
-            }
-        }
 
         panel.size();
         FunctionSlot {

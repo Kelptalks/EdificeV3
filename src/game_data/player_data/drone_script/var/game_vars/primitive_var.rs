@@ -12,7 +12,7 @@ pub enum PrimitiveVarType {
 }
 
 impl PrimitiveVarType {
-    pub fn wrap_into_var(self) -> VarType {
+    pub fn wrap_into_var_type(self) -> VarType {
         GameVarType::Primitive(self).wrap_into_var_type()
     }
 
@@ -108,7 +108,7 @@ impl PrimitiveVarType {
     }
 
     pub fn construct_item_var_ref(item: DroneItem) -> Var {
-        let var = PrimitiveVarType::DroneItem(item).wrap_into_var();
+        let var = PrimitiveVarType::DroneItem(item).wrap_into_var_type();
         return Var::new_with_var_type(var);
     }
 

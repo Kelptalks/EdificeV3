@@ -11,7 +11,6 @@ pub struct VarPropWidget {
 
 
     set_var_bool: Rc<RefCell<bool>>,
-    var: Rc<RefCell<VarType>>,
 }
 
 impl VarPropWidget {
@@ -20,8 +19,8 @@ impl VarPropWidget {
         let mut panel = Panel::new_blank();
         
         // Var Slot
-        let var = Rc::new(RefCell::new(PrimitiveVarType::DroneItem(DroneItem::Ash).wrap_into_var()));
-        let var_slot = VarSlot::new(&var);
+        let var_type = PrimitiveVarType::DroneItem(DroneItem::Ash).wrap_into_var_type();
+        let var_slot = VarSlot::new_with_var_type(var_type);
         panel.add_widget(var_slot.wrap_into_widget());
         
         if let PropKey::Script = key {
@@ -52,7 +51,6 @@ impl VarPropWidget {
             panel,
 
             set_var_bool: toggle_ref,
-            var: var,
         }
     }
 
@@ -68,10 +66,11 @@ impl VarPropWidget {
 
         if *self.set_var_bool.borrow() {
 
-            prop_requests.push(VarPropModRequest::Set(self.key, PropValue::Var(Some(self.var.clone()))));
-
+            
+            // prop_requests.push(VarPropModRequest::Set(self.key, PropValue::Var(Some(self.var.clone()))));
 
             *self.set_var_bool.borrow_mut() = false;
+            todo!()
         }
 
 

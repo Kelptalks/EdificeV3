@@ -1,6 +1,6 @@
 
 
-use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::{GameVarType, GameVarTypeKind}, programming_vars::programming_var::{self, ProgrammingVar, ProgrammingVarKind}, var::Var, var_properties::{VarPropModRequest, VarProperty}}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::{GameVarType, GameVarTypeKind}, prim_vars::prim_var_type::{PrimitiveVarType, PrimitiveVarTypeKind}, programming_vars::programming_var::{self, ProgrammingVar, ProgrammingVarKind}, var::Var, var_properties::{VarPropModRequest, VarProperty}}, texture_manager::texture::Texture, types::BlockTexture};
 
 
 
@@ -9,6 +9,7 @@ pub enum VarTypeKind {
     Any,
     Game(GameVarTypeKind),
     ProgrammingVar(ProgrammingVarKind),
+    Prim(PrimitiveVarTypeKind),
 }
 
 impl PartialEq for VarTypeKind {
@@ -18,6 +19,7 @@ impl PartialEq for VarTypeKind {
         }
         match (self, other) {
             (Self::Game(a), Self::Game(b)) => a == b,
+            (Self::Prim(a), Self::Prim(b)) => a == b,
             _ => false,
         }
     }
@@ -35,6 +37,9 @@ impl VarTypeKind {
             VarTypeKind::ProgrammingVar(programming_var_kind) => {
                 return programming_var_kind.get_texture();
             },
+            VarTypeKind::Prim(prim_var_type_kind) => {
+                return prim_var_type_kind.get_texture();
+            },
         }
     }
 
@@ -48,6 +53,7 @@ pub enum VarType {
     Null(),
     Game(GameVarType),
     ProgrammingVar(ProgrammingVar),
+    Prim(PrimitiveVarType),
 }
 
 impl VarType {
@@ -62,6 +68,7 @@ impl VarType {
             },
             VarType::Game(game_var_type) => game_var_type.get_texture(),
             VarType::ProgrammingVar(programming_var) => programming_var.get_texture(),
+            VarType::Prim(prim) => prim.get_texture(),
         }
     }
 
@@ -72,11 +79,14 @@ impl VarType {
             },
             VarType::Game(game_var_type) => {
                 VarTypeKind::Game(game_var_type.to_kind())
-                
+
             },
             VarType::ProgrammingVar(programming_var) => {
                 VarTypeKind::ProgrammingVar(programming_var.to_kind())
-            }
+            },
+            VarType::Prim(prim) => {
+                VarTypeKind::Prim(prim.to_kind())
+            },
         }
     }
 
@@ -87,6 +97,7 @@ impl VarType {
             },
             VarType::Game(game_var) => game_var.get_name(),
             VarType::ProgrammingVar(programming_var) => programming_var.get_name(),
+            VarType::Prim(prim) => prim.get_name(),
         }
     }
 
@@ -96,7 +107,8 @@ impl VarType {
 
             }
             VarType::Game(game_var) => {game_var.clear()},
-            VarType::ProgrammingVar(programming_var) => {programming_var.clear();}
+            VarType::ProgrammingVar(programming_var) => {programming_var.clear();},
+            VarType::Prim(prim) => {prim.clear();},
         }
     }
 
@@ -111,6 +123,9 @@ impl VarType {
             VarType::ProgrammingVar(programming_var) => {
                 programming_var.get_properties()
             }
+            VarType::Prim(prim) => {
+                prim.get_properties()
+            }
         }
     }
 
@@ -124,7 +139,10 @@ impl VarType {
             },
             VarType::ProgrammingVar(programming_var) => {
                 programming_var.request_prop(request);
-            }
+            },
+            VarType::Prim(prim) => {
+                prim.request_prop(request);
+            },
         }
-    } 
+    }
 }

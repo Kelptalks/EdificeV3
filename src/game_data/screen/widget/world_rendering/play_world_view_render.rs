@@ -335,7 +335,8 @@ impl PlayWorldViewRender {
                     let area_cords = self.world_to_area_cords(drone_ref_option.borrow().get_cords());
                     let draw_cords = self.area_to_draw_cords(area_cords);
 
-                    let mut var_slot = VarSlot::new(var);
+                    /*
+                    let mut var_slot = VarSlot::new_with_var_type(var);
                     let var_pos = [
                         draw_cords[0],
                         draw_cords[1],
@@ -346,7 +347,8 @@ impl PlayWorldViewRender {
                     
                     
                     var_slot.size();
-                    // var_slot.render(texture_manager, screen_data, game_event_manager);
+                    var_slot.render(texture_manager, screen_data, game_event_manager);
+                    */
                 }   
             }
         }

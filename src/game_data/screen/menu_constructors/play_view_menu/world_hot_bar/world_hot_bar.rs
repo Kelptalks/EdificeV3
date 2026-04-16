@@ -51,11 +51,10 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         panel.set_color(PanelColor::Dark);
 
         // Cursor Location Ref
-        let cursor_var_ref = Rc::new(RefCell::new(VarType::Game(GameVarType::Dynamic(DynamicVarType::Location(Some(ref_manager.cursor_location.clone()))))));
-        let mut cursor_location_var_slot = VarSlot::new(&cursor_var_ref);
+        let cursor_var_type = DynamicVarType::Location(Some(ref_manager.cursor_location.clone())).wrap_into_var_type();
+        let mut cursor_location_var_slot = VarSlot::new_with_var_type(cursor_var_type);
         cursor_location_var_slot.set_dragging_properties(true, false, false);  
         panel.add_widget(cursor_location_var_slot.wrap_into_widget());
-
 
 
         // Toggle create location
@@ -146,9 +145,11 @@ fn get_location_hotbar(ref_manager: &mut RefManager) -> WidgetType {
 
 
         // Var Source Slot
-        let mut var_slot = VarSlot::new(&ref_manager.selected_var);
+        /*
+        let mut var_slot = VarSlot::new_with_var_type(&ref_manager.selected_var);
         var_slot.set_dragging_properties(true, false, false);     
         panel.add_widget(var_slot.wrap_into_widget());
+         */
 
         // Toggle Render Only Location
         let render_only_location_toggle = panel.add_toggle_button();

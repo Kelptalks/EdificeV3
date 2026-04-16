@@ -8,13 +8,4 @@ use EdificeV3::game_data::player_data::{
 fn main() {
     
 
-    let mut function = Function::new_blank();
-    
-    let mut sub_function = Function::new_from_drone_action(DroneAction::GetterAction(DroneGetterAction::IsBusy));
-    
-    function.add_script_element(0, sub_function.to_script_element());
-
-
-
-    function.get_function_at_index(0);
 }

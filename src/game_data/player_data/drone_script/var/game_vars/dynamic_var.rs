@@ -20,7 +20,7 @@ impl PartialEq for DynamicVarType {
 }
 
 impl DynamicVarType {
-    pub fn wrap_into_var(self) -> VarType {
+    pub fn wrap_into_var_type(self) -> VarType {
         VarType::Game(super::game_var_type::GameVarType::Dynamic(self))
     }
 
@@ -261,17 +261,17 @@ impl DynamicVarType {
 
     pub fn construct_location_var(location: &Option<Rc<RefCell<WorldLocation>>>) -> Var {
         if let Some(location_ref) = location {
-            let var = DynamicVarType::Location(Some(location_ref.clone())).wrap_into_var();
+            let var = DynamicVarType::Location(Some(location_ref.clone())).wrap_into_var_type();
             Var::new_with_var_type(var)
         }
         else {
-            let var = DynamicVarType::Location(None).wrap_into_var();
+            let var = DynamicVarType::Location(None).wrap_into_var_type();
             Var::new_with_var_type(var)
         }
     }
 
     pub fn construct_drone_var(drone: &Rc<RefCell<Drone>>) -> Var {
-        let var = DynamicVarType::Drone(Some(drone.clone())).wrap_into_var();
+        let var = DynamicVarType::Drone(Some(drone.clone())).wrap_into_var_type();
         Var::new_with_var_type(var)
     }
 

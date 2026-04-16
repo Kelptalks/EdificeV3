@@ -32,12 +32,14 @@ fn get_function_selection_panel() -> WidgetType {
             current_collumn += 1;
             
 
+            /*
             let function = Function::new_from_drone_action(action);
             let var = ProgrammingVar::construct_function_call_var(function);
 
-            let mut var_slot = VarSlot::new(&var);
+            let mut var_slot = VarSlot::new_with_var_type(&var);
             var_slot.set_dragging_properties(true, false, false);
             row_sub_panel.add_widget(var_slot.wrap_into_widget());
+             */
         }
 
         scroll_panel.add_widget(row_sub_panel.wrap_into_widget());

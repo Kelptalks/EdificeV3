@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::EventManager, player_data::drone_script::var::var_type::{VarType, VarTypeKind}, screen::{ScreenData, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations}}};
+use crate::game_data::{game_event_manager::prelude::EventManager, player_data::drone_script::var::{var::Var, var_type::{VarType, VarTypeKind}}, screen::{ScreenData, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations}}};
 
 
 
@@ -16,11 +16,9 @@ pub struct VarSlot {
     pos: [f32; 4],
     scale: [f32; 2],
     
-    var_ref: Rc<RefCell<VarType>>,
+    var: Var,
     var_string_ndc: [f32; 2],
 
-
-    var_type_kind_allowed: VarTypeKind,
     allow_setting: bool,
     allow_dragging: bool,
     allow_clearing: bool,
@@ -40,7 +38,7 @@ Var Slots contain an RC that can be used in events, or just to manage values
 */
 
 impl VarSlot {
-    pub fn new(var_instance: &Rc<RefCell<VarType>>) -> VarSlot {
+    pub fn new_with_var_type(var_type: VarType) -> VarSlot {
 
         VarSlot {
             // Parent Rendering
@@ -55,11 +53,10 @@ impl VarSlot {
             scale: [0.0; 2],
 
 
-            var_ref: var_instance.clone(),
+            var: Var::new_with_var_type(var_type),
             var_string_ndc: [0.0; 2],
 
             // Options
-            var_type_kind_allowed: VarTypeKind::Any,
             allow_setting: true,
             allow_dragging: true,
             allow_clearing: true,
@@ -80,11 +77,6 @@ impl VarSlot {
         self.allow_clearing = allow_clearing;
     }
 
-    pub fn set_allowed_type(&mut self, var_type_allowed: VarTypeKind) {
-        self.var_type_kind_allowed = var_type_allowed;
-    }
-
-
     //=====================================
     // Control Managment Functions
     //=====================================
@@ -92,16 +84,12 @@ impl VarSlot {
 
     // Set the variable of the slot if var released matches both type allowed and settings is allowed
     fn try_and_set_var(&mut self, var_held_by_mouse: &Option<Rc<RefCell<VarType>>>) {
+        
+        
         if self.allow_setting {
             if let Some(var_held_by_mouse) = var_held_by_mouse {
-                if var_held_by_mouse == &self.var_ref {
-                    return;
-                }
-                
-                let cloned = var_held_by_mouse.borrow().clone();
-                if cloned.to_kind() == self.var_type_kind_allowed {
-                    *self.var_ref.borrow_mut() = cloned;
-                }
+                let cloned_var_type = var_held_by_mouse.borrow().clone();
+                self.var.set_value(cloned_var_type);
             }
         }
     }
@@ -109,7 +97,7 @@ impl VarSlot {
     // Get the value of the slot ref if it allows
     fn try_and_get_var(&mut self) -> Option<Rc<RefCell<VarType>>> {
         if self.allow_dragging {
-            return Some(self.var_ref.clone());
+            return Some(self.var.get_var_type_ref().clone());
         }
         else {
             return None;
@@ -152,16 +140,16 @@ impl Widget for VarSlot {
     ) {
         
         if self.allow_clearing {
-            texture_manager.render_texture_with_pos(self.var_type_kind_allowed.get_texture(), self.pos);
+            texture_manager.render_texture_with_pos(self.var.get_kind_texture(), self.pos);
         }
         
-        texture_manager.render_texture_with_pos(self.var_ref.borrow().get_texture(), self.pos);
+        texture_manager.render_texture_with_pos(self.var.get_texture(), self.pos);
 
         // Try and get var if mouse was released
         if screen_data.mouse_on_ndc_pos(self.pos) {
 
             // Size and set string
-            let string = self.var_ref.borrow().get_name();
+            let string = self.var.get_name();
             let text_scale = widget_calculations::get_button_text_scale();
             let string_centering_offset = (string.len() as f32 * text_scale) / 2.0;
             
@@ -193,7 +181,7 @@ impl Widget for VarSlot {
 
             // Clear
             if self.allow_setting && screen_data.was_right_pressed() {
-                self.var_ref.borrow_mut().clear();
+                self.var.clear();
             }
         }
     }

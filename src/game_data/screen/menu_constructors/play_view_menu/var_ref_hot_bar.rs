@@ -26,7 +26,8 @@ pub fn get_widget(ref_manager: &RefManager) -> WidgetType {
 
         // source_var_panel.add_text_display("Selected".to_string()).set_text_scale(TextSize::ExtraSmall);
 
-        let mut var_slot = VarSlot::new(&ref_manager.selected_var.clone());
+        /*
+        let mut var_slot = VarSlot::new_with_var_type(&ref_manager.selected_var.clone());
         var_slot.set_dragging_properties(true, true, true);
         var_slot.set_allowed_type(var::var_type::VarTypeKind::Any);
         source_var_panel.add_widget(var_slot.wrap_into_widget());
@@ -42,13 +43,14 @@ pub fn get_widget(ref_manager: &RefManager) -> WidgetType {
             let var_instance = Rc::new(RefCell::new(blank_var));
             
             // Init Widget
-            let mut var_slot = VarSlot::new(&var_instance);
+            let mut var_slot = VarSlot::new_with_var_type(&var_instance);
             var_slot.set_dragging_properties(true, true, true);
             var_slot.set_allowed_type(var::var_type::VarTypeKind::Any);
 
             // Add to panel
             slot_sub_panel.add_widget(var_slot.wrap_into_widget());
         }
+         */
 
 
         

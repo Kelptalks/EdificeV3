@@ -60,7 +60,7 @@ impl DronePrimAction {
     //=====================================
     // Function Construction
     //=====================================
-    pub fn get_param_var_types(&self) -> Vec<Var> {
+    pub fn create_param_vars(&self) -> Vec<Var> {
         match self {
             DronePrimAction::DroneWorldAction(drone_world_action) => {
                 drone_world_action.create_param_vars()

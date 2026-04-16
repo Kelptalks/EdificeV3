@@ -44,7 +44,7 @@ impl PlayerDataEvent {
                         "name".to_string(), 
                         *location_ref.borrow().get_area()
                     );
-                *var_ref.borrow_mut() = DynamicVarType::Location(Some(new_location)).wrap_into_var();
+                *var_ref.borrow_mut() = DynamicVarType::Location(Some(new_location)).wrap_into_var_type();
             },
             PlayerDataEvent::VarEvent(var_event) => {
                 var_event.execute();
@@ -52,7 +52,7 @@ impl PlayerDataEvent {
             PlayerDataEvent::CreateDroneInVar(var_ref, location_ref) => {
                 let drone = player_data.get_mut_drone_manager().create_drone_at_cords(location_ref.borrow().get_area().get_point_1_cords());
 
-                *var_ref.borrow_mut() = DynamicVarType::Drone(Some(drone)).wrap_into_var();
+                *var_ref.borrow_mut() = DynamicVarType::Drone(Some(drone)).wrap_into_var_type();
             },
         }
     }

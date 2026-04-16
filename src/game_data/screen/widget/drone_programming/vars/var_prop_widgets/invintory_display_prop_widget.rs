@@ -21,7 +21,7 @@ impl InvintoryDisplayPropWidget {
         InvintoryDisplayPropWidget {
             mutable: mutable,
 
-            item_to_mod_ref: Rc::new(RefCell::new(PrimitiveVarType::DroneItem(DroneItem::Ash).wrap_into_var())),
+            item_to_mod_ref: Rc::new(RefCell::new(PrimitiveVarType::DroneItem(DroneItem::Ash).wrap_into_var_type())),
             item_amount_to_mod: Rc::new(RefCell::new(0)),
             
 
@@ -35,8 +35,8 @@ impl InvintoryDisplayPropWidget {
         let mut panel = Panel::new_blank();
 
         // Add item var slot
-        let var = Rc::new(RefCell::new(PrimitiveVarType::DroneItem(item).wrap_into_var()));
-        let var_slot = var_slot::VarSlot::new(&var);
+        let var_type = PrimitiveVarType::DroneItem(item).wrap_into_var_type();
+        let var_slot = var_slot::VarSlot::new_with_var_type(var_type);
         panel.add_widget(var_slot.wrap_into_widget());
 
         return panel.wrap_into_widget();
@@ -46,8 +46,8 @@ impl InvintoryDisplayPropWidget {
         let mut panel = Panel::new_blank();
 
         // Add item var slot
-        let var = Rc::new(RefCell::new(PrimitiveVarType::DroneItem(item).wrap_into_var()));
-        let mut var_slot = var_slot::VarSlot::new(&var);
+        let var_type = PrimitiveVarType::DroneItem(item).wrap_into_var_type();
+        let mut var_slot = var_slot::VarSlot::new_with_var_type(var_type);
         var_slot.set_dragging_properties(true, false, false);
         panel.add_widget(var_slot.wrap_into_widget());
 
@@ -100,9 +100,11 @@ impl InvintoryDisplayPropWidget {
             // Item Mod
             if self.mutable {
 
+                todo!();
+                /*
                 let item_mod_sub_panel = self.panel.add_sub_panel();
 
-                let mut var_slot = VarSlot::new(&self.item_to_mod_ref);
+                let mut var_slot = VarSlot::new_with_var_type(&self.item_to_mod_ref.borrow().);
                 var_slot.set_allowed_type(VarTypeKind::Game(GameVarTypeKind::Primitive(PrimitiveVarTypeKind::DroneItem)));
                 item_mod_sub_panel.add_widget(var_slot.wrap_into_widget());
 
@@ -122,6 +124,7 @@ impl InvintoryDisplayPropWidget {
 
                     *self.item_amount_to_mod.borrow_mut() = 0;
                 }
+                */
             }
         }
         else if let PropValue::ItemVec(items) = val {

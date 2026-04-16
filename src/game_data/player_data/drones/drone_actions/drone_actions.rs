@@ -88,10 +88,10 @@ impl DroneAction {
     // Function Managment
     //=====================================
 
-    pub fn param_var_types(&self) -> Vec<Var> {
+    pub fn create_param_vars(&self) -> Vec<Var> {
         match self {
             DroneAction::PrimAction(drone_prim_action) => {
-                drone_prim_action.get_param_var_types()
+                drone_prim_action.create_param_vars()
             },
             DroneAction::AdvancedAction(advanced_drone_action) => {
                 advanced_drone_action.create_param_vars()

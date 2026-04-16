@@ -4,63 +4,9 @@ use crate::game_data::{game_event_manager::render_event_manager::render_event_ma
 
 
 
-pub fn test_var_slots() -> WidgetType {
-    let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
-    
-    if let WidgetType::Panel(panel) = &mut panel {
-        panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-
-        // Blocks
-        panel.add_text_display("Block Slots".to_string());
-        let block_sub_panel = panel.add_sub_panel();
-        let blocks = [BlockTexture::Air, BlockTexture::Stone, BlockTexture::Granite, BlockTexture::Grass, BlockTexture::BlueGrass];
-        for i in 0..blocks.len() {
-            let var_instance = Rc::new(RefCell::new(VarType::Game(GameVarType::Primitive(PrimitiveVarType::Block(blocks[i])))));
-            let mut var_slot = VarSlot::new(&var_instance);
-
-            var_slot.set_allowed_type(VarTypeKind::Game(GameVarTypeKind::Primitive(PrimitiveVarTypeKind::Block)));
-            var_slot.set_dragging_properties(true, false, false);
-
-            block_sub_panel.add_widget(var_slot.wrap_into_widget());
-        }
-
-        // Items
-        panel.add_text_display("Item Slots".to_string());
-        
-        let item_sub_panel = panel.add_sub_panel();
-        let items = [DroneItem::Ash, DroneItem::Dirt, DroneItem::PlantMatter, DroneItem::IronBattery, DroneItem::DroneChassis];
-        for i in 0..items.len() {
-            let var_instance = Rc::new(RefCell::new(VarType::Game(GameVarType::Primitive(PrimitiveVarType::DroneItem(items[i])))));
-            let mut var_slot = VarSlot::new(&var_instance);
-
-            var_slot.set_allowed_type(VarTypeKind::Game(GameVarTypeKind::Primitive(PrimitiveVarTypeKind::DroneItem)));
-            var_slot.set_dragging_properties(true, false, false);
-
-            item_sub_panel.add_widget(var_slot.wrap_into_widget());
-        }
-
-
-
-        // Slots Types
-        panel.add_text_display("Block Selectors".to_string());
-        let slot_sub_panel = panel.add_sub_panel();
-        
-        
-        let var_instance = Rc::new(RefCell::new(VarType::Game(GameVarType::Primitive(PrimitiveVarType::DroneItem(DroneItem::Ash)))));
-        let mut var_slot = VarSlot::new(&var_instance);
-
-
-        // var_slot.set_allowed_type(VarTypeKind::Game(GameVarTypeKind::Primitive(PrimitiveVarTypeKind::DroneItem)));
-        var_slot.set_dragging_properties(true, true, true);
-
-        slot_sub_panel.add_widget(var_slot.wrap_into_widget());
-    }
-
-    return panel;
-}
 
 pub fn test_var_tab_panel() -> WidgetType {
-    let var_ref = Rc::new(RefCell::new(PrimitiveVarType::Block(BlockTexture::Hive).wrap_into_var()));
+    let var_ref = Rc::new(RefCell::new(PrimitiveVarType::Block(BlockTexture::Hive).wrap_into_var_type()));
     let var_tab_panel = VarTabPanel::new(&var_ref);
 
 
