@@ -36,7 +36,7 @@ fn get_block_selection_panel() -> WidgetType {
                     
                     let block_type = BlockTexture::from_id(collumn_block_id as u16 + row_block_id as u16);
                     let var_ref = PrimitiveVarType::Block(block_type).wrap_into_var_type();
-                    let mut var_slot = VarSlot::new_with_var_type(var_ref);
+                    let mut var_slot = VarSlot::new(var_ref);
                     var_slot.set_dragging_properties(true, false, false);
                                         
                     row_panel.add_widget(var_slot.wrap_into_widget());
@@ -77,7 +77,7 @@ fn get_item_selection_panel() -> WidgetType {
                     
                     let item_type = DroneItem::from_id(collumn_item_id as u32 + row_item_id as u32);
                     let var_type = PrimitiveVarType::DroneItem(item_type).wrap_into_var_type();
-                    let mut var_slot = VarSlot::new_with_var_type(var_type);
+                    let mut var_slot = VarSlot::new(var_type);
                     var_slot.set_dragging_properties(true, false, false);
                     row_panel.add_widget(var_slot.wrap_into_widget());
                 }

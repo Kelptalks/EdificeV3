@@ -46,7 +46,7 @@ impl VarTabPanel {
 
     pub fn new(var_ref: &Rc<RefCell<VarType>>) -> VarTabPanel {
         
-        let var_slot = VarSlot::new_with_var_type(VarType::Null());
+        let var_slot = VarSlot::new(VarType::Null());
 
         let scroll_panel = ScrollPanel::new();
 

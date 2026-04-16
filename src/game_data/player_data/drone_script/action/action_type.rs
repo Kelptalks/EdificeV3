@@ -12,5 +12,5 @@ impl ActionType {
         match self {
             ActionType::DroneAction(drone_action) => todo!(),
         }
-    } 
+    }
 }

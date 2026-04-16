@@ -11,10 +11,10 @@ pub struct FunctionSlot {
 
 impl FunctionSlot {
 
-    pub fn new_with_function_ref(function: &Function) -> FunctionSlot {
+    pub fn new_with_function(function: &Function) -> FunctionSlot {
         let mut panel = Panel::new_blank();
         
-        // panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
+        panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
 
         panel.add_text_display(function.get_name()).set_text_scale(TextSize::ExtraSmall);
 

@@ -54,8 +54,8 @@ impl Var {
         self.var_kind.get_texture()
     }
 
-    pub fn get_var_type_ref(&self) -> &Rc<RefCell<VarType>> {
-        &self.var_type_ref
+    pub fn get_var_type_ref(&self) -> Rc<RefCell<VarType>> {
+        self.var_type_ref.clone()
     }
 
     //=====================================
@@ -97,29 +97,78 @@ Comments
 #[derive(Clone, PartialEq)]
 pub struct VarRef {
     var_kind: VarTypeKind,
-    var_ref: Rc<RefCell<Var>>,
+    var_type_ref: Option<Rc<RefCell<VarType>>>,
 }
 
 impl VarRef {
+
+    //=====================================
+    // Constructors
+    //=====================================
+
     pub fn new_with_var(var: &Var) -> VarRef {
         VarRef {
-            var_ref: var.into_ref(),
+            var_type_ref: Some(var.get_var_type_ref().clone()),
             var_kind: var.var_kind
         }
     }
 
     pub fn new_blank_with_kind(var_kind: VarTypeKind) -> VarRef {
         VarRef {
-            var_ref: Rc::new(RefCell::new(Var::new_blank())),
+            var_type_ref: None,
             var_kind: var_kind,
         }
     }
+    
+    //=====================================
+    // getters
+    //=====================================
+
+    pub fn get_name(&self) -> String {
+        if let Some(var_type_ref) = &self.var_type_ref {
+            var_type_ref.borrow().get_name()
+        }
+        else {
+            "No Ref".to_string()
+        }
+    }
+
+    pub fn get_var_type_ref(&self) -> Rc<RefCell<VarType>> {
+        if let Some(var_type_ref) = &self.var_type_ref {
+            return var_type_ref.clone()
+        }
+        else {
+            return Rc::new(RefCell::new(VarType::Null()));
+        }
+    }
+
+    pub fn get_kind_texture(&self) -> Texture {
+        return self.var_kind.get_texture()
+    }
+
+    pub fn get_texture(&self) -> Texture {
+        if let Some(var_type_ref) = &self.var_type_ref {
+            return var_type_ref.borrow().get_texture()
+        }
+        else {
+            return Texture::BlockTexture(crate::game_data::types::BlockTexture::Air)
+        }
+    }
+
+    //=====================================
+    // Setters
+    //=====================================
 
     pub fn set_with_var(&mut self, var: &Var) {
-        self.var_ref = var.into_ref();
+        self.var_type_ref = Some(var.get_var_type_ref().clone());
     }
-    
-    pub fn get_name(&self) -> String {
-        self.var_ref.borrow().get_name()
+
+    pub fn set_with_var_type_ref(&mut self, var_type_ref: &Rc<RefCell<VarType>>) {
+        self.var_type_ref = Some(var_type_ref.clone());
     }
+
+    pub fn clear(&mut self) {
+        self.var_type_ref = None
+    }
+
 }

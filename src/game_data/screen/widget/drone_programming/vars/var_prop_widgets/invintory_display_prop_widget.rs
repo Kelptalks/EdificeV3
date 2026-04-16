@@ -36,7 +36,7 @@ impl InvintoryDisplayPropWidget {
 
         // Add item var slot
         let var_type = PrimitiveVarType::DroneItem(item).wrap_into_var_type();
-        let var_slot = var_slot::VarSlot::new_with_var_type(var_type);
+        let var_slot = var_slot::VarSlot::new(var_type);
         panel.add_widget(var_slot.wrap_into_widget());
 
         return panel.wrap_into_widget();
@@ -47,7 +47,7 @@ impl InvintoryDisplayPropWidget {
 
         // Add item var slot
         let var_type = PrimitiveVarType::DroneItem(item).wrap_into_var_type();
-        let mut var_slot = var_slot::VarSlot::new_with_var_type(var_type);
+        let mut var_slot = var_slot::VarSlot::new(var_type);
         var_slot.set_dragging_properties(true, false, false);
         panel.add_widget(var_slot.wrap_into_widget());
 

@@ -23,14 +23,6 @@ pub fn get_widget(ref_manager: &RefManager) -> WidgetType {
         let source_var_panel = panel.add_sub_panel();
         source_var_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
         source_var_panel.set_color(PanelColor::Dark);
-
-        // source_var_panel.add_text_display("Selected".to_string()).set_text_scale(TextSize::ExtraSmall);
-
-        /*
-        let mut var_slot = VarSlot::new_with_var_type(&ref_manager.selected_var.clone());
-        var_slot.set_dragging_properties(true, true, true);
-        var_slot.set_allowed_type(var::var_type::VarTypeKind::Any);
-        source_var_panel.add_widget(var_slot.wrap_into_widget());
         
 
         let slot_sub_panel = panel.add_sub_panel();
@@ -38,19 +30,15 @@ pub fn get_widget(ref_manager: &RefManager) -> WidgetType {
         slot_sub_panel.set_color(PanelColor::Dark);
 
         for _i in 0..11 {
-            // Init Ref
-            let blank_var = VarType::Game(GameVarType::Primitive(PrimitiveVarType::Block(crate::game_data::types::BlockTexture::Air)));
-            let var_instance = Rc::new(RefCell::new(blank_var));
             
             // Init Widget
-            let mut var_slot = VarSlot::new_with_var_type(&var_instance);
+            let mut var_slot = VarSlot::new_ref(var::var_type::VarTypeKind::Any);
             var_slot.set_dragging_properties(true, true, true);
-            var_slot.set_allowed_type(var::var_type::VarTypeKind::Any);
 
             // Add to panel
             slot_sub_panel.add_widget(var_slot.wrap_into_widget());
         }
-         */
+
 
 
         

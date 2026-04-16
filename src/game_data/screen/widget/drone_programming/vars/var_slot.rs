@@ -1,8 +1,51 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::EventManager, player_data::drone_script::var::{var::Var, var_type::{VarType, VarTypeKind}}, screen::{ScreenData, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations}}};
+use crate::game_data::{game_event_manager::prelude::EventManager, player_data::drone_script::var::{var::{Var, VarRef}, var_type::{VarType, VarTypeKind}}, screen::{ScreenData, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations}}, texture_manager::texture::Texture};
 
 
+
+enum VarSlotType {
+    Owned(Var),
+    Ref(VarRef),
+}
+
+impl VarSlotType {
+    pub fn get_var_type_ref(&self) -> Rc<RefCell<VarType>> {
+        match self {
+            VarSlotType::Owned(var) => var.get_var_type_ref(),
+            VarSlotType::Ref(var_ref) => var_ref.get_var_type_ref(),
+        }
+    }
+
+    pub fn get_kind_texture(&self) -> Texture {
+        match self {
+            VarSlotType::Owned(var) => var.get_kind_texture(),
+            VarSlotType::Ref(var_ref) => var_ref.get_kind_texture(),
+        }
+    }
+
+    pub fn get_texture(&self) -> Texture {
+        match self {
+            VarSlotType::Owned(var) => var.get_texture(),
+            VarSlotType::Ref(var_ref) => var_ref.get_texture(),
+        }
+        
+    }
+
+    pub fn get_name(&self) -> String {
+        match self {
+            VarSlotType::Owned(var) => var.get_name(),
+            VarSlotType::Ref(var_ref) => var_ref.get_name(),
+        }
+    }
+
+    pub fn clear(&mut self) {
+        match self {
+            VarSlotType::Owned(var) => var.clear(),
+            VarSlotType::Ref(var_ref) => var_ref.clear(),
+        }
+    }
+}
 
 pub struct VarSlot {
     // Parent rendering
@@ -16,7 +59,7 @@ pub struct VarSlot {
     pos: [f32; 4],
     scale: [f32; 2],
     
-    var: Var,
+    var_slot_type: VarSlotType,
     var_string_ndc: [f32; 2],
 
     allow_setting: bool,
@@ -38,8 +81,7 @@ Var Slots contain an RC that can be used in events, or just to manage values
 */
 
 impl VarSlot {
-    pub fn new_with_var_type(var_type: VarType) -> VarSlot {
-
+    pub fn new(var_type: VarType) -> VarSlot {
         VarSlot {
             // Parent Rendering
             parent_pos: [0.0; 4],
@@ -53,7 +95,31 @@ impl VarSlot {
             scale: [0.0; 2],
 
 
-            var: Var::new_with_var_type(var_type),
+            var_slot_type: VarSlotType::Owned(Var::new_with_var_type(var_type)),
+            var_string_ndc: [0.0; 2],
+
+            // Options
+            allow_setting: true,
+            allow_dragging: true,
+            allow_clearing: true,
+        }
+    }
+
+    pub fn new_ref(var_kind: VarTypeKind) -> VarSlot {
+        VarSlot {
+            // Parent Rendering
+            parent_pos: [0.0; 4],
+            parent_scale: [0.0; 2],
+            prefered_scale: [widget_calculations::get_button_scale(); 2],
+
+            // Self Rendering
+            external_buffers: [0.0; 4], 
+            internal_buffers: [0.012; 4],   
+            pos: [0.0; 4],
+            scale: [0.0; 2],
+
+
+            var_slot_type: VarSlotType::Ref(VarRef::new_blank_with_kind(var_kind)),
             var_string_ndc: [0.0; 2],
 
             // Options
@@ -88,8 +154,17 @@ impl VarSlot {
         
         if self.allow_setting {
             if let Some(var_held_by_mouse) = var_held_by_mouse {
-                let cloned_var_type = var_held_by_mouse.borrow().clone();
-                self.var.set_value(cloned_var_type);
+                match &mut self.var_slot_type {
+                    VarSlotType::Owned(var) => {
+                        let cloned_var_type = var_held_by_mouse.borrow().clone();
+                        var.set_value(cloned_var_type);        
+                    },
+                    VarSlotType::Ref(var_ref) => {
+                        var_ref.set_with_var_type_ref(var_held_by_mouse);
+                    },
+                }
+                
+                
             }
         }
     }
@@ -97,7 +172,7 @@ impl VarSlot {
     // Get the value of the slot ref if it allows
     fn try_and_get_var(&mut self) -> Option<Rc<RefCell<VarType>>> {
         if self.allow_dragging {
-            return Some(self.var.get_var_type_ref().clone());
+            return Some(self.var_slot_type.get_var_type_ref().clone());
         }
         else {
             return None;
@@ -140,16 +215,16 @@ impl Widget for VarSlot {
     ) {
         
         if self.allow_clearing {
-            texture_manager.render_texture_with_pos(self.var.get_kind_texture(), self.pos);
+            texture_manager.render_texture_with_pos(self.var_slot_type.get_kind_texture(), self.pos);
         }
         
-        texture_manager.render_texture_with_pos(self.var.get_texture(), self.pos);
+        texture_manager.render_texture_with_pos(self.var_slot_type.get_texture(), self.pos);
 
         // Try and get var if mouse was released
         if screen_data.mouse_on_ndc_pos(self.pos) {
 
             // Size and set string
-            let string = self.var.get_name();
+            let string = self.var_slot_type.get_name();
             let text_scale = widget_calculations::get_button_text_scale();
             let string_centering_offset = (string.len() as f32 * text_scale) / 2.0;
             
@@ -181,7 +256,7 @@ impl Widget for VarSlot {
 
             // Clear
             if self.allow_setting && screen_data.was_right_pressed() {
-                self.var.clear();
+                self.var_slot_type.clear();
             }
         }
     }

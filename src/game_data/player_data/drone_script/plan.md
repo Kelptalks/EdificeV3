@@ -20,10 +20,6 @@ function
 
 Condition 
     - Condition can take in a Var / Var ref and compaire using basic conditonals
-    
+
+
 condition 
-
-enum script_value: Things like bool and such
-
-
-
