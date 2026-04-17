@@ -61,6 +61,17 @@ impl VarType {
         Var::new_with_var_type(self)
     }
 
+    pub fn is_null(&self) -> bool {
+        match self {
+            VarType::Null() => {
+                true
+            }
+            _ => {
+                false
+            }
+        }  
+    }
+
     pub fn get_texture(&self) -> Texture {
         match self {
             VarType::Null() => {

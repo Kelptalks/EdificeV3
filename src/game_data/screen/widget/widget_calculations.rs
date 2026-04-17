@@ -54,6 +54,7 @@ pub fn get_panel_tile_scale() -> f32 {
 //=====================================
 #[derive(Clone, Copy)]
 pub enum TextSize {
+    ExtraExtraSmall,
     ExtraSmall,
     Small,
     Medium,
@@ -64,6 +65,7 @@ pub enum TextSize {
 impl TextSize {
     pub fn get_scale(&self) -> f32 {
         match self {
+            TextSize::ExtraExtraSmall => 0.01,
             TextSize::ExtraSmall => 0.015,
             TextSize::Small      => 0.022,
             TextSize::Medium     => 0.03,

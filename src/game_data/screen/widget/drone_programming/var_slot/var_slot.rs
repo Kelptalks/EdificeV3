@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::EventManager, player_data::drone_script::var::{var::{Var, VarRef}, var_type::{VarType, VarTypeKind}}, screen::{ScreenData, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations}}, texture_manager::texture::Texture, types::UITextures};
+use crate::game_data::{TextureManager, game_event_manager::prelude::EventManager, player_data::drone_script::var::{var::{Var, VarRef}, var_type::{VarType, VarTypeKind}}, screen::{ScreenData, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations}}, texture_manager::{self, texture::Texture}, types::UITextures};
 
 
 
@@ -43,6 +43,13 @@ impl VarSlotType {
         match self {
             VarSlotType::Owned(var) => var.clear(),
             VarSlotType::Ref(var_ref) => var_ref.clear(),
+        }
+    }
+
+    pub fn is_null(&self) -> bool {
+        match self {
+            VarSlotType::Owned(var) => var.is_null(),
+            VarSlotType::Ref(var_ref) => var_ref.is_null(),
         }
     }
 }
@@ -227,6 +234,29 @@ impl VarSlot {
         }
     }
 
+    fn render_string(&self, texture_manager: &mut TextureManager) {
+        // Size and set string
+        let string = self.var_slot_type.get_name();
+        let text_scale = widget_calculations::TextSize::ExtraExtraSmall.get_scale();
+        let string_centering_offset = (string.len() as f32 * text_scale) / 2.0;
+        
+
+        let string_ndc = [
+            (self.pos[0] + self.scale[0] / 2.0) - string_centering_offset, 
+            self.pos[1] - (self.scale[1] / 4.0),
+        ];
+
+    
+    
+        render_string_at_ndc(
+            texture_manager, 
+            string, 
+            crate::game_data::types::FontType::Basic, 
+            text_scale, 
+            string_ndc,
+        );
+    }
+
 }
 
 impl Widget for VarSlot {
@@ -262,33 +292,17 @@ impl Widget for VarSlot {
         game_event_manager: &mut EventManager
     ) {
         
-        if self.allow_clearing {
+        if self.allow_clearing && self.var_slot_type.is_null() {
             texture_manager.render_texture_with_pos(self.var_slot_type.get_kind_texture(), self.pos);
         }
-        
         texture_manager.render_texture_with_pos(self.var_slot_type.get_texture(), self.pos);
 
         // Try and get var if mouse was released
         if screen_data.mouse_on_ndc_pos(self.pos) {
 
-            // Size and set string
-            let string = self.var_slot_type.get_name();
-            let text_scale = widget_calculations::get_button_text_scale();
-            let string_centering_offset = (string.len() as f32 * text_scale) / 2.0;
-            
-
-            let string_ndc = [
-                (self.pos[0] + self.scale[0] / 2.0) - string_centering_offset, 
-                self.pos[1] - (self.scale[1] / 4.0),
-                ];
-
-            render_string_at_ndc(
-                texture_manager, 
-                string, 
-                crate::game_data::types::FontType::Basic, 
-                widget_calculations::TextSize::ExtraSmall.get_scale(), 
-                string_ndc,
-            );
+            if !self.var_slot_type.is_null() {
+                self.render_string(texture_manager);
+            }
 
             match self.var_slot_type {
                 VarSlotType::Owned(_) => texture_manager.render_ui_element_with_pos(UITextures::SourceIcon, self.pos),

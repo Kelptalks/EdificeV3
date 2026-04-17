@@ -58,6 +58,10 @@ impl Var {
         self.var_type_ref.clone()
     }
 
+    pub fn is_null(&self) -> bool {
+        self.var_type_ref.borrow().is_null()
+    }
+
     //=====================================
     // Setters
     //=====================================
@@ -135,23 +139,32 @@ impl VarRef {
 
     pub fn get_var_type_ref(&self) -> Rc<RefCell<VarType>> {
         if let Some(var_type_ref) = &self.var_type_ref {
-            return var_type_ref.clone()
+            var_type_ref.clone()
         }
         else {
-            return Rc::new(RefCell::new(VarType::Null()));
+            Rc::new(RefCell::new(VarType::Null()))
         }
     }
 
     pub fn get_kind_texture(&self) -> Texture {
-        return self.var_kind.get_texture()
+        self.var_kind.get_texture()
     }
 
     pub fn get_texture(&self) -> Texture {
         if let Some(var_type_ref) = &self.var_type_ref {
-            return var_type_ref.borrow().get_texture()
+            var_type_ref.borrow().get_texture()
         }
         else {
-            return Texture::BlockTexture(crate::game_data::types::BlockTexture::Air)
+            Texture::BlockTexture(crate::game_data::types::BlockTexture::Air)
+        }
+    }
+
+    pub fn is_null(&self) -> bool {
+        if let Some(var_type_ref) = &self.var_type_ref {
+            var_type_ref.borrow().is_null()
+        }
+        else {
+            true
         }
     }
 
