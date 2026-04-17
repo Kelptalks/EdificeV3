@@ -33,6 +33,13 @@ impl Var {
             var_type_ref: Rc::new(RefCell::new(VarType::Null())),
         }
     }
+
+    pub fn new_blank_with_kind(var_type: VarTypeKind) -> Var {
+        Var {
+            var_kind: VarTypeKind::Any,
+            var_type_ref: Rc::new(RefCell::new(VarType::Null())),
+        }
+    }
     
     //=====================================
     // getters

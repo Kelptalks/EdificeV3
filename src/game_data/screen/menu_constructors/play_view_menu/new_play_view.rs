@@ -91,7 +91,7 @@ impl PlayViewConstructionManager {
             
 
             // Var_Tab Panel Sub Widget
-            let mut var_tab_panel = VarTabPanel::new(&self.ref_manager.selected_var);
+            let mut var_tab_panel = VarTabPanel::new();
             var_tab_panel.set_prefered_scale([0.55, 1.9]);
             let var_tab_panel_button = manager_tab_panel.add_panel(WidgetType::VarTabPanel(var_tab_panel));
             var_tab_panel_button.set_icon(crate::game_data::types::UITextures::AnyVarIcon);

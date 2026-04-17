@@ -32,7 +32,7 @@ pub fn get_widget(ref_manager: &RefManager) -> WidgetType {
         for _i in 0..11 {
             
             // Init Widget
-            let mut var_slot = VarSlot::new_ref(var::var_type::VarTypeKind::Any);
+            let mut var_slot = VarSlot::new_source_with_kind(var::var_type::VarTypeKind::Any);
             var_slot.set_dragging_properties(true, true, true);
 
             // Add to panel

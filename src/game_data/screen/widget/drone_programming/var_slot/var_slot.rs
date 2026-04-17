@@ -5,28 +5,28 @@ use crate::game_data::{TextureManager, game_event_manager::prelude::EventManager
 
 
 enum VarSlotType {
-    Owned(Var),
+    Source(Var),
     Ref(VarRef),
 }
 
 impl VarSlotType {
     pub fn get_var_type_ref(&self) -> Rc<RefCell<VarType>> {
         match self {
-            VarSlotType::Owned(var) => var.get_var_type_ref(),
+            VarSlotType::Source(var) => var.get_var_type_ref(),
             VarSlotType::Ref(var_ref) => var_ref.get_var_type_ref(),
         }
     }
 
     pub fn get_kind_texture(&self) -> Texture {
         match self {
-            VarSlotType::Owned(var) => var.get_kind_texture(),
+            VarSlotType::Source(var) => var.get_kind_texture(),
             VarSlotType::Ref(var_ref) => var_ref.get_kind_texture(),
         }
     }
 
     pub fn get_texture(&self) -> Texture {
         match self {
-            VarSlotType::Owned(var) => var.get_texture(),
+            VarSlotType::Source(var) => var.get_texture(),
             VarSlotType::Ref(var_ref) => var_ref.get_texture(),
         }
         
@@ -34,21 +34,21 @@ impl VarSlotType {
 
     pub fn get_name(&self) -> String {
         match self {
-            VarSlotType::Owned(var) => var.get_name(),
+            VarSlotType::Source(var) => var.get_name(),
             VarSlotType::Ref(var_ref) => var_ref.get_name(),
         }
     }
 
     pub fn clear(&mut self) {
         match self {
-            VarSlotType::Owned(var) => var.clear(),
+            VarSlotType::Source(var) => var.clear(),
             VarSlotType::Ref(var_ref) => var_ref.clear(),
         }
     }
 
     pub fn is_null(&self) -> bool {
         match self {
-            VarSlotType::Owned(var) => var.is_null(),
+            VarSlotType::Source(var) => var.is_null(),
             VarSlotType::Ref(var_ref) => var_ref.is_null(),
         }
     }
@@ -88,7 +88,7 @@ Var Slots contain an RC that can be used in events, or just to manage values
 */
 
 impl VarSlot {
-    pub fn new(var_type: VarType) -> VarSlot {
+    fn new_with_slot_type(var_slot_type: VarSlotType) -> VarSlot {
         VarSlot {
             // Parent Rendering
             parent_pos: [0.0; 4],
@@ -96,13 +96,12 @@ impl VarSlot {
             prefered_scale: [widget_calculations::get_button_scale(); 2],
 
             // Self Rendering
-            external_buffers: [0.0; 4], 
-            internal_buffers: [0.012; 4],   
+            external_buffers: [0.0; 4],
+            internal_buffers: [0.012; 4],
             pos: [0.0; 4],
             scale: [0.0; 2],
 
-
-            var_slot_type: VarSlotType::Owned(Var::new_with_var_type(var_type)),
+            var_slot_type,
             var_string_ndc: [0.0; 2],
 
             // Options
@@ -112,76 +111,24 @@ impl VarSlot {
         }
     }
 
-    pub fn new_ref(var_kind: VarTypeKind) -> VarSlot {
-        VarSlot {
-            // Parent Rendering
-            parent_pos: [0.0; 4],
-            parent_scale: [0.0; 2],
-            prefered_scale: [widget_calculations::get_button_scale(); 2],
+    pub fn new_source_with_type(var_type: VarType) -> VarSlot {
+        Self::new_with_slot_type(VarSlotType::Source(Var::new_with_var_type(var_type)))
+    }
 
-            // Self Rendering
-            external_buffers: [0.0; 4], 
-            internal_buffers: [0.012; 4],   
-            pos: [0.0; 4],
-            scale: [0.0; 2],
+    pub fn new_source_with_kind(var_kind: VarTypeKind) -> VarSlot {
+        Self::new_with_slot_type(VarSlotType::Source(Var::new_blank_with_kind(var_kind)))
+    }
 
-
-            var_slot_type: VarSlotType::Ref(VarRef::new_blank_with_kind(var_kind)),
-            var_string_ndc: [0.0; 2],
-
-            // Options
-            allow_setting: true,
-            allow_dragging: true,
-            allow_clearing: true,
-        }
+    pub fn new_ref_with_kind(var_kind: VarTypeKind) -> VarSlot {
+        Self::new_with_slot_type(VarSlotType::Ref(VarRef::new_blank_with_kind(var_kind)))
     }
 
     pub fn new_with_var(var: Var) -> VarSlot {
-        VarSlot {
-            // Parent Rendering
-            parent_pos: [0.0; 4],
-            parent_scale: [0.0; 2],
-            prefered_scale: [widget_calculations::get_button_scale(); 2],
-
-            // Self Rendering
-            external_buffers: [0.0; 4], 
-            internal_buffers: [0.012; 4],   
-            pos: [0.0; 4],
-            scale: [0.0; 2],
-
-
-            var_slot_type: VarSlotType::Owned(var),
-            var_string_ndc: [0.0; 2],
-
-            // Options
-            allow_setting: true,
-            allow_dragging: true,
-            allow_clearing: true,
-        }
+        Self::new_with_slot_type(VarSlotType::Source(var))
     }
 
     pub fn new_with_var_ref(var_ref: VarRef) -> VarSlot {
-        VarSlot {
-            // Parent Rendering
-            parent_pos: [0.0; 4],
-            parent_scale: [0.0; 2],
-            prefered_scale: [widget_calculations::get_button_scale(); 2],
-
-            // Self Rendering
-            external_buffers: [0.0; 4], 
-            internal_buffers: [0.012; 4],   
-            pos: [0.0; 4],
-            scale: [0.0; 2],
-
-
-            var_slot_type: VarSlotType::Ref(var_ref),
-            var_string_ndc: [0.0; 2],
-
-            // Options
-            allow_setting: true,
-            allow_dragging: true,
-            allow_clearing: true,
-        }
+        Self::new_with_slot_type(VarSlotType::Ref(var_ref))
     }
 
     pub fn wrap_into_widget(self) -> WidgetType {
@@ -210,7 +157,7 @@ impl VarSlot {
         if self.allow_setting {
             if let Some(var_held_by_mouse) = var_held_by_mouse {
                 match &mut self.var_slot_type {
-                    VarSlotType::Owned(var) => {
+                    VarSlotType::Source(var) => {
                         let cloned_var_type = var_held_by_mouse.borrow().clone();
                         var.set_value(cloned_var_type);        
                     },
@@ -305,7 +252,7 @@ impl Widget for VarSlot {
             }
 
             match self.var_slot_type {
-                VarSlotType::Owned(_) => texture_manager.render_ui_element_with_pos(UITextures::SourceIcon, self.pos),
+                VarSlotType::Source(_) => texture_manager.render_ui_element_with_pos(UITextures::SourceIcon, self.pos),
                 VarSlotType::Ref(_) => texture_manager.render_ui_element_with_pos(UITextures::RefIcon, self.pos),
             }
     

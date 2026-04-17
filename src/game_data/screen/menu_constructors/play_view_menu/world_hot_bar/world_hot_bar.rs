@@ -52,7 +52,7 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
 
         // Cursor Location Ref
         let cursor_var_type = DynamicVarType::Location(Some(ref_manager.cursor_location.clone())).wrap_into_var_type();
-        let mut cursor_location_var_slot = VarSlot::new(cursor_var_type);
+        let mut cursor_location_var_slot = VarSlot::new_source_with_type(cursor_var_type);
         cursor_location_var_slot.set_dragging_properties(true, false, false);  
         panel.add_widget(cursor_location_var_slot.wrap_into_widget());
 

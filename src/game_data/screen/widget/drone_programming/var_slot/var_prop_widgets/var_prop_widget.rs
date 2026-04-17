@@ -20,7 +20,7 @@ impl VarPropWidget {
         
         // Var Slot
         let var_type = PrimitiveVarType::DroneItem(DroneItem::Ash).wrap_into_var_type();
-        let var_slot = VarSlot::new(var_type);
+        let var_slot = VarSlot::new_source_with_type(var_type);
         panel.add_widget(var_slot.wrap_into_widget());
         
         if let PropKey::Script = key {

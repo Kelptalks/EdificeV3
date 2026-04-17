@@ -1,6 +1,6 @@
 use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc};
 
-use crate::game_data::{game_event_manager::{self, event_manager, player_data_event_manager::var_event_manager::var_events::VarEvents, prelude::{EventManager, PlayerDataEvent}}, player_data::drone_script::var::{self, game_vars::{dynamic_var::DynamicVarType, game_var_type::GameVarType, primitive_var::PrimitiveVarType}, var_properties::{self, PropKey, PropValue, VarProperty}, var_type::{self, VarType, VarTypeKind}}, screen::{widget::{self, drone_programming::var_slot::var_slot, panel::{panel::Panel, panel_texture_manager::PanelTextureManager}, prelude::{TabPanel, VarSlot}, scroll_panel::scroll_panel::ScrollPanel, tab_panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations}, widget_properties::{self, WidgetProperties}}, types::drone_item::DroneItem};
+use crate::game_data::{game_event_manager::{self, event_manager, player_data_event_manager::var_event_manager::var_events::VarEvents, prelude::{EventManager, PlayerDataEvent}}, player_data::drone_script::var::{self, game_vars::{dynamic_var::DynamicVarType, game_var_type::GameVarType, primitive_var::PrimitiveVarType}, var::Var, var_properties::{self, PropKey, PropValue, VarProperty}, var_type::{self, VarType, VarTypeKind}}, screen::{widget::{self, drone_programming::var_slot::var_slot, panel::{panel::Panel, panel_texture_manager::PanelTextureManager}, prelude::{TabPanel, VarSlot}, scroll_panel::scroll_panel::ScrollPanel, tab_panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations}, widget_properties::{self, WidgetProperties}}, types::drone_item::DroneItem};
 
 
 pub struct PropWidgetPool {
@@ -44,15 +44,17 @@ impl VarTabPanel {
 
     
 
-    pub fn new(var_ref: &Rc<RefCell<VarType>>) -> VarTabPanel {
+    pub fn new() -> VarTabPanel {
         
-        let var_slot = VarSlot::new(VarType::Null());
+        let var = Var::new_blank();
+        let var_ref = var.get_var_type_ref();
+        let var_slot = VarSlot::new_with_var(var);
 
         let scroll_panel = ScrollPanel::new();
 
         let mut var_tab_panel = VarTabPanel {
             widget_properties: WidgetProperties::new_blank(),
-            var_ref: var_ref.clone(),
+            var_ref: var_ref,
 
             var_slot: var_slot,
             scroll_panel,

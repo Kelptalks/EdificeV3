@@ -7,7 +7,7 @@ use crate::game_data::{game_event_manager::render_event_manager::render_event_ma
 
 pub fn test_var_tab_panel() -> WidgetType {
     let var_ref = Rc::new(RefCell::new(PrimitiveVarType::Block(BlockTexture::Hive).wrap_into_var_type()));
-    let var_tab_panel = VarTabPanel::new(&var_ref);
+    let var_tab_panel = VarTabPanel::new();
 
 
 
@@ -21,16 +21,16 @@ pub fn test_script_panel() -> WidgetType {
     let mut panel = Panel::new_blank();
 
 
-    let var_slot = VarSlot::new(PrimitiveVarType::Block(BlockTexture::Battery1).wrap_into_var_type());
+    let var_slot = VarSlot::new_source_with_type(PrimitiveVarType::Block(BlockTexture::Battery1).wrap_into_var_type());
     panel.add_widget(var_slot.wrap_into_widget());
     
-    let var_ref_slot = VarSlot::new_ref(VarTypeKind::Any);
+    let var_ref_slot = VarSlot::new_ref_with_kind(VarTypeKind::Any);
     panel.add_widget(var_ref_slot.wrap_into_widget());
     
-    let var_ref_slot = VarSlot::new_ref(VarTypeKind::Any);
+    let var_ref_slot = VarSlot::new_ref_with_kind(VarTypeKind::Any);
     panel.add_widget(var_ref_slot.wrap_into_widget());
     
-    let var_ref_slot = VarSlot::new_ref(VarTypeKind::Any);
+    let var_ref_slot = VarSlot::new_ref_with_kind(VarTypeKind::Any);
     panel.add_widget(var_ref_slot.wrap_into_widget());
 
 
