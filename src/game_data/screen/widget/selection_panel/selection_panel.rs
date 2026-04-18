@@ -58,7 +58,8 @@ impl Widget for SelectionPanel {
         &mut self,
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
-        game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager
+        game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
+        bounds: Option<[f32; 4]>,
     ) {
         // Add new widgets
         let mut binding = self.update_manager.borrow_mut();
@@ -72,7 +73,7 @@ impl Widget for SelectionPanel {
         
         
         self.size();
-        self.scroll_panel.render(texture_manager, screen_data, game_event_manager);
+        self.scroll_panel.render(texture_manager, screen_data, game_event_manager, bounds);
 
         
 

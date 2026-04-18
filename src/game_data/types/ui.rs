@@ -1,3 +1,5 @@
+use crate::game_data::texture_manager::texture::Texture;
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct UITextureData {
     pub id: u32,
@@ -226,6 +228,10 @@ pub enum UITextures {
 }
 
 impl UITextures {
+    pub fn wrap_into_texture(self) -> Texture {
+        Texture::UITexture(self)
+    }
+    
     #[inline]
     pub fn get_id(&self) -> u32 {
         *self as u32

@@ -19,6 +19,22 @@ impl FunctionSlot {
         panel.add_text_display(function.get_name()).set_text_scale(TextSize::ExtraSmall);
 
 
+        // Function Params
+        let params = function.get_params();
+        for param in params {
+            let mut var_slot = VarSlot::new_with_var_ref(param.clone());
+            var_slot.set_dragging_properties(true, true, true);
+            panel.add_widget(var_slot.wrap_into_widget());
+        }
+
+        // Funciton
+        for element in function.get_body() {
+           panel.add_widget(element.create_widget()); 
+        }
+
+
+        // Function return
+
 
         panel.size();
         FunctionSlot {
@@ -62,8 +78,13 @@ impl Widget for FunctionSlot {
         &mut self,
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
-        game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager
+        game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
+        bounds: Option<[f32; 4]>,
     ) {
-        self.panel.render(texture_manager, screen_data, game_event_manager);
+        self.panel.render(texture_manager, screen_data, game_event_manager, bounds);
+
+
+        
+        
     }
 }

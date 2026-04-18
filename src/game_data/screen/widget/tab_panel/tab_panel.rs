@@ -182,7 +182,8 @@ impl Widget for TabPanel {
         &mut self, 
         texture_manager: &mut crate::game_data::TextureManager, 
         screen_data: &crate::game_data::screen::ScreenData, 
-        game_event_manager: &mut crate::game_data::game_event_manager::event_manager::EventManager
+        game_event_manager: &mut crate::game_data::game_event_manager::event_manager::EventManager,
+        bounds: Option<[f32; 4]>,
     ) {
         
         let current_index = *self.current_panel_index.borrow();
@@ -197,12 +198,12 @@ impl Widget for TabPanel {
             return;
         }
         if self.sub_panels.len() > 0 {
-            self.sub_panels[current_index].render(texture_manager, screen_data, game_event_manager);
+            self.sub_panels[current_index].render(texture_manager, screen_data, game_event_manager, bounds);
         }
 
 
         
-        self.button_panel.render(texture_manager, screen_data, game_event_manager);
+        self.button_panel.render(texture_manager, screen_data, game_event_manager, bounds);
         // texture_manager.render_ui_element_with_pos(UITextures::ScallingIconMidCenter, self.pos);
     }
 }

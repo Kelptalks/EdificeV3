@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use crate::game_data::{TextureManager, screen::widget::widget_calculations, types::UITextures};
+use crate::game_data::{TextureManager, screen::widget::widget_calculations, texture_manager::rect::Pos, types::UITextures};
 
 pub enum BackgroundType {
     Static(UITextures),
@@ -28,7 +28,7 @@ impl PanelBackground {
         }
     }
 
-    fn render_scrolling(&mut self, texture_manager: &mut TextureManager, pos: [f32; 4], ui_texture: UITextures) {
+    fn render_scrolling(&mut self, texture_manager: &mut TextureManager, pos: [f32; 4], ui_texture: UITextures, bounds: Option<[f32; 4]>) {
         let now = Instant::now();
         let elapsed = now.duration_since(self.last_shift_time).as_secs_f32();
         
@@ -64,20 +64,30 @@ impl PanelBackground {
                     pos[1] + y_cor + self.tile_scale * 1.01,
                 ];
 
-                texture_manager.render_ui_element_with_pos(ui_texture, pos);
+
+                if let Some(bounds ) = bounds {
+                    texture_manager.render_texture_within_pos(ui_texture.wrap_into_texture(), pos, bounds);
+                }
+                else {
+                    texture_manager.render_ui_element_with_pos(ui_texture, pos);
+                }
             }
         }
     }
 
-    pub fn render_background(&mut self, texture_manager: &mut TextureManager, pos: [f32; 4]) {
+    pub fn render_background(&mut self, texture_manager: &mut TextureManager, pos: [f32; 4], bounds: Option<[f32; 4]>) {
         match self.background {
-            BackgroundType::Static(uitextures) => {
-                texture_manager.render_ui_element_with_pos(uitextures, pos);
+            BackgroundType::Static(ui_texture) => {
+                if let Some(bounds ) = bounds {
+                    texture_manager.render_texture_within_pos(ui_texture.wrap_into_texture(), pos, bounds);
+                }
+                else {
+                    texture_manager.render_ui_element_with_pos(ui_texture, pos);
+                }
             },
-            BackgroundType::Scrolling(uitextures) => {
-                self.render_scrolling(texture_manager, pos, uitextures);
+            BackgroundType::Scrolling(ui_texture) => {
+                self.render_scrolling(texture_manager, pos, ui_texture, bounds);
             },
         }
-
     }
 }

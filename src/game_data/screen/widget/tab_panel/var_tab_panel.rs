@@ -173,7 +173,8 @@ impl Widget for VarTabPanel {
         &mut self,
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
-        game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager
+        game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
+        bounds: Option<[f32; 4]>,
     ) {
         
         // Set tab index based off var type
@@ -185,12 +186,12 @@ impl Widget for VarTabPanel {
         texture_manager.render_ui_element_with_pos(crate::game_data::types::UITextures::VoidBackground, self.get_pos());
 
         self.panel_texture.render(texture_manager);
-        self.var_slot.render(texture_manager, screen_data, game_event_manager);
+        self.var_slot.render(texture_manager, screen_data, game_event_manager, bounds);
 
 
         let widgets = self.get_widgets_for_var(game_event_manager);
 
-        self.scroll_panel.render_shared_widgets(&widgets, texture_manager, screen_data, game_event_manager);
+        self.scroll_panel.render_shared_widgets(&widgets, texture_manager, screen_data, game_event_manager, bounds);
 
         
     }

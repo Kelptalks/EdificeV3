@@ -128,14 +128,15 @@ impl Widget for ToggleButton {
         &mut self, 
         texture_manager: &mut TextureManager, 
         screen_data: &ScreenData, 
-        game_event_manager: &mut EventManager
+        game_event_manager: &mut EventManager,
+        bounds: Option<[f32; 4]>,
     ) { 
         // Add links
         for event in &self.links.pop() {
             game_event_manager.add_game_event(event.clone());
         }
 
-        self.button.render(texture_manager, screen_data, game_event_manager);
+        self.button.render(texture_manager, screen_data, game_event_manager, bounds);
 
         if *self.is_toggled.borrow() {
             texture_manager.render_ui_element_with_pos(UITextures::XIcon, self.button.get_pos());

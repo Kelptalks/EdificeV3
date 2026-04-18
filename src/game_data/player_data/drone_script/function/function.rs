@@ -55,6 +55,12 @@ impl Function {
         self.name = new_name.to_string();
     }
 
+    //=====================================
+    // Params
+    //=====================================
+    pub fn get_params(&self) -> &Vec<VarRef> {
+        &self.params
+    }
 
     //=====================================
     // Body
@@ -64,7 +70,7 @@ impl Function {
         self.script_elements.push(script_element);
     }
     
-    pub fn get_script_elements(&self) -> &Vec<ScriptElement> {
+    pub fn get_body(&self) -> &Vec<ScriptElement> {
         return &self.script_elements
     }
 

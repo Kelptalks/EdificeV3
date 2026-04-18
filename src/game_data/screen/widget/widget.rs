@@ -6,7 +6,7 @@ use crate::game_data::{
             bar_button::bar_button::BarButtonWidget, 
             button::button::Button, 
             drone_programming::{
-                action_slot::ActionSlot, function_slot::FunctionSlot, scripting_elements::scripting_panel::ScriptingPanel, var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, world_rendering::play_world_view_render::PlayWorldViewRender}}};
+                action_slot::ActionSlot, function_slot::FunctionSlot, scripting_elements::scripting_panel::ScriptingPanel, var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, world_rendering::play_world_view_render::PlayWorldViewRender}}, texture_manager::rect::Pos};
 
 pub trait Widget {
     fn get_pos(&self) -> [f32; 4];
@@ -21,8 +21,10 @@ pub trait Widget {
         &mut self,
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
-        game_event_manager: &mut EventManager
+        game_event_manager: &mut EventManager,
+        bounds: Option<[f32; 4]>
     );
+
 }
 
 pub enum WidgetType {
@@ -109,8 +111,10 @@ impl Widget for WidgetType {
         &mut self,
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
-        game_event_manager: &mut EventManager
+        game_event_manager: &mut EventManager,
+        bounds: Option<[f32; 4]>,
     ) {
-        widget_match!(self, render, texture_manager, screen_data, game_event_manager)
+        widget_match!(self, render, texture_manager, screen_data, game_event_manager, bounds)
     }
+
 }

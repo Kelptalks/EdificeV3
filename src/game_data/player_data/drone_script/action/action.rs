@@ -1,4 +1,4 @@
-use crate::game_data::player_data::drone_script::{action::action_type::ActionType, var::{prim_vars::prim_var_type::PrimitiveVarType, var::{Var, VarRef}, var_type::VarType}};
+use crate::game_data::player_data::drone_script::{action::action_type::ActionType, script_element::ScriptElement, var::{prim_vars::prim_var_type::PrimitiveVarType, var::{Var, VarRef}, var_type::VarType}};
 
 
 #[derive(Clone)]
@@ -33,6 +33,10 @@ impl Action {
         }
     }
     
+    pub fn wrap_into_script_element(self) -> ScriptElement {
+        ScriptElement::Action(self)
+    }
+
     pub fn get_params_var_refs(&self) -> &Vec<VarRef> {
         &self.params
     }

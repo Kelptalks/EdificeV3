@@ -1,7 +1,7 @@
 
 use image::flat;
 
-use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::EventManager, prelude::Event}, screen::{ScreenData, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::scroll_panel::ScrollPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations}}};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::EventManager, prelude::Event}, screen::{ScreenData, screen_data, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::scroll_panel::ScrollPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations}}};
 
 
 #[derive(Clone, Copy)]
@@ -39,7 +39,7 @@ pub struct Panel {
     pos: [f32; 4],
     scale: [f32; 2],
 
-    rendering_manager: PanelTextureManager,
+    panel_texture: PanelTextureManager,
     
     // Sections
     sections: Vec<PanelSection>,
@@ -73,7 +73,7 @@ impl Panel {
             pos: [0.0; 4],
             scale: [0.0; 2],
             
-            rendering_manager: PanelTextureManager::new(),
+            panel_texture: PanelTextureManager::new(),
             
             // Sections
             sections: Vec::new(),
@@ -113,7 +113,7 @@ impl Panel {
     }
 
     pub fn set_color(&mut self, color: PanelColor) {
-        self.rendering_manager.set_color(color);
+        self.panel_texture.set_color(color);
     }
     
     pub fn set_new_background(&mut self, background_type: BackgroundType) {
@@ -188,7 +188,7 @@ impl Panel {
             section.get_mut_widget().size();
         }
 
-        self.rendering_manager.size(self.pos, self.scale);
+        self.panel_texture.size(self.pos, self.scale);
     }
 
     pub fn add_widget(&mut self, widget: WidgetType) {
@@ -299,6 +299,16 @@ impl Panel {
         self.mouse_on
     }
 
+    fn handle_inputs(&mut self, screen_data: &ScreenData, game_event_manager: &mut EventManager) {
+        if screen_data.mouse_on_ndc_pos(self.pos) {
+            game_event_manager.add_events(&self.events);
+            self.mouse_on = true;
+        }
+        else {
+            self.mouse_on = false;
+        }
+    }
+    
 }
 
 
@@ -327,25 +337,24 @@ impl Widget for Panel {
         self.size();
     }
 
-    fn render(&mut self, texture_manager: &mut TextureManager, screen_data: &ScreenData, game_event_manager: &mut EventManager) {        
+    fn render(
+        &mut self, 
+        texture_manager: &mut TextureManager, 
+        screen_data: &ScreenData, 
+        game_event_manager: &mut EventManager,
+        bounds: Option<[f32; 4]>
+    ) {        
         if let Some(background) = &mut self.new_background {
-            background.render_background(texture_manager, self.pos);
+            background.render_background(texture_manager, self.pos, bounds);
         } 
         
         // Render the panel
-        self.rendering_manager.render(texture_manager);
+        self.panel_texture.render(texture_manager);
 
         // Render all the widgets
         for section in &mut self.sections {
-            section.get_mut_widget().render(texture_manager, screen_data, game_event_manager);
+            section.get_mut_widget().render(texture_manager, screen_data, game_event_manager, bounds);
         }
-
-        if screen_data.mouse_on_ndc_pos(self.pos) {
-            game_event_manager.add_events(&self.events);
-            self.mouse_on = true;
-        }
-        else {
-            self.mouse_on = false;
-        }
-    }
+        self.handle_inputs(screen_data, game_event_manager);
+    }    
 }

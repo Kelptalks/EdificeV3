@@ -236,13 +236,14 @@ impl Widget for VarSlot {
         &mut self,
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &ScreenData,
-        game_event_manager: &mut EventManager
+        game_event_manager: &mut EventManager,
+        bounds: Option<[f32; 4]>
     ) {
         
         if self.allow_clearing && self.var_slot_type.is_null() {
-            texture_manager.render_texture_with_pos(self.var_slot_type.get_kind_texture(), self.pos);
+            texture_manager.render_texture_within_pos_option(self.var_slot_type.get_kind_texture(), self.pos, bounds);
         }
-        texture_manager.render_texture_with_pos(self.var_slot_type.get_texture(), self.pos);
+        texture_manager.render_texture_within_pos_option(self.var_slot_type.get_texture(), self.pos, bounds);
 
         // Try and get var if mouse was released
         if screen_data.mouse_on_ndc_pos(self.pos) {
@@ -251,9 +252,11 @@ impl Widget for VarSlot {
                 self.render_string(texture_manager);
             }
 
+
+
             match self.var_slot_type {
-                VarSlotType::Source(_) => texture_manager.render_ui_element_with_pos(UITextures::SourceIcon, self.pos),
-                VarSlotType::Ref(_) => texture_manager.render_ui_element_with_pos(UITextures::RefIcon, self.pos),
+                VarSlotType::Source(_) => texture_manager.render_texture_within_pos_option(UITextures::SourceIcon.wrap_into_texture(), self.pos, bounds),
+                VarSlotType::Ref(_) => texture_manager.render_texture_within_pos_option(UITextures::RefIcon.wrap_into_texture(), self.pos, bounds),
             }
     
             

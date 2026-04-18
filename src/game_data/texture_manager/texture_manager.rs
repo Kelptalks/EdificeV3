@@ -1,5 +1,5 @@
 
-use crate::game_data::{texture_manager::{texture::Texture, texture_atlas::TextureAtlas, texture_renderer::TextureRenderingManager}, types::{BlockShader, BlockTexture, BlockTriangle, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
+use crate::game_data::{texture_manager::{texture::Texture, texture_atlas::{self, TextureAtlas}, texture_renderer::TextureRenderingManager}, types::{BlockShader, BlockTexture, BlockTriangle, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
 use miniquad::*;
 
 // Expander tuning constants - adjust these to control gap prevention
@@ -95,7 +95,30 @@ impl TextureManager {
     //=================================================
     // Texture Type Rendering
     //=================================================
-    pub fn render_texture_with_pos(&mut self, texture: Texture, pos: [f32; 4]) {
+    fn get_texture_uv(&mut self, texture: Texture) -> [f32; 4] {
+
+        let texture_atlas = self.texture_atlas.as_ref().unwrap();
+        
+        match texture {
+            Texture::BlockTexture(block_texture) => {
+                return texture_atlas.get_precalculated_block_uv(block_texture)
+            },
+            Texture::BlockTriangle(block_texture, block_triangle) => {
+                return texture_atlas.get_precalculated_block_triangle_uv(block_triangle, block_texture)
+            },
+            Texture::BlockShader(block_shader) => {
+                todo!("Texture Enum rendering for block shader not implemented");
+            },
+            Texture::DroneItemTexture(drone_item_texture) => {
+                return texture_atlas.get_precalculated_drone_item_uv(drone_item_texture)
+            },
+            Texture::UITexture(uitextures) => {
+                return texture_atlas.get_precalculated_ui_uv(uitextures)
+            },
+        }
+    }
+    
+    pub fn render_texture(&mut self, texture: Texture, pos: [f32; 4]) {
         match texture {
             Texture::BlockTexture(block_texture) => {
                 self.render_block_with_pos(block_texture, pos);
@@ -114,6 +137,57 @@ impl TextureManager {
             },
         }
     }
+
+    pub fn render_texture_within_pos(&mut self, texture: Texture, draw_pos: [f32; 4], bounds_pos: [f32; 4]) -> bool {
+        let uv = self.get_texture_uv(texture);
+
+
+        let [dx1, dy1, dx2, dy2] = draw_pos;
+        let [bx1, by1, bx2, by2] = bounds_pos;
+
+        let cx1 = dx1.max(bx1);
+        let cy1 = dy1.max(by1);
+        let cx2 = dx2.min(bx2);
+        let cy2 = dy2.min(by2);
+
+        if cx1 >= cx2 || cy1 >= cy2 { return false; }
+
+        let dw = dx2 - dx1;
+        let dh = dy2 - dy1;
+
+        let clip_l = (cx1 - dx1) / dw;
+        let clip_t = (cy1 - dy1) / dh;
+        let clip_r = (dx2 - cx2) / dw;
+        let clip_b = (dy2 - cy2) / dh;
+
+        let [u, v, u2, v2] = uv;
+        let uw = u2 - u;
+        let uh = v2 - v;
+
+        let pos: [f32; 4] = [cx1, cy1, cx2, cy2];
+        let cropped_uv: [f32; 4] = [
+            u  + clip_l * uw,
+            v  + clip_t * uh,
+            u2 - clip_r * uw,
+            v2 - clip_b * uh,
+        ];
+
+        self.get_texture_renderer().add_quad(pos, cropped_uv);
+        return true;
+    }
+
+    pub fn render_texture_within_pos_option(&mut self, texture: Texture, draw_pos: [f32; 4], bounds_pos: Option<[f32; 4]>) {
+        if let Some(bounds) = bounds_pos {
+            self.render_texture_within_pos(texture, draw_pos, bounds);
+        }
+        else {
+            self.render_texture(texture, draw_pos);
+        }
+    }
+
+    
+
+
     
     //=================================================
     // Block Rendering

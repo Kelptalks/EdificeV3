@@ -3,12 +3,11 @@ use crate::game_data::{player_data::drone_script::action::{self, action::Action}
 pub struct ActionSlot {
     panel: Panel,
     
-    action: Action,
 }
 
 
 impl ActionSlot {
-    pub fn new(action: Action) -> ActionSlot {        
+    pub fn new(action: &Action) -> ActionSlot {        
         let mut panel = Panel::new_blank();
         
         panel.add_text_display(action.get_name());
@@ -34,7 +33,7 @@ impl ActionSlot {
         
         ActionSlot {
             panel: panel,
-            action: action,
+
         }
     }
 
@@ -73,8 +72,9 @@ impl Widget for ActionSlot {
         &mut self,
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
-        game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager
+        game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
+        bounds: Option<[f32; 4]>,
     ) {
-        self.panel.render(texture_manager, screen_data, game_event_manager)
+        self.panel.render(texture_manager, screen_data, game_event_manager, bounds)
     }
 }

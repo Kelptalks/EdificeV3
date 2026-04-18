@@ -142,6 +142,7 @@ impl Widget for BarButtonWidget {
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
         game_event_manager: &mut EventManager,
+        bounds: Option<[f32; 4]>
     ) {
         if self.needs_resizing {
             self.size();

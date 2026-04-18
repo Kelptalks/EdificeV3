@@ -79,6 +79,7 @@ impl ScrollPanel {
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
         game_event_manager: &mut EventManager,
+        bounds: Option<[f32; 4]>,
     ) {
         // Clamp scroll value
         if *self.scroll_value.borrow() < 0.0 {
@@ -107,9 +108,7 @@ impl ScrollPanel {
             w.size();
 
             let widget_scale = w.get_scale();
-            if widget_calculations::is_pos_contained_within_pos(self.pos, w.get_pos()) {
-                w.render(texture_manager, screen_data, game_event_manager);
-            }
+            w.render(texture_manager, screen_data, game_event_manager, bounds);
 
             offset += widget_scale[1] + self.internal_buffers[1] + self.internal_buffers[3];
         }
@@ -117,7 +116,7 @@ impl ScrollPanel {
         self.max_scroll_value = offset;
 
         for button in &mut self.buttons {
-            button.render(texture_manager, screen_data, game_event_manager);
+            button.render(texture_manager, screen_data, game_event_manager, bounds);
         }
 
         if screen_data.mouse_on_ndc_pos(self.pos) {
@@ -227,7 +226,8 @@ impl Widget for ScrollPanel {
         &mut self,
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
-        game_event_manager: &mut crate::game_data::game_event_manager::game_event_manager::EventManager
+        game_event_manager: &mut crate::game_data::game_event_manager::game_event_manager::EventManager,
+        bounds: Option<[f32; 4]>,
     ) {
         // Make sure scroll is within bounds 
         if *self.scroll_value.borrow() < 0.0 {
@@ -242,14 +242,13 @@ impl Widget for ScrollPanel {
 
         //texture_manager.render_ui_element_with_pos(crate::game_data::types::UITextures::MirrorBackground, self.pos);
 
+        let rendering_bounds = Some(self.pos);
         for widget in &mut self.widgets {
-            if widget_calculations::is_pos_contained_within_pos(self.pos, widget.get_pos()) {
-                widget.render(texture_manager, screen_data, game_event_manager);
-            }
+            widget.render(texture_manager, screen_data, game_event_manager, rendering_bounds);
         }
 
         for button in &mut self.buttons {
-            button.render(texture_manager, screen_data, game_event_manager);
+            button.render(texture_manager, screen_data, game_event_manager, bounds);
         }
 
         if screen_data.mouse_on_ndc_pos(self.pos) {
@@ -271,6 +270,5 @@ impl Widget for ScrollPanel {
                 }
             }
         }
-
     }
 }

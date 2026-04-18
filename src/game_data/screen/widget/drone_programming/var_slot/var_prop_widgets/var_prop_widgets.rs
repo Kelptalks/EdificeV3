@@ -70,8 +70,9 @@ impl Widget for VarPropVal {
         &mut self,
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
-        game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager
+        game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
+        bounds: Option<[f32; 4]>,
     ) {
-        self.get_root_mut_panel().render(texture_manager, screen_data, game_event_manager);
+        self.get_root_mut_panel().render(texture_manager, screen_data, game_event_manager, bounds);
     }
 }

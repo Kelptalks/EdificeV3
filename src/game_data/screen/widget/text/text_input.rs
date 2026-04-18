@@ -121,11 +121,12 @@ impl Widget for TextInput {
         &mut self,
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
-        game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager
+        game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
+        bounds: Option<[f32; 4]>,
     ) {
         
         self.panel_texture.render(texture_manager);
-        self.text_display.render(texture_manager, screen_data, game_event_manager);
+        self.text_display.render(texture_manager, screen_data, game_event_manager, bounds);
         
 
         // If not focused on
@@ -158,7 +159,7 @@ impl Widget for TextInput {
                 *self.focused_bool_ref.borrow_mut() = false;
             }
 
-            texture_manager.render_texture_with_pos(Texture::UITexture(crate::game_data::types::UITextures::ButtonCircle), self.get_cursor_pos());
+            texture_manager.render_texture(Texture::UITexture(crate::game_data::types::UITextures::ButtonCircle), self.get_cursor_pos());
 
 
             game_event_manager.add_events(&self.events);

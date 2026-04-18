@@ -126,7 +126,7 @@ impl Button {
         self.text = Some(text);
     }
 
-    fn render_apearence(&self, texture_manager: &mut TextureManager, screen_data: &ScreenData) {
+    fn render_apearence(&self, texture_manager: &mut TextureManager, screen_data: &ScreenData, bounds: Option<[f32; 4]>) {
         // Render block
         if let Some(block_texture) = self.block_texture {
             texture_manager.render_block_with_pos(block_texture, self.apearence_pos);
@@ -134,7 +134,12 @@ impl Button {
         
         // Render icon
         if let Some(icon) = self.icon_type {
-            texture_manager.render_ui_element_with_pos(icon, self.apearence_pos);
+            if let Some(bounds) = bounds {
+                texture_manager.render_texture_within_pos(icon.wrap_into_texture(), self.apearence_pos, bounds);
+            }
+            else {
+                texture_manager.render_ui_element_with_pos(icon, self.apearence_pos);
+            }
         }
 
         if let Some(text) = &self.text {
@@ -194,7 +199,8 @@ impl Widget for Button {
         &mut self, 
         texture_manager: &mut TextureManager, 
         screen_data: &ScreenData, 
-        game_event_manager: &mut EventManager
+        game_event_manager: &mut EventManager,
+        bounds: Option<[f32; 4]>
     ) {
 
         if self.needs_resizing {
@@ -202,6 +208,7 @@ impl Widget for Button {
         }
 
         let mut button_texture = self.button_type;
+        
         // If mouse is on button
         if screen_data.mouse_on_ndc_pos(self.pos) {
             button_texture = self.button_type.get_pressed_variant(); // Update texture
@@ -221,10 +228,15 @@ impl Widget for Button {
         }
 
         // Render button 
-        texture_manager.render_ui_element_with_pos(button_texture, self.pos);
+        if let Some(bounds) = bounds {
+            texture_manager.render_texture_within_pos(button_texture.wrap_into_texture(), self.pos, bounds);
+        }
+        else {
+            texture_manager.render_ui_element_with_pos(button_texture, self.pos);
+        }
 
         // Render aperence values
-        self.render_apearence(texture_manager, screen_data);
+        self.render_apearence(texture_manager, screen_data, bounds);
     }
 
 }

@@ -310,7 +310,7 @@ impl PlayWorldViewRender {
                 draw_cords[1] + self.ndc_block_scale,
             ];
             for texture in left_textures {
-                texture_manager.render_texture_with_pos(texture, left_pos);
+                texture_manager.render_texture(texture, left_pos);
             }
 
             // Right side 
@@ -321,7 +321,7 @@ impl PlayWorldViewRender {
                 draw_cords[1] + self.ndc_block_scale,
             ];
             for texture in right_textures {
-                texture_manager.render_texture_with_pos(texture, right_pos);
+                texture_manager.render_texture(texture, right_pos);
             }
         }
 
@@ -394,7 +394,8 @@ impl Widget for PlayWorldViewRender {
         &mut self, 
         texture_manager: &mut TextureManager, 
         screen_data: &ScreenData, 
-        game_event_manager: &mut EventManager
+        game_event_manager: &mut EventManager,
+        bounds: Option<[f32; 4]>,
     ) {
         self.ray_cast_view(texture_manager, screen_data, game_event_manager);
 

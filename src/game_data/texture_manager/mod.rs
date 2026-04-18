@@ -12,3 +12,5 @@ mod text_sheet;
 mod ui_sheet;
 
 pub mod texture;
+
+pub mod rect;

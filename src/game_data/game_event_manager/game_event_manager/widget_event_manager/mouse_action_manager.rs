@@ -51,7 +51,7 @@ impl MouseWidgetData {
 
 
         if let Some(var) = self.var_held.clone() {
-            texture_manager.render_texture_with_pos(
+            texture_manager.render_texture(
                 var.borrow().get_texture(), 
                 screen_data.get_mouse_centered_texture_rendering_pos(self.mouse_data_rendering_scale)
             );

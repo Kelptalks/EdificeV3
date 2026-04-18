@@ -106,7 +106,8 @@ impl Widget for TextDisplay {
         &mut self, 
         texture_manager: &mut crate::game_data::TextureManager, 
         screen_data: &crate::game_data::screen::ScreenData, 
-        game_event_manager: &mut crate::game_data::game_event_manager::game_event_manager::EventManager
+        game_event_manager: &mut crate::game_data::game_event_manager::game_event_manager::EventManager,
+        bounds: Option<[f32; 4]>,
     ) {
         render_string_at_ndc(texture_manager, 
             self.string_ref.borrow().clone(), 
