@@ -3,7 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use crate::game_data::{
     World, 
     game_event_manager::prelude::{EventManager, WorldEvent}, 
-    player_data::{drone_script::{var::{game_vars::primitive_var::PrimitiveVarType, var::{Var, VarRef}, var_type::VarType}}, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, prim_actions::drone_prim_actions::DronePrimAction}}}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod, types::BlockTexture};
+    player_data::{drone_script::var::{game_vars::primitive_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}, var::{Var, VarRef}, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, prim_actions::drone_prim_actions::DronePrimAction}}}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod, types::BlockTexture};
 
 #[derive(Clone)]
 pub enum DroneWorldAction {
@@ -72,19 +72,19 @@ impl DroneWorldAction {
     //=====================================
 
 
-    pub fn get_param_var_types(&self) -> Vec<VarType> {
+    pub fn get_param_var_kinds(&self) -> Vec<VarKind> {
         let mut params = Vec::new();
         
         match self {
-            DroneWorldAction::MoveDrone(cords) => {
-                params.push(PrimitiveVarType::Cords(*cords).wrap_into_var_type());
+            DroneWorldAction::MoveDrone(_cords) => {
+                params.push(PrimitiveGameVarTypeKind::Cords.wrap_into_var_kind());
             },
-            DroneWorldAction::MineBlock(cords) => {
-                params.push(PrimitiveVarType::Cords(*cords).wrap_into_var_type());
+            DroneWorldAction::MineBlock(_cords) => {
+                params.push(PrimitiveGameVarTypeKind::Cords.wrap_into_var_kind());
             },
-            DroneWorldAction::PlaceBlock(cords, block_texture) => {
-                params.push(PrimitiveVarType::Cords(*cords).wrap_into_var_type());
-                params.push(PrimitiveVarType::Block(*block_texture).wrap_into_var_type());
+            DroneWorldAction::PlaceBlock(_cords, _block_texture) => {
+                params.push(PrimitiveGameVarTypeKind::Cords.wrap_into_var_kind());
+                params.push(PrimitiveGameVarTypeKind::Block.wrap_into_var_kind());
             },
         }
 
@@ -94,14 +94,14 @@ impl DroneWorldAction {
     pub fn set_params_from_vars(&mut self, params: &Vec<Rc<RefCell<VarType>>>) {
         match self {
             DroneWorldAction::MoveDrone(cords) => {
-                *cords = PrimitiveVarType::into_drone_cords(&params[0]);
+                *cords = PrimitiveGameVarType::into_drone_cords(&params[0]);
             },
             DroneWorldAction::MineBlock(cords) => {
-                *cords = PrimitiveVarType::into_drone_cords(&params[0]);
+                *cords = PrimitiveGameVarType::into_drone_cords(&params[0]);
             },
             DroneWorldAction::PlaceBlock(cords, block_texture) => {
-                *cords = PrimitiveVarType::into_drone_cords(&params[0]);
-                *block_texture = PrimitiveVarType::into_block(&params[1]);
+                *cords = PrimitiveGameVarType::into_drone_cords(&params[0]);
+                *block_texture = PrimitiveGameVarType::into_block(&params[1]);
             },
         }
     }

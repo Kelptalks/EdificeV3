@@ -16,20 +16,22 @@ impl Action {
     pub fn new(action_type: ActionType) -> Action {
         
         // Create var refs with types from action types params
-        let var_types = action_type.get_param_var_types();
+        let var_kinds = action_type.get_param_var_kinds();
         let mut var_refs = Vec::new();
-        for var_type in var_types {
-            var_refs.push(VarRef::new_blank_with_kind(var_type.to_kind()));
+        for var_kind in var_kinds {
+            var_refs.push(VarRef::new_blank_with_kind(var_kind));
         }
 
+        
 
+        let return_var = action_type.get_return_var();
 
 
         Action {
             action_type: action_type,
             params: var_refs,
 
-            return_var: Some(Var::new_with_var_type(VarType::Prim(PrimitiveVarType::Bool(false)))),
+            return_var,
         }
     }
     

@@ -1,53 +1,53 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::GameVarType, var::{Var, VarRef}, var_properties::{PropKey, PropValue, VarProperty}, var_type::VarType}, texture_manager::texture::Texture, types::{BlockTexture, drone_item::DroneItem}};
+use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::{GameVarType, GameVarTypeKind}, var::{Var, VarRef}, var_properties::{PropKey, PropValue, VarProperty}, var_type::{VarKind, VarType}}, texture_manager::texture::Texture, types::{BlockTexture, UITextures, drone_item::DroneItem}};
 
 
 #[derive(Clone, PartialEq)]
-pub enum PrimitiveVarType {
+pub enum PrimitiveGameVarType {
     DroneItem(DroneItem),
     Block(BlockTexture),
     Cords([i32; 3]),
 }
 
-impl PrimitiveVarType {
+impl PrimitiveGameVarType {
     pub fn wrap_into_var_type(self) -> VarType {
         GameVarType::Primitive(self).wrap_into_var_type()
     }
 
     pub fn get_texture(&self) -> Texture {
         match self {
-            PrimitiveVarType::DroneItem(drone_item) => {
+            PrimitiveGameVarType::DroneItem(drone_item) => {
                 return Texture::DroneItemTexture(drone_item.to_texture_enum());
             },
-            PrimitiveVarType::Block(block_texture) => {
+            PrimitiveGameVarType::Block(block_texture) => {
                 return Texture::BlockTexture(*block_texture);
             },
-            PrimitiveVarType::Cords(cords) => {
-                return Texture::BlockTexture(BlockTexture::Selector);
+            PrimitiveGameVarType::Cords(_cords) => {
+                return UITextures::CordsIcon.wrap_into_texture();
             },
         }
     }
 
-    pub fn to_kind(&self) -> PrimitiveVarTypeKind {
+    pub fn to_kind(&self) -> PrimitiveGameVarTypeKind {
         match self {
-            PrimitiveVarType::DroneItem(_) => PrimitiveVarTypeKind::DroneItem,
-            PrimitiveVarType::Block(_) => PrimitiveVarTypeKind::Block,
-            PrimitiveVarType::Cords(_) => PrimitiveVarTypeKind::Cords
+            PrimitiveGameVarType::DroneItem(_) => PrimitiveGameVarTypeKind::DroneItem,
+            PrimitiveGameVarType::Block(_) => PrimitiveGameVarTypeKind::Block,
+            PrimitiveGameVarType::Cords(_) => PrimitiveGameVarTypeKind::Cords
         }
     }
 
     pub fn get_properties(&self) -> Vec<VarProperty> {
         match self {
-            PrimitiveVarType::DroneItem(drone_item) => {
+            PrimitiveGameVarType::DroneItem(drone_item) => {
                 vec![
                     VarProperty {key: PropKey::Name, value: PropValue::String(drone_item.get_name().to_string()), mutible: false},
                     VarProperty {key: PropKey::Id,   value: PropValue::Num(drone_item.id() as i32),               mutible: false},
                 ]
                 
             },
-            PrimitiveVarType::Block(block_texture) => {
+            PrimitiveGameVarType::Block(block_texture) => {
                 vec![
                     VarProperty {key: PropKey::Name,        value: PropValue::String(block_texture.get_name().to_string()), mutible: false},
                     VarProperty {key: PropKey::Id,           value: PropValue::Num(block_texture.id() as i32),              mutible: false},
@@ -61,7 +61,7 @@ impl PrimitiveVarType {
                     VarProperty {key: PropKey::ItemValue,   value: PropValue::Inventory(block_texture.get_place_cost()),    mutible: false}
                 ]
             },
-            PrimitiveVarType::Cords(cords) => {
+            PrimitiveGameVarType::Cords(cords) => {
                 vec![
                     VarProperty {key: PropKey::Cords,        value: PropValue::Cords(*cords), mutible: false}
                 ]
@@ -71,21 +71,21 @@ impl PrimitiveVarType {
 
     pub fn get_name(&self) -> String {
         match self {
-            PrimitiveVarType::DroneItem(drone_item) => drone_item.get_name().to_string(),
-            PrimitiveVarType::Block(block) => block.get_name().to_string(),
-            PrimitiveVarType::Cords(cords) => format!("({:?})", cords),
+            PrimitiveGameVarType::DroneItem(drone_item) => drone_item.get_name().to_string(),
+            PrimitiveGameVarType::Block(block) => block.get_name().to_string(),
+            PrimitiveGameVarType::Cords(cords) => format!("({:?})", cords),
         }
     }
 
     pub fn clear(&mut self) {
         match self {
-            PrimitiveVarType::DroneItem(drone_item) => {
+            PrimitiveGameVarType::DroneItem(drone_item) => {
                 *drone_item = DroneItem::Ash
             },
-            PrimitiveVarType::Block(block_texture) => {
+            PrimitiveGameVarType::Block(block_texture) => {
                 *block_texture = BlockTexture::Air
             },
-            PrimitiveVarType::Cords(cords) => {
+            PrimitiveGameVarType::Cords(cords) => {
                 for f in cords.iter_mut() {
                     *f = 0;
                 }
@@ -98,17 +98,17 @@ impl PrimitiveVarType {
     //=====================================
 
     pub fn construct_cords_var(cords: [i32; 3]) -> Var {
-        let var = GameVarType::Primitive(PrimitiveVarType::Cords(cords)).wrap_into_var_type();
+        let var = GameVarType::Primitive(PrimitiveGameVarType::Cords(cords)).wrap_into_var_type();
         return Var::new_with_var_type(var);
     }
 
     pub fn construct_block_var_ref(block: BlockTexture) -> Var {
-        let var = GameVarType::Primitive(PrimitiveVarType::Block(block)).wrap_into_var_type();
+        let var = GameVarType::Primitive(PrimitiveGameVarType::Block(block)).wrap_into_var_type();
         return Var::new_with_var_type(var);
     }
 
     pub fn construct_item_var_ref(item: DroneItem) -> Var {
-        let var = PrimitiveVarType::DroneItem(item).wrap_into_var_type();
+        let var = PrimitiveGameVarType::DroneItem(item).wrap_into_var_type();
         return Var::new_with_var_type(var);
     }
 
@@ -118,7 +118,7 @@ impl PrimitiveVarType {
 
     pub fn into_drone_cords(var: &Rc<RefCell<VarType>>) -> [i32; 3] {
         let borrow = var.borrow();
-        if let VarType::Game(GameVarType::Primitive(PrimitiveVarType::Cords(cords))) = *borrow {
+        if let VarType::Game(GameVarType::Primitive(PrimitiveGameVarType::Cords(cords))) = *borrow {
             return cords;
         }
         else {
@@ -129,7 +129,7 @@ impl PrimitiveVarType {
 
     pub fn into_block(var: &Rc<RefCell<VarType>>) -> BlockTexture {
         let borrow = var.borrow();
-        if let VarType::Game(GameVarType::Primitive(PrimitiveVarType::Block(block))) = *borrow {
+        if let VarType::Game(GameVarType::Primitive(PrimitiveGameVarType::Block(block))) = *borrow {
             return block;
         }
         else {
@@ -140,7 +140,7 @@ impl PrimitiveVarType {
 
     pub fn into_drone_item(var: &Rc<RefCell<VarType>>) -> DroneItem {
         let borrow = var.borrow();
-        if let VarType::Game(GameVarType::Primitive(PrimitiveVarType::DroneItem(item))) = *borrow {
+        if let VarType::Game(GameVarType::Primitive(PrimitiveGameVarType::DroneItem(item))) = *borrow {
             return item;
         }
         else {
@@ -152,25 +152,28 @@ impl PrimitiveVarType {
 }
 
 #[derive(PartialEq, Clone, Copy)]
-pub enum PrimitiveVarTypeKind {
+pub enum PrimitiveGameVarTypeKind {
     DroneItem,
     Block,
     Cords,
 }
 
-impl PrimitiveVarTypeKind {
+impl PrimitiveGameVarTypeKind {
     pub fn get_texture(&self) -> Texture {
         match self {
-            PrimitiveVarTypeKind::DroneItem => {
+            PrimitiveGameVarTypeKind::DroneItem => {
                 Texture::UITexture(crate::game_data::types::UITextures::ItemVarIcon)
             },
-            PrimitiveVarTypeKind::Block => {
+            PrimitiveGameVarTypeKind::Block => {
                 Texture::UITexture(crate::game_data::types::UITextures::BlockVarIcon)
             },
-            PrimitiveVarTypeKind::Cords => {
-                Texture::BlockTexture(BlockTexture::Selector)
+            PrimitiveGameVarTypeKind::Cords => {
+                return UITextures::CordsIcon.wrap_into_texture();
             }
         }
     }
 
+    pub fn wrap_into_var_kind(self) -> VarKind {
+        VarKind::Game(GameVarTypeKind::Primitive(self))
+    }
 }

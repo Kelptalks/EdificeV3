@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_script::var::{self, game_vars::game_var_type::GameVarType, programming_vars::programming_var::ProgrammingVar, var::Var, var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::VarType}, drones::drone::Drone, locations::location::WorldLocation}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_script::var::{self, game_vars::game_var_type::{GameVarType, GameVarTypeKind}, programming_vars::programming_var::ProgrammingVar, var::Var, var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, drones::drone::Drone, locations::location::WorldLocation}, texture_manager::texture::Texture, types::BlockTexture};
 
 
 #[derive(Clone)]
@@ -308,6 +308,10 @@ impl DynamicVarTypeKind {
                 return Texture::BlockTexture(BlockTexture::DroneUpRight)
             },
         }
+    }
+
+    pub fn wrap_into_var_kind(self) -> VarKind {
+        VarKind::Game(GameVarTypeKind::Dynamic(self))
     }
 }
 

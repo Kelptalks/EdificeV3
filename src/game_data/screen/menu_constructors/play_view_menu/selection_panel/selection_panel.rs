@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::game_data::{
     player_data::{
-        drone_script::{var::{game_vars::{primitive_var::PrimitiveVarType}}},
+        drone_script::{var::{game_vars::{primitive_var::PrimitiveGameVarType}}},
     }, 
     screen::{
         menu_constructors::play_view_menu::{new_play_view::RefManager, selection_panel::drone_programming_selection_panel::get_drone_programming_selection_panel}, 
@@ -35,7 +35,7 @@ fn get_block_selection_panel() -> WidgetType {
                 for row_block_id in 0..blocks_per_row {
                     
                     let block_type = BlockTexture::from_id(collumn_block_id as u16 + row_block_id as u16);
-                    let var_ref = PrimitiveVarType::Block(block_type).wrap_into_var_type();
+                    let var_ref = PrimitiveGameVarType::Block(block_type).wrap_into_var_type();
                     let mut var_slot = VarSlot::new_source_with_type(var_ref);
                     var_slot.set_dragging_properties(true, false, false);
                                         
@@ -76,7 +76,7 @@ fn get_item_selection_panel() -> WidgetType {
                 for row_item_id in 0..items_per_row {
                     
                     let item_type = DroneItem::from_id(collumn_item_id as u32 + row_item_id as u32);
-                    let var_type = PrimitiveVarType::DroneItem(item_type).wrap_into_var_type();
+                    let var_type = PrimitiveGameVarType::DroneItem(item_type).wrap_into_var_type();
                     let mut var_slot = VarSlot::new_source_with_type(var_type);
                     var_slot.set_dragging_properties(true, false, false);
                     row_panel.add_widget(var_slot.wrap_into_widget());

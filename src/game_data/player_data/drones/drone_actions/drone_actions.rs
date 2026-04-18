@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_script::var::{game_vars::action_var::{ActionVarType, ErrorCode}, var::Var, var_type::VarType}, drones::{drone::Drone, drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::drone_prim_actions::DronePrimAction}}}};
+use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_script::var::{game_vars::action_var::{ActionVarType, ErrorCode}, var::Var, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::drone_prim_actions::DronePrimAction}}}};
 
 
 
@@ -88,17 +88,28 @@ impl DroneAction {
     // Function Managment
     //=====================================
 
-    pub fn get_param_var_types(&self) -> Vec<VarType> {
+    pub fn get_param_var_types(&self) -> Vec<VarKind> {
         match self {
             DroneAction::PrimAction(drone_prim_action) => {
                 drone_prim_action.get_param_var_types()
             },
             DroneAction::AdvancedAction(advanced_drone_action) => {
-                advanced_drone_action.create_param_vars()
+                advanced_drone_action.get_param_var_kinds()
             },
             DroneAction::GetterAction(drone_getter_action) => {
                 Vec::new()
             },
+        }
+    }
+
+    pub fn get_return_var(&self) -> Option<Var> {
+        match self {
+            DroneAction::GetterAction(getter_action) => {
+                Some(getter_action.get_return_var())
+            }
+            _ => {
+                None
+            }
         }
     }
 

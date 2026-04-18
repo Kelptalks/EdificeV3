@@ -1,8 +1,11 @@
-use crate::game_data::player_data::{drone_script::var::{prim_vars::prim_var_type::PrimitiveVarType, var::Var, var_type::VarType}, drones::{drone::Drone, drone_actions::drone_actions::{DroneAction, DroneActionError}}};
+use crate::game_data::player_data::{drone_script::var::{game_vars::primitive_var::PrimitiveGameVarTypeKind, prim_vars::prim_var_type::{PrimitiveVarType, PrimitiveVarKind}, var::Var, var_type::{VarType, VarKind}}, drones::{drone::Drone, drone_actions::drone_actions::{DroneAction, DroneActionError}}};
 
 #[derive(Clone)]
 pub enum DroneGetterAction {
     IsBusy,
+    
+    GetFuel,
+    GetHealth,
 }
 
 impl DroneGetterAction {
@@ -13,6 +16,8 @@ impl DroneGetterAction {
     pub fn execute(&self, drone: &mut Drone) -> Var {
         match self {
             DroneGetterAction::IsBusy => DroneActionError::Ok.wrap_into_var_type().create_var(),
+            DroneGetterAction::GetFuel => DroneActionError::Ok.wrap_into_var_type().create_var(),
+            DroneGetterAction::GetHealth => DroneActionError::Ok.wrap_into_var_type().create_var(),
         }
     }
 
@@ -20,6 +25,8 @@ impl DroneGetterAction {
         let mut all_actions = Vec::new();
 
         all_actions.push(DroneGetterAction::IsBusy.wrap_into_action());
+        all_actions.push(DroneGetterAction::GetFuel.wrap_into_action());
+        all_actions.push(DroneGetterAction::GetHealth.wrap_into_action());
 
         all_actions
     }
@@ -31,6 +38,8 @@ impl DroneGetterAction {
     pub fn get_name(&self) -> String {
         match self {
             DroneGetterAction::IsBusy => "IsBusy".to_string(),
+            DroneGetterAction::GetFuel => "GetFuel".to_string(),
+            DroneGetterAction::GetHealth => "GetHealth".to_string(),
         }
     }
 
@@ -38,15 +47,26 @@ impl DroneGetterAction {
     // Function Managment
     //=====================================
 
-    pub fn create_return_values(&self) -> Vec<VarType> {
-        let mut return_values=  Vec::new();
+    pub fn get_return_var(&self) -> Var {
         match self {
             DroneGetterAction::IsBusy => {
-                return_values.push(PrimitiveVarType::Bool(true).wrap_into_var_type());
-                return_values.push(PrimitiveVarType::Bool(false).wrap_into_var_type());
+                let mut var = Var::new_blank_with_kind(PrimitiveVarKind::Bool.wrap_into_var_kind());
+                var.set_name(self.get_name());
+                var
             }
+            DroneGetterAction::GetFuel => {
+                let mut var = Var::new_blank_with_kind(PrimitiveVarKind::Num.wrap_into_var_kind());
+                var.set_name(self.get_name());
+                var
+            },
+            DroneGetterAction::GetHealth => {
+                let mut var = Var::new_blank_with_kind(PrimitiveVarKind::Num.wrap_into_var_kind());
+                var.set_name(self.get_name());
+                var
+            },
         }
-        return_values
+        
+
     }
 
     

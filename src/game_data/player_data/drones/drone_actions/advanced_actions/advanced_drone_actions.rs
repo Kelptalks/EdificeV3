@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_script::{var::{game_vars::dynamic_var::DynamicVarType, var::Var, var_type::VarType}}, drones::{drone::Drone, drone_actions::{advanced_actions::path_planner::plan_path_to_cords, drone_actions::{DroneAction, DroneActionError}}}, locations::location::WorldLocation}};
+use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_script::var::{game_vars::dynamic_var::{DynamicVarType, DynamicVarTypeKind}, var::Var, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::{advanced_actions::path_planner::plan_path_to_cords, drone_actions::{DroneAction, DroneActionError}}}, locations::location::WorldLocation}};
 
 
 #[derive(Clone)]
@@ -54,11 +54,11 @@ impl DroneAdvancedAction {
     // Execution
     //=====================================
 
-    pub fn create_param_vars(&self) -> Vec<VarType> {
+    pub fn get_param_var_kinds(&self) -> Vec<VarKind> {
         let mut params = Vec::new();
         match self {
-            DroneAdvancedAction::PathToLocation(location_ref) => {
-                params.push(DynamicVarType::Location(location_ref.clone()).wrap_into_var_type());
+            DroneAdvancedAction::PathToLocation(_location_ref) => {
+                params.push(DynamicVarTypeKind::Location.wrap_into_var_kind());
             },
         }
         params

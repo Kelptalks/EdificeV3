@@ -138,7 +138,7 @@ impl TextureManager {
         }
     }
 
-    pub fn render_texture_within_pos(&mut self, texture: Texture, draw_pos: [f32; 4], bounds_pos: [f32; 4]) -> bool {
+    pub fn render_texture_within_pos(&mut self, texture: Texture, draw_pos: [f32; 4], bounds_pos: [f32; 4]) {
         let uv = self.get_texture_uv(texture);
 
 
@@ -150,7 +150,7 @@ impl TextureManager {
         let cx2 = dx2.min(bx2);
         let cy2 = dy2.min(by2);
 
-        if cx1 >= cx2 || cy1 >= cy2 { return false; }
+        if cx1 >= cx2 || cy1 >= cy2 { return}
 
         let dw = dx2 - dx1;
         let dh = dy2 - dy1;
@@ -173,7 +173,6 @@ impl TextureManager {
         ];
 
         self.get_texture_renderer().add_quad(pos, cropped_uv);
-        return true;
     }
 
     pub fn render_texture_within_pos_option(&mut self, texture: Texture, draw_pos: [f32; 4], bounds_pos: Option<[f32; 4]>) {

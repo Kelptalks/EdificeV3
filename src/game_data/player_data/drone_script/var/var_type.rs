@@ -1,18 +1,18 @@
 
 
-use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::{GameVarType, GameVarTypeKind}, prim_vars::prim_var_type::{PrimitiveVarType, PrimitiveVarTypeKind}, programming_vars::programming_var::{self, ProgrammingVar, ProgrammingVarKind}, var::Var, var_properties::{VarPropModRequest, VarProperty}}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::{GameVarType, GameVarTypeKind}, prim_vars::prim_var_type::{PrimitiveVarType, PrimitiveVarKind}, programming_vars::programming_var::{self, ProgrammingVar, ProgrammingVarKind}, var::Var, var_properties::{VarPropModRequest, VarProperty}}, texture_manager::texture::Texture, types::BlockTexture};
 
 
 
 #[derive(Clone, Copy)]
-pub enum VarTypeKind {
+pub enum VarKind {
     Any,
     Game(GameVarTypeKind),
     ProgrammingVar(ProgrammingVarKind),
-    Prim(PrimitiveVarTypeKind),
+    Prim(PrimitiveVarKind),
 }
 
-impl PartialEq for VarTypeKind {
+impl PartialEq for VarKind {
     fn eq(&self, other: &Self) -> bool {
         if matches!(self, Self::Any) || matches!(other, Self::Any) {
             return true;
@@ -25,19 +25,19 @@ impl PartialEq for VarTypeKind {
     }
 }
 
-impl VarTypeKind {
+impl VarKind {
     pub fn get_texture(&self) -> Texture {
         match self {
-            VarTypeKind::Any => {
+            VarKind::Any => {
                 return Texture::UITexture(crate::game_data::types::UITextures::AnyVarIcon);
             },
-            VarTypeKind::Game(game_var_type_kind) => {
+            VarKind::Game(game_var_type_kind) => {
                 return game_var_type_kind.get_texture();
             },
-            VarTypeKind::ProgrammingVar(programming_var_kind) => {
+            VarKind::ProgrammingVar(programming_var_kind) => {
                 return programming_var_kind.get_texture();
             },
-            VarTypeKind::Prim(prim_var_type_kind) => {
+            VarKind::Prim(prim_var_type_kind) => {
                 return prim_var_type_kind.get_texture();
             },
         }
@@ -83,20 +83,20 @@ impl VarType {
         }
     }
 
-    pub fn to_kind(&self) -> VarTypeKind {
+    pub fn to_kind(&self) -> VarKind {
         match self {
             VarType::Null() => {
-                VarTypeKind::Any
+                VarKind::Any
             },
             VarType::Game(game_var_type) => {
-                VarTypeKind::Game(game_var_type.to_kind())
+                VarKind::Game(game_var_type.to_kind())
 
             },
             VarType::ProgrammingVar(programming_var) => {
-                VarTypeKind::ProgrammingVar(programming_var.to_kind())
+                VarKind::ProgrammingVar(programming_var.to_kind())
             },
             VarType::Prim(prim) => {
-                VarTypeKind::Prim(prim.to_kind())
+                VarKind::Prim(prim.to_kind())
             },
         }
     }

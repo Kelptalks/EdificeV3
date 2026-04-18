@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{TextureManager, game_event_manager::prelude::EventManager, player_data::drone_script::var::{var::{Var, VarRef}, var_type::{VarType, VarTypeKind}}, screen::{ScreenData, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations}}, texture_manager::{self, texture::Texture}, types::UITextures};
+use crate::game_data::{TextureManager, game_event_manager::prelude::EventManager, player_data::drone_script::var::{var::{Var, VarRef}, var_type::{VarType, VarKind}}, screen::{ScreenData, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations}}, texture_manager::{self, texture::Texture}, types::UITextures};
 
 
 
@@ -115,11 +115,11 @@ impl VarSlot {
         Self::new_with_slot_type(VarSlotType::Source(Var::new_with_var_type(var_type)))
     }
 
-    pub fn new_source_with_kind(var_kind: VarTypeKind) -> VarSlot {
+    pub fn new_source_with_kind(var_kind: VarKind) -> VarSlot {
         Self::new_with_slot_type(VarSlotType::Source(Var::new_blank_with_kind(var_kind)))
     }
 
-    pub fn new_ref_with_kind(var_kind: VarTypeKind) -> VarSlot {
+    pub fn new_ref_with_kind(var_kind: VarKind) -> VarSlot {
         Self::new_with_slot_type(VarSlotType::Ref(VarRef::new_blank_with_kind(var_kind)))
     }
 
@@ -240,7 +240,7 @@ impl Widget for VarSlot {
         bounds: Option<[f32; 4]>
     ) {
         
-        if self.allow_clearing && self.var_slot_type.is_null() {
+        if self.var_slot_type.is_null() {
             texture_manager.render_texture_within_pos_option(self.var_slot_type.get_kind_texture(), self.pos, bounds);
         }
         texture_manager.render_texture_within_pos_option(self.var_slot_type.get_texture(), self.pos, bounds);
@@ -248,9 +248,8 @@ impl Widget for VarSlot {
         // Try and get var if mouse was released
         if screen_data.mouse_on_ndc_pos(self.pos) {
 
-            if !self.var_slot_type.is_null() {
-                self.render_string(texture_manager);
-            }
+            
+            self.render_string(texture_manager);
 
 
 

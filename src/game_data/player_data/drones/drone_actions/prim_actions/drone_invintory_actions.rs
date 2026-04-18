@@ -1,6 +1,6 @@
 use std::{cell::RefCell, fmt::format, rc::Rc};
 
-use crate::game_data::{player_data::{drone_script::var::{game_vars::primitive_var::PrimitiveVarType, var::Var, var_type::VarType}, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, prim_actions::drone_prim_actions::DronePrimAction}}}, types::drone_item::DroneItem};
+use crate::game_data::{player_data::{drone_script::var::{game_vars::primitive_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}, var::Var, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, prim_actions::drone_prim_actions::DronePrimAction}}}, types::drone_item::DroneItem};
 
 #[derive(Clone)]
 pub enum DroneInventoryAction {
@@ -69,18 +69,18 @@ impl DroneInventoryAction {
 
     // Creates a set of var refrenses 
     // Why: used to get the Vars needed for constructing Functions
-    pub fn get_param_var_types(&self) -> Vec<VarType> {
+    pub fn get_param_var_kinds(&self) -> Vec<VarKind> {
         let mut params = Vec::new();
 
         match self {
-            DroneInventoryAction::CraftItem(drone_item) => {
-                params.push(PrimitiveVarType::DroneItem(*drone_item).wrap_into_var_type());
+            DroneInventoryAction::CraftItem(_drone_item) => {
+                params.push(PrimitiveGameVarTypeKind::DroneItem.wrap_into_var_kind());
             },
-            DroneInventoryAction::UseItemForFuel(drone_item, _) => {
-                params.push(PrimitiveVarType::DroneItem(*drone_item).wrap_into_var_type());
+            DroneInventoryAction::UseItemForFuel(_drone_item, _) => {
+                params.push(PrimitiveGameVarTypeKind::DroneItem.wrap_into_var_kind());
             },
-            DroneInventoryAction::EquipTool(drone_item) => {
-                params.push(PrimitiveVarType::DroneItem(*drone_item).wrap_into_var_type());
+            DroneInventoryAction::EquipTool(_drone_item) => {
+                params.push(PrimitiveGameVarTypeKind::DroneItem.wrap_into_var_kind());
             },
         }
 
@@ -90,13 +90,13 @@ impl DroneInventoryAction {
     pub fn set_params_from_vars(&mut self, params: &Vec<Rc<RefCell<VarType>>>) {
         match self {
             DroneInventoryAction::CraftItem(drone_item) => {
-                *drone_item = PrimitiveVarType::into_drone_item(&params[0]);
+                *drone_item = PrimitiveGameVarType::into_drone_item(&params[0]);
             },
             DroneInventoryAction::UseItemForFuel(drone_item, _) => {
-                *drone_item = PrimitiveVarType::into_drone_item(&params[0]);
+                *drone_item = PrimitiveGameVarType::into_drone_item(&params[0]);
             },
             DroneInventoryAction::EquipTool(drone_item) => {
-                *drone_item = PrimitiveVarType::into_drone_item(&params[0]);
+                *drone_item = PrimitiveGameVarType::into_drone_item(&params[0]);
             },
         }
     }

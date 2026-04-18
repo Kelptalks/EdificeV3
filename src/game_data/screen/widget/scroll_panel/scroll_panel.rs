@@ -244,7 +244,9 @@ impl Widget for ScrollPanel {
 
         let rendering_bounds = Some(self.pos);
         for widget in &mut self.widgets {
-            widget.render(texture_manager, screen_data, game_event_manager, rendering_bounds);
+            if widget_calculations::is_pos_overlapping_pos(self.pos, widget.get_pos()) {
+                widget.render(texture_manager, screen_data, game_event_manager, rendering_bounds);
+            }
         }
 
         for button in &mut self.buttons {

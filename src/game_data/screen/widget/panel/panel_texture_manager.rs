@@ -56,7 +56,7 @@ impl PanelTextureManager {
         self.tile_center_pos = [x1 + s, y1 + s, x2 - s, y2 - s];
     }
 
-    pub fn render(&self, texture_manager: &mut TextureManager) {
+    pub fn render(&self, texture_manager: &mut TextureManager, bounds: Option<[f32; 4]>) {
         if self.color != PanelColor::Clear {
             let corners = self.tile_corner_pos;
             let sides = self.tile_side_pos;
@@ -67,19 +67,19 @@ impl PanelTextureManager {
             let center_texture = self.color.get_panel_center_texture();
 
             // Corners
-            texture_manager.render_ui_element_with_pos(corner_textures[0], corners[0]);
-            texture_manager.render_ui_element_with_pos(corner_textures[1], corners[1]);
-            texture_manager.render_ui_element_with_pos(corner_textures[2], corners[2]);
-            texture_manager.render_ui_element_with_pos(corner_textures[3], corners[3]);
+            texture_manager.render_texture_within_pos_option(corner_textures[0], corners[0], bounds);
+            texture_manager.render_texture_within_pos_option(corner_textures[1], corners[1], bounds);
+            texture_manager.render_texture_within_pos_option(corner_textures[2], corners[2], bounds);
+            texture_manager.render_texture_within_pos_option(corner_textures[3], corners[3], bounds);
 
             // Sides
-            texture_manager.render_ui_element_with_pos(side_textures[0], sides[0]);
-            texture_manager.render_ui_element_with_pos(side_textures[1], sides[1]);
-            texture_manager.render_ui_element_with_pos(side_textures[2], sides[2]);
-            texture_manager.render_ui_element_with_pos(side_textures[3], sides[3]);
+            texture_manager.render_texture_within_pos_option(side_textures[0], sides[0], bounds);
+            texture_manager.render_texture_within_pos_option(side_textures[1], sides[1], bounds);
+            texture_manager.render_texture_within_pos_option(side_textures[2], sides[2], bounds);
+            texture_manager.render_texture_within_pos_option(side_textures[3], sides[3], bounds);
 
             // Center
-            texture_manager.render_ui_element_with_pos(center_texture, center);
+            texture_manager.render_texture_within_pos_option(center_texture, center, bounds);
         }
     }
 

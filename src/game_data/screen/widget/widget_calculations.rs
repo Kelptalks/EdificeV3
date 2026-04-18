@@ -31,6 +31,10 @@ pub fn is_pos_contained_within_pos(box_pos: [f32; 4], internal_pos: [f32; 4]) ->
     return true;
 }
 
+pub fn is_pos_overlapping_pos(a: [f32; 4], b: [f32; 4]) -> bool {
+    a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1]
+}
+
 //=====================================
 // Button values
 //=====================================

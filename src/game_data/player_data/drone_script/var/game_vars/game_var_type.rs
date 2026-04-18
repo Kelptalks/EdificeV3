@@ -3,7 +3,7 @@ use crate::game_data::{player_data::drone_script::var::{game_vars::action_var::A
 
 pub use super::{
     dynamic_var::{DynamicVarType, DynamicVarTypeKind},
-    primitive_var::{PrimitiveVarType, PrimitiveVarTypeKind},
+    primitive_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind},
 };
 
 
@@ -11,7 +11,7 @@ pub use super::{
 
 #[derive(Clone)]
 pub enum GameVarType {
-    Primitive(PrimitiveVarType),
+    Primitive(PrimitiveGameVarType),
     Dynamic(DynamicVarType),
     Action(ActionVarType)
 }
@@ -90,7 +90,7 @@ impl GameVarType {
 
 #[derive(PartialEq, Clone, Copy)]
 pub enum GameVarTypeKind {
-    Primitive(PrimitiveVarTypeKind),
+    Primitive(PrimitiveGameVarTypeKind),
     Dynamic(DynamicVarTypeKind),
 }
 

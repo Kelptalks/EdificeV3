@@ -125,7 +125,7 @@ impl Widget for TextInput {
         bounds: Option<[f32; 4]>,
     ) {
         
-        self.panel_texture.render(texture_manager);
+        self.panel_texture.render(texture_manager, bounds);
         self.text_display.render(texture_manager, screen_data, game_event_manager, bounds);
         
 
@@ -184,4 +184,3 @@ impl Widget for TextInput {
         }
     }
 }
-

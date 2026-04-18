@@ -135,6 +135,9 @@ pub const UI_TEXTURES: &[UITextureData] = &[
     UITextureData { id: 69, name: "BoolVarIcon",      rect: self::get_icon_src_rect(15), pressed_variant: None },
     UITextureData { id: 70, name: "RefIcon",          rect: self::get_icon_src_rect(16), pressed_variant: None },
     UITextureData { id: 71, name: "SourceIcon",       rect: self::get_icon_src_rect(17), pressed_variant: None },
+    UITextureData { id: 72, name: "CordsIcon",        rect: self::get_icon_src_rect(18), pressed_variant: None },
+    UITextureData { id: 73, name: "NumIcon",          rect: self::get_icon_src_rect(19), pressed_variant: None },
+    UITextureData { id: 74, name: "ConditionIcon",    rect: self::get_icon_src_rect(20), pressed_variant: None },
 
 ];
 
@@ -225,6 +228,9 @@ pub enum UITextures {
     BoolVarIcon = 69,
     RefIcon = 70,
     SourceIcon = 71,
+    CordsIcon = 72,
+    NumVarIcon = 73,
+    ConditionIcon = 74,
 }
 
 impl UITextures {

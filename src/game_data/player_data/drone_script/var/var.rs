@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::var_type::{VarType, VarTypeKind}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::drone_script::var::var_type::{VarType, VarKind}, texture_manager::texture::Texture};
 
 
 
@@ -12,7 +12,9 @@ Comments
 */
 #[derive(Clone, PartialEq)]
 pub struct Var {
-    var_kind: VarTypeKind,
+    name: String,
+    
+    var_kind: VarKind,
     var_type_ref: Rc<RefCell<VarType>>,
 }
 
@@ -22,6 +24,8 @@ impl Var {
     //=====================================
     pub fn new_with_var_type(var_type: VarType) -> Var {
         Var {
+            name: var_type.get_name(),
+
             var_kind: var_type.to_kind(), 
             var_type_ref: Rc::new(RefCell::new(var_type)),
         }
@@ -29,16 +33,24 @@ impl Var {
     
     pub fn new_blank() -> Var {
         Var {
-            var_kind: VarTypeKind::Any,
+            name: "BlankVar".to_string(),
+
+            var_kind: VarKind::Any,
             var_type_ref: Rc::new(RefCell::new(VarType::Null())),
         }
     }
 
-    pub fn new_blank_with_kind(var_type: VarTypeKind) -> Var {
+    pub fn new_blank_with_kind(var_kind: VarKind) -> Var {
         Var {
-            var_kind: VarTypeKind::Any,
+            name: "Null".to_string(),
+
+            var_kind,
             var_type_ref: Rc::new(RefCell::new(VarType::Null())),
         }
+    }
+
+    pub fn set_name(&mut self, name: String) {
+        self.name = name;
     }
     
     //=====================================
@@ -46,10 +58,10 @@ impl Var {
     //=====================================
 
     pub fn get_name(&self) -> String {
-        self.var_type_ref.borrow().get_name()
+        self.name.clone()
     }
 
-    pub fn get_kind(&self) -> VarTypeKind {
+    pub fn get_kind(&self) -> VarKind {
         return self.var_kind;
     }
 
@@ -107,7 +119,8 @@ Comments
 */
 #[derive(Clone, PartialEq)]
 pub struct VarRef {
-    var_kind: VarTypeKind,
+    name: String,
+    var_kind: VarKind,
     var_type_ref: Option<Rc<RefCell<VarType>>>,
 }
 
@@ -119,13 +132,15 @@ impl VarRef {
 
     pub fn new_with_var(var: &Var) -> VarRef {
         VarRef {
+            name: var.get_name(),
             var_type_ref: Some(var.get_var_type_ref().clone()),
             var_kind: var.var_kind
         }
     }
 
-    pub fn new_blank_with_kind(var_kind: VarTypeKind) -> VarRef {
+    pub fn new_blank_with_kind(var_kind: VarKind) -> VarRef {
         VarRef {
+            name: "Null".to_string(),
             var_type_ref: None,
             var_kind: var_kind,
         }
@@ -179,14 +194,20 @@ impl VarRef {
     // Setters
     //=====================================
 
+    pub fn set_name(&mut self, name: String) {
+        self.name = name;
+    }
+
     pub fn set_with_var(&mut self, var: &Var) {
         if var.get_kind() == self.var_kind {
             self.var_type_ref = Some(var.get_var_type_ref().clone());
+            self.set_name(var.get_name())
         }
     }
 
     pub fn set_with_var_type_ref(&mut self, var_type_ref: &Rc<RefCell<VarType>>) {
         if var_type_ref.borrow().to_kind() == self.var_kind {
+            self.name = var_type_ref.borrow().get_name();
             self.var_type_ref = Some(var_type_ref.clone());
         }
     }

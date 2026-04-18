@@ -349,7 +349,7 @@ impl Widget for Panel {
         } 
         
         // Render the panel
-        self.panel_texture.render(texture_manager);
+        self.panel_texture.render(texture_manager, bounds);
 
         // Render all the widgets
         for section in &mut self.sections {

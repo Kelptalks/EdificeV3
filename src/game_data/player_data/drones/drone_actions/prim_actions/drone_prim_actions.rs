@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_script::var::{var::Var, var_type::VarType}, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::{drone_invintory_actions::DroneInventoryAction, drone_world_actions::DroneWorldAction}}}}};
+use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_script::var::{var::Var, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::{drone_invintory_actions::DroneInventoryAction, drone_world_actions::DroneWorldAction}}}}};
 
 
 pub enum DroneFunctionError {
@@ -60,13 +60,13 @@ impl DronePrimAction {
     //=====================================
     // Function Construction
     //=====================================
-    pub fn get_param_var_types(&self) -> Vec<VarType> {
+    pub fn get_param_var_types(&self) -> Vec<VarKind> {
         match self {
             DronePrimAction::DroneWorldAction(drone_world_action) => {
-                drone_world_action.get_param_var_types()
+                drone_world_action.get_param_var_kinds()
             },
             DronePrimAction::DroneInventoryAction(drone_inventory_action) => {
-                drone_inventory_action.get_param_var_types()
+                drone_inventory_action.get_param_var_kinds()
             },
         }
     }
