@@ -179,9 +179,7 @@ impl VarSlot {
 
     // Get the value of the slot ref if it allows
     fn try_and_get_var(&mut self) -> Option<VarRef> {
-        if self.allow_dragging {
-            println!("getting var: {}", self.var_slot_type.into_var_ref().get_name());
-            
+        if self.allow_dragging {            
             return Some(self.var_slot_type.into_var_ref());
         }
         else {

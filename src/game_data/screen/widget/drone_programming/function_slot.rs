@@ -32,13 +32,9 @@ impl FunctionSlot {
            panel.add_widget(element.create_widget()); 
         }
 
-
-        // Function return
-
-
         panel.size();
         FunctionSlot {
-            panel: panel, 
+            panel: panel,
         }
     }
 
@@ -83,8 +79,15 @@ impl Widget for FunctionSlot {
     ) {
         self.panel.render(texture_manager, screen_data, game_event_manager, bounds);
 
-
-        
-        
+        if self.panel.is_mouse_on() && screen_data.was_left_pressed() {
+            println!("Mouse pressed on panel");
+            let panel_mouse_is_on_option = self.panel.get_sub_panels_mouse_on();
+            if let Some(panel_mouse_is_on) = panel_mouse_is_on_option {
+                if let WidgetType::Panel(panel) = panel_mouse_is_on {
+                    println!("Mouse on sub panel");
+                    panel.set_color(crate::game_data::screen::widget::prelude::PanelColor::Dark);
+                }
+            }
+        }
     }
 }

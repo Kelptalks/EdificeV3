@@ -6,6 +6,8 @@ pub enum DroneGetterAction {
     
     GetFuel,
     GetHealth,
+
+    GetCords,
 }
 
 impl DroneGetterAction {
@@ -18,6 +20,7 @@ impl DroneGetterAction {
             DroneGetterAction::IsBusy => DroneActionError::Ok.wrap_into_var_type().create_var(),
             DroneGetterAction::GetFuel => DroneActionError::Ok.wrap_into_var_type().create_var(),
             DroneGetterAction::GetHealth => DroneActionError::Ok.wrap_into_var_type().create_var(),
+            DroneGetterAction::GetCords => DroneActionError::Ok.wrap_into_var_type().create_var(),
         }
     }
 
@@ -27,6 +30,7 @@ impl DroneGetterAction {
         all_actions.push(DroneGetterAction::IsBusy.wrap_into_action());
         all_actions.push(DroneGetterAction::GetFuel.wrap_into_action());
         all_actions.push(DroneGetterAction::GetHealth.wrap_into_action());
+        all_actions.push(DroneGetterAction::GetCords.wrap_into_action());
 
         all_actions
     }
@@ -40,6 +44,7 @@ impl DroneGetterAction {
             DroneGetterAction::IsBusy => "IsBusy".to_string(),
             DroneGetterAction::GetFuel => "GetFuel".to_string(),
             DroneGetterAction::GetHealth => "GetHealth".to_string(),
+            DroneGetterAction::GetCords => "GetCords".to_string(),
         }
     }
 
@@ -64,6 +69,11 @@ impl DroneGetterAction {
                 var.set_name(self.get_name());
                 var
             },
+            DroneGetterAction::GetCords => {
+                let mut var = Var::new_blank_with_kind(PrimitiveGameVarTypeKind::Cords.wrap_into_var_kind());
+                var.set_name(self.get_name());
+                var
+            }
         }
         
 

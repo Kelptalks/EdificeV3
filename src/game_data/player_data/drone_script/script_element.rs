@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::game_data::{
     player_data::{
-        drone_script::{action::action::Action, function::{function::Function, function_call::{self, FunctionCall}}, var::{programming_vars::programming_var::ProgrammingVar, var::{Var, VarRef}, var_type::VarType}}, 
+        drone_script::{action::action::Action, control_flow::control_flow::ControlFlow, function::{function::Function, function_call::{self, FunctionCall}}, var::{programming_vars::programming_var::ProgrammingVar, var::{Var, VarRef}, var_type::VarType}}, 
         drones::drone_actions::drone_actions::DroneAction}, 
     screen::widget::{drone_programming::{action_slot::ActionSlot, function_slot::FunctionSlot}, panel::panel::Panel, prelude::VarSlot, widget::WidgetType}};
 
@@ -12,6 +12,9 @@ pub enum ScriptElement {
     Var(Var),
     VarRef(VarRef),
     
+    // Control Flow
+    ControlFlow(ControlFlow),
+
     // Game actions
     Action(Action),
 
@@ -36,6 +39,8 @@ impl ScriptElement {
             ScriptElement::Var(var) => var.get_name(),
             ScriptElement::VarRef(var_ref) => var_ref.get_name(),
             
+            ScriptElement::ControlFlow(control_flow) => control_flow.get_name(), 
+
             ScriptElement::Function(function) => function.get_name(),
             ScriptElement::FunctionCall(function_call) => function_call.get_name(),
 
@@ -56,6 +61,15 @@ impl ScriptElement {
             ScriptElement::VarRef(var_ref) => {
                 return VarSlot::new_with_var_ref(var_ref.clone()).wrap_into_widget()
             },
+
+            ScriptElement::ControlFlow(contorl_flow) => {
+                let mut panel = Panel::new_blank();
+
+                panel.add_text_display(contorl_flow.get_name());
+
+                return panel.wrap_into_widget()
+            }
+
             ScriptElement::Action(action) => {
                 return ActionSlot::new(action).wrap_into_widget()
             },

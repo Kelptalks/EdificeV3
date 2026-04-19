@@ -308,6 +308,23 @@ impl Panel {
             self.mouse_on = false;
         }
     }
+
+    pub fn get_sub_panels_mouse_on(&mut self) -> Option<&mut WidgetType> {
+        for section in &mut self.sections {
+            let widget_type = section.get_mut_widget();
+            
+            println!("SSSS");
+            if let WidgetType::Panel(panel) = widget_type {
+                
+                if panel.is_mouse_on() {
+                    println!("OOSPOSPDOPS");
+                    return Some(widget_type);
+                }
+            }
+        }
+        return None;
+
+    }
     
 }
 

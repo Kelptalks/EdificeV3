@@ -142,10 +142,7 @@ impl Widget for ScriptingPanel {
         let mouse_script_index = self.get_mouse_script_index();
         if let Some(mouse_script_index) = mouse_script_index {
             if screen_data.was_left_pressed() {
-
-
-            
-                
+                       
             }
         }
 
