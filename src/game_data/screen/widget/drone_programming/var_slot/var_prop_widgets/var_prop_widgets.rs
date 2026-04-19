@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::var_properties::{PropValue, VarPropModRequest}, screen::widget::{drone_programming::var_slot::var_prop_widgets::{invintory_display_prop_widget::InvintoryDisplayPropWidget, num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget, var_prop_widget::VarPropWidget}, panel::panel::Panel, widget::{Widget, WidgetType}}};
+use crate::game_data::{player_data::drone_script::var::var_properties::{PropValue, VarPropModRequest}, screen::widget::{drone_programming::var_slot::var_prop_widgets::{invintory_display_prop_widget::InvintoryDisplayPropWidget, num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget, var_prop_widget::VarPropWidget}, panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetProperties}};
 
 pub enum VarPropVal {
     String(TextDisplayPropWidget),
@@ -11,7 +11,7 @@ pub enum VarPropVal {
 
 
 impl VarPropVal {
-    pub fn update_with_val(&mut self, val: PropValue) -> Vec<VarPropModRequest>{
+    pub fn update_with_val(&mut self, val: PropValue) -> Vec<VarPropModRequest> {
         match self {
             VarPropVal::String(string_prop_widget) => {
                 string_prop_widget.update_with_val(val)
@@ -42,16 +42,12 @@ impl VarPropVal {
 }
 
 impl Widget for VarPropVal {
-    fn get_pos(&self) -> [f32; 4] {
-        self.get_root_panel().get_pos()
+    fn get_widget_properties(&self) -> &WidgetProperties {
+        self.get_root_panel().get_widget_properties()
     }
 
-    fn get_scale(&self) -> [f32; 2] {
-        self.get_root_panel().get_scale()
-    }
-
-    fn get_preffered_scale(&self) -> [f32; 2] {
-        self.get_root_panel().get_preffered_scale()
+    fn get_mut_widget_properties(&mut self) -> &mut WidgetProperties {
+        self.get_root_mut_panel().get_mut_widget_properties()
     }
 
     fn set_buffers(&mut self, pos: [f32; 4]) {
@@ -71,8 +67,7 @@ impl Widget for VarPropVal {
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
-        bounds: Option<[f32; 4]>,
     ) {
-        self.get_root_mut_panel().render(texture_manager, screen_data, game_event_manager, bounds);
+        self.get_root_mut_panel().render(texture_manager, screen_data, game_event_manager);
     }
 }

@@ -1,20 +1,31 @@
 use crate::game_data::{
-    TextureManager, 
-    game_event_manager::game_event_manager::EventManager, 
-    screen::{ScreenData, 
+    TextureManager,
+    game_event_manager::game_event_manager::EventManager,
+    screen::{ScreenData,
         widget::{
-            bar_button::bar_button::BarButtonWidget, 
-            button::button::Button, 
+            bar_button::bar_button::BarButtonWidget,
+            button::button::Button,
             drone_programming::{
-                action_slot::ActionSlot, function_slot::FunctionSlot, scripting_elements::scripting_panel::ScriptingPanel, var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, world_rendering::play_world_view_render::PlayWorldViewRender}}, texture_manager::rect::Pos};
+                action_slot::ActionSlot, function_slot::FunctionSlot, scripting_elements::scripting_panel::ScriptingPanel, var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, world_rendering::play_world_view_render::PlayWorldViewRender,
+            widget_properties::WidgetProperties,
+        }
+    }, texture_manager::rect::Pos};
 
 pub trait Widget {
-    fn get_pos(&self) -> [f32; 4];
-    fn get_scale(&self) -> [f32; 2];
-    fn get_preffered_scale(&self) -> [f32; 2];
+    fn get_widget_properties(&self) -> &WidgetProperties;
+    fn get_mut_widget_properties(&mut self) -> &mut WidgetProperties;
 
-    fn set_buffers(&mut self, pos: [f32; 4]);
-    fn set_parent_pos(&mut self, pos: [f32; 4]);
+    fn get_pos(&self) -> [f32; 4] { self.get_widget_properties().pos }
+    fn get_scale(&self) -> [f32; 2] { self.get_widget_properties().scale }
+    fn get_preffered_scale(&self) -> [f32; 2] { self.get_widget_properties().prefered_scale }
+
+    fn set_buffers(&mut self, pos: [f32; 4]) { self.get_mut_widget_properties().external_buffers = pos; }
+    fn set_parent_pos(&mut self, pos: [f32; 4]) { self.get_mut_widget_properties().parent_pos = pos; }
+
+    fn mouse_on(&self, screen_data: &ScreenData) -> bool {
+        self.get_widget_properties().mouse_on(screen_data)
+    }
+
     fn size(&mut self);
 
     fn render(
@@ -22,9 +33,7 @@ pub trait Widget {
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
         game_event_manager: &mut EventManager,
-        bounds: Option<[f32; 4]>
     );
-
 }
 
 pub enum WidgetType {
@@ -100,21 +109,17 @@ macro_rules! widget_match {
 }
 
 impl Widget for WidgetType {
-    fn get_pos(&self)            -> [f32; 4] { widget_match!(self, get_pos) }
-    fn get_scale(&self)          -> [f32; 2] { widget_match!(self, get_scale) }
-    fn get_preffered_scale(&self)-> [f32; 2] { widget_match!(self, get_preffered_scale) }
-    fn set_buffers(&mut self, pos: [f32; 4]) { widget_match!(self, set_buffers, pos) }
-    fn set_parent_pos(&mut self, pos: [f32; 4]) { widget_match!(self, set_parent_pos, pos) }
-    fn size(&mut self)           { widget_match!(self, size) }
+    fn get_widget_properties(&self) -> &WidgetProperties { widget_match!(self, get_widget_properties) }
+    fn get_mut_widget_properties(&mut self) -> &mut WidgetProperties { widget_match!(self, get_mut_widget_properties) }
+
+    fn size(&mut self) { widget_match!(self, size) }
 
     fn render(
         &mut self,
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
         game_event_manager: &mut EventManager,
-        bounds: Option<[f32; 4]>,
     ) {
-        widget_match!(self, render, texture_manager, screen_data, game_event_manager, bounds)
+        widget_match!(self, render, texture_manager, screen_data, game_event_manager)
     }
-
 }

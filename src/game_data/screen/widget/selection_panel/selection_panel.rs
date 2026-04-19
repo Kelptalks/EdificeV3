@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::screen::widget::{scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel_config::WidgetUpdateManager, widget::{Widget, WidgetType}};
+use crate::game_data::screen::widget::{scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel_config::WidgetUpdateManager, widget::{Widget, WidgetType}, widget_properties::WidgetProperties};
 
 pub struct SelectionPanel {
     scroll_panel: ScrollPanel,
@@ -15,31 +15,24 @@ impl SelectionPanel {
 
     pub fn new(update_manager: Rc<RefCell<WidgetUpdateManager>>) -> SelectionPanel {
         SelectionPanel {
-            scroll_panel: ScrollPanel::new(), 
-            update_manager, 
+            scroll_panel: ScrollPanel::new(),
+            update_manager,
         }
     }
 
- 
     pub fn get_update_manager(&self) -> &Rc<RefCell<WidgetUpdateManager>> {
         return &self.update_manager;
     }
 
-    
-
 }
 
 impl Widget for SelectionPanel {
-    fn get_pos(&self) -> [f32; 4] {
-        self.scroll_panel.get_pos()
+    fn get_widget_properties(&self) -> &WidgetProperties {
+        self.scroll_panel.get_widget_properties()
     }
 
-    fn get_scale(&self) -> [f32; 2] {
-        self.scroll_panel.get_scale()
-    }
-
-    fn get_preffered_scale(&self) -> [f32; 2] {
-        self.scroll_panel.get_preffered_scale()
+    fn get_mut_widget_properties(&mut self) -> &mut WidgetProperties {
+        self.scroll_panel.get_mut_widget_properties()
     }
 
     fn set_buffers(&mut self, pos: [f32; 4]) {
@@ -59,9 +52,7 @@ impl Widget for SelectionPanel {
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
-        bounds: Option<[f32; 4]>,
     ) {
-        // Add new widgets
         let mut binding = self.update_manager.borrow_mut();
         let widgets_to_add = binding.get_widgets_to_add();
 
@@ -70,13 +61,8 @@ impl Widget for SelectionPanel {
         }
 
         drop(binding);
-        
-        
+
         self.size();
-        self.scroll_panel.render(texture_manager, screen_data, game_event_manager, bounds);
-
-        
-
+        self.scroll_panel.render(texture_manager, screen_data, game_event_manager);
     }
 }
-

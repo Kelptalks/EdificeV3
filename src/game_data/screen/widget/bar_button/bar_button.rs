@@ -6,24 +6,16 @@ use crate::game_data::{
             bar_button::bar_button_texture_manager::BarButtonTextureManager,
             widget::Widget,
             widget_calculations::{self, TextSize},
+            widget_properties::WidgetProperties,
         }
     },
     types::FontType,
 };
 
 pub struct BarButtonWidget {
-    // Parent Rendering
-    parent_pos: [f32; 4],
-    parent_scale: [f32; 2],
+    widget_properties: WidgetProperties,
 
-    // Rendering
     needs_resizing: bool,
-    external_buffers: [f32; 4],
-    
-
-    pos: [f32; 4],
-    scale: [f32; 2],
-    prefered_scale: [f32; 2],
 
     // Input
     events: Vec<GameEvent>,
@@ -38,17 +30,14 @@ pub struct BarButtonWidget {
 
 impl BarButtonWidget {
     pub fn new(text: String, buffers: [f32; 4]) -> BarButtonWidget {
+        let mut wp = WidgetProperties::new_blank();
+        wp.external_buffers = buffers;
+        wp.prefered_scale = [0.0; 2];
+
         BarButtonWidget {
-            parent_pos: [0.0; 4],
-            parent_scale: [0.0; 2],
+            widget_properties: wp,
 
             needs_resizing: true,
-            external_buffers: buffers,
-
-            pos: [0.0; 4],
-            scale: [0.0; 2],
-
-            prefered_scale: [0.0; 2],
 
             events: Vec::new(),
 
@@ -58,8 +47,6 @@ impl BarButtonWidget {
             prefered_char_scale: TextSize::Small.get_scale(),
             bar_button_text_buffers: 0.0,
         }
-
-
     }
 
     //=====================================
@@ -70,66 +57,55 @@ impl BarButtonWidget {
     }
 
     //=====================================
-    // Aperence
+    // Appearance
     //=====================================
-
     pub fn set_text_scale(&mut self, size: TextSize) {
         self.prefered_char_scale = size.get_scale();
         self.needs_resizing = true;
     }
 
-
     //=====================================
     // Sizing
     //=====================================
-
     pub fn size(&mut self) {
-        self.parent_scale = widget_calculations::pos_to_scale(self.parent_pos);
-        self.pos = widget_calculations::buffer_pos(self.parent_pos, self.external_buffers);
-        self.scale = widget_calculations::pos_to_scale(self.pos);
+        self.widget_properties.scale_based_off_parent();
 
-        // Compute preferred scale from char scale and text length
+        let pos = self.widget_properties.pos;
 
         self.bar_button_text_buffers = self.prefered_char_scale / 1.0;
 
-        self.prefered_scale = [
+        self.widget_properties.prefered_scale = [
             self.prefered_char_scale * self.text.len() as f32 + self.bar_button_text_buffers,
-            self.prefered_char_scale + self.bar_button_text_buffers
+            self.prefered_char_scale + self.bar_button_text_buffers,
         ];
 
         self.text_ndc = [
-            self.pos[0] + self.bar_button_text_buffers / 2.0,
-            self.pos[1] + self.bar_button_text_buffers / 2.0,
+            pos[0] + self.bar_button_text_buffers / 2.0,
+            pos[1] + self.bar_button_text_buffers / 2.0,
         ];
 
-        // Size the texture renderer
-        self.texture_manager.size(self.pos);
+        self.texture_manager.size(pos);
 
-        // Compute text center
         self.needs_resizing = false;
     }
 }
 
 impl Widget for BarButtonWidget {
-    fn get_pos(&self) -> [f32; 4] {
-        return self.pos;
+    fn get_widget_properties(&self) -> &WidgetProperties {
+        &self.widget_properties
     }
 
-    fn get_scale(&self) -> [f32; 2] {
-        return self.scale;
-    }
-
-    fn get_preffered_scale(&self) -> [f32; 2] {
-        return self.prefered_scale;
+    fn get_mut_widget_properties(&mut self) -> &mut WidgetProperties {
+        &mut self.widget_properties
     }
 
     fn set_buffers(&mut self, buffers: [f32; 4]) {
-        self.external_buffers = buffers;
+        self.widget_properties.external_buffers = buffers;
         self.needs_resizing = true;
     }
 
     fn set_parent_pos(&mut self, pos: [f32; 4]) {
-        self.parent_pos = pos;
+        self.widget_properties.parent_pos = pos;
         self.needs_resizing = true;
     }
 
@@ -142,13 +118,12 @@ impl Widget for BarButtonWidget {
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
         game_event_manager: &mut EventManager,
-        bounds: Option<[f32; 4]>
     ) {
         if self.needs_resizing {
             self.size();
         }
 
-        let is_hovered = screen_data.mouse_on_ndc_pos(self.pos);
+        let is_hovered = screen_data.mouse_on_ndc_pos(self.widget_properties.pos);
 
         if is_hovered && screen_data.was_left_released() {
             for event in &self.events {

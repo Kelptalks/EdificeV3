@@ -22,3 +22,5 @@ pub mod world_rendering;
 
 // Drone Programming
 pub mod drone_programming;
+
+pub mod widget_properties;

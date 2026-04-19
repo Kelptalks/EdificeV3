@@ -156,16 +156,12 @@ impl InvintoryDisplayPropWidget {
 
 
 impl Widget for InvintoryDisplayPropWidget {
-    fn get_pos(&self) -> [f32; 4] {
-        self.panel.get_pos()
+    fn get_widget_properties(&self) -> &crate::game_data::screen::widget::widget_properties::WidgetProperties {
+        self.panel.get_widget_properties()
     }
 
-    fn get_scale(&self) -> [f32; 2] {
-        self.panel.get_scale()
-    }
-
-    fn get_preffered_scale(&self) -> [f32; 2] {
-        self.panel.get_preffered_scale()
+    fn get_mut_widget_properties(&mut self) -> &mut crate::game_data::screen::widget::widget_properties::WidgetProperties {
+        self.panel.get_mut_widget_properties()
     }
 
     fn set_buffers(&mut self, pos: [f32; 4]) {
@@ -185,8 +181,7 @@ impl Widget for InvintoryDisplayPropWidget {
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
-        bounds: Option<[f32; 4]>,
     ) {
-        self.panel.render(texture_manager, screen_data, game_event_manager, bounds);
+        self.panel.render(texture_manager, screen_data, game_event_manager);
     }
 }

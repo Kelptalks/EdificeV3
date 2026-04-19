@@ -1,4 +1,3 @@
-pub mod widget_properties;
 
 pub mod screen_mananager;
 pub mod screen_task_manager;

@@ -1,23 +1,15 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::widget_event_manager::widget_event_manager::WidgetEvent, screen::{text::render_string_at_ndc, widget::{button::button::Button, panel::panel::Panel, widget::{Widget, WidgetType}, widget_calculations}}};
+use crate::game_data::{game_event_manager::widget_event_manager::widget_event_manager::WidgetEvent, screen::{text::render_string_at_ndc, widget::{button::button::Button, panel::panel::Panel, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}};
 
 pub struct TabPanel {
-    // Parent 
-    prefered_scale: [f32; 2],
-    parent_pos: [f32; 4],
-    external_buffers: [f32; 4],
+    widget_properties: WidgetProperties,
 
-    // Self
-    internal_buffers: [f32; 4],
-    pos: [f32; 4],
-    scale: [f32; 2],
-
-    // Sub Panel Managment
+    // Sub Panel Management
     current_panel_index: Rc<RefCell<usize>>,
     button_panel: Panel,
     sub_panels: Vec<WidgetType>,
-    
+
     show_button_panel: bool,
 }
 
@@ -27,21 +19,16 @@ impl TabPanel {
     pub fn new(current_panel_index_ref: &Rc<RefCell<usize>>) -> TabPanel {
         let mut button_panel = Panel::new([0.0; 4], [0.0; 4]);
         button_panel.set_orientation(
-            crate::game_data::screen::widget::panel::panel::PanelOrientation::Horizontal, 
+            crate::game_data::screen::widget::panel::panel::PanelOrientation::Horizontal,
             crate::game_data::screen::widget::panel::panel::PanelAlignment::Center
         );
+
+        let mut wp = WidgetProperties::new_blank();
+        wp.internal_buffers = [0.0; 4];
+
         TabPanel {
-            // Parent
-            prefered_scale: [0.0; 2],
-            parent_pos: [0.0; 4],
-            external_buffers: [0.0; 4],
+            widget_properties: wp,
 
-            // Self
-            pos: [0.0; 4],
-            internal_buffers: [0.0; 4],
-            scale: [0.0; 2],
-
-            // Sub Panel Management
             current_panel_index: current_panel_index_ref.clone(),
             button_panel: button_panel,
             sub_panels: Vec::new(),
@@ -54,16 +41,14 @@ impl TabPanel {
         WidgetType::TabPanel(self)
     }
 
-    pub fn add_panel(&mut self, panel: WidgetType) -> &mut Button { 
+    pub fn add_panel(&mut self, panel: WidgetType) -> &mut Button {
         self.sub_panels.push(panel);
-        let button =  self.button_panel.add_button();
-        
-        // Add Index modifyer event to button
+        let button = self.button_panel.add_button();
+
         button.add_left_click_event(
             WidgetEvent::SetUsizeEvent(self.current_panel_index.clone(), self.sub_panels.len() - 1).wrap_into_event());
 
         return button;
-
     }
 
     pub fn set_button_panel_visiblity(&mut self, visible: bool) {
@@ -77,7 +62,7 @@ impl TabPanel {
     // =================================================
     // Sizing
     // =================================================
- 
+
     fn largest_sub_panel_prefered_scale(&self) -> [f32; 2] {
         let mut largest = [0.0f32; 2];
         for sub_panel in &self.sub_panels {
@@ -87,59 +72,59 @@ impl TabPanel {
         }
         largest
     }
- 
+
     fn size_sub_panels(&mut self, top_offset: f32) {
         let largest_width = self.largest_sub_panel_prefered_scale()[0];
-        let mut sub_panel_buffer = self.internal_buffers;
+        let internal_buffers = self.widget_properties.internal_buffers;
+        let mut sub_panel_buffer = internal_buffers;
         sub_panel_buffer[1] += top_offset;
+
+        let pos = self.widget_properties.pos;
 
         for sub_panel in &mut self.sub_panels {
             let current_width = sub_panel.get_preffered_scale()[0];
             let x_center_offset = ((largest_width - current_width) / 2.0).max(0.0);
 
             let mut individual_buffer = sub_panel_buffer;
-            individual_buffer[0] += x_center_offset; // left
-            individual_buffer[2] += x_center_offset; // right
+            individual_buffer[0] += x_center_offset;
+            individual_buffer[2] += x_center_offset;
 
-            sub_panel.set_parent_pos(self.pos);
+            sub_panel.set_parent_pos(pos);
             sub_panel.set_buffers(individual_buffer);
             sub_panel.size();
         }
     }
- 
-    /// Sizing when the button panel is visible.
-    /// Layout (top → bottom): [button row] [sub panel]
+
     fn size_with_buttons(&mut self) {
         let btn_preferred = self.button_panel.get_preffered_scale();
         let sub_preferred = self.largest_sub_panel_prefered_scale();
- 
-        self.prefered_scale = [
+
+        self.widget_properties.prefered_scale = [
             sub_preferred[0].max(btn_preferred[0]),
             btn_preferred[1] + sub_preferred[1],
         ];
- 
-        // Button panel is pinned to the top; push its bottom buffer so it
-        // occupies only its preferred height.
+
+        let internal_buffers = self.widget_properties.internal_buffers;
+        let pos = self.widget_properties.pos;
+        let scale = self.widget_properties.scale;
+
         let button_buffer = [
-            self.internal_buffers[0],
-            self.internal_buffers[1],
-            self.internal_buffers[2],
-            self.internal_buffers[3] + (self.scale[1] - btn_preferred[1]),
+            internal_buffers[0],
+            internal_buffers[1],
+            internal_buffers[2],
+            internal_buffers[3] + (scale[1] - btn_preferred[1]),
         ];
-        self.button_panel.set_parent_pos(self.pos);
+        self.button_panel.set_parent_pos(pos);
         self.button_panel.set_buffers(button_buffer);
         self.button_panel.size();
- 
-        // Sub panels start below the button row.
+
         self.size_sub_panels(self.button_panel.get_scale()[1]);
     }
- 
-    /// Sizing when the button panel is hidden.
-    /// Sub panels fill the entire TabPanel area.
+
     fn size_without_buttons(&mut self) {
         let sub_preferred = self.largest_sub_panel_prefered_scale();
-        self.prefered_scale = sub_preferred;
- 
+        self.widget_properties.prefered_scale = sub_preferred;
+
         self.size_sub_panels(0.0);
     }
 
@@ -147,30 +132,25 @@ impl TabPanel {
 
 
 impl Widget for TabPanel {
-    fn get_pos(&self) -> [f32; 4] {
-        self.pos
+    fn get_widget_properties(&self) -> &WidgetProperties {
+        &self.widget_properties
     }
 
-    fn get_scale(&self) -> [f32; 2] {
-        self.scale
-    }
-
-    fn get_preffered_scale(&self) -> [f32; 2] {
-        return self.prefered_scale;
+    fn get_mut_widget_properties(&mut self) -> &mut WidgetProperties {
+        &mut self.widget_properties
     }
 
     fn set_buffers(&mut self, buffers: [f32; 4]) {
-        self.external_buffers = buffers;
+        self.widget_properties.external_buffers = buffers;
     }
 
     fn set_parent_pos(&mut self, pos: [f32; 4]) {
-        self.parent_pos = pos;
+        self.widget_properties.parent_pos = pos;
     }
 
     fn size(&mut self) {
-        self.pos = widget_calculations::buffer_pos(self.parent_pos, self.external_buffers);
-        self.scale = widget_calculations::pos_to_scale(self.pos);
- 
+        self.widget_properties.scale_based_off_parent();
+
         if self.show_button_panel {
             self.size_with_buttons();
         } else {
@@ -179,31 +159,30 @@ impl Widget for TabPanel {
     }
 
     fn render(
-        &mut self, 
-        texture_manager: &mut crate::game_data::TextureManager, 
-        screen_data: &crate::game_data::screen::ScreenData, 
+        &mut self,
+        texture_manager: &mut crate::game_data::TextureManager,
+        screen_data: &crate::game_data::screen::ScreenData,
         game_event_manager: &mut crate::game_data::game_event_manager::event_manager::EventManager,
-        bounds: Option<[f32; 4]>,
     ) {
-        
+        let bounds = self.widget_properties.bounds;
+
         let current_index = *self.current_panel_index.borrow();
         if current_index >= self.sub_panels.len() {
             render_string_at_ndc(
-                texture_manager, 
-                "ERROR TAB PANEL USIZE OUT OF RANGE OF SUBPANELS".to_string(), 
+                texture_manager,
+                "ERROR TAB PANEL USIZE OUT OF RANGE OF SUBPANELS".to_string(),
                 crate::game_data::types::FontType::Basic,
-                widget_calculations::get_button_text_scale(), 
-                [self.pos[0], self.pos[1]], 
+                widget_calculations::get_button_text_scale(),
+                [self.widget_properties.pos[0], self.widget_properties.pos[1]],
             );
             return;
         }
         if self.sub_panels.len() > 0 {
-            self.sub_panels[current_index].render(texture_manager, screen_data, game_event_manager, bounds);
+            self.sub_panels[current_index].get_mut_widget_properties().bounds = bounds;
+            self.sub_panels[current_index].render(texture_manager, screen_data, game_event_manager);
         }
 
-
-        
-        self.button_panel.render(texture_manager, screen_data, game_event_manager, bounds);
-        // texture_manager.render_ui_element_with_pos(UITextures::ScallingIconMidCenter, self.pos);
+        self.button_panel.get_mut_widget_properties().bounds = bounds;
+        self.button_panel.render(texture_manager, screen_data, game_event_manager);
     }
 }

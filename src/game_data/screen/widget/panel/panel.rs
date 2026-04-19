@@ -1,7 +1,7 @@
 
 use image::flat;
 
-use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::EventManager, prelude::Event}, screen::{ScreenData, screen_data, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::scroll_panel::ScrollPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations}}};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::EventManager, prelude::Event}, screen::{ScreenData, screen_data, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::scroll_panel::ScrollPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}};
 
 
 #[derive(Clone, Copy)]
@@ -28,23 +28,14 @@ impl PanelOrientation {
 }
 
 pub struct Panel {
-    // Parent rendering
-    parent_pos: [f32; 4],
-    parent_scale: [f32; 2],
-    prefered_scale: [f32; 2],
-
-    // Self Rendering
-    external_buffers: [f32; 4],  
-    internal_buffers: [f32; 4],
-    pos: [f32; 4],
-    scale: [f32; 2],
+    widget_properties: WidgetProperties,
 
     panel_texture: PanelTextureManager,
-    
+
     // Sections
     sections: Vec<PanelSection>,
 
-    // Aprearence
+    // Appearance
     orientation: PanelOrientation,
     alignment: PanelAlignment,
     new_background: Option<PanelBackground>,
@@ -61,34 +52,26 @@ impl Panel {
     //=====================================
 
     pub fn new(parent_pos: [f32; 4], buffers: [f32; 4]) -> Panel {
-        let panel = Panel {
-            // Parent Rendering
-            parent_pos: parent_pos,
-            parent_scale: [0.0; 2],
-            prefered_scale: [widget_calculations::get_button_scale(); 2],
+        let mut wp = WidgetProperties::new_blank();
+        wp.parent_pos = parent_pos;
+        wp.external_buffers = buffers;
+        wp.internal_buffers = [widget_calculations::get_panel_spacing_scale(); 4];
+        wp.prefered_scale = [widget_calculations::get_button_scale(); 2];
 
-            // Self Rendering
-            external_buffers: buffers, 
-            internal_buffers: [widget_calculations::get_panel_spacing_scale(); 4],   
-            pos: [0.0; 4],
-            scale: [0.0; 2],
-            
+        Panel {
+            widget_properties: wp,
+
             panel_texture: PanelTextureManager::new(),
-            
-            // Sections
+
             sections: Vec::new(),
-            
-            // Aprearence
+
             orientation: PanelOrientation::Horizontal,
             alignment: PanelAlignment::Center,
             new_background: None,
 
-            // Control
             events: Vec::new(),
             mouse_on: false,
-        };
-
-        return panel;
+        }
     }
 
     pub fn new_blank() -> Panel {
@@ -100,7 +83,7 @@ impl Panel {
     }
 
     //=====================================
-    // Apearence
+    // Appearance
     //=====================================
 
     pub fn set_orientation(&mut self, orientaiton: PanelOrientation, alignment: PanelAlignment) {
@@ -115,7 +98,7 @@ impl Panel {
     pub fn set_color(&mut self, color: PanelColor) {
         self.panel_texture.set_color(color);
     }
-    
+
     pub fn set_new_background(&mut self, background_type: BackgroundType) {
         self.new_background = Some(PanelBackground::new(background_type))
     }
@@ -125,21 +108,21 @@ impl Panel {
     //=====================================
 
     pub fn size(&mut self) {
-        self.parent_scale = widget_calculations::pos_to_scale(self.parent_pos);
-        self.pos = widget_calculations::buffer_pos(self.parent_pos, self.external_buffers);
-        self.scale = widget_calculations::pos_to_scale(self.pos);
+        self.widget_properties.scale_based_off_parent();
+
+        let pos   = self.widget_properties.pos;
+        let scale = self.widget_properties.scale;
+        let internal_buffers = self.widget_properties.internal_buffers;
 
         let indexing_mods = self.orientation.get_index_mods();
         let [stretch, cross, _stretch_end, cross_end] = indexing_mods;
 
-        // First pass: size sections to get preferred scales
         let mut stretch_space_used = 0.0;
         for section in &mut self.sections {
-            let used = section.size(self.pos, stretch_space_used, self.internal_buffers);
+            let used = section.size(pos, stretch_space_used, internal_buffers);
             stretch_space_used += used;
         }
 
-        // Compute preferred scale from content
         let mut cross_prefered_scale: f32 = 0.0;
         let mut stretch_prefered_scale: f32 = 0.0;
 
@@ -148,27 +131,26 @@ impl Panel {
             stretch_prefered_scale += section.get_section_scale()[stretch];
 
             let widget_cross = widget_prefered[cross]
-                + self.internal_buffers[cross]
-                + self.internal_buffers[cross_end];
+                + internal_buffers[cross]
+                + internal_buffers[cross_end];
 
             cross_prefered_scale = cross_prefered_scale.max(widget_cross);
         }
 
-        self.prefered_scale[stretch] = stretch_prefered_scale;
-        self.prefered_scale[cross] = cross_prefered_scale;
+        self.widget_properties.prefered_scale[stretch] = stretch_prefered_scale;
+        self.widget_properties.prefered_scale[cross] = cross_prefered_scale;
 
-        // Second pass: apply cross-axis alignment per section
-        let available_cross = self.scale[cross];
+        let available_cross = scale[cross];
 
         for section in &mut self.sections {
             let widget_prefered = section.get_mut_widget().get_preffered_scale();
             let needed_cross = widget_prefered[cross]
-                + self.internal_buffers[cross]
-                + self.internal_buffers[cross_end];
+                + internal_buffers[cross]
+                + internal_buffers[cross_end];
 
             let extra = (available_cross - needed_cross).max(0.0);
 
-            let mut buffers = self.internal_buffers;
+            let mut buffers = internal_buffers;
             match self.alignment {
                 PanelAlignment::TopLeft => {
                     buffers[cross_end] += extra;
@@ -188,7 +170,7 @@ impl Panel {
             section.get_mut_widget().size();
         }
 
-        self.panel_texture.size(self.pos, self.scale);
+        self.panel_texture.size(pos, scale);
     }
 
     pub fn add_widget(&mut self, widget: WidgetType) {
@@ -196,20 +178,17 @@ impl Panel {
         self.sections.push(section);
     }
 
-
-
     //=====================================
     // Panel Constructors
     //=====================================
 
     pub fn add_sub_panel(&mut self) -> &mut Panel {
-        let panel = Self::new(self.pos, [0.0; 4]);
+        let panel = Self::new(self.widget_properties.pos, [0.0; 4]);
         self.add_widget(WidgetType::Panel(panel));
- 
+
         if let WidgetType::Panel(panel) = self.sections.last_mut().unwrap().get_mut_widget() {
             return panel;
-        }
-        else {
+        } else {
             panic!("Sub Panel was just inserted but could not be retrieved in Panel");
         }
     }
@@ -217,13 +196,11 @@ impl Panel {
     pub fn add_scroll_panel(&mut self) -> &mut ScrollPanel {
         let scroll_panel = ScrollPanel::new();
         self.add_widget(WidgetType::ScrollPanel(scroll_panel));
- 
+
         if let WidgetType::ScrollPanel(scroll_panel) = self.sections.last_mut().unwrap().get_mut_widget() {
             return scroll_panel;
-        }
-        else {
-            panic!("Scroll
-             Panel was just inserted but could not be retrieved in Panel");
+        } else {
+            panic!("Scroll Panel was just inserted but could not be retrieved in Panel");
         }
     }
 
@@ -231,14 +208,13 @@ impl Panel {
     // Button Constructors
     //=====================================
 
-    pub fn add_button(&mut self) -> &mut Button { 
+    pub fn add_button(&mut self) -> &mut Button {
         let button = Button::new();
         self.add_widget(WidgetType::Button(button));
 
         if let WidgetType::Button(button) = self.sections.last_mut().unwrap().get_mut_widget() {
             return button;
-        }
-        else {
+        } else {
             panic!("Button was just inserted but could not be retrieved in Panel");
         }
     }
@@ -249,8 +225,7 @@ impl Panel {
 
         if let WidgetType::BarButton(bar_button) = self.sections.last_mut().unwrap().get_mut_widget() {
             return bar_button;
-        }
-        else {
+        } else {
             panic!("BarButton was just inserted but could not be retrieved in Panel");
         }
     }
@@ -261,8 +236,7 @@ impl Panel {
 
         if let WidgetType::ToggleButton(toggle_button) = self.sections.last_mut().unwrap().get_mut_widget() {
             return toggle_button;
-        }
-        else {
+        } else {
             panic!("BarButton was just inserted but could not be retrieved in Panel");
         }
     }
@@ -277,8 +251,7 @@ impl Panel {
 
         if let WidgetType::TextDisplay(header) = self.sections.last_mut().unwrap().get_mut_widget() {
             return header;
-        }
-        else {
+        } else {
             panic!("Header was just inserted but could not be retrieved in Panel");
         }
     }
@@ -287,7 +260,7 @@ impl Panel {
     // Input
     //=====================================
 
-    pub fn add_event (&mut self, event: Event) {
+    pub fn add_event(&mut self, event: Event) {
         self.events.push(event);
     }
 
@@ -300,54 +273,42 @@ impl Panel {
     }
 
     fn handle_inputs(&mut self, screen_data: &ScreenData, game_event_manager: &mut EventManager) {
-        if screen_data.mouse_on_ndc_pos(self.pos) {
+        if screen_data.mouse_on_ndc_pos(self.widget_properties.pos) {
             game_event_manager.add_events(&self.events);
             self.mouse_on = true;
-        }
-        else {
+        } else {
             self.mouse_on = false;
         }
     }
 
-    pub fn get_sub_panels_mouse_on(&mut self) -> Option<&mut WidgetType> {
+    pub fn get_sub_widget_mouse_on(&mut self, screen_data: &ScreenData) -> Option<&mut WidgetType> {
         for section in &mut self.sections {
             let widget_type = section.get_mut_widget();
-            
-            println!("SSSS");
-            if let WidgetType::Panel(panel) = widget_type {
-                
-                if panel.is_mouse_on() {
-                    println!("OOSPOSPDOPS");
-                    return Some(widget_type);
-                }
+            if widget_type.mouse_on(screen_data) {
+                return Some(widget_type);
             }
         }
         return None;
-
     }
-    
+
 }
 
 
 impl Widget for Panel {
-    // Getters
-    fn get_pos(&self) -> [f32; 4] {
-        return self.pos;
-    }
-    fn get_scale(&self) -> [f32; 2] {
-        return self.scale;
+    fn get_widget_properties(&self) -> &WidgetProperties {
+        &self.widget_properties
     }
 
-    fn get_preffered_scale(&self) -> [f32; 2] {
-        return self.prefered_scale;
+    fn get_mut_widget_properties(&mut self) -> &mut WidgetProperties {
+        &mut self.widget_properties
     }
 
     fn set_buffers(&mut self, buffers: [f32; 4]) {
-        self.external_buffers = buffers;
+        self.widget_properties.external_buffers = buffers;
     }
 
     fn set_parent_pos(&mut self, pos: [f32; 4]) {
-        self.parent_pos = pos;
+        self.widget_properties.parent_pos = pos;
     }
 
     fn size(&mut self) {
@@ -355,23 +316,24 @@ impl Widget for Panel {
     }
 
     fn render(
-        &mut self, 
-        texture_manager: &mut TextureManager, 
-        screen_data: &ScreenData, 
+        &mut self,
+        texture_manager: &mut TextureManager,
+        screen_data: &ScreenData,
         game_event_manager: &mut EventManager,
-        bounds: Option<[f32; 4]>
-    ) {        
+    ) {
+        let bounds = self.widget_properties.bounds;
+
         if let Some(background) = &mut self.new_background {
-            background.render_background(texture_manager, self.pos, bounds);
-        } 
-        
-        // Render the panel
+            background.render_background(texture_manager, self.widget_properties.pos, bounds);
+        }
+
         self.panel_texture.render(texture_manager, bounds);
 
-        // Render all the widgets
         for section in &mut self.sections {
-            section.get_mut_widget().render(texture_manager, screen_data, game_event_manager, bounds);
+            let widget = section.get_mut_widget();
+            widget.get_mut_widget_properties().bounds = bounds;
+            widget.render(texture_manager, screen_data, game_event_manager);
         }
         self.handle_inputs(screen_data, game_event_manager);
-    }    
+    }
 }
