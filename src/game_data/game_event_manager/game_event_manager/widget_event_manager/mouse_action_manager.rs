@@ -1,13 +1,13 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::var_type::{VarType}, screen::widget::widget_calculations};
+use crate::game_data::{player_data::drone_script::var::{var::VarRef, var_type::VarType}, screen::widget::widget_calculations};
 
 
 
 pub struct MouseWidgetData {
     mouse_data_rendering_scale: [f32; 2],
     
-    var_held: Option<Rc<RefCell<VarType>>>,
+    var_held: Option<VarRef>,
 }
 
 impl MouseWidgetData {
@@ -23,11 +23,11 @@ impl MouseWidgetData {
     // Var Setters / Getters
     //=====================================
 
-    pub fn set_var_held(&mut self, var: Option<Rc<RefCell<VarType>>>) {
+    pub fn set_var_held(&mut self, var: Option<VarRef>) {
         self.var_held = var;
     }
 
-    pub fn get_var_held(&mut self) -> &Option<Rc<RefCell<VarType>>> {
+    pub fn get_var_held(&mut self) -> &Option<VarRef> {
         return &self.var_held;
     }
 
@@ -52,7 +52,12 @@ impl MouseWidgetData {
 
         if let Some(var) = self.var_held.clone() {
             texture_manager.render_texture(
-                var.borrow().get_texture(), 
+                var.get_kind_texture(), 
+                screen_data.get_mouse_centered_texture_rendering_pos(self.mouse_data_rendering_scale)
+            );
+
+            texture_manager.render_texture(
+                var.get_texture(), 
                 screen_data.get_mouse_centered_texture_rendering_pos(self.mouse_data_rendering_scale)
             );
         }

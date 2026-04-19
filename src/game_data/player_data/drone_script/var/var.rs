@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::var_type::{VarType, VarKind}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::GameVarTypeKind, var_type::{VarKind, VarType}}, texture_manager::texture::Texture};
 
 
 
@@ -91,6 +91,11 @@ impl Var {
         }
     } 
 
+    pub fn set_with_var_ref(&mut self, var_ref: &VarRef) {
+        self.name = var_ref.get_name();
+        *self.var_type_ref.borrow_mut() = var_ref.get_var_type_ref().borrow().clone()
+    }
+
     pub fn clear(&mut self) {
         *self.var_type_ref.borrow_mut() = VarType::Null();
     }
@@ -152,7 +157,7 @@ impl VarRef {
 
     pub fn get_name(&self) -> String {
         if let Some(var_type_ref) = &self.var_type_ref {
-            var_type_ref.borrow().get_name()
+            self.name.to_string()
         }
         else {
             "No Ref".to_string()
@@ -177,7 +182,7 @@ impl VarRef {
             var_type_ref.borrow().get_texture()
         }
         else {
-            Texture::BlockTexture(crate::game_data::types::BlockTexture::Air)
+            self.get_kind_texture()
         }
     }
 
@@ -188,6 +193,10 @@ impl VarRef {
         else {
             true
         }
+    }
+
+    pub fn get_kind(&self) -> VarKind {
+        return self.var_kind
     }
 
     //=====================================
@@ -201,6 +210,14 @@ impl VarRef {
     pub fn set_with_var(&mut self, var: &Var) {
         if var.get_kind() == self.var_kind {
             self.var_type_ref = Some(var.get_var_type_ref().clone());
+            self.set_name(var.get_name())
+        }
+    }
+
+    pub fn set_with_var_ref(&mut self, var: &VarRef) {
+        if var.get_kind() == self.var_kind {
+            self.var_type_ref = Some(var.get_var_type_ref().clone());
+            self.var_kind = var.get_kind();
             self.set_name(var.get_name())
         }
     }

@@ -127,7 +127,8 @@ impl Widget for ScriptingPanel {
             if screen_data.was_left_released() {
                 let var_held_by_mouse = game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().get_var_held();
                 if let Some(var) = var_held_by_mouse {
-                    let borrow = var.borrow();
+                    let var_type_ref = var.get_var_type_ref();
+                    let borrow = var_type_ref.borrow();
                     if let VarType::ProgrammingVar(ProgrammingVar::ScriptingElement(element)) = &*borrow {
                         self.root_function.borrow_mut().add_script_element(0, element.clone());
                         self.scroll_panel.clear_widgets();

@@ -52,6 +52,13 @@ impl VarSlotType {
             VarSlotType::Ref(var_ref) => var_ref.is_null(),
         }
     }
+
+    pub fn into_var_ref(&mut self) -> VarRef {
+        match self {
+            VarSlotType::Source(var) => var.into_var_ref(),
+            VarSlotType::Ref(var_ref) => var_ref.clone(),
+        }
+    }
 }
 
 pub struct VarSlot {
@@ -151,18 +158,17 @@ impl VarSlot {
 
 
     // Set the variable of the slot if var released matches both type allowed and settings is allowed
-    fn try_and_set_var(&mut self, var_held_by_mouse: &Option<Rc<RefCell<VarType>>>) {
-        
+    fn try_and_set_var(&mut self, var_held_by_mouse: &Option<VarRef>) {
         
         if self.allow_setting {
             if let Some(var_held_by_mouse) = var_held_by_mouse {
                 match &mut self.var_slot_type {
                     VarSlotType::Source(var) => {
-                        let cloned_var_type = var_held_by_mouse.borrow().clone();
-                        var.set_value(cloned_var_type);        
+                        var.set_with_var_ref(var_held_by_mouse);        
                     },
                     VarSlotType::Ref(var_ref) => {
-                        var_ref.set_with_var_type_ref(var_held_by_mouse);
+                        var_ref.set_with_var_ref(var_held_by_mouse);
+                        
                     },
                 }
                 
@@ -172,9 +178,11 @@ impl VarSlot {
     }
 
     // Get the value of the slot ref if it allows
-    fn try_and_get_var(&mut self) -> Option<Rc<RefCell<VarType>>> {
+    fn try_and_get_var(&mut self) -> Option<VarRef> {
         if self.allow_dragging {
-            return Some(self.var_slot_type.get_var_type_ref().clone());
+            println!("getting var: {}", self.var_slot_type.into_var_ref().get_name());
+            
+            return Some(self.var_slot_type.into_var_ref());
         }
         else {
             return None;
