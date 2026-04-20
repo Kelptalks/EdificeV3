@@ -1,4 +1,4 @@
- 
+
 use miniquad::*;
 
 
@@ -11,6 +11,7 @@ const MAX_INDICES: usize = MAX_QUADS_PER_BATCH * 6;
 struct Vertex {
     pos: [f32; 2],
     uv: [f32; 2],
+    tint: [f32; 3],
 }
 
 #[repr(C)]
@@ -26,7 +27,7 @@ pub struct TextureRenderingManager {
     // Piplines
     opaque_pipeline: Pipeline,
     translucent_pipeline: Pipeline,
-    
+
     // Buffers
     vertex_buffer: BufferId,
     index_buffer: BufferId,
@@ -35,10 +36,10 @@ pub struct TextureRenderingManager {
     vertices: Vec<Vertex>,
     indices: Vec<u32>,
     current_texture: Option<TextureId>,
-    
+
     // Uniforms
     alpha: f32,
-    
+
 }
 
 impl TextureRenderingManager {
@@ -59,7 +60,7 @@ impl TextureRenderingManager {
         );
 
         let index_buffer = ctx.new_buffer(
-            BufferType::IndexBuffer, 
+            BufferType::IndexBuffer,
             BufferUsage::Stream,
             BufferSource::empty::<u32>(MAX_INDICES), // Reserve space for max indices
         );
@@ -69,7 +70,7 @@ impl TextureRenderingManager {
             opaque_shader: opaque_shader,
             translucent_shader: translucent_shader,
 
-            
+
             // Pipelines
             opaque_pipeline: opaque_pipeline,
             translucent_pipeline: translucent_pipeline,
@@ -105,28 +106,32 @@ impl TextureRenderingManager {
 //=============================
 
     fn create_opaque_shader(ctx: &mut GlContext) -> ShaderId {
-        // Create simple vertex shader
         let vertex_shader = r#"
             #version 100
             attribute vec2 position;
             attribute vec2 texcoord;
+            attribute vec3 a_tint;
             varying lowp vec2 uv;
-            
+            varying lowp vec3 tint;
+
             void main() {
                 gl_Position = vec4(position, 0, 1);
                 uv = texcoord;
+                tint = a_tint;
             }
         "#;
-
 
        let fragment_shader = r#"
             #version 100
             precision mediump float;
             varying lowp vec2 uv;
+            varying lowp vec3 tint;
             uniform sampler2D tex;
 
             void main() {
-                gl_FragColor = texture2D(tex, uv);  // No alpha multiply
+                vec4 color = texture2D(tex, uv);
+                color.rgb *= tint;
+                gl_FragColor = color;
             }
         "#;
 
@@ -146,16 +151,18 @@ impl TextureRenderingManager {
     }
 
     fn create_translucent_shader(ctx: &mut GlContext) -> ShaderId {
-        // Create simple vertex shader
         let vertex_shader = r#"
             #version 100
             attribute vec2 position;
             attribute vec2 texcoord;
+            attribute vec3 a_tint;
             varying lowp vec2 uv;
-            
+            varying lowp vec3 tint;
+
             void main() {
                 gl_Position = vec4(position, 0, 1);
                 uv = texcoord;
+                tint = a_tint;
             }
         "#;
 
@@ -163,13 +170,15 @@ impl TextureRenderingManager {
             #version 100
             precision mediump float;
             varying lowp vec2 uv;
+            varying lowp vec3 tint;
             uniform sampler2D tex;
             uniform lowp float u_alpha;
-            
+
             void main() {
-                vec4 color = texture2D(tex, uv);  // Sample texture
-                color.a *= u_alpha;               // Multiply alpha channel by uniform
-                gl_FragColor = color;             // Output final color
+                vec4 color = texture2D(tex, uv);
+                color.a *= u_alpha;
+                color.rgb *= tint;
+                gl_FragColor = color;
             }
         "#;
 
@@ -199,6 +208,7 @@ impl TextureRenderingManager {
             &[
                 VertexAttribute::new("position", VertexFormat::Float2),
                 VertexAttribute::new("texcoord", VertexFormat::Float2),
+                VertexAttribute::new("a_tint", VertexFormat::Float3),
             ],
             shader,
             PipelineParams {
@@ -219,14 +229,17 @@ impl TextureRenderingManager {
     }
 
     pub fn add_quad(&mut self, pos: [f32; 4], uv: [f32; 4]) {
+        self.add_quad_tinted(pos, uv, [1.0, 1.0, 1.0]);
+    }
+
+    pub fn add_quad_tinted(&mut self, pos: [f32; 4], uv: [f32; 4], tint: [f32; 3]) {
         let base_index = self.vertices.len() as u32;
 
-        // Clone the vertices when extending
         let new_vertices = vec![
-            Vertex { pos: [pos[0], -pos[1]], uv: [uv[0], uv[1]] },
-            Vertex { pos: [pos[2], -pos[1]], uv: [uv[2], uv[1]] },
-            Vertex { pos: [pos[2], -pos[3]], uv: [uv[2], uv[3]] },
-            Vertex { pos: [pos[0], -pos[3]], uv: [uv[0], uv[3]] },
+            Vertex { pos: [pos[0], -pos[1]], uv: [uv[0], uv[1]], tint },
+            Vertex { pos: [pos[2], -pos[1]], uv: [uv[2], uv[1]], tint },
+            Vertex { pos: [pos[2], -pos[3]], uv: [uv[2], uv[3]], tint },
+            Vertex { pos: [pos[0], -pos[3]], uv: [uv[0], uv[3]], tint },
         ];
 
         let new_indices = vec![
@@ -248,7 +261,7 @@ impl TextureRenderingManager {
         ctx.buffer_update(self.vertex_buffer, BufferSource::slice(&self.vertices));
         ctx.buffer_update(self.index_buffer, BufferSource::slice(&self.indices));
 
-        
+
         // reasoreses for the GPU
         let bindings = Bindings {
             vertex_buffers: vec![self.vertex_buffer],
@@ -275,4 +288,4 @@ impl TextureRenderingManager {
         self.indices.clear();
     }
 
-} 
+}

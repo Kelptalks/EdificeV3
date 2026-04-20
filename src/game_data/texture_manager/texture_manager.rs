@@ -92,6 +92,40 @@ impl TextureManager {
         self.cached_expander = cashed_expander;
     }
 
+    fn get_copped_pos_and_uv(uv: [f32; 4], draw_pos: [f32; 4], bounds_pos: [f32; 4]) -> Option<([f32; 4], [f32; 4])> {
+        let [dx1, dy1, dx2, dy2] = draw_pos;
+        let [bx1, by1, bx2, by2] = bounds_pos;
+
+        let cx1 = dx1.max(bx1);
+        let cy1 = dy1.max(by1);
+        let cx2 = dx2.min(bx2);
+        let cy2 = dy2.min(by2);
+
+        if cx1 >= cx2 || cy1 >= cy2 {return None}
+
+        let dw = dx2 - dx1;
+        let dh = dy2 - dy1;
+
+        let clip_l = (cx1 - dx1) / dw;
+        let clip_t = (cy1 - dy1) / dh;
+        let clip_r = (dx2 - cx2) / dw;
+        let clip_b = (dy2 - cy2) / dh;
+
+        let [u, v, u2, v2] = uv;
+        let uw = u2 - u;
+        let uh = v2 - v;
+
+        let pos: [f32; 4] = [cx1, cy1, cx2, cy2];
+        let cropped_uv: [f32; 4] = [
+            u  + clip_l * uw,
+            v  + clip_t * uh,
+            u2 - clip_r * uw,
+            v2 - clip_b * uh,
+        ];
+
+        Some((cropped_uv, pos))
+    }
+
     //=================================================
     // Texture Type Rendering
     //=================================================
@@ -115,65 +149,47 @@ impl TextureManager {
             Texture::UITexture(uitextures) => {
                 return texture_atlas.get_precalculated_ui_uv(uitextures)
             },
+            Texture::TintedUITexture(uitextures, _) => {
+                return texture_atlas.get_precalculated_ui_uv(uitextures)
+            },
         }
     }
     
     pub fn render_texture(&mut self, texture: Texture, pos: [f32; 4]) {
+        let uv = self.get_texture_uv(texture);
+        self.get_texture_renderer().add_quad(pos, uv);
+
         match texture {
-            Texture::BlockTexture(block_texture) => {
-                self.render_block_with_pos(block_texture, pos);
+            Texture::TintedUITexture(uitextures, tint) => {
+                self.get_texture_renderer().add_quad_tinted(pos, uv, tint);   
             },
-            Texture::BlockTriangle(block_texture, block_triangle) => {
-                self.render_block_triangle_with_pos(block_texture, block_triangle, pos);
-            },
-            Texture::BlockShader(block_shader) => {
-                todo!("Texture Enum rendering for block shader not implemented");
-            },
-            Texture::DroneItemTexture(drone_item_texture) => {
-                self.render_drone_item_with_pos(drone_item_texture, pos);
-            },
-            Texture::UITexture(ui_texture) => {
-                self.render_ui_element_with_pos(ui_texture, pos);
-            },
+            _ => {
+                self.get_texture_renderer().add_quad(pos, uv);                
+            }
         }
     }
 
+    pub fn render_tinted_texture(&mut self, texture: Texture, pos: [f32; 4], color: [f32; 3]) {
+        let uv = self.get_texture_uv(texture);
+        self.get_texture_renderer().add_quad_tinted(pos, uv, color);
+    }
+
+
+
     pub fn render_texture_within_pos(&mut self, texture: Texture, draw_pos: [f32; 4], bounds_pos: [f32; 4]) {
         let uv = self.get_texture_uv(texture);
-
-
-        let [dx1, dy1, dx2, dy2] = draw_pos;
-        let [bx1, by1, bx2, by2] = bounds_pos;
-
-        let cx1 = dx1.max(bx1);
-        let cy1 = dy1.max(by1);
-        let cx2 = dx2.min(bx2);
-        let cy2 = dy2.min(by2);
-
-        if cx1 >= cx2 || cy1 >= cy2 { return}
-
-        let dw = dx2 - dx1;
-        let dh = dy2 - dy1;
-
-        let clip_l = (cx1 - dx1) / dw;
-        let clip_t = (cy1 - dy1) / dh;
-        let clip_r = (dx2 - cx2) / dw;
-        let clip_b = (dy2 - cy2) / dh;
-
-        let [u, v, u2, v2] = uv;
-        let uw = u2 - u;
-        let uh = v2 - v;
-
-        let pos: [f32; 4] = [cx1, cy1, cx2, cy2];
-        let cropped_uv: [f32; 4] = [
-            u  + clip_l * uw,
-            v  + clip_t * uh,
-            u2 - clip_r * uw,
-            v2 - clip_b * uh,
-        ];
-
-        self.get_texture_renderer().add_quad(pos, cropped_uv);
+        if let Some((cropped_uv, pos)) = Self::get_copped_pos_and_uv(uv, draw_pos, bounds_pos) {
+            self.get_texture_renderer().add_quad(pos, cropped_uv);
+        }
     }
+
+    pub fn render_texture_within_pos_tinted(&mut self, texture: Texture, draw_pos: [f32; 4], bounds_pos: [f32; 4], tint: [f32; 3]) {
+        let uv = self.get_texture_uv(texture);
+        if let Some((cropped_uv, pos)) = Self::get_copped_pos_and_uv(uv, draw_pos, bounds_pos) {
+            self.get_texture_renderer().add_quad_tinted(pos, cropped_uv, tint);
+        }
+    }
+
 
     pub fn render_texture_within_pos_option(&mut self, texture: Texture, draw_pos: [f32; 4], bounds_pos: Option<[f32; 4]>) {
         if let Some(bounds) = bounds_pos {

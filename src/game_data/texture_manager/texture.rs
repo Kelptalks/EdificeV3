@@ -10,4 +10,7 @@ pub enum Texture {
     DroneItemTexture(DroneItemTexture),
     UITexture(UITextures),
 
+    TintedUITexture(UITextures, [f32; 3]),
+
 }
+

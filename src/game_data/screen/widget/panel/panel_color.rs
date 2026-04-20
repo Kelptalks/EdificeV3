@@ -4,61 +4,48 @@ use crate::game_data::{texture_manager::texture::Texture, types::UITextures};
 pub enum PanelColor {
     Light,
     Dark,
+    Custom(u8, u8, u8),
     Clear,
 }
 
 impl PanelColor {
-    pub fn get_panel_corner_textures(&self) -> [Texture; 4] {
+
+    fn rgb_to_float(r: u8, g: u8, b: u8) -> [f32; 3] {
+        [r as f32 / 255.0, g as f32 / 255.0, b as f32 / 255.0]
+    }
+
+    fn to_tint(&self) -> [f32; 3] {
         match self {
-            PanelColor::Light => [
-                UITextures::PanelTopLeftLight.wrap_into_texture(),   // top_left
-                UITextures::PanelTopRightLight.wrap_into_texture(),  // top_right
-                UITextures::PanelBotLeftLight.wrap_into_texture(),   // bot_left
-                UITextures::PanelBotRightLight.wrap_into_texture(),  // bot_right
-            ],
-            PanelColor::Dark => [
-                UITextures::PanelTopLeftDark.wrap_into_texture(),    // top_left
-                UITextures::PanelTopRightDark.wrap_into_texture(),   // top_right
-                UITextures::PanelBotLeftDark.wrap_into_texture(),    // bot_left
-                UITextures::PanelBotRightDark.wrap_into_texture(),   // bot_right
-            ],
-            PanelColor::Clear => [
-                UITextures::PanelTopLeftDark.wrap_into_texture(),    // top_left
-                UITextures::PanelTopRightDark.wrap_into_texture(),   // top_right
-                UITextures::PanelBotLeftDark.wrap_into_texture(),    // bot_left
-                UITextures::PanelBotRightDark.wrap_into_texture(),   // bot_right
-            ],
+            PanelColor::Light => Self::rgb_to_float(55, 113, 219),
+            PanelColor::Dark => Self::rgb_to_float(25, 71, 156),
+            PanelColor::Clear => Self::rgb_to_float(0, 0, 0),
+            PanelColor::Custom(r, g, b) => Self::rgb_to_float(*r, *g, *b)
         }
+    }
+    
+    pub fn get_panel_corner_textures(&self) -> [Texture; 4] {
+        let color= self.to_tint();
+        [
+            Texture::TintedUITexture(UITextures::PanelTopLeft, color),
+            Texture::TintedUITexture(UITextures::PanelTopRight, color),
+            Texture::TintedUITexture(UITextures::PanelBotLeft, color),
+            Texture::TintedUITexture(UITextures::PanelBotRight, color),
+        ]
     }
 
     pub fn get_panel_side_textures(&self) -> [Texture; 4] {
-        match self {
-            PanelColor::Light => [
-                UITextures::PanelTopCenterLight.wrap_into_texture(),  // top
-                UITextures::PanelBotCenterLight.wrap_into_texture(),  // bot
-                UITextures::PanelMidLeftLight.wrap_into_texture(),    // left
-                UITextures::PanelMidRightLight.wrap_into_texture(),   // right
-            ],
-            PanelColor::Dark => [
-                UITextures::PanelTopCenterDark.wrap_into_texture(),   // top
-                UITextures::PanelBotCenterDark.wrap_into_texture(),   // bot
-                UITextures::PanelMidLeftDark.wrap_into_texture(),     // left
-                UITextures::PanelMidRightDark.wrap_into_texture(),    // right
-            ],
-            PanelColor::Clear => [
-                UITextures::PanelTopCenterDark.wrap_into_texture(),   // top
-                UITextures::PanelBotCenterDark.wrap_into_texture(),   // bot
-                UITextures::PanelMidLeftDark.wrap_into_texture(),     // left
-                UITextures::PanelMidRightDark.wrap_into_texture(),    // right
-            ],
-        }
+        let color= self.to_tint();
+        [
+            Texture::TintedUITexture(UITextures::PanelTopCenter, color),  // top
+            Texture::TintedUITexture(UITextures::PanelBotCenter, color),  // bot
+            Texture::TintedUITexture(UITextures::PanelMidLeft, color),    // left
+            Texture::TintedUITexture(UITextures::PanelMidRight, color),   // right
+        ]
     }
 
     pub fn get_panel_center_texture(&self) -> Texture {
-        match self {
-            PanelColor::Light => UITextures::PanelMidCenterLight.wrap_into_texture(),
-            PanelColor::Dark  => UITextures::PanelMidCenterDark.wrap_into_texture(),
-            PanelColor::Clear  => UITextures::PanelMidCenterDark.wrap_into_texture(),
-        }
+        let color= self.to_tint();
+        Texture::TintedUITexture(UITextures::PanelMidCenter, color)
+        
     }
 }

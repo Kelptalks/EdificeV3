@@ -18,7 +18,6 @@ pub fn get_menu(screen_data: &ScreenData, world_config: &mut WorldConfig) -> Wid
         // Config panel
         let config_panel = panel.add_sub_panel();
         config_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-        config_panel.set_color(PanelColor::Dark);
         
             let text_display = config_panel.add_text_display("World Settings".to_string());
             text_display.set_text_scale(TextSize::Large);

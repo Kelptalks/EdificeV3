@@ -24,7 +24,8 @@ impl FunctionSlot {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
 
 
-        panel.add_text_display(function_borrow.get_name()).set_text_scale(TextSize::ExtraSmall);
+        panel.add_text_display(function_borrow.get_name()).set_text_scale(TextSize::Medium);
+
 
         let params = function_borrow.get_params();
         for param in params {

@@ -10,10 +10,10 @@ impl PanelColor {
     pub fn get_panel_corner_textures(&self) -> [UITextures; 4] {
         match self {
             PanelColor::Light => [
-                UITextures::PanelTopLeftLight,   // top_left
-                UITextures::PanelTopRightLight,  // top_right
-                UITextures::PanelBotLeftLight,   // bot_left
-                UITextures::PanelBotRightLight,  // bot_right
+                UITextures::PanelTopLeft,   // top_left
+                UITextures::PanelTopRight,  // top_right
+                UITextures::PanelBotLeft,   // bot_left
+                UITextures::PanelBotRight,  // bot_right
             ],
             PanelColor::Dark => [
                 UITextures::PanelTopLeftDark,    // top_left
@@ -27,10 +27,10 @@ impl PanelColor {
     pub fn get_panel_side_textures(&self) -> [UITextures; 4] {
         match self {
             PanelColor::Light => [
-                UITextures::PanelTopCenterLight,  // top
-                UITextures::PanelBotCenterLight,  // bot
-                UITextures::PanelMidLeftLight,    // left
-                UITextures::PanelMidRightLight,   // right
+                UITextures::PanelTopCenter,  // top
+                UITextures::PanelBotCenter,  // bot
+                UITextures::PanelMidLeft,    // left
+                UITextures::PanelMidRight,   // right
             ],
             PanelColor::Dark => [
                 UITextures::PanelTopCenterDark,   // top
@@ -43,7 +43,7 @@ impl PanelColor {
 
     pub fn get_panel_center_texture(&self) -> UITextures {
         match self {
-            PanelColor::Light => UITextures::PanelMidCenterLight,
+            PanelColor::Light => UITextures::PanelMidCenter,
             PanelColor::Dark  => UITextures::PanelMidCenterDark,
         }
     }

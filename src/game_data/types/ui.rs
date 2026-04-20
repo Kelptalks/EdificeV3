@@ -189,15 +189,15 @@ pub enum UITextures {
     MirrorBackground = 26,
 
     // Panels
-    PanelTopLeftLight = 27,
-    PanelTopCenterLight = 28,
-    PanelTopRightLight = 29,
-    PanelMidLeftLight = 30,
-    PanelMidCenterLight = 31,
-    PanelMidRightLight = 32,
-    PanelBotLeftLight = 33,
-    PanelBotCenterLight = 34,
-    PanelBotRightLight = 35,
+    PanelTopLeft = 27,
+    PanelTopCenter = 28,
+    PanelTopRight = 29,
+    PanelMidLeft = 30,
+    PanelMidCenter = 31,
+    PanelMidRight = 32,
+    PanelBotLeft = 33,
+    PanelBotCenter = 34,
+    PanelBotRight = 35,
 
     // Dark Panels
     PanelTopLeftDark = 36,
