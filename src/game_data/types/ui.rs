@@ -137,7 +137,20 @@ pub const UI_TEXTURES: &[UITextureData] = &[
     UITextureData { id: 71, name: "SourceIcon",       rect: self::get_icon_src_rect(17), pressed_variant: None },
     UITextureData { id: 72, name: "CordsIcon",        rect: self::get_icon_src_rect(18), pressed_variant: None },
     UITextureData { id: 73, name: "NumIcon",          rect: self::get_icon_src_rect(19), pressed_variant: None },
-    UITextureData { id: 74, name: "ConditionIcon",    rect: self::get_icon_src_rect(20), pressed_variant: None },
+    UITextureData { id: 74, name: "ConditionIcon",         rect: self::get_icon_src_rect(20), pressed_variant: None },
+    UITextureData { id: 75, name: "IfIcon",                rect: self::get_icon_src_rect(21), pressed_variant: None },
+    UITextureData { id: 76, name: "LoopIcon",              rect: self::get_icon_src_rect(22), pressed_variant: None },
+    UITextureData { id: 77, name: "DroneActionPlaceIcon",  rect: self::get_icon_src_rect(23), pressed_variant: None },
+    UITextureData { id: 78, name: "DroneActionPathIcon",   rect: self::get_icon_src_rect(24), pressed_variant: None },
+    UITextureData { id: 79, name: "DroneActionMineIcon",   rect: self::get_icon_src_rect(25), pressed_variant: None },
+    UITextureData { id: 80, name: "DroneActionEquipIcon",  rect: self::get_icon_src_rect(26), pressed_variant: None },
+    UITextureData { id: 81, name: "DroneActionBurnItemIcon", rect: self::get_icon_src_rect(27), pressed_variant: None },
+    UITextureData { id: 82, name: "DroneActionCraftIcon",  rect: self::get_icon_src_rect(28), pressed_variant: None },
+    UITextureData { id: 83, name: "DroneActionIsBusyIcon", rect: self::get_icon_src_rect(29), pressed_variant: None },
+    UITextureData { id: 84, name: "DroneActionCordsIcon",  rect: self::get_icon_src_rect(30), pressed_variant: None },
+    UITextureData { id: 85, name: "DroneActionFuelIcon",   rect: self::get_icon_src_rect(31), pressed_variant: None },
+    UITextureData { id: 86, name: "FuelIcon",              rect: self::get_icon_src_rect(32), pressed_variant: None },
+    UITextureData { id: 87, name: "DroneActionHealthIcon", rect: self::get_icon_src_rect(33), pressed_variant: None },
 
 ];
 
@@ -230,7 +243,20 @@ pub enum UITextures {
     SourceIcon = 71,
     CordsIcon = 72,
     NumVarIcon = 73,
-    ConditionIcon = 74,
+    ControlFlowIcon = 74,
+    IfIcon = 75,
+    LoopIcon = 76,
+    DroneActionPlaceIcon = 77,
+    DroneActionPathIcon = 78,
+    DroneActionMineIcon = 79,
+    DroneActionEquipIcon = 80,
+    DroneActionBurnItemIcon = 81,
+    DroneActionCraftIcon = 82,
+    DroneActionIsBusyIcon = 83,
+    DroneActionCordsIcon = 84,
+    DroneActionFuelIcon = 85,
+    FuelIcon = 86,
+    DroneActionHealthIcon = 87,
 }
 
 impl UITextures {

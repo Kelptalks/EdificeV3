@@ -13,9 +13,13 @@ pub struct ControlFlow {
 impl ControlFlow {
     pub fn new_blank() -> ControlFlow {
         ControlFlow {
-            condition: Condition::ConditionBool(VarRef::new_blank_with_kind(VarKind::Any)), 
+            condition: Condition::If(VarRef::new_blank_with_kind(VarKind::Any)), 
             body: Vec::new(),
         }
+    }
+
+    pub fn get_condition(&self) -> Condition{
+        self.condition.clone()
     }
 
     pub fn wrap_into_script_element(self) -> ScriptElement {

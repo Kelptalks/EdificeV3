@@ -6,8 +6,6 @@ pub struct ScriptingPanel {
     widget_properties: WidgetProperties,
     panel: Panel,
     scroll_panel: ScrollPanel,
-
-    root_function: Rc<RefCell<Function>>
 }
 
 impl ScriptingPanel {
@@ -17,18 +15,21 @@ impl ScriptingPanel {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
         panel.add_text_display("Scripting Panel".to_string());
 
-        let function = Function::new_blank();
-        let function_slot = FunctionSlot::new_with_function(&function);
 
-        panel.add_widget(function_slot.wrap_into_widget());
+        // Create function
+        let function = Function::new_blank();
+        let root_function = Rc::new(RefCell::new(function));
+        let function_slot = FunctionSlot::new_with_function(&root_function);
+
+        let mut scroll_panel = ScrollPanel::new();
+        scroll_panel.add_widget(function_slot.wrap_into_widget());
 
         let function = Function::new_blank();
 
         let mut scripting_panel = ScriptingPanel {
             widget_properties: WidgetProperties::new_blank(),
             panel: panel,
-            scroll_panel: ScrollPanel::new(),
-            root_function: Rc::new(RefCell::new(function))
+            scroll_panel: scroll_panel,
         };
 
         scripting_panel.widget_properties.prefered_scale = [0.5; 2];
@@ -118,32 +119,7 @@ impl Widget for ScriptingPanel {
         screen_data: &crate::game_data::screen::ScreenData,
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
     ) {
-        if screen_data.mouse_on_ndc_pos(self.get_pos()) {
-            if screen_data.was_left_released() {
-                let var_held_by_mouse = game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().get_var_held();
-                if let Some(var) = var_held_by_mouse {
-                    let var_type_ref = var.get_var_type_ref();
-                    let borrow = var_type_ref.borrow();
-                    if let VarType::ProgrammingVar(ProgrammingVar::ScriptingElement(element)) = &*borrow {
-                        self.root_function.borrow_mut().add_script_element(0, element.clone());
-                        
-                        self.scroll_panel.clear_widgets();
-                        
-                        self.scroll_panel.add_widget(FunctionSlot::new_with_function(&*self.root_function.borrow()).wrap_into_widget());
-                        
-                        println!("Adding script element: {}", element.get_name())
-                    }
-                }
-            }
-        }
-
-        let mouse_script_index = self.get_mouse_script_index();
-        if let Some(mouse_script_index) = mouse_script_index {
-            if screen_data.was_left_pressed() {
-            
-            }
-        }
-
+    
         self.size();
 
         self.panel.render(texture_manager, screen_data, game_event_manager);

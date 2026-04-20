@@ -1,4 +1,4 @@
-use std::{cell::{Ref, RefCell}, collections::HashMap, rc::Rc, usize};
+use std::{cell::{Ref, RefCell}, collections::HashMap, ops::Index, rc::Rc, usize};
 
 use crate::game_data::{
     player_data::{
@@ -65,14 +65,26 @@ impl Function {
     //=====================================
     // Body
     //=====================================
-
-    pub fn add_script_element(&mut self, index: usize, script_element: ScriptElement) {
-        self.script_elements.push(script_element);
-    }
     
     pub fn get_body(&self) -> &Vec<ScriptElement> {
         return &self.script_elements
     }
+
+    pub fn incert_element(&mut self, index: usize, element: ScriptElement) {
+        self.script_elements.insert(index, element);
+    }
+    
+    
+    pub fn remove_element(&mut self, index: usize) {
+        if index < self.script_elements.len() {
+            self.script_elements.remove(index);
+        }
+        else {
+            eprintln!("script element index out of range of function body")
+        }
+    }
+
+
 
     //=====================================
     // Return

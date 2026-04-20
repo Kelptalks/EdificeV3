@@ -10,3 +10,6 @@ pub mod function_call_slot;
 pub mod action_slot;
 
 pub mod control_flow_slot;
+
+pub mod scripting_widget_type;
+pub mod condition_slot;

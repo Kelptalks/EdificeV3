@@ -1,16 +1,25 @@
-use crate::game_data::{player_data::drone_script::action::{self, action::Action}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, widget::{Widget, WidgetType}, widget_calculations::TextSize, widget_properties::WidgetProperties}};
+use crate::game_data::{player_data::drone_script::action::{self, action::Action}, screen::widget::{drone_programming::scripting_widget_type::ScriptingElementWidget, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot}, widget::{Widget, WidgetType}, widget_calculations::TextSize, widget_properties::WidgetProperties}, texture_manager::texture::Texture};
 
 pub struct ActionSlot {
     panel: Panel,
+    line: usize,
 }
 
 
 impl ActionSlot {
-    pub fn new(action: &Action) -> ActionSlot {
+    pub fn new(action: &Action, line: usize) -> ActionSlot {
         let mut panel = Panel::new_blank();
 
-        panel.add_text_display(action.get_name());
+        // Identity panel
+        let identity_sub_panel = panel.add_sub_panel();
 
+        // Button for displaying identity
+        let button = identity_sub_panel.add_button();
+        button.add_texture(action.get_texture());
+        button.set_text(action.get_name());
+
+
+        // Params
         let param_refs = action.get_params_var_refs();
         if param_refs.len() != 0 {
             let param_sub_panel = panel.add_sub_panel();
@@ -24,8 +33,8 @@ impl ActionSlot {
             }
         }
 
+        // Return
         let return_var_kind_option = action.get_return_var();
-
         if let Some(return_var) = return_var_kind_option {
             let return_sub_panel = panel.add_sub_panel();
             return_sub_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
@@ -39,6 +48,7 @@ impl ActionSlot {
 
         ActionSlot {
             panel: panel,
+            line
         }
     }
 
@@ -75,6 +85,18 @@ impl Widget for ActionSlot {
         screen_data: &crate::game_data::screen::ScreenData,
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
     ) {
-        self.panel.render(texture_manager, screen_data, game_event_manager)
+        self.panel.render(texture_manager, screen_data, game_event_manager);
+        
+        // self.panel.set_color(PanelColor::Light);
+    }
+}
+
+impl ScriptingElementWidget for ActionSlot {
+    fn get_line_index(&self) -> usize {
+        self.line
+    }
+
+    fn set_highlighted(&mut self) {
+        self.panel.set_color(PanelColor::Dark);
     }
 }

@@ -1,9 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::game_data::{
-    World, 
-    game_event_manager::prelude::{EventManager, WorldEvent}, 
-    player_data::{drone_script::var::{game_vars::primitive_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}, var::{Var, VarRef}, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, prim_actions::drone_prim_actions::DronePrimAction}}}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod, types::BlockTexture};
+    World, game_event_manager::prelude::{EventManager, WorldEvent}, player_data::{drone_script::var::{game_vars::primitive_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}, var::{Var, VarRef}, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, prim_actions::drone_prim_actions::DronePrimAction}}}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod, texture_manager::texture::Texture, types::{BlockTexture, UITextures}};
 
 #[derive(Clone)]
 pub enum DroneWorldAction {
@@ -63,6 +61,14 @@ impl DroneWorldAction {
             DroneWorldAction::PlaceBlock(cords, block_texture) => {
                 format!("PlaceBlock")
             },
+        }
+    }
+
+    pub fn get_texture(&self) -> Texture {
+        match self {
+            DroneWorldAction::MoveDrone(_) => UITextures::DroneActionPathIcon.wrap_into_texture(),
+            DroneWorldAction::MineBlock(_) => UITextures::DroneActionMineIcon.wrap_into_texture(),
+            DroneWorldAction::PlaceBlock(_, _) => UITextures::DroneActionPlaceIcon.wrap_into_texture(),
         }
     }
 

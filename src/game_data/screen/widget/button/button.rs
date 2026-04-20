@@ -1,5 +1,5 @@
 
-use crate::game_data::{TextureManager, game_event_manager::{event_manager::EventManager, prelude::Event}, screen::{ScreenData, render_centered_string_at_ndc, widget::{widget::Widget, widget_calculations, widget_properties::WidgetProperties}}, types::{BlockTexture, FontType, UITextures}};
+use crate::game_data::{TextureManager, game_event_manager::{event_manager::EventManager, prelude::Event}, screen::{ScreenData, render_centered_string_at_ndc, widget::{widget::Widget, widget_calculations, widget_properties::WidgetProperties}}, texture_manager::texture::Texture, types::{BlockTexture, FontType, UITextures}};
 
 pub struct Button {
     widget_properties: WidgetProperties,
@@ -95,6 +95,12 @@ impl Button {
 
     pub fn set_icon(&mut self, icon: UITextures) {
         self.icon_type = Some(icon);
+    }
+
+    pub fn add_texture(&mut self, texture: Texture) {
+        if let Texture::UITexture(ui_texture) = texture {
+            self.set_icon(ui_texture);
+        }
     }
 
     pub fn set_text(&mut self, text: String) {

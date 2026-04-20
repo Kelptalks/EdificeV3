@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_script::var::{game_vars::dynamic_var::{DynamicVarType, DynamicVarTypeKind}, var::Var, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::{advanced_actions::path_planner::plan_path_to_cords, drone_actions::{DroneAction, DroneActionError}}}, locations::location::WorldLocation}};
+use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_script::var::{game_vars::dynamic_var::{DynamicVarType, DynamicVarTypeKind}, var::Var, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::{advanced_actions::path_planner::plan_path_to_cords, drone_actions::{DroneAction, DroneActionError}}}, locations::location::WorldLocation}, texture_manager::texture::Texture, types::UITextures};
 
 
 #[derive(Clone)]
@@ -50,6 +50,14 @@ impl DroneAdvancedAction {
         }
     }
 
+    pub fn get_texture(&self) -> Texture {
+        match self {
+            DroneAdvancedAction::PathToLocation(ref_cell) => {
+                UITextures::DroneActionPathIcon.wrap_into_texture()
+            },
+        }
+    }
+
     //=====================================
     // Execution
     //=====================================
@@ -72,4 +80,6 @@ impl DroneAdvancedAction {
             },
         }
     }
+    
+    
 }

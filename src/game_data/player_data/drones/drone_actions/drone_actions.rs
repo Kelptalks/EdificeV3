@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_script::var::{game_vars::action_var::{ActionVarType, ErrorCode}, var::Var, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::drone_prim_actions::DronePrimAction}}}};
+use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_script::var::{game_vars::action_var::{ActionVarType, ErrorCode}, var::Var, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::drone_prim_actions::DronePrimAction}}}, texture_manager::texture::Texture};
 
 
 
@@ -81,6 +81,20 @@ impl DroneAction {
             DroneAction::PrimAction(drone_prim_action) => drone_prim_action.get_name(),
             DroneAction::AdvancedAction(advanced_drone_action) => advanced_drone_action.get_name(),
             DroneAction::GetterAction(drone_getter_action) => drone_getter_action.get_name(),
+        }
+    }
+
+    pub fn get_texture(&self) -> Texture {
+        match self {
+            DroneAction::PrimAction(drone_prim_action) => {
+                drone_prim_action.get_texture()
+            },
+            DroneAction::AdvancedAction(drone_advanced_action) => {
+                drone_advanced_action.get_texture()
+            },
+            DroneAction::GetterAction(drone_getter_action) => {
+                drone_getter_action.get_texture()
+            },
         }
     }
 

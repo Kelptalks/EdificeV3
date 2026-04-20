@@ -1,4 +1,4 @@
-use crate::game_data::player_data::drone_script::{action::action_type::ActionType, script_element::ScriptElement, var::{prim_vars::prim_var_type::PrimitiveVarType, var::{Var, VarRef}, var_type::VarType}};
+use crate::game_data::{player_data::drone_script::{action::action_type::ActionType, script_element::ScriptElement, var::{prim_vars::prim_var_type::PrimitiveVarType, var::{Var, VarRef}, var_type::VarType}}, screen::ui_elements::text_bar::TextBar, texture_manager::texture::Texture};
 
 
 #[derive(Clone)]
@@ -50,4 +50,8 @@ impl Action {
     pub fn get_return_var(&self) -> &Option<Var> {
         &self.return_var
     }
+
+    pub fn get_texture(&self) -> Texture {
+        self.action_type.get_texture()
+    }   
 }

@@ -12,7 +12,9 @@
       "Bash(grep -r event_manager:: /c/Users/Spencer/EdificeV3/src --include=*.rs)",
       "Bash(grep -v \"^$\")",
       "Bash(wc -l \"C:\\\\Users\\\\Spencer\\\\EdificeV3/src\"/**/*.rs)",
-      "Bash(cargo build:*)"
+      "Bash(cargo build:*)",
+      "Bash(xargs grep *)",
+      "Bash(xargs ls *)"
     ]
   }
 }

@@ -3,11 +3,8 @@ use crate::game_data::{
     game_event_manager::game_event_manager::EventManager,
     screen::{ScreenData,
         widget::{
-            bar_button::bar_button::BarButtonWidget,
-            button::button::Button,
-            drone_programming::{
-                action_slot::ActionSlot, function_slot::FunctionSlot, scripting_elements::scripting_panel::ScriptingPanel, var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, world_rendering::play_world_view_render::PlayWorldViewRender,
-            widget_properties::WidgetProperties,
+            bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::{
+                action_slot::ActionSlot, condition_slot::ConditionSlot, control_flow_slot::ControlFlowSlot, function_slot::FunctionSlot, scripting_elements::scripting_panel::ScriptingPanel, scripting_widget_type::{ScriptingElementWidget, ScriptingWidget}, var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, widget_properties::WidgetProperties, world_rendering::play_world_view_render::PlayWorldViewRender
         }
     }, texture_manager::rect::Pos};
 
@@ -61,7 +58,8 @@ pub enum WidgetType {
     VarPropValWidget(VarPropVal),
     FunctionSlot(FunctionSlot),
     ActionSlot(ActionSlot),
-
+    ControlFlowSlot(ControlFlowSlot),
+    ConditionSlot(ConditionSlot),
 
     ScriptingPanel(ScriptingPanel),
 
@@ -73,9 +71,21 @@ impl WidgetType {
         return WidgetType::Panel(Panel::new(parent_pos, buffers));
     }
 
-    pub fn new_text_display(text: String) -> Self {
-        return WidgetType::TextDisplay(TextDisplay::new(text));
+
+    pub fn as_scripting_widge(&mut self) -> Option<ScriptingWidget> {
+        match self {
+            WidgetType::FunctionSlot(_) => Some(ScriptingWidget::FunctionSlot()),
+            WidgetType::ActionSlot(action_slot) => Some(ScriptingWidget::ActionSlot(action_slot)),
+            WidgetType::ControlFlowSlot(control_flow_slot) => Some(ScriptingWidget::ControlFlowSlot(control_flow_slot)),
+            WidgetType::ConditionSlot(condition_slot) => Some(ScriptingWidget::ConditionSlot(condition_slot)),
+            _ => {
+                None
+            }
+        }
     }
+
+
+    
 }
 
 macro_rules! widget_match {
@@ -103,7 +113,10 @@ macro_rules! widget_match {
             WidgetType::FunctionSlot(w)   => w.$method($($arg),*),
             WidgetType::VarPropValWidget(w)   => w.$method($($arg),*),
             WidgetType::ActionSlot(w)   => w.$method($($arg),*),
+            WidgetType::ControlFlowSlot(w)   => w.$method($($arg),*),
+            WidgetType::ConditionSlot(w)   => w.$method($($arg),*),
             WidgetType::ScriptingPanel(w)   => w.$method($($arg),*),
+            
         }
     };
 }

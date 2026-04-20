@@ -1,4 +1,4 @@
-use crate::game_data::player_data::{drone_script::var::{game_vars::primitive_var::PrimitiveGameVarTypeKind, prim_vars::prim_var_type::{PrimitiveVarType, PrimitiveVarKind}, var::Var, var_type::{VarType, VarKind}}, drones::{drone::Drone, drone_actions::drone_actions::{DroneAction, DroneActionError}}};
+use crate::game_data::{player_data::{drone_script::var::{game_vars::primitive_var::PrimitiveGameVarTypeKind, prim_vars::prim_var_type::{PrimitiveVarKind, PrimitiveVarType}, var::Var, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::drone_actions::{DroneAction, DroneActionError}}}, texture_manager::texture::Texture, types::UITextures};
 
 #[derive(Clone)]
 pub enum DroneGetterAction {
@@ -45,6 +45,23 @@ impl DroneGetterAction {
             DroneGetterAction::GetFuel => "GetFuel".to_string(),
             DroneGetterAction::GetHealth => "GetHealth".to_string(),
             DroneGetterAction::GetCords => "GetCords".to_string(),
+        }
+    }
+
+    pub fn get_texture(&self) -> Texture {
+        match self {
+            DroneGetterAction::IsBusy => {
+                UITextures::DroneActionIsBusyIcon.wrap_into_texture()
+            },
+            DroneGetterAction::GetFuel => {
+                UITextures::DroneActionFuelIcon.wrap_into_texture()
+            },
+            DroneGetterAction::GetHealth => {
+                UITextures::DroneActionHealthIcon.wrap_into_texture()
+            },
+            DroneGetterAction::GetCords => {
+                UITextures::CordsIcon.wrap_into_texture()
+            },
         }
     }
 

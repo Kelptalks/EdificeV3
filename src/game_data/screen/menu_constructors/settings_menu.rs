@@ -20,12 +20,6 @@ pub fn test_script_panel() -> WidgetType {
 
     let mut panel = Panel::new_blank();
 
-    let function = Function::new_blank();
-    let function_slot = FunctionSlot::new_with_function(&function);
-        
-    panel.add_widget(function_slot.wrap_into_widget());
-    
-
     return panel.wrap_into_widget()
 
 }

@@ -1,6 +1,6 @@
 use std::{cell::RefCell, fmt::format, rc::Rc};
 
-use crate::game_data::{player_data::{drone_script::var::{game_vars::primitive_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}, var::Var, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, prim_actions::drone_prim_actions::DronePrimAction}}}, types::drone_item::DroneItem};
+use crate::game_data::{player_data::{drone_script::var::{game_vars::primitive_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}, var::Var, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, prim_actions::drone_prim_actions::DronePrimAction}}}, texture_manager::texture::Texture, types::{UITextures, drone_item::DroneItem}};
 
 #[derive(Clone)]
 pub enum DroneInventoryAction {
@@ -59,6 +59,20 @@ impl DroneInventoryAction {
             },
             DroneInventoryAction::EquipTool(drone_item) => {
                 format!("EquipTool")
+            },
+        }
+    }
+
+    pub fn get_texture(&self) -> Texture {
+        match self {
+            DroneInventoryAction::CraftItem(_) => {
+                UITextures::DroneActionCraftIcon.wrap_into_texture()
+            },
+            DroneInventoryAction::UseItemForFuel(_, _) => {
+                UITextures::DroneActionBurnItemIcon.wrap_into_texture()
+            },
+            DroneInventoryAction::EquipTool(_) => {
+                UITextures::DroneActionEquipIcon.wrap_into_texture()
             },
         }
     }
