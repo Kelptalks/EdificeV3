@@ -2,8 +2,9 @@ use crate::game_data::{texture_manager::texture::Texture, types::UITextures};
 
 #[derive(Clone, PartialEq)]
 pub enum PanelColor {
-    Light,
-    Dark,
+    SuperLightBlue,
+    LightBlue,
+    DarkBlue,
     Custom(u8, u8, u8),
     Clear,
 }
@@ -16,8 +17,9 @@ impl PanelColor {
 
     fn to_tint(&self) -> [f32; 3] {
         match self {
-            PanelColor::Light => Self::rgb_to_float(55, 113, 219),
-            PanelColor::Dark => Self::rgb_to_float(25, 71, 156),
+            PanelColor::SuperLightBlue => Self::rgb_to_float(2, 245, 215),
+            PanelColor::LightBlue => Self::rgb_to_float(0, 213, 186),
+            PanelColor::DarkBlue => Self::rgb_to_float(1, 122, 107),
             PanelColor::Clear => Self::rgb_to_float(0, 0, 0),
             PanelColor::Custom(r, g, b) => Self::rgb_to_float(*r, *g, *b)
         }

@@ -35,8 +35,10 @@ impl Condition {
 
                 panel.add_text_display("If".to_string());
 
-                let var_slot = VarSlot::new_with_var_ref(var_ref.clone());
+                let mut var_slot = VarSlot::new_with_var_ref(var_ref.clone());
+                var_slot.set_dragging_properties(false, true, true);
                 panel.add_widget(var_slot.wrap_into_widget());
+
 
                 return panel.wrap_into_widget()   
             },

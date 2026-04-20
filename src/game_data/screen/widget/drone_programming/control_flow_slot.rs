@@ -58,7 +58,7 @@ impl Widget for ControlFlowSlot {
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
     ) {
         self.panel.render(texture_manager, screen_data, game_event_manager);
-        self.panel.set_color(PanelColor::Light);
+        self.panel.set_color(PanelColor::LightBlue);
     }
 }
 
@@ -68,6 +68,6 @@ impl ScriptingElementWidget for ControlFlowSlot {
     }
     
     fn set_highlighted(&mut self) {
-        self.panel.set_color(PanelColor::Dark);
+        self.panel.set_color(PanelColor::DarkBlue);
     }
 }

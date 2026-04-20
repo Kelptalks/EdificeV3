@@ -125,7 +125,7 @@ impl Widget for TextInput {
 
         if screen_data.mouse_on_ndc_pos(self.get_pos()) {
             if screen_data.get_input_manager().get_mouse_input_data().was_left_clicked() {
-                self.panel_texture.set_color(crate::game_data::screen::widget::panel::panel_color::PanelColor::Dark);
+                self.panel_texture.set_color(crate::game_data::screen::widget::panel::panel_color::PanelColor::DarkBlue);
                 *self.focused_bool_ref.borrow_mut() = true;
                 self.set_cursor_to_last_char();
             }
@@ -165,7 +165,7 @@ impl Widget for TextInput {
             let mut string = self.text_display.get_string_ref().borrow_mut();
             string.truncate(self.max_string_size);
         } else {
-            self.panel_texture.set_color(crate::game_data::screen::widget::panel::panel_color::PanelColor::Light);
+            self.panel_texture.set_color(crate::game_data::screen::widget::panel::panel_color::PanelColor::LightBlue);
         }
     }
 }

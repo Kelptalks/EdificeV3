@@ -186,7 +186,7 @@ impl Widget for FunctionSlot {
             self.panel.set_color(PanelColor::Custom(2, 255, 0));
         }
         else {
-            self.panel.set_color(PanelColor::Light);
+            self.panel.set_color(PanelColor::LightBlue);
         }
     }
 }

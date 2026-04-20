@@ -97,6 +97,6 @@ impl ScriptingElementWidget for ActionSlot {
     }
 
     fn set_highlighted(&mut self) {
-        self.panel.set_color(PanelColor::Dark);
+        self.panel.set_color(PanelColor::DarkBlue);
     }
 }

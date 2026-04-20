@@ -142,7 +142,8 @@ impl GameData {
         let init_start_time = SystemTime::now();
 
         log_indent();
-        self.screen_manager.init_screen(&mut self.event_manager, [1920.0, 1080.0], ctx);
+        let (w, h) = miniquad::window::screen_size();
+        self.screen_manager.init_screen(&mut self.event_manager, [w, h], ctx);
         log_unindent();
 
         // Get end time

@@ -17,7 +17,7 @@ impl PanelTextureManager {
     pub fn new() -> PanelTextureManager {
         PanelTextureManager {
             // Apearence
-            color: PanelColor::Light,
+            color: PanelColor::LightBlue,
             tile_ndc_scale: widget_calculations::get_panel_tile_scale(),
 
             // Rendering 

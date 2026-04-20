@@ -48,7 +48,7 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
 
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
-        panel.set_color(PanelColor::Dark);
+        panel.set_color(PanelColor::DarkBlue);
 
         // Cursor Location Ref
         let cursor_var_type = DynamicVarType::Location(Some(ref_manager.cursor_location.clone())).wrap_into_var_type();
@@ -114,7 +114,7 @@ fn get_drone_hotbar(ref_manager: &mut RefManager) -> WidgetType {
 
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
-        panel.set_color(PanelColor::Dark);
+        panel.set_color(PanelColor::DarkBlue);
         
         // Back To Main
         panel.add_widget(back_to_main_menu_button(ref_manager));
@@ -139,7 +139,7 @@ fn get_location_hotbar(ref_manager: &mut RefManager) -> WidgetType {
 
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
-        panel.set_color(PanelColor::Dark);
+        panel.set_color(PanelColor::DarkBlue);
         
         panel.add_widget(back_to_main_menu_button(ref_manager));
 
@@ -189,7 +189,7 @@ fn get_blue_print_hotbar(ref_manager: &mut RefManager) -> WidgetType {
 
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
-        panel.set_color(PanelColor::Dark);
+        panel.set_color(PanelColor::DarkBlue);
 
         // Back To Location
         let back_button = panel.add_button();

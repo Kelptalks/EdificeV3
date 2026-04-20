@@ -14,7 +14,7 @@ fn get_block_selection_panel() -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-        panel.set_color(PanelColor::Dark);
+        panel.set_color(PanelColor::DarkBlue);
 
         // Header
         let text_display = panel.add_text_display("Blocks".to_string());
@@ -57,7 +57,7 @@ fn get_item_selection_panel() -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-        panel.set_color(PanelColor::Dark);
+        panel.set_color(PanelColor::DarkBlue);
 
         // Header
         let text_display = panel.add_text_display("Items".to_string());

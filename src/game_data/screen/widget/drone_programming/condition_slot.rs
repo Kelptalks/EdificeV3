@@ -47,6 +47,6 @@ impl ScriptingElementWidget for ConditionSlot {
     }
 
     fn set_highlighted(&mut self) {
-        self.panel.set_color(PanelColor::Dark);
+        self.panel.set_color(PanelColor::DarkBlue);
     }
 }
