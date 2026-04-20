@@ -41,26 +41,6 @@ impl ScriptingPanel {
         return WidgetType::ScriptingPanel(self)
     }
 
-    //=====================================
-    // Script Editing
-    //=====================================
-
-    fn get_mouse_script_index(&mut self) -> Option<usize> {
-        let widgets = self.scroll_panel.get_mut_widgets();
-        let mut index = None;
-        for (i, widget) in widgets.iter_mut().enumerate() {
-            if let WidgetType::Panel(panel) = widget {
-                if panel.is_mouse_on() {
-                    panel.set_color(widget::prelude::PanelColor::Dark);
-                    index = Some(i);
-                } else {
-                    panel.set_color(widget::prelude::PanelColor::Light);
-                }
-            }
-        }
-        return index;
-    }
-
 }
 
 impl Widget for ScriptingPanel {

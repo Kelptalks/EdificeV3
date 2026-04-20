@@ -179,16 +179,17 @@ impl TextureManager {
     pub fn render_texture_within_pos(&mut self, texture: Texture, draw_pos: [f32; 4], bounds_pos: [f32; 4]) {
         let uv = self.get_texture_uv(texture);
         if let Some((cropped_uv, pos)) = Self::get_copped_pos_and_uv(uv, draw_pos, bounds_pos) {
-            self.get_texture_renderer().add_quad(pos, cropped_uv);
+            match texture {
+                
+                Texture::TintedUITexture(uitextures, tint) => self.get_texture_renderer().add_quad_tinted(pos, cropped_uv, tint),
+                _ => {
+                    self.get_texture_renderer().add_quad(pos, cropped_uv);
+                }
+            }
         }
     }
 
-    pub fn render_texture_within_pos_tinted(&mut self, texture: Texture, draw_pos: [f32; 4], bounds_pos: [f32; 4], tint: [f32; 3]) {
-        let uv = self.get_texture_uv(texture);
-        if let Some((cropped_uv, pos)) = Self::get_copped_pos_and_uv(uv, draw_pos, bounds_pos) {
-            self.get_texture_renderer().add_quad_tinted(pos, cropped_uv, tint);
-        }
-    }
+ 
 
 
     pub fn render_texture_within_pos_option(&mut self, texture: Texture, draw_pos: [f32; 4], bounds_pos: Option<[f32; 4]>) {

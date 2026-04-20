@@ -1,5 +1,5 @@
 
-use image::flat;
+use image::{error, flat};
 
 use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::EventManager, prelude::Event}, screen::{ScreenData, screen_data, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::scroll_panel::ScrollPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}};
 

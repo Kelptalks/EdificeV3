@@ -38,6 +38,7 @@ impl TextDisplay {
 
     pub fn set_text_scale(&mut self, size: TextSize) {
         self.prefered_char_scale = size.get_scale();
+        self.size();
     }
 
     pub fn set_text(&mut self, text: String) {

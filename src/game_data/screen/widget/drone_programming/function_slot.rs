@@ -20,13 +20,10 @@ impl FunctionSlot {
         let mut panel = Panel::new_blank();
         let function_borrow = function_ref.borrow();
 
-
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
-
-
         panel.add_text_display(function_borrow.get_name()).set_text_scale(TextSize::Medium);
 
-
+        
         let params = function_borrow.get_params();
         for param in params {
             let mut var_slot = VarSlot::new_with_var_ref(param.clone());
@@ -38,14 +35,20 @@ impl FunctionSlot {
            panel.add_widget(element.create_widget(line));
         }
         drop(function_borrow);
+        
 
         panel.size();
+            
+
+
         FunctionSlot {
             function_ref: function_ref.clone(),
             panel: panel,
 
             mouse_function_index: 0,
         }
+
+
     }
 
     pub fn wrap_into_widget(self) -> WidgetType {
@@ -53,14 +56,18 @@ impl FunctionSlot {
     }
 
     fn rebuild_widgets(&mut self) {
+        let saved_buffers = self.panel.get_widget_properties().external_buffers;
+        let saved_parent_pos = self.panel.get_widget_properties().parent_pos;
+
         let mut panel = Panel::new_blank();
         let function_borrow = self.function_ref.borrow();
 
         
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
 
+        
 
-        panel.add_text_display(function_borrow.get_name()).set_text_scale(TextSize::ExtraSmall);
+        panel.add_text_display(function_borrow.get_name()).set_text_scale(TextSize::Medium);
 
         let params = function_borrow.get_params();
         for param in params {
@@ -81,6 +88,8 @@ impl FunctionSlot {
         drop(function_borrow);
 
         panel.size();
+        panel.set_parent_pos(saved_parent_pos);
+        panel.set_buffers(saved_buffers);
 
         self.panel = panel;
     }
@@ -119,66 +128,66 @@ impl Widget for FunctionSlot {
         self.panel.render(texture_manager, screen_data, game_event_manager);
 
         // Handle inputs
-        if self.panel.is_mouse_on() {
-            
-            
+        if self.panel.mouse_on(screen_data) {
             // get widget as scripting element widget
+            
             let widget_mouse_is_on_option = self.panel.get_sub_widget_mouse_on(screen_data);
             
             
             let mut scripting_widget;
             if let Some(widget) = widget_mouse_is_on_option {
-                scripting_widget = widget.as_scripting_widge();
+                if let WidgetType::TextDisplay(_) = widget {
+                    scripting_widget = Some(ScriptingWidget::FunctionSlot());
+                }
+                else {
+                    scripting_widget = widget.as_scripting_widge();
+                }
+                
             }
             else {
                 if self.function_ref.borrow().get_body().len() == 0 {
-                    scripting_widget = Some(ScriptingWidget::FunctionSlot())
+                    scripting_widget = Some(ScriptingWidget::FunctionSlot());
                 }
                 else {
-                    scripting_widget = None
+                    scripting_widget = None;
                 }
             }
 
             // REBUILD INPUTS  
-            if let Some(scripting_widget) = &mut scripting_widget {                
+            if let Some(scripting_widget) = &mut scripting_widget {                            
                 self.mouse_function_index = scripting_widget.get_line();
-                
+
                 // Remove element
                 if screen_data.was_right_pressed() {
+
                     println!("Removing element at index({})", scripting_widget.get_line());    
                     self.function_ref.borrow_mut().remove_element(scripting_widget.get_line());
                 }
 
                 // Add element
-                else if screen_data.was_left_released() {
+                if screen_data.was_left_released() {
+                    
                     let var_held_by_mouse = game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().get_var_held();
                     if let Some(var) = var_held_by_mouse {
                         let var_type_ref = var.get_var_type_ref();
                         let borrow = var_type_ref.borrow();
                         if let VarType::ProgrammingVar(ProgrammingVar::ScriptingElement(element)) = &*borrow {
                             
-                            self.function_ref.borrow_mut().incert_element(scripting_widget.get_line(), element.clone());
+                            self.function_ref.borrow_mut().incert_element(scripting_widget.get_line(), element.clone());                     
                             
-                            
-                            println!("Adding script element: {}", element.get_name())
+                            println!("Adding script element: {}", element.get_name());
                         }
                     }
                 }
-
                 self.rebuild_widgets();
                 self.size();
             }
 
-
-
-            // NON REBUILD INPUTS
-
-
-
-
-            
+            self.panel.set_color(PanelColor::Custom(2, 255, 0));
         }
-        self.panel.set_color(PanelColor::Light);
+        else {
+            self.panel.set_color(PanelColor::Light);
+        }
     }
 }
 
@@ -190,6 +199,6 @@ impl ScriptingElementWidget for FunctionSlot {
     
     
     fn set_highlighted(&mut self) {
-        self.panel.set_color(PanelColor::Dark);
+
     }
 }
