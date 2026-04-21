@@ -22,12 +22,12 @@ pub fn get_widget(ref_manager: &RefManager) -> WidgetType {
 
         let source_var_panel = panel.add_sub_panel();
         source_var_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-        source_var_panel.set_color(PanelColor::DarkBlue);
+        source_var_panel.set_color(PanelColor::DarkUI);
         
 
         let slot_sub_panel = panel.add_sub_panel();
         slot_sub_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-        slot_sub_panel.set_color(PanelColor::DarkBlue);
+        slot_sub_panel.set_color(PanelColor::DarkUI);
 
         for _i in 0..11 {
             

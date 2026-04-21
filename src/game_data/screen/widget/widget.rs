@@ -4,7 +4,7 @@ use crate::game_data::{
     screen::{ScreenData,
         widget::{
             bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::{
-                action_slot::ActionSlot, condition_slot::ConditionSlot, control_flow_slot::ControlFlowSlot, function_slot::FunctionSlot, scripting_elements::scripting_panel::ScriptingPanel, scripting_widget_type::{ScriptingElementWidget, ScriptingWidget}, var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, widget_properties::WidgetProperties, world_rendering::play_world_view_render::PlayWorldViewRender
+                action_slot::ActionSlot, condition_slot::ConditionSlot, control_flow_slot::ControlFlowSlot, function_slot::FunctionSlot, script_element_body_slot::ScriptElementBodySlot, scripting_elements::scripting_panel::ScriptingPanel, scripting_widget_type::{ScriptingElementWidget, ScriptingWidgetType}, var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, widget_properties::WidgetProperties, world_rendering::play_world_view_render::PlayWorldViewRender
         }
     }, texture_manager::rect::Pos};
 
@@ -60,6 +60,7 @@ pub enum WidgetType {
     ActionSlot(ActionSlot),
     ControlFlowSlot(ControlFlowSlot),
     ConditionSlot(ConditionSlot),
+    ScriptElementBodySlot(ScriptElementBodySlot),
 
     ScriptingPanel(ScriptingPanel),
 
@@ -72,12 +73,12 @@ impl WidgetType {
     }
 
 
-    pub fn as_scripting_widge(&mut self) -> Option<ScriptingWidget> {
+    pub fn as_scripting_widget(&mut self) -> Option<ScriptingWidgetType> {
         match self {
-            WidgetType::FunctionSlot(_) => Some(ScriptingWidget::FunctionSlot()),
-            WidgetType::ActionSlot(action_slot) => Some(ScriptingWidget::ActionSlot(action_slot)),
-            WidgetType::ControlFlowSlot(control_flow_slot) => Some(ScriptingWidget::ControlFlowSlot(control_flow_slot)),
-            WidgetType::ConditionSlot(condition_slot) => Some(ScriptingWidget::ConditionSlot(condition_slot)),
+            WidgetType::FunctionSlot(_) => Some(ScriptingWidgetType::FunctionSlot()),
+            WidgetType::ActionSlot(action_slot) => Some(ScriptingWidgetType::ActionSlot(action_slot)),
+            WidgetType::ControlFlowSlot(control_flow_slot) => Some(ScriptingWidgetType::ControlFlowSlot(control_flow_slot)),
+            WidgetType::ConditionSlot(condition_slot) => Some(ScriptingWidgetType::ConditionSlot(condition_slot)),
             _ => {
                 None
             }
@@ -116,6 +117,7 @@ macro_rules! widget_match {
             WidgetType::ControlFlowSlot(w)   => w.$method($($arg),*),
             WidgetType::ConditionSlot(w)   => w.$method($($arg),*),
             WidgetType::ScriptingPanel(w)   => w.$method($($arg),*),
+            WidgetType::ScriptElementBodySlot(w) => w.$method($($arg),*),
             
         }
     };

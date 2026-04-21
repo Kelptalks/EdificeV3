@@ -1,11 +1,11 @@
-use crate::game_data::player_data::drone_script::{control_flow::condition::Condition, script_element::ScriptElement, var::{prim_vars::prim_var_type::PrimitiveVarKind, var::VarRef, var_type::VarKind}};
+use crate::game_data::player_data::drone_script::{control_flow::condition::Condition, element_body::ScriptElementBody, script_element::ScriptElement, var::{prim_vars::prim_var_type::PrimitiveVarKind, var::VarRef, var_type::VarKind}};
 
 
 
 #[derive(Clone)]
 pub struct ControlFlow {
     condition: Condition,
-    body: Vec<ScriptElement>,
+    body: ScriptElementBody,
 
 }
 
@@ -15,7 +15,7 @@ impl ControlFlow {
         println!("test");
         ControlFlow {
             condition: Condition::If(VarRef::new_blank_with_kind(VarKind::Prim(PrimitiveVarKind::Bool))), 
-            body: Vec::new(),
+            body: ScriptElementBody::new(),
         }
     }
 
@@ -29,5 +29,13 @@ impl ControlFlow {
 
     pub fn get_name(&self) -> String{
         return "Control_Flow".to_string()
+    }
+
+    pub fn get_mut_body(&mut self) -> &mut ScriptElementBody {
+        return &mut self.body
+    }
+
+    pub fn get_body(&self) -> &ScriptElementBody {
+        &self.body
     }
 }

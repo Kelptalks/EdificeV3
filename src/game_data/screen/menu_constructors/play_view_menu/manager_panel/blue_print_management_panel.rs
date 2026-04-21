@@ -4,7 +4,7 @@ pub fn get_blue_print_management_panel(ref_manager: &mut RefManager) -> WidgetTy
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-        panel.set_color(PanelColor::DarkBlue);
+        panel.set_color(PanelColor::DarkUI);
 
         let panel_title = panel.add_text_display("Blue Print".to_string());
         panel_title.set_text_scale(TextSize::Large);

@@ -1,9 +1,18 @@
-use std::{cell::RefCell, fmt::format, rc::Rc};
+use std::{cell::RefCell, fmt::format, intrinsics::copy_nonoverlapping, rc::Rc};
 
 use crate::game_data::{
-    player_data::{
+    game_event_manager::{self, prelude::{EventManager, GameEventManager}}, player_data::{
         drone_script::{
-            control_flow, function::function::Function, script_element::ScriptElement, var::{programming_vars::programming_var::ProgrammingVar, var_type::VarType}}, drones::drone_actions::drone_actions::DroneAction}, screen::widget::{self, drone_programming::{control_flow_slot, scripting_widget_type::{self, ScriptingElementWidget, ScriptingWidget}}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot}, widget::{Widget, WidgetType}, widget_calculations::TextSize, widget_properties::WidgetProperties}};
+            control_flow, 
+            function::{self, function::Function}, 
+            script_element::ScriptElement, 
+            var::{programming_vars::programming_var::ProgrammingVar, var_type::VarType}
+        }, drones::drone_actions::drone_actions::DroneAction}, 
+        screen::{self, 
+            ScreenData, 
+            screen_data, 
+            widget::{self, drone_programming::{
+                control_flow_slot, scripting_control_manager, scripting_widget_type::{self, ScriptingElementWidget, ScriptingWidgetType}}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot}, widget::{Widget, WidgetType}, widget_calculations::TextSize, widget_properties::WidgetProperties}}};
 
 
 
@@ -31,7 +40,7 @@ impl FunctionSlot {
             panel.add_widget(var_slot.wrap_into_widget());
         }
 
-        for (line, element) in function_borrow.get_body().iter().enumerate() {
+        for (line, element) in function_borrow.get_body().elements.iter().enumerate() {
            panel.add_widget(element.create_widget(line));
         }
         drop(function_borrow);
@@ -76,10 +85,10 @@ impl FunctionSlot {
             panel.add_widget(var_slot.wrap_into_widget());
         }
 
-        for (line, element) in function_borrow.get_body().iter().enumerate() {
+        for (line, element) in function_borrow.get_body().elements.iter().enumerate() {
            let mut widget = element.create_widget(line);
            if line == self.mouse_function_index {
-            if let Some(scripting_widget) = &mut widget.as_scripting_widge() {
+            if let Some(scripting_widget) = &mut widget.as_scripting_widget() {
                 scripting_widget.set_highlighted();
             }    
         }
@@ -123,9 +132,9 @@ impl Widget for FunctionSlot {
         &mut self,
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
-        game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
+        event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
     ) {
-        self.panel.render(texture_manager, screen_data, game_event_manager);
+        self.panel.render(texture_manager, screen_data, event_manager);
 
         // Handle inputs
         if self.panel.mouse_on(screen_data) {
@@ -137,16 +146,16 @@ impl Widget for FunctionSlot {
             let mut scripting_widget;
             if let Some(widget) = widget_mouse_is_on_option {
                 if let WidgetType::TextDisplay(_) = widget {
-                    scripting_widget = Some(ScriptingWidget::FunctionSlot());
+                    scripting_widget = Some(ScriptingWidgetType::FunctionSlot());
                 }
                 else {
-                    scripting_widget = widget.as_scripting_widge();
+                    scripting_widget = widget.as_scripting_widget();
                 }
                 
             }
             else {
-                if self.function_ref.borrow().get_body().len() == 0 {
-                    scripting_widget = Some(ScriptingWidget::FunctionSlot());
+                if self.function_ref.borrow().get_body().elements.len() == 0 {
+                    scripting_widget = Some(ScriptingWidgetType::FunctionSlot());
                 }
                 else {
                     scripting_widget = None;
@@ -154,39 +163,87 @@ impl Widget for FunctionSlot {
             }
 
             // REBUILD INPUTS  
-            if let Some(scripting_widget) = &mut scripting_widget {                            
+            if let Some(scripting_widget) = &mut scripting_widget {                                           
                 self.mouse_function_index = scripting_widget.get_line();
+
 
                 // Remove element
                 if screen_data.was_right_pressed() {
-
-                    println!("Removing element at index({})", scripting_widget.get_line());    
-                    self.function_ref.borrow_mut().remove_element(scripting_widget.get_line());
+ 
+                    println!("Removing element at index({})", self.mouse_function_index);    
+                    self.function_ref.borrow_mut().get_mut_body().remove_element(scripting_widget.get_line());
                 }
 
                 // Add element
                 if screen_data.was_left_released() {
+                    let mut borrow = self.function_ref.borrow_mut();
+                    let index = scripting_widget.get_line();
+                    let element_at_index_option = borrow.get_mut_body().get_mut_element(index);
                     
-                    let var_held_by_mouse = game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().get_var_held();
-                    if let Some(var) = var_held_by_mouse {
-                        let var_type_ref = var.get_var_type_ref();
-                        let borrow = var_type_ref.borrow();
-                        if let VarType::ProgrammingVar(ProgrammingVar::ScriptingElement(element)) = &*borrow {
-                            
-                            self.function_ref.borrow_mut().incert_element(scripting_widget.get_line(), element.clone());                     
-                            
-                            println!("Adding script element: {}", element.get_name());
+
+                    
+                    if let Some(element_at_index) = element_at_index_option {
+                        if element_at_index.has_body() {
+                            match element_at_index {
+                                ScriptElement::Function(_) => {
+                                    let incert_index = scripting_widget.get_line_incert_index(screen_data);
+                                    
+                                    scripting_control_manager::handle_mouse_element_body_incert(
+                                        borrow.get_mut_body(), 
+                                        event_manager, 
+                                        incert_index
+                                    );
+                                }
+                                ScriptElement::ControlFlow(control_flow) => {
+                                    
+                                    if let ScriptingWidgetType::ControlFlowSlot(control_flow_slot) = scripting_widget {
+                                        let index = control_flow_slot.get_internal_index();
+                                        scripting_control_manager::handle_mouse_element_body_incert(
+                                            control_flow.get_mut_body(),
+                                            event_manager,
+                                            index
+                                        );
+                                    }
+                                    else {
+                                        eprintln!("Control Flow Should always be at same index as control flow slot")
+                                    }
+                                    
+                                }
+                                _ => {
+                                    println!("Need body impl");
+                                }
+                            }
+                        }
+                        else {
+                            let incert_index = scripting_widget.get_line_incert_index(screen_data);
+                            scripting_control_manager::handle_mouse_element_body_incert(
+                                borrow.get_mut_body(), 
+                                event_manager, 
+                                incert_index
+                            );
                         }
                     }
+                    else {
+                        let incert_index = scripting_widget.get_line_incert_index(screen_data);
+                        scripting_control_manager::handle_mouse_element_body_incert(
+                            borrow.get_mut_body(), 
+                            event_manager, 
+                            incert_index
+                        );
+                    }
+                    
+
+
+
                 }
                 self.rebuild_widgets();
                 self.size();
             }
 
-            self.panel.set_color(PanelColor::Custom(2, 255, 0));
+            self.panel.set_color(PanelColor::SuperLightUI);
         }
         else {
-            self.panel.set_color(PanelColor::LightBlue);
+            self.panel.set_color(PanelColor::LightUI);
         }
     }
 }
@@ -200,5 +257,9 @@ impl ScriptingElementWidget for FunctionSlot {
     
     fn set_highlighted(&mut self) {
 
+    }
+    
+    fn get_line_incert_index(&self, screen_data: &ScreenData) -> usize {
+        0
     }
 }

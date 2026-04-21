@@ -103,7 +103,7 @@ fn get_location_rename_panel(ref_manager: &mut RefManager) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
-        panel.set_color(PanelColor::DarkBlue);
+        panel.set_color(PanelColor::DarkUI);
 
         let rename_ref = Rc::new(RefCell::new(ref_manager.selected_var.borrow().get_name()));
 
@@ -125,7 +125,7 @@ pub fn get_location_panel(ref_manager: &mut RefManager) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-        panel.set_color(PanelColor::DarkBlue);
+        panel.set_color(PanelColor::DarkUI);
 
         let panel_title = panel.add_text_display("Location".to_string());
         panel_title.set_text_scale(TextSize::Large);

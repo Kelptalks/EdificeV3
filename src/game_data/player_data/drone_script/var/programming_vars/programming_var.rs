@@ -63,7 +63,6 @@ impl ProgrammingVar {
                 todo!("");
             },
         }
-
         props
     }
 

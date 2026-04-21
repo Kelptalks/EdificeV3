@@ -3,8 +3,7 @@ use std::{cell::{Ref, RefCell}, collections::HashMap, ops::Index, rc::Rc, usize}
 use crate::game_data::{
     player_data::{
         drone_script::{
-            script_element::{self, ScriptElement}, 
-            var::{var::{Var, VarRef}, var_properties::VarPropModRequest, var_type::VarType}
+            element_body::ScriptElementBody, script_element::{self, ScriptElement}, var::{var::{Var, VarRef}, var_properties::VarPropModRequest, var_type::VarType}
         }, 
         drones::drone_actions::{
             drone_actions::DroneAction, 
@@ -19,7 +18,7 @@ pub struct Function {
 
     params: Vec<VarRef>,
 
-    script_elements: Vec<ScriptElement>,
+    body: ScriptElementBody,
 
     return_value: Var,
 }
@@ -38,7 +37,7 @@ impl Function {
 
             params: Vec::new(),
             
-            script_elements: Vec::new(),
+            body: ScriptElementBody::new(),
 
             return_value: Var::new_blank(),
         }
@@ -66,24 +65,13 @@ impl Function {
     // Body
     //=====================================
     
-    pub fn get_body(&self) -> &Vec<ScriptElement> {
-        return &self.script_elements
+    pub fn get_mut_body(&mut self) -> &mut ScriptElementBody {
+        return &mut self.body
     }
 
-    pub fn incert_element(&mut self, index: usize, element: ScriptElement) {
-        self.script_elements.insert(index, element);
+    pub fn get_body(&self) -> &ScriptElementBody {
+        return &self.body
     }
-    
-    
-    pub fn remove_element(&mut self, index: usize) {
-        if index < self.script_elements.len() {
-            self.script_elements.remove(index);
-        }
-        else {
-            eprintln!("script element index out of range of function body")
-        }
-    }
-
 
 
     //=====================================

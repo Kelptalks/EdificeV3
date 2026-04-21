@@ -8,7 +8,7 @@ fn get_action_selection_panel() -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-        panel.set_color(PanelColor::SuperLightBlue);
+        panel.set_color(PanelColor::SuperLightUI);
 
         // Header
         let text_display = panel.add_text_display("Drone Actions".to_string());
@@ -59,7 +59,7 @@ fn get_control_flow_selection_panel() -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-        panel.set_color(PanelColor::SuperLightBlue);
+        panel.set_color(PanelColor::SuperLightUI);
 
         // Header
         let text_display = panel.add_text_display("Control Flow".to_string());

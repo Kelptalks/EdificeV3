@@ -1,3 +1,5 @@
+use crate::game_data::screen::{ScreenData, screen_data};
+
 pub fn pos_to_scale(pos: [f32; 4]) -> [f32; 2]{
     return [
         pos[2] - pos[0],
@@ -33,6 +35,20 @@ pub fn is_pos_contained_within_pos(box_pos: [f32; 4], internal_pos: [f32; 4]) ->
 
 pub fn is_pos_overlapping_pos(a: [f32; 4], b: [f32; 4]) -> bool {
     a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1]
+}
+
+pub fn is_mouse_on_top_half(pos: [f32; 4], screen_data: &ScreenData) -> bool {
+    let pos_y_half_scale = pos_to_scale(pos)[1] / 2.0;
+    let pos_y_center = pos[1] + pos_y_half_scale;
+    
+    let mouse_y_pos = screen_data.get_mouse_ndc()[1];
+    
+    if mouse_y_pos < pos_y_center {
+        true
+    }
+    else {
+        false
+    }
 }
 
 //=====================================

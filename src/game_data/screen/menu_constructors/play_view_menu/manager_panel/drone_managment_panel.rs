@@ -8,7 +8,7 @@ pub fn get_drone_managment_panel(ref_manager: &mut RefManager) -> WidgetType {
     
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-        panel.set_color(PanelColor::DarkBlue);
+        panel.set_color(PanelColor::DarkUI);
 
         let panel_title = panel.add_text_display("Drone Panel".to_string());
         panel_title.set_text_scale(TextSize::Large);

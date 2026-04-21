@@ -99,4 +99,14 @@ impl ScriptElement {
         }
     }
 
+    pub fn has_body(&self) -> bool {
+        match self {
+            ScriptElement::Function(_) => true,
+            ScriptElement::ControlFlow(_) => true,
+            _ => {
+                false
+            }
+        }
+    }
+
 }

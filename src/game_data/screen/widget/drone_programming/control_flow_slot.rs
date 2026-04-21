@@ -1,6 +1,6 @@
 
 
-use crate::game_data::{player_data::drone_script::control_flow::control_flow::ControlFlow, screen::widget::{drone_programming::scripting_widget_type::ScriptingElementWidget, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_calculations::TextSize, widget_properties::WidgetProperties}};
+use crate::game_data::{player_data::drone_script::control_flow::control_flow::ControlFlow, screen::{ScreenData, screen_data, widget::{drone_programming::scripting_widget_type::ScriptingElementWidget, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_calculations::{self, TextSize}, widget_properties::WidgetProperties}}};
 
 pub struct ControlFlowSlot {
     panel: Panel,
@@ -18,6 +18,12 @@ impl ControlFlowSlot {
         let condition = control_flow.get_condition();
         panel.add_widget(condition.get_widget());
 
+
+        for (line, element) in control_flow.get_body().elements.iter().enumerate() {
+           panel.add_widget(element.create_widget(line));
+        }
+
+
         ControlFlowSlot {
             panel,
             line,
@@ -26,6 +32,10 @@ impl ControlFlowSlot {
 
     pub fn wrap_into_widget(self) -> WidgetType {
         WidgetType::ControlFlowSlot(self)
+    }
+
+    pub fn get_internal_index(&self) -> usize {
+        return 0;
     }
 }
 
@@ -58,7 +68,7 @@ impl Widget for ControlFlowSlot {
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
     ) {
         self.panel.render(texture_manager, screen_data, game_event_manager);
-        self.panel.set_color(PanelColor::LightBlue);
+        self.panel.set_color(PanelColor::LightUI);
     }
 }
 
@@ -68,6 +78,22 @@ impl ScriptingElementWidget for ControlFlowSlot {
     }
     
     fn set_highlighted(&mut self) {
-        self.panel.set_color(PanelColor::DarkBlue);
+        self.panel.set_color(PanelColor::DarkUI);
+    }
+    
+    fn get_line_incert_index(&self, screen_data: &ScreenData) -> usize {
+        if self.mouse_on(screen_data){
+            if !widget_calculations::is_mouse_on_top_half(self.panel.get_pos(), screen_data) {
+                return self.line + 1
+            }
+            else {
+                return self.line
+            }
+        }
+        else {
+            return 0;
+        }
+        
+        todo!()
     }
 }

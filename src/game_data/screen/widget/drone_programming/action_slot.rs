@@ -1,4 +1,4 @@
-use crate::game_data::{player_data::drone_script::action::{self, action::Action}, screen::widget::{drone_programming::scripting_widget_type::ScriptingElementWidget, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot}, widget::{Widget, WidgetType}, widget_calculations::TextSize, widget_properties::WidgetProperties}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::drone_script::action::{self, action::Action}, screen::{ScreenData, screen_data, widget::{drone_programming::scripting_widget_type::ScriptingElementWidget, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot}, widget::{Widget, WidgetType}, widget_calculations::{self, TextSize}, widget_properties::WidgetProperties}}, texture_manager::texture::Texture};
 
 pub struct ActionSlot {
     panel: Panel,
@@ -9,9 +9,11 @@ pub struct ActionSlot {
 impl ActionSlot {
     pub fn new(action: &Action, line: usize) -> ActionSlot {
         let mut panel = Panel::new_blank();
+        panel.set_color(PanelColor::Yellow);
 
         // Identity panel
         let identity_sub_panel = panel.add_sub_panel();
+        identity_sub_panel.set_color(PanelColor::Yellow);
 
         // Button for displaying identity
         let button = identity_sub_panel.add_button();
@@ -23,6 +25,7 @@ impl ActionSlot {
         let param_refs = action.get_params_var_refs();
         if param_refs.len() != 0 {
             let param_sub_panel = panel.add_sub_panel();
+            param_sub_panel.set_color(PanelColor::Yellow);
             param_sub_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
             param_sub_panel.add_text_display("Params".to_string()).set_text_scale(TextSize::ExtraSmall);
 
@@ -37,6 +40,7 @@ impl ActionSlot {
         let return_var_kind_option = action.get_return_var();
         if let Some(return_var) = return_var_kind_option {
             let return_sub_panel = panel.add_sub_panel();
+            return_sub_panel.set_color(PanelColor::Yellow);
             return_sub_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
             return_sub_panel.add_text_display("Return".to_string()).set_text_scale(TextSize::ExtraSmall);
 
@@ -87,7 +91,7 @@ impl Widget for ActionSlot {
     ) {
         self.panel.render(texture_manager, screen_data, game_event_manager);
         
-        // self.panel.set_color(PanelColor::Light);
+        self.panel.set_color(PanelColor::Yellow);
     }
 }
 
@@ -96,7 +100,19 @@ impl ScriptingElementWidget for ActionSlot {
         self.line
     }
 
+    fn get_line_incert_index(&self, screen_data: &ScreenData) -> usize {
+        if self.mouse_on(screen_data){
+            if !widget_calculations::is_mouse_on_top_half(self.panel.get_pos(), screen_data) {
+                return self.line + 1
+            }
+            else {
+                return self.line
+            }
+        }
+        self.line
+    }
+
     fn set_highlighted(&mut self) {
-        self.panel.set_color(PanelColor::DarkBlue);
+        self.panel.set_color(PanelColor::BrightYellow);
     }
 }
