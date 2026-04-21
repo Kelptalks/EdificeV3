@@ -49,6 +49,8 @@ impl ActionSlot {
             var_slot.set_dragging_properties(true, false, false);
             slot_sub_panel.add_widget(var_slot.wrap_into_widget());
         }
+        
+        panel.size();
 
         ActionSlot {
             panel: panel,

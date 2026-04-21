@@ -1,6 +1,8 @@
 
 
-use crate::game_data::{player_data::drone_script::control_flow::control_flow::ControlFlow, screen::{ScreenData, screen_data, widget::{drone_programming::scripting_widget_type::ScriptingElementWidget, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_calculations::{self, TextSize}, widget_properties::WidgetProperties}}};
+use std::collections::VecDeque;
+
+use crate::game_data::{player_data::drone_script::{control_flow::control_flow::ControlFlow, element_body}, screen::{ScreenData, screen_data, ui_elements::panel, widget::{drone_programming::{script_element_body_slot::ScriptElementBodySlot, scripting_widget_type::ScriptingElementWidget}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_calculations::{self, TextSize}, widget_properties::WidgetProperties}}};
 
 pub struct ControlFlowSlot {
     panel: Panel,
@@ -19,15 +21,26 @@ impl ControlFlowSlot {
         panel.add_widget(condition.get_widget());
 
 
-        for (line, element) in control_flow.get_body().elements.iter().enumerate() {
-           panel.add_widget(element.create_widget(line));
-        }
+        let element_body = ScriptElementBodySlot::new(control_flow.get_body());
+        panel.add_widget(element_body.wrap_into_widget());
 
 
         ControlFlowSlot {
             panel,
             line,
         }
+    }
+
+    pub fn get_mouse_incert_index(&self, screen_data: &ScreenData) -> VecDeque<usize> {
+        
+        if let Some(WidgetType::ScriptElementBodySlot(body_slots)) = self.panel.get_sub_widget_mouse_on(screen_data) {
+            return body_slots.get_mouse_incert_index(screen_data)
+        }
+        else {
+            VecDeque::new()
+        }
+        
+
     }
 
     pub fn wrap_into_widget(self) -> WidgetType {

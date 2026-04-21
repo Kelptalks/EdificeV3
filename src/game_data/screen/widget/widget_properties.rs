@@ -1,4 +1,4 @@
-use crate::game_data::screen::{ScreenData, widget::{widget::WidgetType, widget_calculations}};
+use crate::game_data::screen::{ScreenData, widget::{widget::{Widget, WidgetType}, widget_calculations}};
 
 pub struct WidgetProperties {
     // Parent rendering
@@ -44,11 +44,18 @@ impl WidgetProperties {
     }
 
     pub fn calculate_prefered_scale_from_widget_list(&mut self, widgets: &Vec<WidgetType>) {
-        let largest_x_scale = 0;
-        let total_y_scale = 0;
+        let mut largest_x_scale = 0.0;
+        let mut total_y_scale = 0.0;
+
 
         for widget in widgets {
-
+            let scale = widget.get_scale();
+            if scale[0] > largest_x_scale {
+                largest_x_scale = scale[0]
+            }
+            total_y_scale += scale[1];
         }
+
+        self.prefered_scale = [largest_x_scale, total_y_scale];
     }
 }

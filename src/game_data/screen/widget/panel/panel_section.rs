@@ -90,6 +90,10 @@ impl PanelSection {
         return &mut self.widget;
     } 
 
+    pub fn get_widget(&self) -> &WidgetType {
+        return &self.widget;
+    } 
+
     pub fn _test_render(&self, texture_manager: &mut TextureManager) {
         texture_manager.render_ui_element_with_pos(
             crate::game_data::types::UITextures::ScallingIconMidCenter, 

@@ -281,9 +281,19 @@ impl Panel {
         }
     }
 
-    pub fn get_sub_widget_mouse_on(&mut self, screen_data: &ScreenData) -> Option<&mut WidgetType> {
+    pub fn get_mut_sub_widget_mouse_on(&mut self, screen_data: &ScreenData) -> Option<&mut WidgetType> {
         for section in &mut self.sections {
             let widget_type = section.get_mut_widget();
+            if widget_type.mouse_on(screen_data) {
+                return Some(widget_type);
+            }
+        }
+        return None;
+    }
+
+    pub fn get_sub_widget_mouse_on(&self, screen_data: &ScreenData) -> Option<&WidgetType> {
+        for section in &self.sections {
+            let widget_type = section.get_widget();
             if widget_type.mouse_on(screen_data) {
                 return Some(widget_type);
             }

@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use crate::game_data::player_data::drone_script::script_element::ScriptElement;
 
 
@@ -15,7 +17,10 @@ impl ScriptElementBody {
     }
 
     pub fn incert_element(&mut self, index: usize, element: ScriptElement) {
-        self.elements.insert(index, element);
+        if index <= self.elements.len() {
+            self.elements.insert(index, element);
+        }
+
     }
     
     
@@ -30,6 +35,29 @@ impl ScriptElementBody {
 
     pub fn get_mut_element(&mut self, index: usize) -> Option<&mut ScriptElement> {
         return self.elements.get_mut(index);
+    }
+
+    pub fn insert_element_with_index_keys(&mut self, keys: &mut VecDeque<usize>, element_to_add: ScriptElement) {
+        
+        if let Some(key) = keys.pop_front() {
+            
+            if keys.is_empty() {
+                self.incert_element(key, element_to_add);
+                println!("incerting at index {}", key);
+            }
+            else {
+                println!("searching sub function with key: {}", key);
+                if let Some(element) = self.get_mut_element(key) {
+                    if let Some(element_body) = element.get_mut_body() {
+                        element_body.insert_element_with_index_keys(keys, element_to_add);
+                    }
+                    else {
+                        println!("searching in sub element: {}", element.get_name());
+                    }
+                }
+            }
+        }
+        
     }
 
 }

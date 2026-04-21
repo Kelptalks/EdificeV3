@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use crate::game_data::{game_event_manager::prelude::EventManager, player_data::drone_script::{control_flow, element_body::ScriptElementBody, script_element::ScriptElement, var::{programming_vars::programming_var::ProgrammingVar, var_type::VarType}}, screen::widget::drone_programming::scripting_widget_type::ScriptingWidgetType};
 
 
@@ -6,7 +8,7 @@ use crate::game_data::{game_event_manager::prelude::EventManager, player_data::d
 pub fn handle_mouse_element_body_incert(
     element_body: &mut ScriptElementBody, 
     event_manager: &mut EventManager, 
-    index: usize,
+    index_keys: &mut VecDeque<usize>,
 ) {
         let var_held_by_mouse = event_manager.get_mut_event_tools().get_mut_mouse_widget_data().get_var_held();
 
@@ -17,7 +19,7 @@ pub fn handle_mouse_element_body_incert(
                 
 
                 
-                element_body.incert_element(index, mouses_element.clone());
+                element_body.insert_element_with_index_keys(index_keys, mouses_element.clone());
 
 
                 println!("Adding script element: {}", mouses_element.get_name());

@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::game_data::{
     player_data::{
-        drone_script::{action::action::Action, control_flow::control_flow::ControlFlow, function::{function::Function, function_call::{self, FunctionCall}}, var::{programming_vars::programming_var::ProgrammingVar, var::{Var, VarRef}, var_type::VarType}}, 
+        drone_script::{action::action::Action, control_flow::control_flow::ControlFlow, element_body::ScriptElementBody, function::{function::Function, function_call::{self, FunctionCall}}, var::{programming_vars::programming_var::ProgrammingVar, var::{Var, VarRef}, var_type::VarType}}, 
         drones::drone_actions::drone_actions::DroneAction}, 
     screen::widget::{drone_programming::{action_slot::ActionSlot, control_flow_slot::ControlFlowSlot, function_slot::FunctionSlot}, panel::panel::Panel, prelude::VarSlot, widget::WidgetType}, texture_manager::texture::Texture, types::UITextures};
 
@@ -105,6 +105,19 @@ impl ScriptElement {
             ScriptElement::ControlFlow(_) => true,
             _ => {
                 false
+            }
+        }
+    }
+
+    pub fn get_mut_body(&mut self) -> Option<&mut ScriptElementBody> {
+
+        match self {
+            ScriptElement::ControlFlow(control_flow) => {
+                println!("Got control flow body");
+                return Some(control_flow.get_mut_body())
+            }
+            _ => {
+                return None
             }
         }
     }
