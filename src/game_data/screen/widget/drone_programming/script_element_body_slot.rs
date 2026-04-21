@@ -60,25 +60,26 @@ impl ScriptElementBodySlot {
         for (index, widget) in self.widgets.iter().enumerate() {
             if widget.mouse_on(screen_data) {
                 if index == 0 {
-                    indexes.push_front(0);
+                    indexes.push_back(0);
+                    return indexes;
                 }
 
 
                 if let WidgetType::ControlFlowSlot(control_flow_slot) = widget {
                     let mut child_indexes = control_flow_slot.get_mouse_incert_index(screen_data);
-                    child_indexes.push_front(if widget_calculations::is_mouse_on_top_half(widget.get_pos(), screen_data) {
+                    child_indexes.push_back(if widget_calculations::is_mouse_on_top_half(widget.get_pos(), screen_data) {
                         index - 1
                     } else {
-                        index
+                        index - 1
                     });
                     return child_indexes;
                 }
                 
                 if widget_calculations::is_mouse_on_top_half(widget.get_pos(), screen_data) {
-                    indexes.push_front(index - 1)
+                    indexes.push_back(index - 1)
                 }
                 else {
-                    indexes.push_front(index)
+                    indexes.push_back(index)
                 }
             }
         }

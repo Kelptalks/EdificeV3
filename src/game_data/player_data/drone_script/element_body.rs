@@ -39,20 +39,16 @@ impl ScriptElementBody {
 
     pub fn insert_element_with_index_keys(&mut self, keys: &mut VecDeque<usize>, element_to_add: ScriptElement) {
         
-        if let Some(key) = keys.pop_front() {
+        if let Some(key) = keys.pop_back() {
             
             if keys.is_empty() {
                 self.incert_element(key, element_to_add);
-                println!("incerting at index {}", key);
             }
             else {
-                println!("searching sub function with key: {}", key);
                 if let Some(element) = self.get_mut_element(key) {
+
                     if let Some(element_body) = element.get_mut_body() {
                         element_body.insert_element_with_index_keys(keys, element_to_add);
-                    }
-                    else {
-                        println!("searching in sub element: {}", element.get_name());
                     }
                 }
             }
