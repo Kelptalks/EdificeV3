@@ -113,7 +113,6 @@ impl ScriptElement {
 
         match self {
             ScriptElement::ControlFlow(control_flow) => {
-                println!("Got control flow body");
                 return Some(control_flow.get_mut_body())
             }
             _ => {

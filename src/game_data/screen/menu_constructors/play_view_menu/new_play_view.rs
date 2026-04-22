@@ -98,8 +98,8 @@ impl PlayViewConstructionManager {
 
 
             // Scripting Panel
-            let mut scipting_panel = ScriptingPanel::new();
-            manager_tab_panel.add_panel(scipting_panel.wrap_into_widget());
+            // let mut scipting_panel = ScriptingPanel::new();
+            // manager_tab_panel.add_panel(scipting_panel.wrap_into_widget());
 
             panel.add_widget(manager_tab_panel.wrap_into_widget());
 

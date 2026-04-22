@@ -5,7 +5,7 @@ use crate::game_data::{player_data::drone_script::{action::action_type::ActionTy
 pub struct Action {
     action_type: ActionType,   
     
-    params: Vec<VarRef>,
+    params: Vec<Var>,
     
 
     return_var: Option<Var>,
@@ -15,11 +15,12 @@ pub struct Action {
 impl Action {
     pub fn new(action_type: ActionType) -> Action {
         
-        // Create var refs with types from action types params
+        // Create varwith types from action types params
         let var_kinds = action_type.get_param_var_kinds();
-        let mut var_refs = Vec::new();
+        let mut vars = Vec::new();
         for var_kind in var_kinds {
-            var_refs.push(VarRef::new_blank_with_kind(var_kind));
+            let var = Var::new_blank_with_kind(var_kind);
+            vars.push(Var::new_blank_with_kind(var_kind));
         }
 
         
@@ -29,7 +30,7 @@ impl Action {
 
         Action {
             action_type: action_type,
-            params: var_refs,
+            params: vars,
 
             return_var,
         }
@@ -39,7 +40,7 @@ impl Action {
         ScriptElement::Action(self)
     }
 
-    pub fn get_params_var_refs(&self) -> &Vec<VarRef> {
+    pub fn get_params_vars(&self) -> &Vec<Var> {
         &self.params
     }
 

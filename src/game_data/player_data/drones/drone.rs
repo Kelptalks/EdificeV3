@@ -41,7 +41,7 @@ pub struct Drone{
     name: String,
 
     // Actions
-    drone_script: Rc<RefCell<Function>>,
+    drone_function: Rc<RefCell<Function>>,
     drone_plans: Vec<DronePlan>,
 
     // Position
@@ -75,7 +75,7 @@ impl Drone {
             name: id.to_string(),
             
             // Actions
-            drone_script: Rc::new(RefCell::new(Function::new_drone_function())),
+            drone_function: Rc::new(RefCell::new(Function::new_drone_function())),
             drone_plans: Vec::new(),
 
             // Position
@@ -199,6 +199,10 @@ impl Drone {
 
     pub fn add_plan(&mut self, plan: DronePlan) {
         self.drone_plans.push(plan);
+    }
+
+    pub fn get_function_ref(&self) -> &Rc<RefCell<Function>> {
+        return &self.drone_function
     }
 
 

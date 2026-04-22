@@ -1,6 +1,6 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, clone, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_script::var::{self, game_vars::game_var_type::{GameVarKind, GameVarType}, programming_vars::programming_var::ProgrammingVar, var::Var, var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, drones::drone::Drone, locations::location::WorldLocation}, screen::widget::{panel::panel::Panel, widget::WidgetType}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_script::var::{self, game_vars::game_var_type::{GameVarKind, GameVarType}, prim_vars::prim_var_type::{PrimitiveVarKind, PrimitiveVarType}, programming_vars::programming_var::ProgrammingVar, var::Var, var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, drones::drone::Drone, locations::location::WorldLocation}, screen::{ui_elements::panel, widget::{self, drone_programming::scripting_elements::scripting_panel::{self, ScriptingPanel}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType}}, texture_manager::texture::Texture, types::BlockTexture};
 
 
 #[derive(Clone)]
@@ -48,8 +48,13 @@ impl DynamicVarType {
             },
             DynamicVarType::Drone(ref_cell) => {
                 if let Some(drone) = ref_cell {
+                    // Create header
                     let mut panel = Panel::new_blank();
-                    panel.add_text_display("Drone Panel".to_string());
+                    
+                    let scripting_panel = ScriptingPanel::new(drone.borrow().get_function_ref());
+
+                    panel.add_widget(scripting_panel.wrap_into_widget());
+                    panel.size();
                     return Some(panel.wrap_into_widget())
                 }
                 else {
@@ -58,7 +63,7 @@ impl DynamicVarType {
             },
         }
     }
-
+    
     //=====================================
     // Identity
     //=====================================
@@ -90,6 +95,8 @@ impl DynamicVarType {
     //=====================================
     // Properties
     //=====================================
+
+    
 
     pub fn get_properties(&self) -> Vec<VarProperty> {
         match self {
@@ -123,7 +130,6 @@ impl DynamicVarType {
                         
                         VarProperty {key: PropKey::MinePower,       value: PropValue::Num(borrow.get_mine_power() as i32),                      mutible: false},
                         VarProperty {key: PropKey::ChopPower,       value: PropValue::Num(borrow.get_chop_power() as i32),                      mutible: false},
-
                     ]
                     
                 }

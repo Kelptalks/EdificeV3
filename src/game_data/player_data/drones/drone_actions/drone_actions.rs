@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_script::var::{game_vars::action_var::{ActionVarType, ErrorCode}, var::Var, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::drone_prim_actions::DronePrimAction}}}, texture_manager::texture::Texture};
+use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_script::{action::action_type::ActionType, var::{game_vars::action_var::{ActionVarType, ErrorCode}, var::Var, var_type::{VarKind, VarType}}}, drones::{drone::Drone, drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::drone_prim_actions::DronePrimAction}}}, texture_manager::texture::Texture};
 
 
 
@@ -48,6 +48,11 @@ pub enum DroneAction {
 }
 
 impl DroneAction {
+
+    pub fn wrap_into_action(self) -> ActionType {
+        ActionType::DroneAction(self)
+    }
+
     pub fn execute(&self, drone: &mut Drone, world: &World, event_manager: &mut EventManager) -> Var {
         match self {
             DroneAction::PrimAction(drone_prim_action) => {

@@ -9,22 +9,19 @@ pub struct ScriptingPanel {
 }
 
 impl ScriptingPanel {
-    pub fn new() -> ScriptingPanel {
+    pub fn new(function: &Rc<RefCell<Function>>) -> ScriptingPanel {
         let mut panel = Panel::new_blank();
 
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
         panel.add_text_display("Scripting Panel".to_string());
 
 
-        // Create function
-        let function = Function::new_blank();
-        let root_function = Rc::new(RefCell::new(function));
-        let function_slot = FunctionSlot::new_with_function(&root_function);
+
+        let function_slot = FunctionSlot::new_with_function(function);
 
         let mut scroll_panel = ScrollPanel::new();
         scroll_panel.add_widget(function_slot.wrap_into_widget());
 
-        let function = Function::new_blank();
 
         let mut scripting_panel = ScriptingPanel {
             widget_properties: WidgetProperties::new_blank(),

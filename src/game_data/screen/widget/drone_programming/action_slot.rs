@@ -22,16 +22,16 @@ impl ActionSlot {
 
 
         // Params
-        let param_refs = action.get_params_var_refs();
-        if param_refs.len() != 0 {
+        let param_vars = action.get_params_vars();
+        if param_vars.len() != 0 {
             let param_sub_panel = panel.add_sub_panel();
             param_sub_panel.set_color(PanelColor::Yellow);
             param_sub_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
             param_sub_panel.add_text_display("Params".to_string()).set_text_scale(TextSize::ExtraSmall);
 
             let slot_sub_panel = param_sub_panel.add_sub_panel();
-            for param_var_ref in param_refs {
-                let var_slot = VarSlot::new_with_var_ref(param_var_ref.clone());
+            for param_var in param_vars {
+                let var_slot = VarSlot::new_with_var(param_var.clone());
                 slot_sub_panel.add_widget(var_slot.wrap_into_widget());
             }
         }

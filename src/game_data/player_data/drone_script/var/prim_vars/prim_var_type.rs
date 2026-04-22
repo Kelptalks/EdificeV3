@@ -1,11 +1,12 @@
 use crate::game_data::{
-    player_data::drone_script::var::{var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, screen::widget::widget::WidgetType, texture_manager::texture::Texture, types::UITextures
+    player_data::drone_script::var::{var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, screen::widget::{text::header::TextDisplay, widget::WidgetType}, texture_manager::texture::Texture, types::UITextures
 };
 
 #[derive(Clone, PartialEq)]
 pub enum PrimitiveVarType {
     Bool(bool),
     Num(i32),
+
 }
 
 impl PrimitiveVarType {
@@ -26,8 +27,9 @@ impl PrimitiveVarType {
 
     pub fn into_widget(&self) -> Option<WidgetType> {
         match self {
-            PrimitiveVarType::Bool(_) => {
-                None
+            PrimitiveVarType::Bool(value) => {
+                let string = format!("Bool: {}", value);
+                return Some(TextDisplay::new(string).wrap_into_widget());
             },
             PrimitiveVarType::Num(_) => {
                 None
@@ -115,6 +117,7 @@ impl PrimitiveVarKind {
             PrimitiveVarKind::Num => Texture::UITexture(UITextures::NumVarIcon),
         }
     }
+
 
     pub fn wrap_into_var_kind(self) -> VarKind {
         VarKind::Prim(self)

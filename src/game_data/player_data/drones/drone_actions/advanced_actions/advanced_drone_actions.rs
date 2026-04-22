@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_script::var::{game_vars::dynamic_var::{DynamicVarType, DynamicVarTypeKind}, var::Var, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::{advanced_actions::path_planner::plan_path_to_cords, drone_actions::{DroneAction, DroneActionError}}}, locations::location::WorldLocation}, texture_manager::texture::Texture, types::UITextures};
+use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_script::{action::action_type::ActionType, var::{game_vars::dynamic_var::{DynamicVarType, DynamicVarTypeKind}, var::Var, var_type::{VarKind, VarType}}}, drones::{drone::Drone, drone_actions::{advanced_actions::path_planner::plan_path_to_cords, drone_actions::{DroneAction, DroneActionError}}}, locations::location::WorldLocation}, texture_manager::texture::Texture, types::UITextures};
 
 
 #[derive(Clone)]
@@ -25,14 +25,18 @@ impl DroneAdvancedAction {
         }
     }
 
-    pub fn wrap_into_action(self) -> DroneAction {
+    pub fn wrap_into_action(self) -> ActionType {
+        DroneAction::AdvancedAction(self).wrap_into_action()
+    }
+
+    pub fn wrap_into_drone_action(self) -> DroneAction {
         DroneAction::AdvancedAction(self)
     }
 
     pub fn get_all_actions() -> Vec<DroneAction> {
         let mut all_actions = Vec::new();
     
-        all_actions.push(DroneAdvancedAction::PathToLocation(None).wrap_into_action());
+        all_actions.push(DroneAdvancedAction::PathToLocation(None).wrap_into_drone_action());
         
         return all_actions;
     }
