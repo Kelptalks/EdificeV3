@@ -41,7 +41,7 @@ pub struct VarTabPanel {
 
 impl VarTabPanel {
 
-    pub fn new() -> VarTabPanel {
+    pub fn new(selected_var: &Rc<RefCell<VarType>>,) -> VarTabPanel {
 
         let var = Var::new_blank();
         let var_ref = var.get_var_type_ref();
@@ -51,7 +51,7 @@ impl VarTabPanel {
 
         let mut var_tab_panel = VarTabPanel {
             widget_properties: WidgetProperties::new_blank(),
-            var_ref: var_ref,
+            var_ref: selected_var.clone(),
 
             var_slot: var_slot,
             scroll_panel,
@@ -75,31 +75,36 @@ impl VarTabPanel {
     fn get_widgets_for_var(&self, game_event_manager: &mut EventManager) -> Vec<Rc<RefCell<WidgetType>>> {
         let mut widgets = Vec::new();
 
-        let var_properties = self.var_ref.borrow().get_properties();
-        for prop in var_properties {
 
-            let widget_option;
-            if prop.mutible {
-                widget_option = self.widget_pool.mutable.get(&prop.key);
-            } else {
-                widget_option = self.widget_pool.non_mutable.get(&prop.key);
-            }
+        if let Some(var_widget) = self.var_ref.borrow().into_widget() {
+            return vec![Rc::new(RefCell::new(var_widget))];
+        }
+        else {
+            let var_properties = self.var_ref.borrow().get_properties();
+            for prop in var_properties {
 
-            if let Some(widget) = widget_option {
-                let requests = prop.value.update_widget(&mut widget.borrow_mut());
-
-                let mut events = Vec::new();
-
-                for request in requests {
-                    events.push(VarEvents::RequestEvent(self.var_ref.clone(), request).wrap_into_event());
+                let widget_option;
+                if prop.mutible {
+                    widget_option = self.widget_pool.mutable.get(&prop.key);
+                } else {
+                    widget_option = self.widget_pool.non_mutable.get(&prop.key);
                 }
 
-                game_event_manager.add_events(&events);
+                if let Some(widget) = widget_option {
+                    let requests = prop.value.update_widget(&mut widget.borrow_mut());
 
-                widgets.push(widget.clone());
+                    let mut events = Vec::new();
+
+                    for request in requests {
+                        events.push(VarEvents::RequestEvent(self.var_ref.clone(), request).wrap_into_event());
+                    }
+
+                    game_event_manager.add_events(&events);
+
+                    widgets.push(widget.clone());
+                }
             }
         }
-
         widgets
     }
 

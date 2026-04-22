@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_script::var::{self, game_vars::game_var_type::{GameVarType, GameVarTypeKind}, programming_vars::programming_var::ProgrammingVar, var::Var, var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, drones::drone::Drone, locations::location::WorldLocation}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_script::var::{self, game_vars::game_var_type::{GameVarKind, GameVarType}, programming_vars::programming_var::ProgrammingVar, var::Var, var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, drones::drone::Drone, locations::location::WorldLocation}, screen::widget::{panel::panel::Panel, widget::WidgetType}, texture_manager::texture::Texture, types::BlockTexture};
 
 
 #[derive(Clone)]
@@ -41,6 +41,28 @@ impl DynamicVarType {
         }
     }
 
+    pub fn into_widget(&self) -> Option<WidgetType> {
+        match self {
+            DynamicVarType::Location(ref_cell) => {
+                None
+            },
+            DynamicVarType::Drone(ref_cell) => {
+                if let Some(drone) = ref_cell {
+                    let mut panel = Panel::new_blank();
+                    panel.add_text_display("Drone Panel".to_string());
+                    return Some(panel.wrap_into_widget())
+                }
+                else {
+                    None
+                }
+            },
+        }
+    }
+
+    //=====================================
+    // Identity
+    //=====================================
+
     pub fn to_kind(&self) -> DynamicVarTypeKind {
         match self {
             DynamicVarType::Location(_) => DynamicVarTypeKind::Location,
@@ -48,8 +70,25 @@ impl DynamicVarType {
         }
     }
 
+    pub fn get_name(&self) -> String {
+        match self {
+            DynamicVarType::Location(location_option_ref) => {
+                if let Some(location) = location_option_ref {
+                    return location.borrow().get_name().to_string();
+                }
+                return "UNKOWN LOCATION".to_string();
+            },
+            DynamicVarType::Drone(drone_option_ref) => {
+                if let Some(drone) = drone_option_ref {
+                    return drone.borrow().get_name();
+                }
+                return "UNKOWN DRONE".to_string();
+            },
+        }
+    }
+
     //=====================================
-    // Prop Managment
+    // Properties
     //=====================================
 
     pub fn get_properties(&self) -> Vec<VarProperty> {
@@ -178,22 +217,9 @@ impl DynamicVarType {
         }
     }
 
-    pub fn get_name(&self) -> String {
-        match self {
-            DynamicVarType::Location(location_option_ref) => {
-                if let Some(location) = location_option_ref {
-                    return location.borrow().get_name().to_string();
-                }
-                return "UNKOWN LOCATION".to_string();
-            },
-            DynamicVarType::Drone(drone_option_ref) => {
-                if let Some(drone) = drone_option_ref {
-                    return drone.borrow().get_name();
-                }
-                return "UNKOWN DRONE".to_string();
-            },
-        }
-    }
+    //=====================================
+    // Managment
+    //=====================================
 
     pub fn rename(&mut self, name: String) {
         match self {
@@ -311,7 +337,7 @@ impl DynamicVarTypeKind {
     }
 
     pub fn wrap_into_var_kind(self) -> VarKind {
-        VarKind::Game(GameVarTypeKind::Dynamic(self))
+        VarKind::Game(GameVarKind::Dynamic(self))
     }
 }
 

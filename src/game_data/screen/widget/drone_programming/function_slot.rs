@@ -159,6 +159,7 @@ impl Widget for FunctionSlot {
 
 
             self.rebuild_widgets();
+            self.size();
             self.panel.set_color(PanelColor::SuperLightUI);
         }
         else {

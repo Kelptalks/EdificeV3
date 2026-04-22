@@ -99,6 +99,8 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         spawn_drone.add_left_click_event(PlayViewMode::Drone.to_tab_panel_event(&ref_manager.play_view_mode));
         spawn_drone.set_block(BlockTexture::DroneControler);
         spawn_drone.set_text("Spawn Drone".to_string());
+
+        
         
     }
     return panel;

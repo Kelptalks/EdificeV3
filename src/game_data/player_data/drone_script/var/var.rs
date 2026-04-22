@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::GameVarTypeKind, var_type::{VarKind, VarType}}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::GameVarKind, var_type::{VarKind, VarType}}, texture_manager::texture::Texture};
 
 
 
@@ -19,6 +19,7 @@ pub struct Var {
 }
 
 impl Var {
+
     //=====================================
     // Constructors
     //=====================================

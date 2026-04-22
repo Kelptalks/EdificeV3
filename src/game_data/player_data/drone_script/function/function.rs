@@ -17,7 +17,6 @@ pub struct Function {
     name: String,
 
     params: Vec<VarRef>,
-
     body: ScriptElementBody,
 
     return_value: Var,
@@ -39,6 +38,15 @@ impl Function {
             
             body: ScriptElementBody::new(),
 
+            return_value: Var::new_blank(),
+        }
+    }
+
+    pub fn new_drone_function() -> Function {
+        Function {
+            name: "Drone Functoin".to_string(),
+            params: Vec::new(),
+            body: ScriptElementBody::new(),
             return_value: Var::new_blank(),
         }
     }

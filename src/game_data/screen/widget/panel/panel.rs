@@ -129,6 +129,7 @@ impl Panel {
         for section in &mut self.sections {
             let widget_prefered = section.get_mut_widget().get_preffered_scale();
             stretch_prefered_scale += section.get_section_scale()[stretch];
+            stretch_prefered_scale += self.widget_properties.internal_buffers[1];
 
             let widget_cross = widget_prefered[cross]
                 + internal_buffers[cross]

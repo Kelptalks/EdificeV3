@@ -4,6 +4,7 @@ use std::rc::Rc;
 
 use crate::game_data::game_event_manager::prelude::{EventManager, WorldEvent};
 use crate::game_data::locations::world_area::WorldArea;
+use crate::game_data::player_data::drone_script::function::function::Function;
 use crate::game_data::player_data::drones::drone_actions::drone_actions::DroneAction;
 use crate::game_data::player_data::drones::drone_actions::drone_plan::DronePlan;
 use crate::game_data::player_data::locations::location::WorldLocation;
@@ -40,6 +41,7 @@ pub struct Drone{
     name: String,
 
     // Actions
+    drone_script: Rc<RefCell<Function>>,
     drone_plans: Vec<DronePlan>,
 
     // Position
@@ -73,6 +75,7 @@ impl Drone {
             name: id.to_string(),
             
             // Actions
+            drone_script: Rc::new(RefCell::new(Function::new_drone_function())),
             drone_plans: Vec::new(),
 
             // Position

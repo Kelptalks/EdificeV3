@@ -1,5 +1,5 @@
 
-use crate::game_data::{player_data::drone_script::var::{game_vars::action_var::ActionVarType, var_properties::{VarPropModRequest, VarProperty}, var_type::VarType}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::drone_script::var::{game_vars::action_var::ActionVarType, var_properties::{VarPropModRequest, VarProperty}, var_type::VarType}, screen::widget::widget::WidgetType, texture_manager::texture::Texture};
 
 pub use super::{
     dynamic_var::{DynamicVarType, DynamicVarTypeKind},
@@ -31,6 +31,10 @@ impl GameVarType {
         VarType::Game(self)
     }
 
+    //=====================================
+    // Visual
+    //=====================================
+
     pub fn get_texture(&self) -> Texture {
         match self {
             GameVarType::Primitive(p) => p.get_texture(),
@@ -39,14 +43,32 @@ impl GameVarType {
         }
     }
 
-    pub fn to_kind(&self) -> GameVarTypeKind {
+    pub fn into_widget(&self) -> Option<WidgetType> {
         match self {
-            GameVarType::Primitive(p) => GameVarTypeKind::Primitive(p.to_kind()),
-            GameVarType::Dynamic(d) => GameVarTypeKind::Dynamic(d.to_kind()),
-            GameVarType::Action(d) => todo!()
+            GameVarType::Primitive(primitive_game_var_type) => {
+                None
+            },
+            GameVarType::Dynamic(dynamic_var_type) => {
+                dynamic_var_type.into_widget()
+            },
+            GameVarType::Action(action_var_type) => {
+                None
+            },
         }
     }
 
+    //=====================================
+    // Identity
+    //=====================================
+
+    pub fn to_kind(&self) -> GameVarKind {
+        match self {
+            GameVarType::Primitive(p) => GameVarKind::Primitive(p.to_kind()),
+            GameVarType::Dynamic(d) => GameVarKind::Dynamic(d.to_kind()),
+            GameVarType::Action(d) => todo!()
+        }
+    }
+    
     pub fn get_name(&self) -> String {
         match self {
             GameVarType::Primitive(p) => p.get_name(),
@@ -54,6 +76,10 @@ impl GameVarType {
             GameVarType::Action(d) => todo!(),
         }
     }
+
+    //=====================================
+    // Properties
+    //=====================================
 
     pub fn get_properties(&self) -> Vec<VarProperty> {
         match self {
@@ -74,8 +100,10 @@ impl GameVarType {
             GameVarType::Action(d) => todo!(),
         }
     } 
-
     
+    //=====================================
+    // Managment
+    //=====================================
 
     pub fn clear(&mut self) {
         match self {
@@ -89,16 +117,16 @@ impl GameVarType {
 // ─── GameVarTypeKind ──────────────────────────────────────────────────────────
 
 #[derive(PartialEq, Clone, Copy)]
-pub enum GameVarTypeKind {
+pub enum GameVarKind {
     Primitive(PrimitiveGameVarTypeKind),
     Dynamic(DynamicVarTypeKind),
 }
 
-impl GameVarTypeKind {
+impl GameVarKind {
     pub fn get_texture(&self) -> Texture {
         match self {
-            GameVarTypeKind::Primitive(p) => p.get_texture(),
-            GameVarTypeKind::Dynamic(d) => d.get_texture(),
+            GameVarKind::Primitive(p) => p.get_texture(),
+            GameVarKind::Dynamic(d) => d.get_texture(),
         }
     }
 

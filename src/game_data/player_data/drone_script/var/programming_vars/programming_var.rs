@@ -2,7 +2,7 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::{control_flow::condition::Condition, function::{function::Function, function_call::FunctionCall}, script_element::{self, ScriptElement}, var::{var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::drone_script::{control_flow::condition::Condition, function::{function::Function, function_call::FunctionCall}, script_element::{self, ScriptElement}, var::{var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}}, screen::widget::widget::WidgetType, texture_manager::texture::Texture};
 
 #[derive(Clone, PartialEq)]
 pub enum ProgrammingVar {
@@ -15,6 +15,11 @@ impl ProgrammingVar {
         VarType::ProgrammingVar(self)
     }
     
+    //=====================================
+    // Visual
+    //=====================================
+
+
     pub fn get_texture(&self) -> Texture {
         match self {
             ProgrammingVar::ScriptingElement(script_element) => {
@@ -30,6 +35,21 @@ impl ProgrammingVar {
         }
     }
 
+    pub fn into_widget(&self) -> Option<WidgetType> {
+        match self {
+            ProgrammingVar::ScriptingElement(script_element) => {
+                None
+            },
+            ProgrammingVar::Condition(condition) => {
+                None
+            },
+        }
+    }
+
+    //=====================================
+    // Identity
+    //=====================================
+
     pub fn to_kind(&self) -> ProgrammingVarKind {
         match self {
             ProgrammingVar::ScriptingElement(_) =>  ProgrammingVarKind::Function(),
@@ -44,12 +64,9 @@ impl ProgrammingVar {
         }
     }
 
-    pub fn clear(&mut self) {
-        match self {
-            ProgrammingVar::ScriptingElement(function) => todo!(),
-            ProgrammingVar::Condition(condition) => todo!(),
-        }
-    }
+    //=====================================
+    // Properties
+    //=====================================
 
 
     pub fn get_properties(&self) -> Vec<VarProperty> {
@@ -79,8 +96,15 @@ impl ProgrammingVar {
     }
 
     //=====================================
-    // Into
+    // Managment
     //=====================================
+
+    pub fn clear(&mut self) {
+        match self {
+            ProgrammingVar::ScriptingElement(function) => todo!(),
+            ProgrammingVar::Condition(condition) => todo!(),
+        }
+    }
 
 
 }

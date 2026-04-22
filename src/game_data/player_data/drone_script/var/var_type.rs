@@ -1,13 +1,13 @@
 
 
-use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::{GameVarType, GameVarTypeKind}, prim_vars::prim_var_type::{PrimitiveVarType, PrimitiveVarKind}, programming_vars::programming_var::{self, ProgrammingVar, ProgrammingVarKind}, var::Var, var_properties::{VarPropModRequest, VarProperty}}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::{GameVarType, GameVarKind}, prim_vars::prim_var_type::{PrimitiveVarKind, PrimitiveVarType}, programming_vars::programming_var::{self, ProgrammingVar, ProgrammingVarKind}, var::Var, var_properties::{VarPropModRequest, VarProperty}}, screen::widget::widget::WidgetType, texture_manager::texture::Texture, types::BlockTexture};
 
 
 
 #[derive(Clone, Copy)]
 pub enum VarKind {
     Any,
-    Game(GameVarTypeKind),
+    Game(GameVarKind),
     ProgrammingVar(ProgrammingVarKind),
     Prim(PrimitiveVarKind),
 }
@@ -42,9 +42,6 @@ impl VarKind {
             },
         }
     }
-
-    
-
 }
 
 
@@ -72,6 +69,10 @@ impl VarType {
         }  
     }
 
+    //=====================================
+    // Visual
+    //=====================================
+
     pub fn get_texture(&self) -> Texture {
         match self {
             VarType::Null() => {
@@ -82,6 +83,25 @@ impl VarType {
             VarType::Prim(prim) => prim.get_texture(),
         }
     }
+
+    pub fn into_widget(&self) -> Option<WidgetType> {
+        match self {
+            VarType::Null() => None,
+            VarType::Game(game_var_type) => {
+                game_var_type.into_widget()
+            },
+            VarType::ProgrammingVar(programming_var) => {
+                programming_var.into_widget()
+            },
+            VarType::Prim(primitive_var_type) => {
+                primitive_var_type.into_widget()
+            },
+        }
+    }
+
+    //=====================================
+    // Identity
+    //=====================================
 
     pub fn to_kind(&self) -> VarKind {
         match self {
@@ -111,17 +131,11 @@ impl VarType {
             VarType::Prim(prim) => prim.get_name(),
         }
     }
+    
 
-    pub fn clear(&mut self) {
-        match self {
-            VarType::Null() => {
-
-            }
-            VarType::Game(game_var) => {game_var.clear()},
-            VarType::ProgrammingVar(programming_var) => {programming_var.clear();},
-            VarType::Prim(prim) => {prim.clear();},
-        }
-    }
+    //=====================================
+    // Properties
+    //=====================================
 
     pub fn get_properties(&self) -> Vec<VarProperty> {
         match self {
@@ -156,4 +170,21 @@ impl VarType {
             },
         }
     }
+
+    //=====================================
+    // Managment
+    //=====================================
+
+    pub fn clear(&mut self) {
+        match self {
+            VarType::Null() => {
+
+            }
+            VarType::Game(game_var) => {game_var.clear()},
+            VarType::ProgrammingVar(programming_var) => {programming_var.clear();},
+            VarType::Prim(prim) => {prim.clear();},
+        }
+    }
+
+
 }

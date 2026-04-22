@@ -25,6 +25,7 @@ pub struct PlayViewRenderingConfig {
     render_all_locations: Rc<RefCell<bool>>,
     all_locations: Rc<RefCell<Vec<Rc<RefCell<WorldLocation>>>>>,
 
+    
 
     cursor_config: CursorConfig
 

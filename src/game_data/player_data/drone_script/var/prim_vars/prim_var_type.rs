@@ -1,7 +1,5 @@
 use crate::game_data::{
-    player_data::drone_script::var::{var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarType, VarKind}},
-    texture_manager::texture::Texture,
-    types::UITextures,
+    player_data::drone_script::var::{var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, screen::widget::widget::WidgetType, texture_manager::texture::Texture, types::UITextures
 };
 
 #[derive(Clone, PartialEq)]
@@ -15,12 +13,31 @@ impl PrimitiveVarType {
         VarType::Prim(self)
     }
     
+    //=====================================
+    // Visual
+    //=====================================
+
     pub fn get_texture(&self) -> Texture {
         match self {
             PrimitiveVarType::Bool(_) => Texture::UITexture(UITextures::BoolVarIcon),
             PrimitiveVarType::Num(_) => Texture::UITexture(UITextures::NumVarIcon),
         }
     }
+
+    pub fn into_widget(&self) -> Option<WidgetType> {
+        match self {
+            PrimitiveVarType::Bool(_) => {
+                None
+            },
+            PrimitiveVarType::Num(_) => {
+                None
+            },
+        }
+    }
+
+    //=====================================
+    // Identity
+    //=====================================
 
     pub fn to_kind(&self) -> PrimitiveVarKind {
         match self {
@@ -36,6 +53,10 @@ impl PrimitiveVarType {
         }
     }
 
+    //=====================================
+    // Properties
+    //=====================================
+
     pub fn get_properties(&self) -> Vec<VarProperty> {
         match self {
             PrimitiveVarType::Bool(b) => {
@@ -48,13 +69,6 @@ impl PrimitiveVarType {
                     VarProperty { key: PropKey::Name, value: PropValue::Num(*n), mutible: false },
                 ]
             }
-        }
-    }
-
-    pub fn clear(&mut self) {
-        match self {
-            PrimitiveVarType::Bool(b) => *b = false,
-            PrimitiveVarType::Num(n) => *n = 0,
         }
     }
 
@@ -73,6 +87,19 @@ impl PrimitiveVarType {
             }
         }
     }
+
+    //=====================================
+    // Managment
+    //=====================================
+
+
+    pub fn clear(&mut self) {
+        match self {
+            PrimitiveVarType::Bool(b) => *b = false,
+            PrimitiveVarType::Num(n) => *n = 0,
+        }
+    }
+
 }
 
 #[derive(Clone, Copy, PartialEq)]
