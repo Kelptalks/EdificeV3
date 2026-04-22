@@ -76,7 +76,7 @@ impl DroneAdvancedAction {
         params
     }
 
-    pub fn set_params_from_vars(&mut self, params: &Vec<Rc<RefCell<VarType>>>) {
+    pub fn set_params_from_vars(&mut self, params: &Vec<Var>) {
         match self {
             DroneAdvancedAction::PathToLocation(location_ref) => {
                 let var_location_option_ref =  DynamicVarType::into_location_ref(&params[0]);

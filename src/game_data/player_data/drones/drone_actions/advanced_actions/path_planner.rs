@@ -200,7 +200,9 @@ pub fn plan_path_to_cords(drone: &mut Drone, world: &World, goal_cords: [i32; 3]
     
     let mut path_directions = get_path(drone, world, drone.get_cords(), goal_cords);
 
-
+    if path_directions.len() == 0 {
+        return DroneActionError::FailedToPath.wrap_into_var_type().create_var()
+    }
 
     // Create drone actions from direction
     while let Some(direction) = path_directions.pop() {

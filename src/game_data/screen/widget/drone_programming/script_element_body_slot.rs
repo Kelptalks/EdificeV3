@@ -55,7 +55,7 @@ impl ScriptElementBodySlot {
     }
 
     fn get_mut_widget(&mut self, index: usize) -> Option<&mut WidgetType> {
-        self.widgets.get_mut(index + 1)
+        self.widgets.get_mut(index)
     }
 
 
@@ -92,15 +92,39 @@ impl ScriptElementBodySlot {
         indexes
     }
 
-    pub fn highlight_key(&mut self, key: &mut VecDeque<usize>) {
+    pub fn get_mouse_index(&self, screen_data: &ScreenData) -> VecDeque<usize> {
+        let mut indexes = VecDeque::new();
+
+        for (index, widget) in self.widgets.iter().enumerate() {
+            if widget.mouse_on(screen_data) {
+                if index == 0 {
+                    indexes.push_back(0);
+                    return indexes;
+                }
+
+
+                if let WidgetType::ControlFlowSlot(control_flow_slot) = widget {
+                    let mut child_indexes = control_flow_slot.get_mouse_incert_index(screen_data);
+                    child_indexes.push_back(index - 1);
+                    return child_indexes;
+                }
+            
+                indexes.push_back(index - 1)
+            }
+        }
+
+        indexes
+    }
+
+    pub fn highlight_key(&mut self, key: &mut VecDeque<usize>, color: [u8; 3]) {
         if let Some(current_key) = key.pop_back() {
             if let Some(widget) = self.get_mut_widget(current_key) {
                 if let Some(sub_body_widget) = widget.extract_body_widget() {
-                    sub_body_widget.highlight_key(key);
+                    sub_body_widget.highlight_key(key, color);
                 }
                 
                 if let Some(scripting_widget) = &mut widget.as_scripting_widget() {
-                    scripting_widget.set_highlighted([0, 255, 0]);
+                    scripting_widget.set_highlighted(color);
                 }
                 
             }

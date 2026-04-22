@@ -16,6 +16,7 @@ use crate::game_data::{
 pub struct Function {
     name: String,
 
+    paused: bool,
     execution_index_key: VecDeque<usize>,
 
     params: Vec<VarRef>,
@@ -37,6 +38,7 @@ impl Function {
             name: "Blank Function".to_string(),
 
             // Execution
+            paused: true,
             execution_index_key: VecDeque::new(),
 
             // Values
@@ -69,15 +71,22 @@ impl Function {
     // Execution
     //=====================================
 
+    pub fn is_paused(&self) -> bool {
+        return self.paused;
+    }
+
+    pub fn toggle_pause(&mut self) {
+        self.paused = !self.paused
+    }
+
     pub fn step_function(&mut self) {
+        if self.paused {
+            return;
+        }
         let cloned_key = self.execution_index_key.clone();
-
-
         if let Some(current_key) = self.execution_index_key.front_mut() {
             if let Some(current_element) = self.body.get_mut_element_with_key(&mut cloned_key.clone()) {
-                let indent = "-".repeat(cloned_key.len());
 
-                println!("{}Current Element: {} | Key: {:?}", indent, current_element.get_name(), cloned_key);
                 if current_element.has_body() {
                     self.execution_index_key.push_front(0);
                 }
@@ -87,7 +96,6 @@ impl Function {
             }
             else {
                 // Function Finished
-                println!("key finished");
                 self.execution_index_key.pop_front();
                 if let Some(new_front) = self.execution_index_key.front_mut() {
                     *new_front += 1;
@@ -96,16 +104,22 @@ impl Function {
         }
         else {
             // Start Function
-            println!("~~~~~~~~~~~~~~~~~~~~~~~~~");
-            println!("Starting Function");
-
             self.execution_index_key.push_front(0);
         }        
         
     } 
 
+    pub fn get_current_execution_element(&mut self) -> Option<&mut ScriptElement> {
+        let mut cloned_key = self.execution_index_key.clone();
+        return self.body.get_mut_element_with_key(&mut cloned_key);
+    }
+
     pub fn get_execution_index_key(&self) -> &VecDeque<usize> {
         &self.execution_index_key
+    }
+
+    pub fn set_execution_index_key(&mut self, key: VecDeque<usize>) {
+        self.execution_index_key = key;
     }
 
     //=====================================

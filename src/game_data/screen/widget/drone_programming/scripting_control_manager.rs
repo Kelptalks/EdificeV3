@@ -22,7 +22,6 @@ pub fn handle_mouse_element_body_incert(
                 element_body.insert_element_with_key(index_keys, mouses_element.clone());
 
 
-                println!("Adding script element: {}", mouses_element.get_name());
             }
         }
 

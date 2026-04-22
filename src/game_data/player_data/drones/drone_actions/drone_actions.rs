@@ -132,12 +132,13 @@ impl DroneAction {
         }
     }
 
-    pub fn set_params_from_vars(&mut self, params: &Vec<Rc<RefCell<VarType>>>) {
+    pub fn set_params_from_vars(&mut self, params: &Vec<Var>) {
         match self {
             DroneAction::PrimAction(drone_prim_action) => {
-                drone_prim_action.set_params_from_vars(params);
+                // drone_prim_action.set_params_from_vars(params);
             },
             DroneAction::AdvancedAction(advanced_drone_action) => {
+                
                 advanced_drone_action.set_params_from_vars(params);
             },
             DroneAction::GetterAction(getter_action) => {

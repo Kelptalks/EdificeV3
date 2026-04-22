@@ -1,18 +1,14 @@
-use std::{cell::RefCell, fmt::format, intrinsics::copy_nonoverlapping, rc::Rc};
+use std::{cell::RefCell, fmt::format, intrinsics::copy_nonoverlapping, rc::Rc, string};
 
 use crate::game_data::{
-    game_event_manager::{self, prelude::{EventManager, GameEventManager}}, player_data::{
+    TextureManager, game_event_manager::{self, prelude::{EventManager, GameEventManager}}, player_data::{
         drone_script::{
             control_flow, 
             function::{self, function::Function}, 
             script_element::ScriptElement, 
             var::{programming_vars::programming_var::ProgrammingVar, var_type::VarType}
-        }, drones::drone_actions::drone_actions::DroneAction}, 
-        screen::{self, 
-            ScreenData, 
-            screen_data, 
-            widget::{self, drone_programming::{
-                control_flow_slot, script_element_body_slot::ScriptElementBodySlot, scripting_control_manager, scripting_widget_type::{self, ScriptingElementWidget, ScriptingWidgetType}}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot}, widget::{Widget, WidgetType}, widget_calculations::TextSize, widget_properties::WidgetProperties}}};
+        }, drones::drone_actions::drone_actions::DroneAction}, screen::{self, ScreenData, screen_data, text::render_string_at_ndc, widget::{self, drone_programming::{
+                control_flow_slot, script_element_body_slot::ScriptElementBodySlot, scripting_control_manager, scripting_widget_type::{self, ScriptingElementWidget, ScriptingWidgetType}}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot}, widget::{Widget, WidgetType}, widget_calculations::TextSize, widget_properties::WidgetProperties}}, texture_manager};
 
 
 
@@ -53,9 +49,12 @@ impl FunctionSlot {
         let saved_parent_pos = self.panel.get_widget_properties().parent_pos;
 
         let mut panel = Panel::new_blank();
+        let pause_button = panel.add_toggle_button();
+        pause_button.set_icon(crate::game_data::types::UITextures::Pause);
+        pause_button.set_text("Pause".to_string());
 
-        let step_button = panel.add_button();
-        step_button.set_text("Step Function".to_string());
+        
+
 
         let function_borrow = self.function_ref.borrow();
 
@@ -76,7 +75,12 @@ impl FunctionSlot {
         // Add body
         let mut body_slot = ScriptElementBodySlot::new(function_borrow.get_body());
         let mut step_key = function_borrow.get_execution_index_key().clone();
-        body_slot.highlight_key(&mut step_key);
+        if function_borrow.is_paused() {
+            body_slot.highlight_key(&mut step_key, [255, 0, 0]);
+        }
+        else {
+            body_slot.highlight_key(&mut step_key, [0, 255, 0]);
+        }
 
         panel.add_widget(body_slot.wrap_into_widget());
 
@@ -89,6 +93,22 @@ impl FunctionSlot {
         self.panel = panel;
     }
 
+
+    fn render_debug_data(&mut self, texture_manager: &mut TextureManager, screen_data: &ScreenData) {
+        let widget_mouse_on_option = self.panel.get_mut_sub_widget_mouse_on(screen_data);
+        // Render key string
+        if let Some(WidgetType::ScriptElementBodySlot(body_slot)) = widget_mouse_on_option {
+            let index_keys = body_slot.get_mouse_index(screen_data);
+            let key_string = format!("{:?}", index_keys);
+            render_string_at_ndc(
+                texture_manager, 
+                key_string, 
+                crate::game_data::types::FontType::Basic, 
+                TextSize::Small.get_scale(), 
+                screen_data.get_mouse_ndc()
+            );  
+        }
+    }
 
 
 }
@@ -122,12 +142,11 @@ impl Widget for FunctionSlot {
     ) {
         self.panel.render(texture_manager, screen_data, event_manager);
 
-        
+        self.render_debug_data(texture_manager, screen_data);
 
         // Handle inputs
         if self.panel.mouse_on(screen_data) {
             // get widget as scripting element widget
-            
             let widget_mouse_on_option = self.panel.get_mut_sub_widget_mouse_on(screen_data);
 
             if screen_data.was_left_pressed() {
@@ -135,6 +154,14 @@ impl Widget for FunctionSlot {
                     if button.mouse_on(screen_data) {
                         self.function_ref.borrow_mut().step_function();
                     }
+                }
+                else if let Some(WidgetType::ToggleButton(button)) = widget_mouse_on_option {
+                    self.function_ref.borrow_mut().toggle_pause();
+                }
+                else if let Some(WidgetType::ScriptElementBodySlot(body_slot)) = widget_mouse_on_option {
+                    let index_keys = body_slot.get_mouse_index(screen_data);
+                    self.function_ref.borrow_mut().set_execution_index_key(index_keys);
+                    
                 }
             }
 
@@ -155,16 +182,15 @@ impl Widget for FunctionSlot {
                     )
                 }
             }
-
-
-            self.rebuild_widgets();
-            self.size();
             self.panel.set_color(PanelColor::SuperLightUI);
         }
         else {
             self.panel.set_color(PanelColor::LightUI);
         }
+        self.rebuild_widgets();
+        self.size();
     }
+    
 }
 
 

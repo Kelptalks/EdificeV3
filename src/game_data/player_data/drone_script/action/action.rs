@@ -1,4 +1,4 @@
-use crate::game_data::{player_data::drone_script::{action::action_type::ActionType, script_element::ScriptElement, var::{prim_vars::prim_var_type::PrimitiveVarType, var::{Var, VarRef}, var_type::VarType}}, screen::ui_elements::text_bar::TextBar, texture_manager::texture::Texture};
+use crate::game_data::{player_data::{drone_script::{action::action_type::ActionType, script_element::ScriptElement, var::{prim_vars::prim_var_type::PrimitiveVarType, var::{Var, VarRef}, var_type::VarType}}, drones::drone_actions::drone_actions::DroneAction}, screen::ui_elements::text_bar::TextBar, texture_manager::texture::Texture};
 
 
 #[derive(Clone)]
@@ -31,9 +31,22 @@ impl Action {
         Action {
             action_type: action_type,
             params: vars,
-
             return_var,
         }
+    }
+
+    pub fn as_drone_action(&mut self) -> Option<DroneAction> {
+        if let ActionType::DroneAction(drone_action) = &self.action_type{
+            let mut compiled_action = drone_action.clone();
+            compiled_action.set_params_from_vars(&self.params);
+            Some(compiled_action)
+        }
+        else {
+            None
+        }
+        
+        
+
     }
     
     pub fn wrap_into_script_element(self) -> ScriptElement {

@@ -169,6 +169,7 @@ impl Widget for ScrollPanel {
         let scale = self.widget_properties.scale;
 
         let mut current_widget_buffer_offset = -*self.scroll_value.borrow();
+        let mut total_content_height = 0.0;
 
         // Size Up Button
         let mut button_buffer = internal_buffers;
@@ -176,7 +177,9 @@ impl Widget for ScrollPanel {
         self.buttons[0].set_parent_pos(pos);
         self.buttons[0].set_buffers(button_buffer);
         self.buttons[0].size();
-        current_widget_buffer_offset += self.buttons[0].get_scale()[1];
+        let button_height = self.buttons[0].get_scale()[1];
+        current_widget_buffer_offset += button_height;
+        total_content_height += button_height;
 
         for widget in &mut self.widgets {
             let mut widget_buffer = internal_buffers;
@@ -192,7 +195,9 @@ impl Widget for ScrollPanel {
             widget.size();
 
             let widget_scale = widget.get_scale();
-            current_widget_buffer_offset += widget_scale[1] + internal_buffers[1] + internal_buffers[3];
+            let added = widget_scale[1] + internal_buffers[1] + internal_buffers[3];
+            current_widget_buffer_offset += added;
+            total_content_height += added;
         }
 
         // Size Down Button
@@ -202,7 +207,7 @@ impl Widget for ScrollPanel {
         self.buttons[1].set_buffers(button_buffer);
         self.buttons[1].size();
 
-        self.max_scroll_value = current_widget_buffer_offset;
+        self.max_scroll_value = (total_content_height - scale[1]).max(0.0);
     }
 
     fn render(

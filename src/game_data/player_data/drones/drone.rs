@@ -4,8 +4,14 @@ use std::rc::Rc;
 
 use crate::game_data::game_event_manager::prelude::{EventManager, WorldEvent};
 use crate::game_data::locations::world_area::WorldArea;
+use crate::game_data::player_data::drone_script::action;
 use crate::game_data::player_data::drone_script::function::function::Function;
-use crate::game_data::player_data::drones::drone_actions::drone_actions::DroneAction;
+use crate::game_data::player_data::drone_script::script_element::ScriptElement;
+use crate::game_data::player_data::drone_script::var::game_vars::action_var::{ActionVarType, ErrorCode};
+use crate::game_data::player_data::drone_script::var::game_vars::game_var_type::GameVarType;
+use crate::game_data::player_data::drone_script::var::var::Var;
+use crate::game_data::player_data::drone_script::var::var_type::VarType;
+use crate::game_data::player_data::drones::drone_actions::drone_actions::{DroneAction, DroneActionError};
 use crate::game_data::player_data::drones::drone_actions::drone_plan::DronePlan;
 use crate::game_data::player_data::locations::location::WorldLocation;
 use crate::game_data::screen::widget::button::button::Button;
@@ -305,7 +311,7 @@ impl Drone {
     // Tikking
     //=====================================
 
-    fn handle_current_plan(&mut self, world: &World, event_manager: &mut EventManager) {
+    fn handle_current_plan(&mut self, world: &World, event_manager: &mut EventManager) -> Option<Var> {
         // handle completed/failed plans after execution
         if let Some(plan) = self.drone_plans.first() {
             if plan.is_completed() || plan.has_failed() {
@@ -319,6 +325,13 @@ impl Drone {
             else { drone_plan.pop_next_action() }
         });
 
+
+        if let Some(action) = action_option {
+            return Some(action.execute(self, world, event_manager));
+        }
+        else {
+            None
+        }
     }
 
     pub fn tik_drone(&mut self, world: &World, event_manager: &mut EventManager) {
@@ -357,7 +370,6 @@ impl Drone {
                 
 
                 self.cords[2] -= 1; // Move drone down one
-                self.busy_time += 1;
                 self.moved = true;
 
                 event_manager.add_event(WorldEvent::ModBlock(self.cords, BlockTexture::from_id(self.direction.to_block_id())).wrap_into_event()); // Add drone back
@@ -366,12 +378,69 @@ impl Drone {
         }
 
         
-
+        
 
 
         // Execute next action
         if self.drone_plans.len() > 0 {
-            self.handle_current_plan(world, event_manager);
+            let return_value_option = self.handle_current_plan(world, event_manager);
+
+            // Pause if action failed
+            if let Some(return_value) = return_value_option {
+                let return_value_type_ref = return_value.get_var_type_ref();
+                let borrow = return_value_type_ref.borrow();
+
+                if let VarType::Game(GameVarType::Action(ActionVarType::Status(status))) = &*borrow {
+                    match status {
+                        ErrorCode::DroneActionError(error) => {
+                            match error {
+                                DroneActionError::Ok => {
+
+                                },
+                                _ => {
+                                    self.get_function_ref().borrow_mut().toggle_pause();
+                                    self.drone_plans.clear();
+                                }
+                            }
+                        }
+                        _ => {
+
+                        }
+                    }
+                
+                
+                }
+            }
+        }
+        else {
+            
+            let mut plan = None;
+
+            let mut function_borrow = self.get_function_ref().borrow_mut();
+            
+            if function_borrow.is_paused() {return}
+            
+            let element_option = function_borrow.get_current_execution_element();
+            if let Some(element) = element_option {
+                match element {
+                    ScriptElement::Action(action) => {
+                        if let Some(drone_action) = action.as_drone_action() {
+                            let mut new_plan = DronePlan::new();
+                            new_plan.add_action(drone_action);
+                            plan = Some(new_plan);
+                        }
+                    }
+                    _ => {
+
+                    }
+                }
+            }
+            function_borrow.step_function();
+            drop(function_borrow);
+            
+            if let Some(plan) = plan {
+                self.add_plan(plan);
+            }
         }
 
         

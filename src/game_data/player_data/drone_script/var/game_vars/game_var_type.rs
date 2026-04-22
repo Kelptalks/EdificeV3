@@ -1,5 +1,5 @@
 
-use crate::game_data::{player_data::drone_script::var::{game_vars::action_var::ActionVarType, var_properties::{VarPropModRequest, VarProperty}, var_type::VarType}, screen::widget::widget::WidgetType, texture_manager::texture::Texture};
+use crate::game_data::{player_data::drone_script::var::{game_vars::action_var::ActionVarType, var_properties::{VarPropModRequest, VarProperty}, var_type::VarType}, screen::widget::widget::WidgetType, texture_manager::texture::Texture, types::UITextures};
 
 pub use super::{
     dynamic_var::{DynamicVarType, DynamicVarTypeKind},
@@ -65,7 +65,7 @@ impl GameVarType {
         match self {
             GameVarType::Primitive(p) => GameVarKind::Primitive(p.to_kind()),
             GameVarType::Dynamic(d) => GameVarKind::Dynamic(d.to_kind()),
-            GameVarType::Action(d) => todo!()
+            GameVarType::Action(d) => GameVarKind::Action
         }
     }
     
@@ -73,7 +73,7 @@ impl GameVarType {
         match self {
             GameVarType::Primitive(p) => p.get_name(),
             GameVarType::Dynamic(d) => d.get_name(),
-            GameVarType::Action(d) => todo!(),
+            GameVarType::Action(d) => d.to_string(),
         }
     }
 
@@ -85,7 +85,7 @@ impl GameVarType {
         match self {
             GameVarType::Primitive(primitive_var) => primitive_var.get_properties(),
             GameVarType::Dynamic(dynamic_var) => dynamic_var.get_properties(),
-            GameVarType::Action(d) => todo!(),
+            GameVarType::Action(d) => Vec::new(),
         }
     }
 
@@ -97,7 +97,9 @@ impl GameVarType {
             GameVarType::Dynamic(dynamic_var_type_kind) => {
                 dynamic_var_type_kind.request_prop(request);
             },
-            GameVarType::Action(d) => todo!(),
+            GameVarType::Action(d) => {
+                eprintln!("NO IMPLEMENTATION IMPLEMENTED FOR MINIPULATING PRIM VARS");
+            },
         }
     } 
     
@@ -120,6 +122,7 @@ impl GameVarType {
 pub enum GameVarKind {
     Primitive(PrimitiveGameVarTypeKind),
     Dynamic(DynamicVarTypeKind),
+    Action
 }
 
 impl GameVarKind {
@@ -127,6 +130,7 @@ impl GameVarKind {
         match self {
             GameVarKind::Primitive(p) => p.get_texture(),
             GameVarKind::Dynamic(d) => d.get_texture(),
+            GameVarKind::Action => UITextures::FuelIcon.wrap_into_texture()
         }
     }
 

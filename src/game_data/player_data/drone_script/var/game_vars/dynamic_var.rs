@@ -1,6 +1,6 @@
 use std::{cell::RefCell, clone, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_script::var::{self, game_vars::game_var_type::{GameVarKind, GameVarType}, prim_vars::prim_var_type::{PrimitiveVarKind, PrimitiveVarType}, programming_vars::programming_var::ProgrammingVar, var::Var, var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, drones::drone::Drone, locations::location::WorldLocation}, screen::{ui_elements::panel, widget::{self, drone_programming::scripting_elements::scripting_panel::{self, ScriptingPanel}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType}}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_script::var::{self, game_vars::game_var_type::{GameVarKind, GameVarType}, prim_vars::prim_var_type::{PrimitiveVarKind, PrimitiveVarType}, programming_vars::programming_var::ProgrammingVar, var::Var, var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, drones::drone::Drone, locations::location::WorldLocation}, screen::{ui_elements::panel, widget::{self, drone_programming::{function_slot::FunctionSlot, scripting_elements::scripting_panel::{self, ScriptingPanel}}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType}}, texture_manager::texture::Texture, types::BlockTexture};
 
 
 #[derive(Clone)]
@@ -51,7 +51,7 @@ impl DynamicVarType {
                     // Create header
                     let mut panel = Panel::new_blank();
                     
-                    let scripting_panel = ScriptingPanel::new(drone.borrow().get_function_ref());
+                    let scripting_panel = FunctionSlot::new_with_function(drone.borrow().get_function_ref());
 
                     panel.add_widget(scripting_panel.wrap_into_widget());
                     panel.size();
@@ -311,8 +311,9 @@ impl DynamicVarType {
     // Getters
     //=====================================
 
-    pub fn into_location_ref(var: &Rc<RefCell<VarType>>) -> Option<Rc<RefCell<WorldLocation>>> {
-        let borrow = var.borrow();
+    pub fn into_location_ref(var: &Var) -> Option<Rc<RefCell<WorldLocation>>> {
+        let var_type_ref = var.get_var_type_ref();
+        let borrow = var_type_ref.borrow();
         if let VarType::Game(GameVarType::Dynamic(DynamicVarType::Location(location_option_ref))) = &*borrow {
             return location_option_ref.clone()
         }
