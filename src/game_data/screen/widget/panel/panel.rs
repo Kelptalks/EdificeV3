@@ -282,6 +282,10 @@ impl Panel {
         }
     }
 
+    //=====================================
+    // Sub Widget Getters
+    //=====================================
+
     pub fn get_mut_sub_widget_mouse_on(&mut self, screen_data: &ScreenData) -> Option<&mut WidgetType> {
         for section in &mut self.sections {
             let widget_type = section.get_mut_widget();
@@ -302,6 +306,13 @@ impl Panel {
         return None;
     }
 
+    pub fn get_mut_sub_widgets(&mut self) -> Vec<&mut WidgetType> {
+        let mut widgets = Vec::new();
+        for section in &mut self.sections {
+            widgets.push(section.get_mut_widget());
+        }
+        widgets
+    }
 }
 
 

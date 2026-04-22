@@ -2,7 +2,7 @@
 
 use std::collections::VecDeque;
 
-use crate::game_data::{player_data::drone_script::{control_flow::control_flow::ControlFlow, element_body}, screen::{ScreenData, screen_data, ui_elements::panel, widget::{drone_programming::{script_element_body_slot::ScriptElementBodySlot, scripting_widget_type::ScriptingElementWidget}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_calculations::{self, TextSize}, widget_properties::WidgetProperties}}};
+use crate::game_data::{player_data::drone_script::{control_flow::control_flow::ControlFlow, element_body}, screen::{ScreenData, screen_data, ui_elements::panel, widget::{self, drone_programming::{script_element_body_slot::ScriptElementBodySlot, scripting_widget_type::ScriptingElementWidget}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_calculations::{self, TextSize}, widget_properties::WidgetProperties}}};
 
 pub struct ControlFlowSlot {
     panel: Panel,
@@ -13,6 +13,7 @@ pub struct ControlFlowSlot {
 impl ControlFlowSlot {
     pub fn new(control_flow: &ControlFlow, line: usize) -> ControlFlowSlot{
         let mut panel = Panel::new_blank();
+        panel.set_color(PanelColor::Orange);
 
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
         panel.add_text_display(control_flow.get_name()).set_text_scale(TextSize::ExtraSmall);
@@ -41,6 +42,15 @@ impl ControlFlowSlot {
         }
         
 
+    }
+
+    pub fn get_mut_body_widget(&mut self) -> Option<&mut ScriptElementBodySlot> {
+        for sub_widget in self.panel.get_mut_sub_widgets() {
+            if let WidgetType::ScriptElementBodySlot(body) = sub_widget {
+                return Some(body)
+            }
+        }
+        None
     }
 
     pub fn wrap_into_widget(self) -> WidgetType {
@@ -81,7 +91,7 @@ impl Widget for ControlFlowSlot {
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
     ) {
         self.panel.render(texture_manager, screen_data, game_event_manager);
-        self.panel.set_color(PanelColor::LightUI);
+        self.panel.set_color(PanelColor::Orange);
     }
 }
 
@@ -90,8 +100,8 @@ impl ScriptingElementWidget for ControlFlowSlot {
         self.line
     }
     
-    fn set_highlighted(&mut self) {
-        self.panel.set_color(PanelColor::DarkUI);
+    fn highlight(&mut self, color: [u8; 3]) {
+        self.panel.set_color(PanelColor::Custom(color[0], color[1], color[2]));
     }
     
     fn get_line_incert_index(&self, screen_data: &ScreenData) -> usize {

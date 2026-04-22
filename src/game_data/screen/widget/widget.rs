@@ -85,6 +85,17 @@ impl WidgetType {
         }
     }
 
+    pub fn extract_body_widget(&mut self) -> Option<&mut ScriptElementBodySlot> {
+        match self {
+            WidgetType::ControlFlowSlot(control_flow) => {
+                return control_flow.get_mut_body_widget()
+            }
+            _ => {
+                None
+            }
+        }
+    }
+
 
     
 }

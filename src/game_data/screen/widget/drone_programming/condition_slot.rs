@@ -46,8 +46,8 @@ impl ScriptingElementWidget for ConditionSlot {
         0
     }
 
-    fn set_highlighted(&mut self) {
-        self.panel.set_color(PanelColor::DarkUI);
+    fn highlight(&mut self, color: [u8; 3]) {
+        self.panel.set_color(PanelColor::Custom(color[0], color[1], color[2]));
     }
     
     fn get_line_incert_index(&self, screen_data: &ScreenData) -> usize {

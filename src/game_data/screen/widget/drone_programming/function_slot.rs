@@ -27,33 +27,19 @@ impl FunctionSlot {
 
     pub fn new_with_function(function_ref: &Rc<RefCell<Function>>) -> FunctionSlot {
         let mut panel = Panel::new_blank();
-        let function_borrow = function_ref.borrow();
-
-        panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::TopLeft);
-        panel.add_text_display(function_borrow.get_name()).set_text_scale(TextSize::Medium);
-
-        
-        let params = function_borrow.get_params();
-        for param in params {
-            let mut var_slot = VarSlot::new_with_var_ref(param.clone());
-            var_slot.set_dragging_properties(true, true, true);
-            panel.add_widget(var_slot.wrap_into_widget());
-        }
-
-        let body_slot = ScriptElementBodySlot::new(function_borrow.get_body());
-        panel.add_widget(body_slot.wrap_into_widget());
-        
-
-        panel.size();
-            
 
 
-        FunctionSlot {
+
+        let mut slot =FunctionSlot {
             function_ref: function_ref.clone(),
             panel: panel,
 
             mouse_function_index: 0,
-        }
+        };
+
+        slot.rebuild_widgets();
+
+        slot
 
 
     }
@@ -67,6 +53,10 @@ impl FunctionSlot {
         let saved_parent_pos = self.panel.get_widget_properties().parent_pos;
 
         let mut panel = Panel::new_blank();
+
+        let step_button = panel.add_button();
+        step_button.set_text("Step Function".to_string());
+
         let function_borrow = self.function_ref.borrow();
 
         
@@ -84,7 +74,10 @@ impl FunctionSlot {
         }
 
         // Add body
-        let body_slot = ScriptElementBodySlot::new(function_borrow.get_body());
+        let mut body_slot = ScriptElementBodySlot::new(function_borrow.get_body());
+        let mut step_key = function_borrow.get_execution_index_key().clone();
+        body_slot.highlight_key(&mut step_key);
+
         panel.add_widget(body_slot.wrap_into_widget());
 
         drop(function_borrow);
@@ -129,12 +122,21 @@ impl Widget for FunctionSlot {
     ) {
         self.panel.render(texture_manager, screen_data, event_manager);
 
+        
+
         // Handle inputs
         if self.panel.mouse_on(screen_data) {
             // get widget as scripting element widget
             
             let widget_mouse_on_option = self.panel.get_mut_sub_widget_mouse_on(screen_data);
 
+            if screen_data.was_left_pressed() {
+                if let Some(WidgetType::Button(button)) = widget_mouse_on_option {
+                    if button.mouse_on(screen_data) {
+                        self.function_ref.borrow_mut().step_function();
+                    }
+                }
+            }
 
             if screen_data.was_left_released() {
                 if let Some(WidgetType::ScriptElementBodySlot(body_slot)) = widget_mouse_on_option {
@@ -151,9 +153,6 @@ impl Widget for FunctionSlot {
                         event_manager, 
                         &mut index_keys,
                     )
-                    
-                    
-                    
                 }
             }
 
@@ -175,8 +174,8 @@ impl ScriptingElementWidget for FunctionSlot {
     }
     
     
-    fn set_highlighted(&mut self) {
-
+    fn highlight(&mut self, color: [u8; 3]) {
+        self.panel.set_color(PanelColor::Custom(color[0], color[1], color[2]));
     }
     
     fn get_line_incert_index(&self, screen_data: &ScreenData) -> usize {

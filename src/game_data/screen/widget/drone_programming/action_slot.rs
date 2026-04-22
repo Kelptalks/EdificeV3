@@ -114,7 +114,7 @@ impl ScriptingElementWidget for ActionSlot {
         self.line
     }
 
-    fn set_highlighted(&mut self) {
-        self.panel.set_color(PanelColor::BrightYellow);
+    fn highlight(&mut self, color: [u8; 3]) {
+        self.panel.set_color(PanelColor::Custom(color[0], color[1], color[2]));
     }
 }

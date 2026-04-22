@@ -54,6 +54,11 @@ impl ScriptElementBodySlot {
         None
     }
 
+    fn get_mut_widget(&mut self, index: usize) -> Option<&mut WidgetType> {
+        self.widgets.get_mut(index + 1)
+    }
+
+
     pub fn get_mouse_incert_index(&self, screen_data: &ScreenData) -> VecDeque<usize> {
         let mut indexes = VecDeque::new();
 
@@ -85,6 +90,21 @@ impl ScriptElementBodySlot {
         }
 
         indexes
+    }
+
+    pub fn highlight_key(&mut self, key: &mut VecDeque<usize>) {
+        if let Some(current_key) = key.pop_back() {
+            if let Some(widget) = self.get_mut_widget(current_key) {
+                if let Some(sub_body_widget) = widget.extract_body_widget() {
+                    sub_body_widget.highlight_key(key);
+                }
+                
+                if let Some(scripting_widget) = &mut widget.as_scripting_widget() {
+                    scripting_widget.set_highlighted([0, 255, 0]);
+                }
+                
+            }
+        }
     }
 
     pub fn wrap_into_widget(self) -> WidgetType {

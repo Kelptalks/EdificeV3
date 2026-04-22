@@ -20,7 +20,7 @@ impl ScriptingPanel {
         let function_slot = FunctionSlot::new_with_function(function);
 
         let mut scroll_panel = ScrollPanel::new();
-        scroll_panel.add_widget(function_slot.wrap_into_widget());
+        panel.add_widget(function_slot.wrap_into_widget());
 
 
         let mut scripting_panel = ScriptingPanel {
@@ -68,6 +68,8 @@ impl Widget for ScriptingPanel {
     }
 
     fn size(&mut self) {
+        self.widget_properties.prefered_scale = self.get_preffered_scale();
+
         self.widget_properties.scale_based_off_parent();
         let pos   = self.widget_properties.pos;
         let scale = self.widget_properties.scale;

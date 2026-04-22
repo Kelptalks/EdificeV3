@@ -27,12 +27,12 @@ impl<'a> ScriptingWidgetType<'a> {
         }
     }
 
-    pub fn set_highlighted(&mut self) {
+    pub fn set_highlighted(&mut self, color: [u8; 3]) {
         match self {
             ScriptingWidgetType::FunctionSlot() => {},
-            ScriptingWidgetType::ControlFlowSlot(w) => w.set_highlighted(),
-            ScriptingWidgetType::ConditionSlot(w) => w.set_highlighted(),
-            ScriptingWidgetType::ActionSlot(w) => w.set_highlighted(),
+            ScriptingWidgetType::ControlFlowSlot(w) => w.highlight(color),
+            ScriptingWidgetType::ConditionSlot(w) => w.highlight(color),
+            ScriptingWidgetType::ActionSlot(w) => w.highlight(color),
         }
     }
 
@@ -55,7 +55,7 @@ impl<'a> ScriptingWidgetType<'a> {
 pub trait ScriptingElementWidget {
     fn get_line_index(&self) -> usize;
 
-    fn set_highlighted(&mut self);
+    fn highlight(&mut self, color: [u8; 3]);
     fn get_line_incert_index(&self, screen_data: &ScreenData) -> usize;
 }
 
