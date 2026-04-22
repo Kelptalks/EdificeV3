@@ -47,7 +47,6 @@ impl ScriptElementBody {
 
     pub fn get_mut_element_with_key(&mut self, keys: &mut VecDeque<usize>) -> Option<&mut ScriptElement> {
         if let Some(key) = keys.pop_back() {
-            
             if keys.is_empty() {
                 return self.get_mut_element(key)
             }

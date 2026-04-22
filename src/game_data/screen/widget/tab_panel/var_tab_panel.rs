@@ -178,6 +178,9 @@ impl Widget for VarTabPanel {
         self.panel_texture.render(texture_manager, bounds);
 
         self.var_slot.get_mut_widget_properties().bounds = bounds;
+        self.var_slot = VarSlot::new_with_var(Var::new_with_var_type(self.var_ref.borrow().clone()));
+        self.size();
+
         self.var_slot.render(texture_manager, screen_data, game_event_manager);
 
         let widgets = self.get_widgets_for_var(game_event_manager);

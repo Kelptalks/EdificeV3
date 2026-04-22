@@ -1,7 +1,7 @@
 use crate::game_data::{player_data::{drone_script::{action::action_type::ActionType, script_element::ScriptElement, var::{prim_vars::prim_var_type::PrimitiveVarType, var::{Var, VarRef}, var_type::VarType}}, drones::drone_actions::drone_actions::DroneAction}, screen::ui_elements::text_bar::TextBar, texture_manager::texture::Texture};
 
 
-#[derive(Clone)]
+#[derive()]
 pub struct Action {
     action_type: ActionType,   
     
@@ -10,6 +10,20 @@ pub struct Action {
 
     return_var: Option<Var>,
 
+}
+
+impl Clone for Action {
+    fn clone(&self) -> Self {
+        let mut deep_cloned_params = Vec::new();
+        for param in &self.params {
+            deep_cloned_params.push(param.deep_clone());
+        }
+        Self { 
+            action_type: self.action_type.clone(), 
+            params: deep_cloned_params,
+            return_var: self.return_var.clone()
+        }
+    }
 }
 
 impl Action {

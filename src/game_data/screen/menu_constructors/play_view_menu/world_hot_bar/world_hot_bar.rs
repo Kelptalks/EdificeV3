@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{prelude::{Event, PlayerDataEvent, WorldEvent}, widget_event_manager::play_view_events::PlayViewEvent}, player_data::{drone_script::var::{game_vars::{dynamic_var::DynamicVarType, game_var_type::GameVarType}, var_type::VarType}, player_data::PlayerData}, screen::{menu_constructors::play_view_menu::new_play_view::{PlayViewMode, RefManager}, widget::{button::button::Button, panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel, VarSlot}, toggle_button, widget::WidgetType, world_rendering::rendering_config::cursor_config::CursorMode}}, types::{BlockTexture, UITextures}};
+use crate::game_data::{game_event_manager::{prelude::{Event, PlayerDataEvent, WorldEvent}, widget_event_manager::play_view_events::PlayViewEvent}, player_data::{drone_script::var::{game_vars::{dynamic_var::DynamicVarType, game_var_type::GameVarType}, var::Var, var_type::VarType}, player_data::PlayerData}, screen::{menu_constructors::play_view_menu::new_play_view::{PlayViewMode, RefManager}, widget::{button::button::Button, panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel, VarSlot}, toggle_button, widget::WidgetType, world_rendering::rendering_config::cursor_config::CursorMode}}, types::{BlockTexture, UITextures}};
 
 //=====================================
 // Helper
@@ -147,11 +147,13 @@ fn get_location_hotbar(ref_manager: &mut RefManager) -> WidgetType {
 
 
         // Var Source Slot
-        /*
-        let mut var_slot = VarSlot::new_with_var_type(&ref_manager.selected_var);
+        
+        let var = Var::new_with_var_type(ref_manager.selected_var.borrow().clone());
+        let mut var_slot = VarSlot::new_with_var(var);
+
         var_slot.set_dragging_properties(true, false, false);     
         panel.add_widget(var_slot.wrap_into_widget());
-         */
+         
 
         // Toggle Render Only Location
         let render_only_location_toggle = panel.add_toggle_button();

@@ -10,7 +10,7 @@ use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type
 ############
 Comments
 */
-#[derive(Clone, PartialEq)]
+#[derive(PartialEq, Clone)]
 pub struct Var {
     name: String,
     
@@ -52,6 +52,14 @@ impl Var {
 
     pub fn set_name(&mut self, name: String) {
         self.name = name;
+    }
+
+    pub fn deep_clone(&self) -> Self {
+        Self {
+            name: self.name.clone(),
+            var_kind: self.var_kind.clone(),
+            var_type_ref: Rc::new(RefCell::new(self.var_type_ref.borrow().clone())),
+        }
     }
     
     //=====================================
