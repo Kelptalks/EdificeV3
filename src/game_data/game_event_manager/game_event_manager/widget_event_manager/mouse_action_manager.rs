@@ -1,13 +1,13 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::{var::VarRef, var_type::VarType}, screen::widget::widget_calculations};
+use crate::game_data::{player_data::drone_script::var::{var::Var, var_type::VarType}, screen::widget::widget_calculations};
 
 
 
 pub struct MouseWidgetData {
     mouse_data_rendering_scale: [f32; 2],
     
-    var_held: Option<VarRef>,
+    var_held: Option<Var>,
 }
 
 impl MouseWidgetData {
@@ -23,11 +23,11 @@ impl MouseWidgetData {
     // Var Setters / Getters
     //=====================================
 
-    pub fn set_var_held(&mut self, var: Option<VarRef>) {
+    pub fn set_var_held(&mut self, var: Option<Var>) {
         self.var_held = var;
     }
 
-    pub fn get_var_held(&mut self) -> &Option<VarRef> {
+    pub fn get_var_held(&mut self) -> &Option<Var> {
         return &self.var_held;
     }
 

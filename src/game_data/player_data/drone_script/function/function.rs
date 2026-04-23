@@ -3,7 +3,7 @@ use std::{cell::{Ref, RefCell}, collections::{HashMap, VecDeque}, ops::Index, rc
 use crate::game_data::{
     player_data::{
         drone_script::{
-            element_body::ScriptElementBody, script_element::{self, ScriptElement}, var::{var::{Var, VarRef}, var_properties::VarPropModRequest, var_type::VarType}
+            element_body::ScriptElementBody, script_element::{self, ScriptElement}, var::{var::{Var}, var_properties::VarPropModRequest, var_type::VarType}
         }, 
         drones::drone_actions::{
             drone_actions::DroneAction, 
@@ -19,7 +19,7 @@ pub struct Function {
     paused: bool,
     execution_index_key: VecDeque<usize>,
 
-    params: Vec<VarRef>,
+    params: Vec<Var>,
     body: ScriptElementBody,
 
     return_value: Var,
@@ -127,7 +127,7 @@ impl Function {
     //=====================================
     
     // Params
-    pub fn get_params(&self) -> &Vec<VarRef> {
+    pub fn get_params(&self) -> &Vec<Var> {
         &self.params
     }
 
@@ -140,8 +140,8 @@ impl Function {
     }
 
     // Return
-    pub fn get_return_var(&mut self) -> VarRef {
-        self.return_value.into_var_ref()
+    pub fn get_return_var(&mut self) -> &Var {
+        &self.return_value
     }
 
 

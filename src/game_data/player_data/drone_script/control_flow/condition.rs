@@ -1,7 +1,7 @@
 
 
 
-use crate::game_data::{player_data::drone_script::{control_flow::comparison::{Comparison, ComparisonOperators}, var::var::VarRef}, screen::widget::{panel::panel::Panel, prelude::VarSlot, widget::WidgetType}, texture_manager::texture::Texture, types::UITextures};
+use crate::game_data::{player_data::drone_script::{control_flow::comparison::{Comparison, ComparisonOperators}, var::var::Var}, screen::widget::{panel::panel::Panel, prelude::VarSlot, widget::WidgetType}, texture_manager::texture::Texture, types::UITextures};
 
 
 
@@ -9,7 +9,7 @@ use crate::game_data::{player_data::drone_script::{control_flow::comparison::{Co
 
 #[derive(Clone)]
 pub enum Condition {
-    If(VarRef),
+    If(Var),
     IfCondition(Comparison),
 }
 
@@ -30,12 +30,12 @@ impl Condition {
 
     pub fn get_widget(&self) -> WidgetType {
         match self {
-            Condition::If(var_ref) => {
+            Condition::If(var) => {
                 let mut panel = Panel::new_blank();
 
                 panel.add_text_display("If".to_string());
 
-                let mut var_slot = VarSlot::new_with_var_ref(var_ref.clone());
+                let mut var_slot = VarSlot::new_with_var(var.clone());
                 var_slot.set_dragging_properties(false, true, true);
                 panel.add_widget(var_slot.wrap_into_widget());
 

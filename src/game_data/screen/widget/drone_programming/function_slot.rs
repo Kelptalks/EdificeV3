@@ -67,7 +67,7 @@ impl FunctionSlot {
 
         let params = function_borrow.get_params();
         for param in params {
-            let mut var_slot = VarSlot::new_with_var_ref(param.clone());
+            let mut var_slot = VarSlot::new_with_var(param.clone());
             var_slot.set_dragging_properties(true, true, true);
             panel.add_widget(var_slot.wrap_into_widget());
         }

@@ -1,69 +1,13 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{TextureManager, game_event_manager::prelude::EventManager, player_data::drone_script::var::{var::{Var, VarRef}, var_type::{VarType, VarKind}}, screen::{ScreenData, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}, texture_manager::{self, texture::Texture}, types::UITextures};
+use crate::game_data::{TextureManager, game_event_manager::prelude::EventManager, player_data::drone_script::var::{self, var::Var, var_type::{VarKind, VarType}}, screen::{ScreenData, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}, texture_manager::{self, texture::Texture}, types::UITextures};
 
 
-
-enum VarSlotType {
-    Source(Var),
-    Ref(VarRef),
-}
-
-impl VarSlotType {
-    pub fn get_var_type_ref(&self) -> Rc<RefCell<VarType>> {
-        match self {
-            VarSlotType::Source(var) => var.get_var_type_ref(),
-            VarSlotType::Ref(var_ref) => var_ref.get_var_type_ref(),
-        }
-    }
-
-    pub fn get_kind_texture(&self) -> Texture {
-        match self {
-            VarSlotType::Source(var) => var.get_kind_texture(),
-            VarSlotType::Ref(var_ref) => var_ref.get_kind_texture(),
-        }
-    }
-
-    pub fn get_texture(&self) -> Texture {
-        match self {
-            VarSlotType::Source(var) => var.get_texture(),
-            VarSlotType::Ref(var_ref) => var_ref.get_texture(),
-        }
-    }
-
-    pub fn get_name(&self) -> String {
-        match self {
-            VarSlotType::Source(var) => var.get_name(),
-            VarSlotType::Ref(var_ref) => var_ref.get_name(),
-        }
-    }
-
-    pub fn clear(&mut self) {
-        match self {
-            VarSlotType::Source(var) => var.clear(),
-            VarSlotType::Ref(var_ref) => var_ref.clear(),
-        }
-    }
-
-    pub fn is_null(&self) -> bool {
-        match self {
-            VarSlotType::Source(var) => var.is_null(),
-            VarSlotType::Ref(var_ref) => var_ref.is_null(),
-        }
-    }
-
-    pub fn into_var_ref(&mut self) -> VarRef {
-        match self {
-            VarSlotType::Source(var) => var.into_var_ref(),
-            VarSlotType::Ref(var_ref) => var_ref.clone(),
-        }
-    }
-}
 
 pub struct VarSlot {
     widget_properties: WidgetProperties,
 
-    var_slot_type: VarSlotType,
+    var: Var,
     var_string_ndc: [f32; 2],
 
     allow_setting: bool,
@@ -72,14 +16,14 @@ pub struct VarSlot {
 }
 
 impl VarSlot {
-    fn new_with_slot_type(var_slot_type: VarSlotType) -> VarSlot {
+    pub fn new_with_var(var_slot_type: Var) -> VarSlot {
         let mut wp = WidgetProperties::new_blank();
         wp.prefered_scale = [widget_calculations::get_button_scale(); 2];
         wp.internal_buffers = [0.012; 4];
 
         VarSlot {
             widget_properties: wp,
-            var_slot_type,
+            var: var_slot_type,
             var_string_ndc: [0.0; 2],
             allow_setting: true,
             allow_dragging: true,
@@ -87,28 +31,16 @@ impl VarSlot {
         }
     }
 
-    pub fn new_source_with_type(var_type: VarType) -> VarSlot {
-        Self::new_with_slot_type(VarSlotType::Source(Var::new_with_var_type(var_type)))
+    pub fn new_with_type(var_type: VarType) -> VarSlot {
+        Self::new_with_var(Var::new_with_var_type(var_type))
     }
 
-    pub fn new_source_with_kind(var_kind: VarKind) -> VarSlot {
-        Self::new_with_slot_type(VarSlotType::Source(Var::new_blank_with_kind(var_kind)))
-    }
-
-    pub fn new_ref_with_kind(var_kind: VarKind) -> VarSlot {
-        Self::new_with_slot_type(VarSlotType::Ref(VarRef::new_blank_with_kind(var_kind)))
-    }
-
-    pub fn new_with_var(var: Var) -> VarSlot {
-        Self::new_with_slot_type(VarSlotType::Source(var))
-    }
-
-    pub fn new_with_var_ref(var_ref: VarRef) -> VarSlot {
-        Self::new_with_slot_type(VarSlotType::Ref(var_ref))
+    pub fn new_with_kind(var_kind: VarKind) -> VarSlot {
+        Self::new_with_var(Var::new_blank_with_kind(var_kind))
     }
 
     pub fn wrap_into_widget(self) -> WidgetType {
-        return WidgetType::VarSlot(self);
+        WidgetType::VarSlot(self)
     }
 
     //=====================================
@@ -125,31 +57,24 @@ impl VarSlot {
     // Control Management Functions
     //=====================================
 
-    fn try_and_set_var(&mut self, var_held_by_mouse: &Option<VarRef>) {
+    fn try_and_set_var(&mut self, var_held_by_mouse: &Option<Var>) {
         if self.allow_setting {
             if let Some(var_held_by_mouse) = var_held_by_mouse {
-                match &mut self.var_slot_type {
-                    VarSlotType::Source(var) => {
-                        var.set_with_var_ref(var_held_by_mouse);
-                    },
-                    VarSlotType::Ref(var_ref) => {
-                        var_ref.set_with_var_ref(var_held_by_mouse);
-                    },
-                }
+                self.var.set_with_var(var_held_by_mouse);
             }
         }
     }
 
-    fn try_and_get_var(&mut self) -> Option<VarRef> {
+    fn try_and_get_var(&mut self) -> Option<Var> {
         if self.allow_dragging {
-            return Some(self.var_slot_type.into_var_ref());
+            return Some(self.var.clone());
         } else {
             return None;
         }
     }
 
     fn render_string(&self, texture_manager: &mut TextureManager) {
-        let string = self.var_slot_type.get_name();
+        let string = self.var.get_name();
         let text_scale = widget_calculations::TextSize::ExtraExtraSmall.get_scale();
         let string_centering_offset = (string.len() as f32 * text_scale) / 2.0;
 
@@ -202,18 +127,13 @@ impl Widget for VarSlot {
         let bounds = self.widget_properties.bounds;
         let pos = self.widget_properties.pos;
 
-        if self.var_slot_type.is_null() {
-            texture_manager.render_texture_within_pos_option(self.var_slot_type.get_kind_texture(), pos, bounds);
+        if self.var.is_null() {
+            texture_manager.render_texture_within_pos_option(self.var.get_kind_texture(), pos, bounds);
         }
-        texture_manager.render_texture_within_pos_option(self.var_slot_type.get_texture(), pos, bounds);
+        texture_manager.render_texture_within_pos_option(self.var.get_texture(), pos, bounds);
 
         if screen_data.mouse_on_ndc_pos(pos) {
             self.render_string(texture_manager);
-
-            match self.var_slot_type {
-                VarSlotType::Source(_) => texture_manager.render_texture_within_pos_option(UITextures::SourceIcon.wrap_into_texture(), pos, bounds),
-                VarSlotType::Ref(_) => texture_manager.render_texture_within_pos_option(UITextures::RefIcon.wrap_into_texture(), pos, bounds),
-            }
 
             if screen_data.was_left_released() {
                 let var_held_by_mouse = game_event_manager.get_mut_event_tools().get_mut_mouse_widget_data().get_var_held();
@@ -225,7 +145,7 @@ impl Widget for VarSlot {
             }
 
             if self.allow_setting && screen_data.was_right_pressed() {
-                self.var_slot_type.clear();
+                self.var.clear();
             }
         }
     }

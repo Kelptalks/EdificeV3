@@ -1,11 +1,11 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::player_data::drone_script::{function::function::Function, var::var::{Var, VarRef}};
+use crate::game_data::player_data::drone_script::{function::function::Function, var::var::{Var}};
 
 
 #[derive(Clone, PartialEq)]
 pub struct FunctionCall {
-    params: Vec<VarRef>,
+    params: Vec<Var>,
     
     function_ref: Rc<RefCell<Function>>,
 

@@ -1,4 +1,4 @@
-use crate::game_data::player_data::drone_script::{control_flow::condition::Condition, element_body::ScriptElementBody, script_element::ScriptElement, var::{prim_vars::prim_var_type::PrimitiveVarKind, var::VarRef, var_type::VarKind}};
+use crate::game_data::player_data::drone_script::{control_flow::condition::Condition, element_body::ScriptElementBody, script_element::ScriptElement, var::{prim_vars::prim_var_type::PrimitiveVarKind, var::Var, var_type::VarKind}};
 
 
 
@@ -14,7 +14,7 @@ impl ControlFlow {
     pub fn new_blank() -> ControlFlow {
         println!("test");
         ControlFlow {
-            condition: Condition::If(VarRef::new_blank_with_kind(VarKind::Prim(PrimitiveVarKind::Bool))), 
+            condition: Condition::If(Var::new_blank_with_kind(VarKind::Prim(PrimitiveVarKind::Bool))), 
             body: ScriptElementBody::new(),
         }
     }

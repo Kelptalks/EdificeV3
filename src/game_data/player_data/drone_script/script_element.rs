@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::game_data::{
     player_data::{
-        drone_script::{action::action::Action, control_flow::control_flow::ControlFlow, element_body::ScriptElementBody, function::{function::Function, function_call::{self, FunctionCall}}, var::{programming_vars::programming_var::ProgrammingVar, var::{Var, VarRef}, var_type::VarType}}, 
+        drone_script::{action::action::Action, control_flow::control_flow::ControlFlow, element_body::ScriptElementBody, function::{function::Function, function_call::{self, FunctionCall}}, var::{programming_vars::programming_var::ProgrammingVar, var::{Var}, var_type::VarType}}, 
         drones::drone_actions::drone_actions::DroneAction}, 
     screen::widget::{drone_programming::{action_slot::ActionSlot, control_flow_slot::ControlFlowSlot, function_slot::FunctionSlot}, panel::panel::Panel, prelude::VarSlot, widget::WidgetType}, texture_manager::texture::Texture, types::UITextures};
 
@@ -10,8 +10,7 @@ use crate::game_data::{
 pub enum ScriptElement {    
     // Vars
     Var(Var),
-    VarRef(VarRef),
-    
+
     // Control Flow
     ControlFlow(ControlFlow),
 
@@ -37,7 +36,6 @@ impl ScriptElement {
     pub fn get_name(&self) -> String {
         match self {
             ScriptElement::Var(var) => var.get_name(),
-            ScriptElement::VarRef(var_ref) => var_ref.get_name(),
             
             ScriptElement::ControlFlow(control_flow) => control_flow.get_name(), 
 
@@ -57,9 +55,6 @@ impl ScriptElement {
         match self {
             ScriptElement::Var(var) => {
                 return VarSlot::new_with_var(var.clone()).wrap_into_widget()
-            },
-            ScriptElement::VarRef(var_ref) => {
-                return VarSlot::new_with_var_ref(var_ref.clone()).wrap_into_widget()
             },
 
             ScriptElement::ControlFlow(control_flow) => {
@@ -84,9 +79,6 @@ impl ScriptElement {
         match self {
             ScriptElement::Var(var) => {
                 var.get_texture()
-            },
-            ScriptElement::VarRef(var_ref) => {
-                var_ref.get_texture()
             },
             ScriptElement::ControlFlow(control_flow) => {
                 UITextures::ControlFlowIcon.wrap_into_texture()
