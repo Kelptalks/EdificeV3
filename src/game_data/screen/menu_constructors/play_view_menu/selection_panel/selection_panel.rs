@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::game_data::{
     player_data::{
-        drone_script::{var::{game_vars::{primitive_var::PrimitiveGameVarType}}},
+        drone_script::{var::{game_vars::{primitive_game_var::PrimitiveGameVarType}}},
     }, 
     screen::{
         menu_constructors::play_view_menu::{new_play_view::RefManager, selection_panel::drone_programming_selection_panel::get_drone_programming_selection_panel}, 

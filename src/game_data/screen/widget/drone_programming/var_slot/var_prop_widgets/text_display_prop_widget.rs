@@ -25,8 +25,8 @@ impl TextDisplayPropWidget {
         let string_ref;
         let input_focused_ref;
         if mutable {
-            string_ref = Rc::new(RefCell::new(" ".to_string()));
-            let mut text_input = TextInput::new_text_input(&string_ref);
+            string_ref = Rc::new(RefCell::new("Edit".to_string()));
+            let text_input = TextInput::new_text_input(&string_ref);
             input_focused_ref = Some(text_input.get_focused_ref().clone());
             panel.add_widget(text_input.wrap_into_widget());
         }
@@ -55,29 +55,10 @@ impl TextDisplayPropWidget {
     }
 
 
-    pub fn update_with_val(&mut self, val: PropValue) -> Vec<VarPropModRequest> {
-        let mut prop_requests = Vec::new();
-        
-        // Don't update if the text input is focused on
-        if self.mutable {
-            if let Some(focused) = &self.input_focused_ref {
-                if *focused.borrow() {
-                    prop_requests.push(VarPropModRequest::Set(self.key, PropValue::String(self.string_ref.borrow().clone())));
-                    return prop_requests;
-                }
-            }
-        }
-        
-
-        *self.string_ref.borrow_mut() = val.into_string();
-        self.panel.size();
-
-        return prop_requests;
-    }
-
     pub fn update_with_var(&mut self, var: &Var) -> Vec<VarPropModRequest> {
         let mut prop_requests = Vec::new();
         
+
         // Don't update if the text input is focused on
         if self.mutable {
             if let Some(focused) = &self.input_focused_ref {
@@ -85,7 +66,7 @@ impl TextDisplayPropWidget {
                     prop_requests.push(
                         VarPropModRequest::Set(
                             self.key, 
-                            PropValue::String(self.string_ref.borrow().clone())
+                            PrimitiveVarType::String(self.string_ref.borrow().clone()).create_var()
                         )
                     );
                     return prop_requests;

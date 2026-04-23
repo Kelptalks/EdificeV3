@@ -105,14 +105,18 @@ impl PrimitiveVarType {
     pub fn request_prop(&mut self, request: VarPropModRequest) {
         match self {
             PrimitiveVarType::Bool(b) => {
-                if let VarPropModRequest::Set(PropKey::Name, PropValue::Bool(val)) = request {
-                    *b = val;
+                if let VarPropModRequest::Set(PropKey::Name, var) = request {
+                    if let Some(var) = var.as_bool() {
+                        *b = var;
+                    }
                 }
             },
 
             PrimitiveVarType::Num(n) => {
-                if let VarPropModRequest::Set(PropKey::Name, PropValue::Num(val)) = request {
-                    *n = val;
+                if let VarPropModRequest::Set(PropKey::Name, var) = request {
+                    if let Some(var) = var.as_i32() {
+                        *n = var;
+                    }
                 }
             },
 

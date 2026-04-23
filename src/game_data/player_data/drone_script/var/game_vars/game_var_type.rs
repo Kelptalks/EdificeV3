@@ -3,7 +3,7 @@ use crate::game_data::{player_data::drone_script::var::{game_vars::action_var::A
 
 pub use super::{
     dynamic_var::{DynamicVarType, DynamicVarTypeKind},
-    primitive_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind},
+    primitive_game_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind},
 };
 
 

@@ -1,6 +1,7 @@
+use core::num;
 use std::{cell::RefCell, clone, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_script::var::{self, game_vars::{game_var_type::{GameVarKind, GameVarType}, primitive_var::PrimitiveGameVarType}, prim_vars::prim_var_type::{PrimitiveVarKind, PrimitiveVarType}, programming_vars::programming_var::ProgrammingVar, var::Var, var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, drones::drone::Drone, locations::location::WorldLocation}, screen::{ui_elements::panel, widget::{self, drone_programming::{function_slot::FunctionSlot, scripting_elements::scripting_panel::{self, ScriptingPanel}}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType}}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_script::var::{self, game_vars::{game_var_type::{GameVarKind, GameVarType}, primitive_game_var::PrimitiveGameVarType}, prim_vars::prim_var_type::{PrimitiveVarKind, PrimitiveVarType}, programming_vars::programming_var::ProgrammingVar, var::Var, var_properties::{PropKey, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, drones::drone::Drone, locations::location::WorldLocation}, screen::{ui_elements::panel, widget::{self, drone_programming::{function_slot::FunctionSlot, scripting_elements::scripting_panel::{self, ScriptingPanel}}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType}}, texture_manager::texture::Texture, types::BlockTexture};
 
 
 #[derive(Clone)]
@@ -131,8 +132,8 @@ impl DynamicVarType {
 
                         VarProperty {key: PropKey::Health,    value: PrimitiveVarType::Num(borrow.get_health() as i32).create_var(),         mutible: true},
                         VarProperty {key: PropKey::Fuel,      value: PrimitiveVarType::Num(borrow.get_fuel() as i32).create_var(),           mutible: true},
-                        VarProperty {key: PropKey::BusyTime,  value: PrimitiveVarType::Num(borrow.get_busy() as i32).create_var(),           mutible: true},
-                        // VarProperty {key: PropKey::InventorySlots, value: PropValue::Inventory(borrow.get_inventory().get_slots().clone()), mutible: true},
+                        VarProperty {key: PropKey::BusyTime,       value: PrimitiveVarType::Num(borrow.get_busy() as i32).create_var(),                              mutible: true},
+                        VarProperty {key: PropKey::InventorySlots, value: PrimitiveGameVarType::construct_inventory_var(borrow.get_inventory().get_slots().clone()), mutible: true},
 
                         VarProperty {key: PropKey::MinePower, value: PrimitiveVarType::Num(borrow.get_mine_power() as i32).create_var(),     mutible: false},
                         VarProperty {key: PropKey::ChopPower, value: PrimitiveVarType::Num(borrow.get_chop_power() as i32).create_var(),     mutible: false},
@@ -150,65 +151,51 @@ impl DynamicVarType {
 
     pub fn handle_location_prop_request(location: &mut Rc<RefCell<WorldLocation>>, request: VarPropModRequest) {
         match request {
-            VarPropModRequest::Set(prop_key, prop_value) => {
+            VarPropModRequest::Set(prop_key, var) => {
                 match prop_key {
                     PropKey::Name => {
-                        location.borrow_mut().set_name(prop_value.into_string());
+                        location.borrow_mut().set_name(var.as_string().unwrap_or_default());
                     },
                     _ => {
                         eprintln!("set prop key {} not supported for location", prop_key.to_name());
                     }
                 }
-        
             },
-            VarPropModRequest::Add(prop_key, prop_value) => {
-                
-            },
+            VarPropModRequest::Add(prop_key, var) => {},
         }
     }
 
     pub fn handle_drone_prop_request(drone: &mut Rc<RefCell<Drone>>, request: VarPropModRequest) {
         match request {
-            VarPropModRequest::Set(prop_key, prop_value) => {
+            VarPropModRequest::Set(prop_key, var) => {
                 match prop_key {
                     PropKey::Name => {
-                        drone.borrow_mut().set_name(prop_value.into_string());
+                        drone.borrow_mut().set_name(var.as_string().unwrap_or_default());
                     },
                     PropKey::Fuel => {
-                        let num = prop_value.into_num();
-                        if num > 0 {
-                            drone.borrow_mut().set_fuel(num as u32);
+                        if let Some(num) = var.as_i32() {
+                            if num > 0 { drone.borrow_mut().set_fuel(num as u32); }
                         }
                     },
                     PropKey::Health => {
-                        let num = prop_value.into_num();
-                        if num > 0 {
-                            drone.borrow_mut().set_health(num as u32);
+                        if let Some(num) = var.as_i32() {
+                            if num > 0 { drone.borrow_mut().set_health(num as u32); }
                         }
-                    }
+                    },
                     PropKey::BusyTime => {
-                        let num = prop_value.into_num();
-                        if num > 0 {
-                            drone.borrow_mut().set_busy(num as u32);
+                        if let Some(num) = var.as_i32() {
+                            if num > 0 { drone.borrow_mut().set_busy(num as u32); }
                         }
-                    }
-
+                    },
                     _ => {
                         eprintln!("set prop key {} not supported for drone", prop_key.to_name());
                     }
                 }
-        
             },
-            VarPropModRequest::Add(prop_key, prop_value) => {
+            VarPropModRequest::Add(prop_key, var) => {
                 match prop_key {
-                    PropKey::InventorySlots => {
-                        if let PropValue::Inventory(slots) = prop_value {
-                            drone.borrow_mut().get_mut_inventory().add_inventory_slots(slots);
-                        }
-                    },
-                    _ => {
-
-                    }
+                    // PropKey::InventorySlots => no Var type for inventory
+                    _ => {}
                 }
             },
         }

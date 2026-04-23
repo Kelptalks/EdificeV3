@@ -11,16 +11,6 @@ pub enum VarPropVal {
 
 
 impl VarPropVal {
-    pub fn update_with_val(&mut self, val: PropValue) -> Vec<VarPropModRequest> {
-        match self {
-            VarPropVal::String(string_prop_widget) => {
-                string_prop_widget.update_with_val(val)
-            },
-            VarPropVal::Num(w) => w.update_with_val(val),
-            VarPropVal::Invintory(w) => w.update_with_val(val),
-            VarPropVal::Var(w) => w.update_with_val(val),
-        }
-    }
 
     pub fn update_with_var(&mut self, var: &Var) -> Vec<VarPropModRequest> {
         match self {

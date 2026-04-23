@@ -138,6 +138,9 @@ impl Widget for WidgetType {
     fn get_widget_properties(&self) -> &WidgetProperties { widget_match!(self, get_widget_properties) }
     fn get_mut_widget_properties(&mut self) -> &mut WidgetProperties { widget_match!(self, get_mut_widget_properties) }
 
+    fn set_buffers(&mut self, pos: [f32; 4]) { widget_match!(self, set_buffers, pos) }
+    fn set_parent_pos(&mut self, pos: [f32; 4]) { widget_match!(self, set_parent_pos, pos) }
+
     fn size(&mut self) { widget_match!(self, size) }
 
     fn render(

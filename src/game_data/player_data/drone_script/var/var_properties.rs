@@ -202,16 +202,6 @@ impl PropValue {
         }
     }
 
-
-    pub fn update_widget(self, widget_type: &mut WidgetType) -> Vec<VarPropModRequest> {
-        
-        if let WidgetType::VarPropValWidget(widget) = widget_type {
-            widget.update_with_val(self)
-        }
-        else {
-            Vec::new()
-        }
-    }
 }
 
 pub struct VarProperty {

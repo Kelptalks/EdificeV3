@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::{game_vars::{game_var_type::GameVarType, primitive_var::PrimitiveGameVarType}, var_type::VarType}, tik_manager::drones::drone_inventory::InventorySlot, types::DroneItemTexture};
+use crate::game_data::{player_data::drone_script::var::{game_vars::{game_var_type::GameVarType, primitive_game_var::PrimitiveGameVarType}, var_type::VarType}, tik_manager::drones::drone_inventory::InventorySlot, types::DroneItemTexture};
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum DroneItem {

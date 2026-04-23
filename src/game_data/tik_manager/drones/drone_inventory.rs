@@ -2,7 +2,7 @@
 use crate::game_data::types::drone_item::DroneItem;
 
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 pub struct InventorySlot {
     item_quantity: i32,
     item_type: Option<DroneItem>

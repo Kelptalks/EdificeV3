@@ -52,7 +52,7 @@ impl TextInput {
     pub fn get_cursor_pos(&self) -> [f32; 4] {
         let text_pos = self.text_display.get_pos();
 
-        let char_scale = self.text_display.get_scale()[1];
+        let char_scale = self.text_display.get_char_scale();
 
         let cursor_start = char_scale * *self.current_index_ref.borrow() as f32;
 
@@ -104,10 +104,11 @@ impl Widget for TextInput {
     }
 
     fn size(&mut self) {
+        self.widget_properties.scale_based_off_parent();
         self.text_display.size();
-        let char_scale = self.text_display.get_scale()[1];
-        self.widget_properties.pos = self.text_display.get_pos();
+        let char_scale = self.text_display.get_char_scale();
         self.widget_properties.scale = [char_scale * self.max_string_size as f32, char_scale];
+        self.widget_properties.prefered_scale = self.widget_properties.scale;
         self.panel_texture.size(self.widget_properties.pos, self.widget_properties.scale);
     }
 

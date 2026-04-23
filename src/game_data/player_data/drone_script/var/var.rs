@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::GameVarKind, prim_vars::prim_var_type::PrimitiveVarType, var_type::{VarKind, VarType}}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::{GameVarKind, GameVarType, PrimitiveGameVarType}, prim_vars::prim_var_type::PrimitiveVarType, var_type::{VarKind, VarType}}, texture_manager::texture::Texture, tik_manager::drones::drone_inventory::InventorySlot};
 
 
 
@@ -165,6 +165,40 @@ impl Var {
                     Some(s.parse().unwrap())
                 },
             }
+        }
+        else {
+            None
+        }
+    }
+
+    pub fn as_bool(&self) -> Option<bool>{
+        let var_type_ref = self.var_type_ref.borrow();
+        if let VarType::Prim(prim_var) = &*var_type_ref {
+            match prim_var {
+                PrimitiveVarType::Bool(b) => {
+                    Some(*b)
+                },
+                PrimitiveVarType::Num(n) => {
+                    Some(*n == 0)
+                },
+                PrimitiveVarType::String(s) => {
+                    Some(s.is_empty())
+                },
+            }
+        }
+        else {
+            None
+        }
+    }
+
+    //=====================================
+    // Primative Game Var Converters
+    //=====================================
+
+    pub fn as_inventory(&self) -> Option<Vec<InventorySlot>> {
+        let var_type_ref = self.var_type_ref.borrow();
+        if let VarType::Game(GameVarType::Primitive(PrimitiveGameVarType::Inventory(slots))) = &*var_type_ref {
+            Some(slots.clone())
         }
         else {
             None

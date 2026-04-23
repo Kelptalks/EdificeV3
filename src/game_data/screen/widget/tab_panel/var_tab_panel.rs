@@ -1,6 +1,6 @@
 use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc};
 
-use crate::game_data::{game_event_manager::{self, event_manager, player_data_event_manager::var_event_manager::var_events::VarEvents, prelude::{EventManager, PlayerDataEvent}}, player_data::drone_script::var::{self, game_vars::{dynamic_var::DynamicVarType, game_var_type::GameVarType, primitive_var::PrimitiveGameVarType}, var::Var, var_properties::{self, PropKey, PropValue, VarProperty}, var_type::{self, VarKind, VarType}}, screen::widget::{self, drone_programming::var_slot::var_slot, panel::{panel::Panel, panel_texture_manager::PanelTextureManager}, prelude::{TabPanel, VarSlot}, scroll_panel::scroll_panel::ScrollPanel, tab_panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}, types::drone_item::DroneItem};
+use crate::game_data::{game_event_manager::{self, event_manager, player_data_event_manager::var_event_manager::var_events::VarEvents, prelude::{EventManager, PlayerDataEvent}}, player_data::drone_script::var::{self, game_vars::{dynamic_var::DynamicVarType, game_var_type::GameVarType, primitive_game_var::PrimitiveGameVarType}, var::Var, var_properties::{self, PropKey, PropValue, VarProperty}, var_type::{self, VarKind, VarType}}, screen::widget::{self, drone_programming::var_slot::var_slot, panel::{panel::Panel, panel_texture_manager::PanelTextureManager}, prelude::{TabPanel, VarSlot}, scroll_panel::scroll_panel::ScrollPanel, tab_panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}, types::drone_item::DroneItem};
 
 
 pub struct PropWidgetPool {
@@ -75,35 +75,33 @@ impl VarTabPanel {
         let mut widgets = Vec::new();
 
 
-        if let Some(var_widget) = self.var.get_var_type_ref().borrow().into_widget() {
-            return vec![Rc::new(RefCell::new(var_widget))];
-        }
-        else {
-            let var_properties = self.var.get_var_type_ref().borrow().get_properties();
-            for prop in var_properties {
 
-                let widget_option;
-                if prop.mutible {
-                    widget_option = self.widget_pool.mutable.get(&prop.key);
-                } else {
-                    widget_option = self.widget_pool.non_mutable.get(&prop.key);
+        
+        let var_properties = self.var.get_var_type_ref().borrow().get_properties();
+        for prop in var_properties {
+
+            let widget_option;
+            if prop.mutible {
+                widget_option = self.widget_pool.mutable.get(&prop.key);
+            } else {
+                widget_option = self.widget_pool.non_mutable.get(&prop.key);
+            }
+
+            if let Some(widget) = widget_option {
+                let requests = prop.update_widget(&mut widget.borrow_mut());
+
+                let mut events = Vec::new();
+
+                for request in requests {
+                    events.push(VarEvents::RequestEvent(self.var.get_var_type_ref().clone(), request).wrap_into_event());
                 }
 
-                if let Some(widget) = widget_option {
-                    let requests = prop.update_widget(&mut widget.borrow_mut());
+                game_event_manager.add_events(&events);
 
-                    let mut events = Vec::new();
-
-                    for request in requests {
-                        events.push(VarEvents::RequestEvent(self.var.get_var_type_ref().clone(), request).wrap_into_event());
-                    }
-
-                    game_event_manager.add_events(&events);
-
-                    widgets.push(widget.clone());
-                }
+                widgets.push(widget.clone());
             }
         }
+    
         widgets
     }
 
