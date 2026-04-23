@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{prelude::{Event, PrimEvent}, widget_event_manager::prim_events::i32_event::I32Event}, player_data::drone_script::var::{var_properties::{PropKey, PropValue, VarPropModRequest}, var_type::VarType}, screen::widget::{drone_programming::var_slot::var_prop_widgets::var_prop_widgets::VarPropVal, panel::panel::{Panel, PanelAlignment, PanelOrientation}, text::header::TextDisplay, widget::{Widget, WidgetType}}};
+use crate::game_data::{game_event_manager::{prelude::{Event, PrimEvent}, widget_event_manager::prim_events::i32_event::I32Event}, player_data::drone_script::var::{var::Var, var_properties::{PropKey, PropValue, VarPropModRequest}, var_type::VarType}, screen::widget::{drone_programming::var_slot::var_prop_widgets::var_prop_widgets::VarPropVal, panel::panel::{Panel, PanelAlignment, PanelOrientation}, text::header::TextDisplay, widget::{Widget, WidgetType}}};
 
 pub struct NumDisplayPropWidget {
     // Mutable
@@ -56,7 +56,7 @@ impl NumDisplayPropWidget {
 
     pub fn update_with_val(&mut self, val: PropValue) -> Vec<VarPropModRequest> {
         let mut prop_requests = Vec::new();
-        
+    
         
 
         if let PropValue::Num(prop_num) = val {
@@ -74,10 +74,33 @@ impl NumDisplayPropWidget {
 
 
         *self.string_ref.borrow_mut() = val.into_string();
+    
+        return prop_requests;
+    }
+
+    pub fn update_with_var(&mut self, var: &Var) -> Vec<VarPropModRequest> {
+        let mut prop_requests = Vec::new();
+
+        if let Some(prop_num) = var.as_i32() {
+            
+            // get new prop value
+            let dif = *self.num_ref.borrow();
+            if dif != 0 {
+                let new_value = dif + prop_num;
+                prop_requests.push(VarPropModRequest::Set(self.key, PropValue::Num(new_value)));
+
+                // Reset
+                *self.num_ref.borrow_mut() = 0;
+            }
+        }
+
         
-
-
-
+        if let Some(string) = var.as_string() {
+            *self.string_ref.borrow_mut() = string;
+        }
+        else {
+            eprintln!("Cannot convert var from key{} to string in num display widget", self.key.to_name())
+        }
 
         return prop_requests;
     }

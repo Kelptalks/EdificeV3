@@ -29,7 +29,7 @@ impl PropWidgetPool {
 pub struct VarTabPanel {
     widget_properties: WidgetProperties,
 
-    var_ref: Rc<RefCell<VarType>>,
+    var: Var,
 
     var_slot: VarSlot,
     scroll_panel: ScrollPanel,
@@ -41,17 +41,16 @@ pub struct VarTabPanel {
 
 impl VarTabPanel {
 
-    pub fn new(selected_var: &Rc<RefCell<VarType>>,) -> VarTabPanel {
+    pub fn new() -> VarTabPanel {
 
         let var = Var::new_blank();
-        let var_ref = var.get_var_type_ref();
-        let var_slot = VarSlot::new_with_var(var);
+        let mut var_slot = VarSlot::new_with_var(var.clone());
 
         let scroll_panel = ScrollPanel::new();
 
         let mut var_tab_panel = VarTabPanel {
             widget_properties: WidgetProperties::new_blank(),
-            var_ref: selected_var.clone(),
+            var,
 
             var_slot: var_slot,
             scroll_panel,
@@ -76,11 +75,11 @@ impl VarTabPanel {
         let mut widgets = Vec::new();
 
 
-        if let Some(var_widget) = self.var_ref.borrow().into_widget() {
+        if let Some(var_widget) = self.var.get_var_type_ref().borrow().into_widget() {
             return vec![Rc::new(RefCell::new(var_widget))];
         }
         else {
-            let var_properties = self.var_ref.borrow().get_properties();
+            let var_properties = self.var.get_var_type_ref().borrow().get_properties();
             for prop in var_properties {
 
                 let widget_option;
@@ -91,12 +90,12 @@ impl VarTabPanel {
                 }
 
                 if let Some(widget) = widget_option {
-                    let requests = prop.value.update_widget(&mut widget.borrow_mut());
+                    let requests = prop.update_widget(&mut widget.borrow_mut());
 
                     let mut events = Vec::new();
 
                     for request in requests {
-                        events.push(VarEvents::RequestEvent(self.var_ref.clone(), request).wrap_into_event());
+                        events.push(VarEvents::RequestEvent(self.var.get_var_type_ref().clone(), request).wrap_into_event());
                     }
 
                     game_event_manager.add_events(&events);
@@ -177,9 +176,6 @@ impl Widget for VarTabPanel {
 
         self.panel_texture.render(texture_manager, bounds);
 
-        self.var_slot.get_mut_widget_properties().bounds = bounds;
-        self.var_slot = VarSlot::new_with_var(Var::new_with_var_type(self.var_ref.borrow().clone()));
-        self.size();
 
         self.var_slot.render(texture_manager, screen_data, game_event_manager);
 

@@ -1,6 +1,6 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, rc::Rc, string};
 
-use crate::game_data::{player_data::drone_script::var::var_properties::{PropKey, PropValue, VarPropModRequest}, screen::widget::{drone_programming::var_slot::var_prop_widgets::var_prop_widgets::VarPropVal, panel::panel::Panel, text::text_input::TextInput, widget::{Widget, WidgetType}}};
+use crate::game_data::{player_data::drone_script::var::{prim_vars::prim_var_type::PrimitiveVarType, var::Var, var_properties::{PropKey, PropValue, VarPropModRequest}, var_type::VarType}, screen::widget::{drone_programming::var_slot::var_prop_widgets::var_prop_widgets::VarPropVal, panel::panel::Panel, text::text_input::TextInput, widget::{Widget, WidgetType}}};
 
 pub struct TextDisplayPropWidget {
     
@@ -70,6 +70,37 @@ impl TextDisplayPropWidget {
         
 
         *self.string_ref.borrow_mut() = val.into_string();
+        self.panel.size();
+
+        return prop_requests;
+    }
+
+    pub fn update_with_var(&mut self, var: &Var) -> Vec<VarPropModRequest> {
+        let mut prop_requests = Vec::new();
+        
+        // Don't update if the text input is focused on
+        if self.mutable {
+            if let Some(focused) = &self.input_focused_ref {
+                if *focused.borrow() {
+                    prop_requests.push(
+                        VarPropModRequest::Set(
+                            self.key, 
+                            PropValue::String(self.string_ref.borrow().clone())
+                        )
+                    );
+                    return prop_requests;
+                }
+            }
+        }
+        
+        if let Some(string) = var.as_string() {
+            *self.string_ref.borrow_mut() = string.clone();
+        }
+        else {
+            eprintln!("Cannot convert var from key{} to string in text display widget", self.key.to_name())
+        }
+
+        
         self.panel.size();
 
         return prop_requests;

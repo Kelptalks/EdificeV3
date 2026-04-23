@@ -9,13 +9,13 @@ use crate::game_data::{game_event_manager::{player_data_event_manager::var_event
 //=====================================
 fn get_expand_event(ref_manager: &mut RefManager, side: WorldAreaSide) -> Event {
     VarEvents::LocationVarEvent(
-        ref_manager.selected_var.clone(), LocationVarEvent::ExpandLocationSide(side)
+        ref_manager.selected_var.get_var_type_ref().clone(), LocationVarEvent::ExpandLocationSide(side)
     ).wrap_into_event()
 }
 
 fn get_shrink_event(ref_manager: &mut RefManager, side: WorldAreaSide) -> Event {
     VarEvents::LocationVarEvent(
-        ref_manager.selected_var.clone(), LocationVarEvent::ShrinkLocationSide(side)
+        ref_manager.selected_var.get_var_type_ref().clone(), LocationVarEvent::ShrinkLocationSide(side)
     ).wrap_into_event()
 }
 
@@ -105,13 +105,13 @@ fn get_location_rename_panel(ref_manager: &mut RefManager) -> WidgetType {
         panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
         panel.set_color(PanelColor::DarkUI);
 
-        let rename_ref = Rc::new(RefCell::new(ref_manager.selected_var.borrow().get_name()));
+        let rename_ref = Rc::new(RefCell::new(ref_manager.selected_var.get_var_type_ref().borrow().get_name()));
 
         let text_input = TextInput::new_text_input(&rename_ref);
         panel.add_widget(WidgetType::TextInput(text_input));
 
         let button = panel.add_button();
-        button.add_left_click_event(VarEvents::DynamicVarEvent(ref_manager.selected_var.clone(), DynamicVarEvent::Rename(rename_ref)).wrap_into_event());
+        button.add_left_click_event(VarEvents::DynamicVarEvent(ref_manager.selected_var.get_var_type_ref().clone(), DynamicVarEvent::Rename(rename_ref)).wrap_into_event());
 
         panel.size();
     }
@@ -131,7 +131,7 @@ pub fn get_location_panel(ref_manager: &mut RefManager) -> WidgetType {
         panel_title.set_text_scale(TextSize::Large);
         
 
-        let location_name = panel.add_text_display(ref_manager.selected_var.borrow().get_name());
+        let location_name = panel.add_text_display(ref_manager.selected_var.get_var_type_ref().borrow().get_name());
         location_name.set_text_scale(TextSize::Medium);
 
 

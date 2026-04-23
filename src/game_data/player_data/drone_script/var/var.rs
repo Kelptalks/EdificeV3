@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::GameVarKind, var_type::{VarKind, VarType}}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::GameVarKind, prim_vars::prim_var_type::PrimitiveVarType, var_type::{VarKind, VarType}}, texture_manager::texture::Texture};
 
 
 
@@ -102,8 +102,9 @@ impl Var {
 
     pub fn set_with_var(&mut self, new_var: &Var) {
         self.name = new_var.name.clone();
-        
-        *self.var_type_ref.borrow_mut() = new_var.get_var_type_ref().borrow().clone();
+        if !Rc::ptr_eq(&self.var_type_ref, &new_var.get_var_type_ref()) {
+            *self.var_type_ref.borrow_mut() = new_var.get_var_type_ref().borrow().clone();
+        }
     }
 
     pub fn clear(&mut self) {
@@ -120,4 +121,64 @@ impl Var {
         return Rc::new(RefCell::new(self.clone()))
     }
 
+    //=====================================
+    // Prim Converters
+    //=====================================
+
+    pub fn as_string(&self) -> Option<String>{
+        let var_type_ref = self.var_type_ref.borrow();
+        if let VarType::Prim(prim_var) = &*var_type_ref {
+            match prim_var {
+                PrimitiveVarType::Bool(b) => {
+                    Some(b.to_string())
+                },
+                PrimitiveVarType::Num(n) => {
+                    Some(n.to_string())
+                },
+                PrimitiveVarType::String(s) => {
+                    Some(s.clone())
+                },
+            }
+        }
+        else {
+            None
+        }
+    }
+
+
+    pub fn as_i32(&self) -> Option<i32>{
+        let var_type_ref = self.var_type_ref.borrow();
+        if let VarType::Prim(prim_var) = &*var_type_ref {
+            match prim_var {
+                PrimitiveVarType::Bool(b) => {
+                    if *b {
+                        Some(1)
+                    }
+                    else {
+                        Some(0)
+                    }
+                },
+                PrimitiveVarType::Num(n) => {
+                    Some(*n)
+                },
+                PrimitiveVarType::String(s) => {
+                    Some(s.parse().unwrap())
+                },
+            }
+        }
+        else {
+            None
+        }
+    }
+
 }
+
+
+
+
+
+
+
+
+
+

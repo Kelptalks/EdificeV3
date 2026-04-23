@@ -1,6 +1,6 @@
 use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc};
 
-use crate::game_data::{game_event_manager::widget_event_manager::prim_events::i32_event::I32Event, player_data::drone_script::var::{game_vars::{game_var_type::{GameVarType, GameVarKind}, primitive_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}}, var_properties::{PropKey, PropValue, VarPropModRequest}, var_type::{VarType, VarKind}}, screen::{ui_elements::panel, widget::{drone_programming::var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, text::header::TextDisplay, widget::{Widget, WidgetType}}}, tik_manager::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
+use crate::game_data::{game_event_manager::widget_event_manager::prim_events::i32_event::I32Event, player_data::drone_script::var::{game_vars::{game_var_type::{GameVarKind, GameVarType}, primitive_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}}, var::Var, var_properties::{PropKey, PropValue, VarPropModRequest}, var_type::{VarKind, VarType}}, screen::{ui_elements::panel, widget::{drone_programming::var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, text::header::TextDisplay, widget::{Widget, WidgetType}}}, tik_manager::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
 
 pub struct InvintoryDisplayPropWidget {
     mutable: bool,
@@ -60,7 +60,7 @@ impl InvintoryDisplayPropWidget {
     }
 
     //pub fn wrap_into_widget() -> WidgetType {
-        pub fn update_with_val(&mut self, val: PropValue) -> Vec<VarPropModRequest> {
+    pub fn update_with_val(&mut self, val: PropValue) -> Vec<VarPropModRequest> {
         let mut prop_requests = Vec::new();
         
         // Create new panel
@@ -121,6 +121,14 @@ impl InvintoryDisplayPropWidget {
             }
         }
         self.panel.size();
+
+        return prop_requests;
+    }
+
+    pub fn update_with_var(&mut self, var: &Var) -> Vec<VarPropModRequest> {
+        let mut prop_requests = Vec::new();
+        
+        todo!();
 
         return prop_requests;
     }

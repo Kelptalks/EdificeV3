@@ -1,6 +1,6 @@
 use std::{cell::RefCell, clone, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_script::var::{self, game_vars::game_var_type::{GameVarKind, GameVarType}, prim_vars::prim_var_type::{PrimitiveVarKind, PrimitiveVarType}, programming_vars::programming_var::ProgrammingVar, var::Var, var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, drones::drone::Drone, locations::location::WorldLocation}, screen::{ui_elements::panel, widget::{self, drone_programming::{function_slot::FunctionSlot, scripting_elements::scripting_panel::{self, ScriptingPanel}}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType}}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_script::var::{self, game_vars::{game_var_type::{GameVarKind, GameVarType}, primitive_var::PrimitiveGameVarType}, prim_vars::prim_var_type::{PrimitiveVarKind, PrimitiveVarType}, programming_vars::programming_var::ProgrammingVar, var::Var, var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, drones::drone::Drone, locations::location::WorldLocation}, screen::{ui_elements::panel, widget::{self, drone_programming::{function_slot::FunctionSlot, scripting_elements::scripting_panel::{self, ScriptingPanel}}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType}}, texture_manager::texture::Texture, types::BlockTexture};
 
 
 #[derive(Clone)]
@@ -104,8 +104,14 @@ impl DynamicVarType {
                 if let Some(location) = location_option_ref {
                     let borrow = location.borrow();
                     vec![
-                        VarProperty {key: PropKey::Name, value: PropValue::String(borrow.get_name().to_string()), mutible: true},
-                        VarProperty {key: PropKey::Id,   value: PropValue::Num(borrow.get_id() as i32),           mutible: false},
+                        VarProperty {
+                            key: PropKey::Name, 
+                            value: PrimitiveVarType::String(borrow.get_name().to_string()).create_var(), 
+                            mutible: true
+                        },
+                        VarProperty {
+                            key: PropKey::Id,
+                            value: PrimitiveVarType::Num(borrow.get_id() as i32).create_var(), mutible: false},
                     ]
                 }
                 else {
@@ -118,18 +124,18 @@ impl DynamicVarType {
                     let borrow = drone.borrow();
 
                     vec![
-                        VarProperty {key: PropKey::Name,            value: PropValue::String(borrow.get_name().to_string()),                    mutible: true},
-                        VarProperty {key: PropKey::Id,              value: PropValue::Num(borrow.get_id() as i32),                              mutible: false},
+                        VarProperty {key: PropKey::Name,      value: PrimitiveVarType::String(borrow.get_name().to_string()).create_var(),   mutible: true},
+                        VarProperty {key: PropKey::Id,        value: PrimitiveVarType::Num(borrow.get_id() as i32).create_var(),             mutible: false},
 
-                        VarProperty {key: PropKey::Cords,           value: PropValue::Cords(borrow.get_cords()), mutible: false},
+                        VarProperty {key: PropKey::Cords,     value: PrimitiveGameVarType::construct_cords_var(borrow.get_cords()),          mutible: false},
 
-                        VarProperty {key: PropKey::Health,          value: PropValue::Num(borrow.get_health() as i32),                          mutible: true},
-                        VarProperty {key: PropKey::Fuel,            value: PropValue::Num(borrow.get_fuel() as i32),                            mutible: true},
-                        VarProperty {key: PropKey::BusyTime,            value: PropValue::Num(borrow.get_busy() as i32),                        mutible: true},
-                        VarProperty {key: PropKey::InventorySlots,  value: PropValue::Inventory(borrow.get_inventory().get_slots().clone()),    mutible: true},
-                        
-                        VarProperty {key: PropKey::MinePower,       value: PropValue::Num(borrow.get_mine_power() as i32),                      mutible: false},
-                        VarProperty {key: PropKey::ChopPower,       value: PropValue::Num(borrow.get_chop_power() as i32),                      mutible: false},
+                        VarProperty {key: PropKey::Health,    value: PrimitiveVarType::Num(borrow.get_health() as i32).create_var(),         mutible: true},
+                        VarProperty {key: PropKey::Fuel,      value: PrimitiveVarType::Num(borrow.get_fuel() as i32).create_var(),           mutible: true},
+                        VarProperty {key: PropKey::BusyTime,  value: PrimitiveVarType::Num(borrow.get_busy() as i32).create_var(),           mutible: true},
+                        // VarProperty {key: PropKey::InventorySlots, value: PropValue::Inventory(borrow.get_inventory().get_slots().clone()), mutible: true},
+
+                        VarProperty {key: PropKey::MinePower, value: PrimitiveVarType::Num(borrow.get_mine_power() as i32).create_var(),     mutible: false},
+                        VarProperty {key: PropKey::ChopPower, value: PrimitiveVarType::Num(borrow.get_chop_power() as i32).create_var(),     mutible: false},
                     ]
                     
                 }

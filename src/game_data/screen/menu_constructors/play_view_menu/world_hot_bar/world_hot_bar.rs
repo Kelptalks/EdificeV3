@@ -16,7 +16,7 @@ pub fn free_camera_event(ref_manager: &mut RefManager) -> Event {
 pub fn lock_camera_event(ref_manager: &mut RefManager) -> Event {
     PlayViewEvent::SetCursorMode(
         ref_manager.play_view_rendering_config.clone(),
-        CursorMode::LockedToVar(ref_manager.selected_var.clone())
+        CursorMode::LockedToVar(ref_manager.selected_var.get_var_type_ref().clone())
     ).wrap_into_event()
 }
 
@@ -63,7 +63,7 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         // Create a new location button
         create_location_button.add_left_click_event(
             PlayerDataEvent::CreateLocationInVar(
-                ref_manager.selected_var.clone(),
+                ref_manager.selected_var.get_var_type_ref().clone(),
                 ref_manager.cursor_location.clone(),
             ).wrap_into_event()
         );
@@ -72,9 +72,10 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         create_location_button.add_left_click_event(
             PlayViewEvent::SetCursorMode(
                 ref_manager.play_view_rendering_config.clone(),
-                CursorMode::LockedToVar(ref_manager.selected_var.clone())
+                CursorMode::LockedToVar(ref_manager.selected_var.get_var_type_ref().clone())
             ).wrap_into_event()
         );
+
         create_location_button.add_left_click_event(PlayViewMode::Location.to_tab_panel_event(&ref_manager.play_view_mode));
         create_location_button.set_text("Create Location".to_string());
         create_location_button.set_icon(UITextures::LocationIcon);
@@ -94,7 +95,7 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         // Spawn Drone
         let spawn_drone = panel.add_button();
         spawn_drone.add_left_click_event(
-            PlayerDataEvent::CreateDroneInVar(ref_manager.selected_var.clone(), ref_manager.cursor_location.clone()).wrap_into_event()
+            PlayerDataEvent::CreateDroneInVar(ref_manager.selected_var.get_var_type_ref().clone(), ref_manager.cursor_location.clone()).wrap_into_event()
         );
         spawn_drone.add_left_click_event(PlayViewMode::Drone.to_tab_panel_event(&ref_manager.play_view_mode));
         spawn_drone.set_block(BlockTexture::DroneControler);
@@ -148,7 +149,7 @@ fn get_location_hotbar(ref_manager: &mut RefManager) -> WidgetType {
 
         // Var Source Slot
         
-        let var = Var::new_with_var_type(ref_manager.selected_var.borrow().clone());
+        let var = Var::new_with_var_type(ref_manager.selected_var.get_var_type_ref().borrow().clone());
         let mut var_slot = VarSlot::new_with_var(var);
 
         var_slot.set_dragging_properties(true, false, false);     

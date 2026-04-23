@@ -1,7 +1,7 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::{GameVarType, GameVarKind}, var::{Var}, var_properties::{PropKey, PropValue, VarProperty}, var_type::{VarKind, VarType}}, texture_manager::texture::Texture, types::{BlockTexture, UITextures, drone_item::DroneItem}};
+use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::{GameVarType, GameVarKind}, prim_vars::prim_var_type::PrimitiveVarType, var::{Var}, var_properties::{PropKey, VarProperty}, var_type::{VarKind, VarType}}, texture_manager::texture::Texture, types::{BlockTexture, UITextures, drone_item::DroneItem}};
 
 
 #[derive(Clone, PartialEq)]
@@ -42,28 +42,28 @@ impl PrimitiveGameVarType {
         match self {
             PrimitiveGameVarType::DroneItem(drone_item) => {
                 vec![
-                    VarProperty {key: PropKey::Name, value: PropValue::String(drone_item.get_name().to_string()), mutible: false},
-                    VarProperty {key: PropKey::Id,   value: PropValue::Num(drone_item.id() as i32),               mutible: false},
+                    VarProperty {key: PropKey::Name, value: PrimitiveVarType::String(drone_item.get_name().to_string()).create_var(), mutible: false},
+                    VarProperty {key: PropKey::Id,   value: PrimitiveVarType::Num(drone_item.id() as i32).create_var(),              mutible: false},
                 ]
-                
+
             },
             PrimitiveGameVarType::Block(block_texture) => {
                 vec![
-                    VarProperty {key: PropKey::Name,        value: PropValue::String(block_texture.get_name().to_string()), mutible: false},
-                    VarProperty {key: PropKey::Id,           value: PropValue::Num(block_texture.id() as i32),              mutible: false},
-                    VarProperty {key: PropKey::Friction,    value: PropValue::Num(block_texture.friction() as i32),         mutible: false},
-                    VarProperty {key: PropKey::Health,      value: PropValue::Num(block_texture.hardness() as i32),         mutible: false},
+                    VarProperty {key: PropKey::Name,        value: PrimitiveVarType::String(block_texture.get_name().to_string()).create_var(), mutible: false},
+                    VarProperty {key: PropKey::Id,          value: PrimitiveVarType::Num(block_texture.id() as i32).create_var(),              mutible: false},
+                    VarProperty {key: PropKey::Friction,    value: PrimitiveVarType::Num(block_texture.friction() as i32).create_var(),        mutible: false},
+                    VarProperty {key: PropKey::Health,      value: PrimitiveVarType::Num(block_texture.hardness() as i32).create_var(),        mutible: false},
 
-                    VarProperty {key: PropKey::Solid,       value: PropValue::Bool(block_texture.is_solid()),               mutible: false},
-                    VarProperty {key: PropKey::Translucent, value: PropValue::Bool(block_texture.is_translucent()),         mutible: false},
-                    VarProperty {key: PropKey::Transparent, value: PropValue::Bool(block_texture.is_transparent()),         mutible: false},
+                    VarProperty {key: PropKey::Solid,       value: PrimitiveVarType::Bool(block_texture.is_solid()).create_var(),              mutible: false},
+                    VarProperty {key: PropKey::Translucent, value: PrimitiveVarType::Bool(block_texture.is_translucent()).create_var(),        mutible: false},
+                    VarProperty {key: PropKey::Transparent, value: PrimitiveVarType::Bool(block_texture.is_transparent()).create_var(),        mutible: false},
 
-                    VarProperty {key: PropKey::ItemValue,   value: PropValue::Inventory(block_texture.get_place_cost()),    mutible: false}
+                    // VarProperty {key: PropKey::ItemValue, value: PropValue::Inventory(block_texture.get_place_cost()), mutible: false}
                 ]
             },
             PrimitiveGameVarType::Cords(cords) => {
                 vec![
-                    VarProperty {key: PropKey::Cords,        value: PropValue::Cords(*cords), mutible: false}
+                    VarProperty {key: PropKey::Cords, value: PrimitiveGameVarType::construct_cords_var(*cords), mutible: false}
                 ]
             },
         }

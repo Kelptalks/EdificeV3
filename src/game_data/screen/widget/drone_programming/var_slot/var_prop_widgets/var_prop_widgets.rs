@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::var_properties::{PropValue, VarPropModRequest}, screen::widget::{drone_programming::var_slot::var_prop_widgets::{invintory_display_prop_widget::InvintoryDisplayPropWidget, num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget, var_prop_widget::VarPropWidget}, panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetProperties}};
+use crate::game_data::{player_data::drone_script::var::{var::Var, var_properties::{PropValue, VarPropModRequest}}, screen::widget::{drone_programming::var_slot::var_prop_widgets::{invintory_display_prop_widget::InvintoryDisplayPropWidget, num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget, var_prop_widget::VarPropWidget}, panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetProperties}};
 
 pub enum VarPropVal {
     String(TextDisplayPropWidget),
@@ -19,6 +19,23 @@ impl VarPropVal {
             VarPropVal::Num(w) => w.update_with_val(val),
             VarPropVal::Invintory(w) => w.update_with_val(val),
             VarPropVal::Var(w) => w.update_with_val(val),
+        }
+    }
+
+    pub fn update_with_var(&mut self, var: &Var) -> Vec<VarPropModRequest> {
+        match self {
+            VarPropVal::String(string_prop_widget) => {
+                string_prop_widget.update_with_var(var)
+            },
+            VarPropVal::Num(w) => {
+                w.update_with_var(var)
+            },
+            VarPropVal::Invintory(w) => {
+                w.update_with_var(var)
+            },
+            VarPropVal::Var(w) => {
+                w.update_with_var(var)
+            },
         }
     }
 

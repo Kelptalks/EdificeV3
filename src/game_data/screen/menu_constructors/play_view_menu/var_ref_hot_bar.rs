@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::{self, game_vars::{game_var_type::GameVarType, primitive_var::PrimitiveGameVarType}, var_type::VarType}, screen::{menu_constructors::play_view_menu::new_play_view::RefManager, widget::{drone_programming::var_slot::var_slot::VarSlot, panel::{panel::{PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget::WidgetType, widget_calculations::TextSize}}};
+use crate::game_data::{player_data::drone_script::var::{self, game_vars::{game_var_type::GameVarType, primitive_var::PrimitiveGameVarType}, var_type::VarType}, screen::{menu_constructors::play_view_menu::new_play_view::RefManager, widget::{drone_programming::var_slot::{self, var_slot::VarSlot}, panel::{panel::{PanelAlignment, PanelOrientation}, panel_color::PanelColor}, widget::WidgetType, widget_calculations::TextSize}}};
 
 
 
@@ -23,7 +23,13 @@ pub fn get_widget(ref_manager: &RefManager) -> WidgetType {
         let source_var_panel = panel.add_sub_panel();
         source_var_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
         source_var_panel.set_color(PanelColor::DarkUI);
-        
+
+        let selected_var_panel = panel.add_sub_panel();
+        let selected_var_slot = ref_manager.selected_var.clone();
+        let mut var_slot = VarSlot::new_with_var(selected_var_slot);
+        var_slot.set_dragging_properties(true, false, false);
+        selected_var_panel.add_widget(var_slot.wrap_into_widget());
+
 
         let slot_sub_panel = panel.add_sub_panel();
         slot_sub_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);

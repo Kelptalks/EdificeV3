@@ -1,11 +1,12 @@
 use crate::game_data::{
-    player_data::drone_script::var::{var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, screen::widget::{text::header::TextDisplay, widget::WidgetType}, texture_manager::texture::Texture, types::UITextures
+    player_data::drone_script::var::{var::Var, var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, screen::widget::{text::header::TextDisplay, widget::WidgetType}, texture_manager::texture::Texture, types::UITextures
 };
 
 #[derive(Clone, PartialEq)]
 pub enum PrimitiveVarType {
     Bool(bool),
     Num(i32),
+    String(String),
 
 }
 
@@ -13,7 +14,11 @@ impl PrimitiveVarType {
     pub fn wrap_into_var_type(self) -> VarType {
         VarType::Prim(self)
     }
-    
+
+    pub fn create_var(self) -> Var {
+        self.wrap_into_var_type().create_var()
+    }
+
     //=====================================
     // Visual
     //=====================================
@@ -22,6 +27,7 @@ impl PrimitiveVarType {
         match self {
             PrimitiveVarType::Bool(_) => Texture::UITexture(UITextures::BoolVarIcon),
             PrimitiveVarType::Num(_) => Texture::UITexture(UITextures::NumVarIcon),
+            PrimitiveVarType::String(_) => Texture::UITexture(UITextures::ScallingIconMidCenter)
         }
     }
 
@@ -34,6 +40,9 @@ impl PrimitiveVarType {
             PrimitiveVarType::Num(_) => {
                 None
             },
+            PrimitiveVarType::String(_) => {
+                None
+            }
         }
     }
 
@@ -45,6 +54,7 @@ impl PrimitiveVarType {
         match self {
             PrimitiveVarType::Bool(_) => PrimitiveVarKind::Bool,
             PrimitiveVarType::Num(_) => PrimitiveVarKind::Num,
+            PrimitiveVarType::String(_) => PrimitiveVarKind::String,
         }
     }
 
@@ -52,6 +62,7 @@ impl PrimitiveVarType {
         match self {
             PrimitiveVarType::Bool(b) => b.to_string(),
             PrimitiveVarType::Num(n) => n.to_string(),
+            PrimitiveVarType::String(n) => n.to_string()
         }
     }
 
@@ -63,12 +74,29 @@ impl PrimitiveVarType {
         match self {
             PrimitiveVarType::Bool(b) => {
                 vec![
-                    VarProperty { key: PropKey::Name, value: PropValue::Bool(*b), mutible: false },
+                    VarProperty {
+                        key: PropKey::Name, 
+                        value: PrimitiveVarType::Bool(*b).wrap_into_var_type().create_var(), 
+                        mutible: false
+                    },
                 ]
             }
             PrimitiveVarType::Num(n) => {
                 vec![
-                    VarProperty { key: PropKey::Name, value: PropValue::Num(*n), mutible: false },
+                    VarProperty {
+                        key: PropKey::Name, 
+                        value: PrimitiveVarType::Num(*n).wrap_into_var_type().create_var(), 
+                        mutible: false
+                    },
+                ]
+            }
+            PrimitiveVarType::String(s) => {
+                vec![
+                    VarProperty {
+                        key: PropKey::Name, 
+                        value: PrimitiveVarType::String(s.clone()).wrap_into_var_type().create_var(), 
+                        mutible: false
+                    },
                 ]
             }
         }
@@ -86,6 +114,10 @@ impl PrimitiveVarType {
                 if let VarPropModRequest::Set(PropKey::Name, PropValue::Num(val)) = request {
                     *n = val;
                 }
+            },
+
+            PrimitiveVarType::String(s) => {
+                todo!()
             }
         }
     }
@@ -99,7 +131,9 @@ impl PrimitiveVarType {
         match self {
             PrimitiveVarType::Bool(b) => *b = false,
             PrimitiveVarType::Num(n) => *n = 0,
+            PrimitiveVarType::String(s) => s.clear(),
         }
+
     }
 
 }
@@ -108,6 +142,7 @@ impl PrimitiveVarType {
 pub enum PrimitiveVarKind {
     Bool,
     Num,
+    String,
 }
 
 impl PrimitiveVarKind {
@@ -115,6 +150,7 @@ impl PrimitiveVarKind {
         match self {
             PrimitiveVarKind::Bool => Texture::UITexture(UITextures::BoolVarIcon),
             PrimitiveVarKind::Num => Texture::UITexture(UITextures::NumVarIcon),
+            PrimitiveVarKind::String => Texture::UITexture(UITextures::ScallingIconMidCenter),
         }
     }
 

@@ -2,7 +2,7 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::{control_flow::condition::Condition, function::{function::Function, function_call::FunctionCall}, script_element::{self, ScriptElement}, var::{var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}}, screen::widget::widget::WidgetType, texture_manager::texture::Texture};
+use crate::game_data::{player_data::drone_script::{control_flow::condition::Condition, function::{function::Function, function_call::FunctionCall}, script_element::{self, ScriptElement}, var::{prim_vars::prim_var_type::PrimitiveVarType, var::Var, var_properties::{PropKey, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}}, screen::widget::widget::WidgetType, texture_manager::texture::Texture};
 
 #[derive(Clone, PartialEq)]
 pub enum ProgrammingVar {
@@ -74,7 +74,7 @@ impl ProgrammingVar {
 
         match self {
             ProgrammingVar::ScriptingElement(function) => {
-                props.push(VarProperty { key: PropKey::Name, value: PropValue::String(self.get_name()), mutible: false });
+                props.push(VarProperty { key: PropKey::Name, value: PrimitiveVarType::String(self.get_name()).create_var(), mutible: false });
             },
             ProgrammingVar::Condition(condition) => {
                 todo!("");

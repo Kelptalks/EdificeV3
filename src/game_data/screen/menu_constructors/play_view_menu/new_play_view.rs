@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{prelude::{Event, GameEvent, InputEvent, UsizeEvent}, render_event_manager::render_event_manager::RenderEvent}, player_data::{drone_script::var::{game_vars::dynamic_var::DynamicVarType, var_type::VarType}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{manager_panel, selection_panel, var_ref_hot_bar, world_view}, screen_data::CurrentMenu, widget::{drone_programming::scripting_elements::scripting_panel::ScriptingPanel, panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, prelude::TabPanel, tab_panel::var_tab_panel::VarTabPanel, widget::WidgetType, world_rendering::rendering_config::play_world_view_config::PlayViewRenderingConfig}}};
+use crate::game_data::{game_event_manager::{prelude::{Event, GameEvent, InputEvent, UsizeEvent}, render_event_manager::render_event_manager::RenderEvent}, player_data::{drone_script::var::{game_vars::dynamic_var::DynamicVarType, var::Var, var_type::VarType}, locations::location::WorldLocation, player_data::PlayerData}, screen::{ScreenData, menu_constructors::play_view_menu::{manager_panel, selection_panel, var_ref_hot_bar, world_view}, screen_data::CurrentMenu, widget::{drone_programming::scripting_elements::scripting_panel::ScriptingPanel, panel::{panel::{PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, prelude::TabPanel, tab_panel::var_tab_panel::VarTabPanel, widget::WidgetType, world_rendering::rendering_config::play_world_view_config::PlayViewRenderingConfig}}};
 
 pub enum PlayViewMode {
     Main = 0,
@@ -29,7 +29,7 @@ pub struct RefManager {
     pub render_only_selected_location: Rc<RefCell<bool>>,
 
 
-    pub selected_var: Rc<RefCell<VarType>>,
+    pub selected_var: Var,
     pub play_view_mode: Rc<RefCell<usize>>,
 }
 
@@ -39,10 +39,13 @@ impl RefManager {
         let cursor_location =  rendering_config.borrow().get_cursor_location_ref().clone();
         let show_locations_bool = rendering_config.borrow().get_should_render_all_locations_ref().clone();
 
-        let selected_var = Rc::new(RefCell::new(DynamicVarType::Location(Some(cursor_location.clone())).wrap_into_var_type()));
-        rendering_config.borrow_mut().set_focused_var(Some(selected_var.clone()));
+        let mut selected_var = Var::new_blank();
+        selected_var.set_name("selected_var".to_string());
 
-        rendering_config.borrow_mut().add_var_to_render(selected_var.clone());
+
+        rendering_config.borrow_mut().set_focused_var(Some(selected_var.get_var_type_ref().clone()));
+
+        rendering_config.borrow_mut().add_var_to_render(selected_var.get_var_type_ref().clone());
 
         RefManager {
             play_view_rendering_config: rendering_config.clone(),
@@ -91,7 +94,7 @@ impl PlayViewConstructionManager {
             
 
             // Var_Tab Panel Sub Widget
-            let mut var_tab_panel = VarTabPanel::new(&self.ref_manager.selected_var);
+            let mut var_tab_panel = VarTabPanel::new();
             var_tab_panel.set_prefered_scale([0.50, 1.9]);
             let var_tab_panel_button = manager_tab_panel.add_panel(WidgetType::VarTabPanel(var_tab_panel));
             var_tab_panel_button.set_icon(crate::game_data::types::UITextures::AnyVarIcon);
