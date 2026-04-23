@@ -2,20 +2,23 @@ use std::{cell::RefCell, rc::Rc, sync::{Arc, RwLock}};
 
 use crate::game_data::{World, locations::world_area::WorldArea, player_data::{drone_script::var::{var::Var, var_type::VarType}, locations::location::WorldLocation, player_data::PlayerData}, screen::widget::world_rendering::rendering_config::cursor_config::CursorConfig, types::BlockTexture};
 
-pub enum CameraMovementType {
-    ShiftArea,
-    SelectArea,
-
+#[derive(Clone)]
+pub enum RenderMode {
+    All,
+    VarOnly(Var),
 }
 
 pub struct PlayViewRenderingConfig {
     world_ref: Arc<RwLock<World>>,
 
+    render_mode: RenderMode,
     zoom: Rc<RefCell<i32>>,
     
     camera_movment_event_type: Rc<RefCell<usize>>,
 
     focused_var: Option<Var>,
+
+    
 
     // Vars to render
     vars_to_render: Vec<Var>,
@@ -44,6 +47,8 @@ impl PlayViewRenderingConfig {
 
             focused_var: None,
 
+            render_mode: RenderMode::All,
+
             // Vars to render
             vars_to_render: Vec::new(),
 
@@ -56,6 +61,14 @@ impl PlayViewRenderingConfig {
         };
 
         return Rc::new(RefCell::new(config));
+    }
+
+    pub fn set_rendering_mode(&mut self, render_mode: RenderMode) {
+        self.render_mode = render_mode;
+    }
+
+    pub fn get_render_mode(&self) -> &RenderMode {
+        &self.render_mode
     }
 
     //=====================================

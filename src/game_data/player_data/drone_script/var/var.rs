@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::{GameVarKind, GameVarType, PrimitiveGameVarType}, prim_vars::prim_var_type::PrimitiveVarType, var_type::{VarKind, VarType}}, texture_manager::texture::Texture, tik_manager::drones::drone_inventory::InventorySlot};
+use crate::game_data::{player_data::{drone_script::var::{game_vars::{dynamic_var::DynamicVarType, game_var_type::{GameVarKind, GameVarType, PrimitiveGameVarType}}, prim_vars::prim_var_type::PrimitiveVarType, var_type::{VarKind, VarType}}, locations::location::WorldLocation}, texture_manager::texture::Texture, tik_manager::drones::drone_inventory::InventorySlot};
 
 
 
@@ -199,6 +199,20 @@ impl Var {
         let var_type_ref = self.var_type_ref.borrow();
         if let VarType::Game(GameVarType::Primitive(PrimitiveGameVarType::Inventory(slots))) = &*var_type_ref {
             Some(slots.clone())
+        }
+        else {
+            None
+        }
+    }
+
+    //=====================================
+    // Dynamic Game Var Converters
+    //=====================================
+
+    pub fn as_location(&self) -> Option<Rc<RefCell<WorldLocation>>> {
+        let var_type_ref = self.var_type_ref.borrow();
+        if let VarType::Game(GameVarType::Dynamic(DynamicVarType::Location(location))) = &*var_type_ref {
+            location.clone()
         }
         else {
             None

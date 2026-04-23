@@ -242,10 +242,32 @@ impl PlayWorldViewRender {
         let world_arc = self.rendering_config.borrow().get_world_ref().clone();
         let world = world_arc.read().unwrap();
 
-        let world_area = self.get_world_area_of_view();
+        
+
+        
+        
+        let config = self.rendering_config.borrow();
+        
+
+        let world_area;
+        
+        match config.get_render_mode() {
+            rendering_config::play_world_view_config::RenderMode::All => {
+                world_area = self.get_world_area_of_view()
+            },
+            rendering_config::play_world_view_config::RenderMode::VarOnly(var) => {
+                if let Some(location_ref) = var.as_location() {
+                    println!("test");
+                    world_area = *location_ref.borrow().get_area()
+                }
+                else {
+                    println!("bad test");
+                    world_area = self.get_world_area_of_view()
+                }
+            },
+        }
 
         let mut area_rendering_manager = AreaRenderingManager::new(&world_area);
-        let config = self.rendering_config.borrow();
         let tiles = area_rendering_manager.get_casted_tile_rays(&world, &*config);
 
         for tile in tiles {
@@ -281,6 +303,7 @@ impl PlayWorldViewRender {
                 if let DynamicVarType::Drone(Some(drone_ref_option)) = dynamic_var {
                     let area_cords = self.world_to_area_cords(drone_ref_option.borrow().get_cords());
                     let draw_cords = self.area_to_draw_cords(area_cords);
+
 
 
                 }

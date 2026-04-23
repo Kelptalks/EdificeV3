@@ -132,7 +132,6 @@ impl WorldArea {
     }
 
     pub fn expand_to_fit_point(&mut self, cords: [i32; 3]) {
-        println!("expanding to avoid point");
         self.normalize_points();
         for i in 0..3 {
             if cords[i] < self.points[0].cords[i] {
