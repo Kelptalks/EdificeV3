@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc, sync::{Arc, RwLock}};
 
-use crate::game_data::{World, locations::world_area::WorldArea, player_data::{drone_script::var::var_type::VarType, locations::location::WorldLocation, player_data::PlayerData}, screen::widget::world_rendering::rendering_config::cursor_config::CursorConfig, types::BlockTexture};
+use crate::game_data::{World, locations::world_area::WorldArea, player_data::{drone_script::var::{var::Var, var_type::VarType}, locations::location::WorldLocation, player_data::PlayerData}, screen::widget::world_rendering::rendering_config::cursor_config::CursorConfig, types::BlockTexture};
 
 pub enum CameraMovementType {
     ShiftArea,
@@ -15,10 +15,10 @@ pub struct PlayViewRenderingConfig {
     
     camera_movment_event_type: Rc<RefCell<usize>>,
 
-    focused_var: Option<Rc<RefCell<VarType>>>,
+    focused_var: Option<Var>,
 
     // Vars to render
-    vars_to_render: Vec<Rc<RefCell<VarType>>>,
+    vars_to_render: Vec<Var>,
 
     
     // All World Location Rendering
@@ -95,7 +95,7 @@ impl PlayViewRenderingConfig {
     }
 
 
-    pub fn add_var_to_render(&mut self, var: Rc<RefCell<VarType>>) {
+    pub fn add_var_to_render(&mut self, var: Var) {
         self.vars_to_render.push(var);
     }
 
@@ -103,15 +103,15 @@ impl PlayViewRenderingConfig {
     // Var Getters
     //=====================================
 
-    pub fn get_focused_var(&self) -> &Option<Rc<RefCell<VarType>>> {
+    pub fn get_focused_var(&self) -> &Option<Var> {
         &self.focused_var
     }
 
-    pub fn set_focused_var(&mut self, var: Option<Rc<RefCell<VarType>>>) {
+    pub fn set_focused_var(&mut self, var: Option<Var>) {
         self.focused_var = var
     }
 
-    pub fn get_vars_to_render(&self) -> &Vec<Rc<RefCell<VarType>>> {
+    pub fn get_vars_to_render(&self) -> &Vec<Var> {
         return &self.vars_to_render;
     }
 

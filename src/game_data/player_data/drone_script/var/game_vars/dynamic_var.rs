@@ -112,7 +112,8 @@ impl DynamicVarType {
                         },
                         VarProperty {
                             key: PropKey::Id,
-                            value: PrimitiveVarType::Num(borrow.get_id() as i32).create_var(), mutible: false},
+                            value: PrimitiveVarType::Num(borrow.get_id() as i32).create_var(), mutible: false
+                        },
                     ]
                 }
                 else {
@@ -138,7 +139,6 @@ impl DynamicVarType {
                         VarProperty {key: PropKey::MinePower, value: PrimitiveVarType::Num(borrow.get_mine_power() as i32).create_var(),     mutible: false},
                         VarProperty {key: PropKey::ChopPower, value: PrimitiveVarType::Num(borrow.get_chop_power() as i32).create_var(),     mutible: false},
                     ]
-                    
                 }
                 else {
                     eprintln!("Cannot Accsess Properties of NULL drone var");

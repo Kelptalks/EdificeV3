@@ -1,4 +1,4 @@
-use crate::game_data::{game_event_manager::{render_event_manager::render_event_manager::RenderEvent, widget_event_manager::play_view_events::PlayViewEvent}, screen::{menu_constructors::play_view_menu::{new_play_view::RefManager, world_hot_bar::world_hot_bar}, screen_data::CurrentMenu, widget::{panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, PlayWorldViewRender}, widget::WidgetType}}};
+use crate::game_data::{game_event_manager::{render_event_manager::render_event_manager::RenderEvent, widget_event_manager::play_view_events::PlayViewEvent}, screen::{menu_constructors::play_view_menu::{new_play_view::RefManager, world_hot_bar::world_hot_bar}, screen_data::CurrentMenu, widget::{panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, PlayWorldViewRender}, widget::WidgetType, world_rendering::rendering_config::cursor_config::CursorMode}}};
 
 use miniquad::KeyCode;
 
@@ -18,6 +18,38 @@ pub fn get_widget(ref_manager: &mut RefManager) -> WidgetType {
 
         panel.add_event(InputEvent::KeyDown(miniquad::KeyCode::M, vec![RenderEvent::ChangeMenu(CurrentMenu::MapView).wrap_into_event()]).wrap_into_event());
 
+        panel.add_event(
+            InputEvent::KeyDown(KeyCode::Tab, 
+                vec![
+                    PlayViewEvent::SetCursorMode(
+                        ref_manager.play_view_rendering_config.clone(),
+                        CursorMode::Expand(ref_manager.selected_var.get_var_type_ref().clone())
+                    ).wrap_into_event()
+                ]
+            ).wrap_into_event()
+        );
+
+        panel.add_event(
+            InputEvent::KeyDown(KeyCode::LeftControl, 
+                vec![
+                    PlayViewEvent::SetCursorMode(
+                        ref_manager.play_view_rendering_config.clone(),
+                        CursorMode::Shrink(ref_manager.selected_var.get_var_type_ref().clone())
+                    ).wrap_into_event()
+                ]
+            ).wrap_into_event()
+        );
+
+        /*
+        panel.add_event(
+            PlayViewEvent::SetCursorMode(
+                ref_manager.play_view_rendering_config.clone(),
+                CursorMode::Free()
+            ).wrap_into_event()
+        );
+        */
+
+
         let mut inputs = Vec::new();
         let mut play_view = PlayWorldViewRender::new(ref_manager.play_view_rendering_config.clone());
         
@@ -29,6 +61,8 @@ pub fn get_widget(ref_manager: &mut RefManager) -> WidgetType {
 
         play_view.set_prefered_size(0.95);
         panel.add_widget(play_view.wrap_into_widget());
+
+
 
         panel.add_widget(world_hot_bar::get_widget(ref_manager));        
     }

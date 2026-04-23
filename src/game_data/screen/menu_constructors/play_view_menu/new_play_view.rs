@@ -43,9 +43,8 @@ impl RefManager {
         selected_var.set_name("selected_var".to_string());
 
 
-        rendering_config.borrow_mut().set_focused_var(Some(selected_var.get_var_type_ref().clone()));
-
-        rendering_config.borrow_mut().add_var_to_render(selected_var.get_var_type_ref().clone());
+        rendering_config.borrow_mut().set_focused_var(Some(selected_var.clone()));
+        rendering_config.borrow_mut().add_var_to_render(selected_var.clone());
 
         RefManager {
             play_view_rendering_config: rendering_config.clone(),

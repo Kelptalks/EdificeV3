@@ -10,7 +10,6 @@ pub struct WorldLocation {
     name: String,
     id: u32,
 
-
     // Visual
     lair_block_mods: Vec<LairBlock>,
 }

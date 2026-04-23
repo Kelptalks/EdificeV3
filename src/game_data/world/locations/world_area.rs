@@ -131,12 +131,67 @@ impl WorldArea {
         self.points[1].add_to_point(mod_points[1]);
     }
 
+    pub fn expand_to_fit_point(&mut self, cords: [i32; 3]) {
+        println!("expanding to avoid point");
+        self.normalize_points();
+        for i in 0..3 {
+            if cords[i] < self.points[0].cords[i] {
+                self.points[0].cords[i] = cords[i];
+            } else if cords[i] > self.points[1].cords[i] {
+                self.points[1].cords[i] = cords[i];
+            }
+        }
+    }
+
     pub fn shrink(&mut self, side: &WorldAreaSide) {
         self.normalize_points();
         let mod_points = side.get_area_point_sizing_mods();
         self.points[0].sub_from_point(mod_points[0]);
         self.points[1].sub_from_point(mod_points[1]);
     }
+
+    pub fn shrink_to_avoid_point(&mut self, cords: [i32; 3]) {
+        self.normalize_points();
+        if !self.cords_in_area(cords) {
+            return;
+        }
+        // Find the axis where shrinking costs the least to exclude the point
+        let shrink_from_min = [
+            cords[0] - self.points[0].cords[0],
+            cords[1] - self.points[0].cords[1],
+            cords[2] - self.points[0].cords[2],
+        ];
+        let shrink_from_max = [
+            self.points[1].cords[0] - cords[0],
+            self.points[1].cords[1] - cords[1],
+            self.points[1].cords[2] - cords[2],
+        ];
+
+        let mut best_axis = 0;
+        let mut best_cost = i32::MAX;
+        let mut from_min = true;
+
+        for i in 0..3 {
+            if shrink_from_min[i] < best_cost {
+                best_cost = shrink_from_min[i];
+                best_axis = i;
+                from_min = true;
+            }
+            if shrink_from_max[i] < best_cost {
+                best_cost = shrink_from_max[i];
+                best_axis = i;
+                from_min = false;
+            }
+        }
+
+        if from_min {
+            self.points[0].cords[best_axis] = cords[best_axis] + 1;
+        } else {
+            self.points[1].cords[best_axis] = cords[best_axis] - 1;
+        }
+    }
+
+
 
     //=====================================
     // Getters

@@ -65,7 +65,7 @@ impl AreaRenderingManager {
         }
 
         for var in rendering_config.get_vars_to_render() {
-            lair_block_manager.render_var(var);
+            lair_block_manager.render_var(var.get_var_type_ref());
         }
 
         // Render Cursor location

@@ -82,8 +82,8 @@ impl Var {
         self.var_kind.get_texture()
     }
 
-    pub fn get_var_type_ref(&self) -> Rc<RefCell<VarType>> {
-        self.var_type_ref.clone()
+    pub fn get_var_type_ref(&self) -> &Rc<RefCell<VarType>> {
+        &self.var_type_ref
     }
 
     pub fn is_null(&self) -> bool {
@@ -141,7 +141,7 @@ impl Var {
             }
         }
         else {
-            None
+            Some(var_type_ref.get_name())
         }
     }
 

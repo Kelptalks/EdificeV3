@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{prelude::{Event, PlayerDataEvent, WorldEvent}, widget_event_manager::play_view_events::PlayViewEvent}, player_data::{drone_script::var::{game_vars::{dynamic_var::DynamicVarType, game_var_type::GameVarType}, var::Var, var_type::VarType}, player_data::PlayerData}, screen::{menu_constructors::play_view_menu::new_play_view::{PlayViewMode, RefManager}, widget::{button::button::Button, panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel, VarSlot}, toggle_button, widget::WidgetType, world_rendering::rendering_config::cursor_config::CursorMode}}, types::{BlockTexture, UITextures}};
+use crate::game_data::{game_event_manager::{prelude::{DispatchEvent, Event, PlayerDataEvent, WorldEvent}, widget_event_manager::play_view_events::PlayViewEvent}, player_data::{drone_script::var::{game_vars::{dynamic_var::DynamicVarType, game_var_type::GameVarType}, var::Var, var_type::VarType}, player_data::PlayerData}, screen::{menu_constructors::play_view_menu::new_play_view::{PlayViewMode, RefManager}, widget::{button::button::Button, panel::panel::{PanelAlignment, PanelOrientation}, prelude::{PanelColor, TabPanel, VarSlot}, toggle_button, widget::WidgetType, world_rendering::rendering_config::cursor_config::CursorMode}}, types::{BlockTexture, UITextures}};
 
 //=====================================
 // Helper
@@ -95,7 +95,10 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         // Spawn Drone
         let spawn_drone = panel.add_button();
         spawn_drone.add_left_click_event(
-            PlayerDataEvent::CreateDroneInVar(ref_manager.selected_var.get_var_type_ref().clone(), ref_manager.cursor_location.clone()).wrap_into_event()
+            PlayerDataEvent::CreateDroneInVar(
+                ref_manager.selected_var.get_var_type_ref().clone(), 
+                ref_manager.cursor_location.clone()
+            ).wrap_into_event()
         );
         spawn_drone.add_left_click_event(PlayViewMode::Drone.to_tab_panel_event(&ref_manager.play_view_mode));
         spawn_drone.set_block(BlockTexture::DroneControler);
@@ -178,6 +181,10 @@ fn get_location_hotbar(ref_manager: &mut RefManager) -> WidgetType {
         let set_location_exit = panel.add_button();
         set_location_exit.set_block(BlockTexture::translucent_red);
         set_location_exit.set_text("Set Exit".to_string());
+
+
+
+
         
         
     }

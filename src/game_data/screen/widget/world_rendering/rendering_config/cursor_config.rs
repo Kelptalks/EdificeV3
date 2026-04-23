@@ -1,12 +1,14 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::{Event, EventManager, LocationEvent, PlayerDataEvent}, locations::{world_area::WorldArea, world_area_side::WorldAreaSide, world_point::WorldPoint}, player_data::{drone_script::var::{game_vars::{game_var_type::GameVarType}, var_type::VarType}, locations::location::WorldLocation, player_data::PlayerData}};
+use crate::game_data::{game_event_manager::prelude::{Event, EventManager, LocationEvent, PlayerDataEvent}, locations::{world_area::WorldArea, world_area_side::WorldAreaSide, world_point::WorldPoint}, player_data::{drone_script::var::{game_vars::{dynamic_var::{self, DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}, locations::location::WorldLocation, player_data::PlayerData}};
 
 #[derive(Clone)]
 pub enum CursorMode {
     Free(), // Do not restric movment of cursor
+    
     LockedToVar(Rc<RefCell<VarType>>), // Prevent the cursor from leaveing the locations bounds
-
+    Expand(Rc<RefCell<VarType>>),
+    Shrink(Rc<RefCell<VarType>>),
 }
 
 pub struct CursorConfig {
@@ -89,10 +91,22 @@ impl CursorConfig {
             CursorMode::Free() => {
                 events.push(self.construct_shift_event(shift));
             },
-            CursorMode::LockedToVar(var_ref) => {
-                let borrowed = var_ref.borrow();
-                if let VarType::Game(GameVarType::Dynamic(dynamic_var)) = &*borrowed {
+            CursorMode::LockedToVar(location_ref) => {
+               
+               
+               
+               
+               
+                let location_borrowed = location_ref.borrow_mut();
+    
+                
+                if let VarType::Game(GameVarType::Dynamic(dynamic_var)) = &*location_borrowed {
                     if let Some(area) = dynamic_var.get_area() {
+                        
+
+                        
+
+                        // Create events 
                         let sides_of_cursor_on_location = WorldAreaSide::get_sides_of_point_in_area(
                             &area, &self.get_point()
                         );
@@ -101,6 +115,8 @@ impl CursorConfig {
                                 sides_of_cursor_on_location.clone(), shift
                             )
                         );
+
+
 
                         // Move cursor back into bounds if it somehow escapes
                         if !area.cords_in_area(self.get_point().cords) {
@@ -112,9 +128,31 @@ impl CursorConfig {
                     }
                 }
                 else {
-                    println!("Cannot Lock cursor to var({})", var_ref.borrow().get_name());
+                    println!("Cannot Lock cursor to var({})", location_ref.borrow().get_name());
                 }
             },
+            CursorMode::Expand(location_ref) => {
+                let var_type_borrowed = location_ref.borrow_mut();
+                if let VarType::Game(GameVarType::Dynamic(DynamicVarType::Location(Some(location_ref)))) = &*var_type_borrowed {
+                    let mut location_borrowed = location_ref.borrow_mut();
+
+                    let cursor_cords = self.get_cords();
+                    location_borrowed.get_mut_area().expand_to_fit_point(cursor_cords);
+                }
+                events.push(self.construct_shift_event(shift));   
+            },
+
+            CursorMode::Shrink(location_ref) => {
+                let var_type_borrowed = location_ref.borrow_mut();
+                if let VarType::Game(GameVarType::Dynamic(DynamicVarType::Location(Some(location_ref)))) = &*var_type_borrowed {
+                    let mut location_borrowed = location_ref.borrow_mut();
+
+                    
+                    let cursor_cords = self.get_cords();
+                    location_borrowed.get_mut_area().shrink_to_avoid_point(cursor_cords);
+                }
+                events.push(self.construct_shift_event(shift));
+            }
         }
 
 

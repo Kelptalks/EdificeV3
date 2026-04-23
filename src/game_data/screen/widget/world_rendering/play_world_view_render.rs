@@ -276,11 +276,13 @@ impl PlayWorldViewRender {
         }
 
         for var in config.get_vars_to_render() {
-            let borrow = var.borrow();
+            let borrow = var.get_var_type_ref().borrow();
             if let VarType::Game(GameVarType::Dynamic(dynamic_var)) = &*borrow {
                 if let DynamicVarType::Drone(Some(drone_ref_option)) = dynamic_var {
                     let area_cords = self.world_to_area_cords(drone_ref_option.borrow().get_cords());
                     let draw_cords = self.area_to_draw_cords(area_cords);
+
+
                 }
             }
         }
