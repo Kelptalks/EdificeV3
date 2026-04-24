@@ -60,39 +60,18 @@ impl VarPropWidget {
     }
 
 
-    pub fn update_with_val(&mut self, val: PropValue) -> Vec<VarPropModRequest> {
-        let mut prop_requests = Vec::new();
-
-
-        if *self.set_var_bool.borrow() {
-
-            
-            // prop_requests.push(VarPropModRequest::Set(self.key, PropValue::Var(Some(self.var.clone()))));
-
-            *self.set_var_bool.borrow_mut() = false;
-            todo!()
-        }
-
-
-        self.panel.size();
-
-        return prop_requests;
-    }
-
 
     pub fn update_with_var(&mut self, var: &Var) -> Vec<VarPropModRequest> {
         let mut prop_requests = Vec::new();
 
-
-        if *self.set_var_bool.borrow() {
-
-            
-            // prop_requests.push(VarPropModRequest::Set(self.key, PropValue::Var(Some(self.var.clone()))));
-
-            *self.set_var_bool.borrow_mut() = false;
-            todo!()
+        if let Some(widget) =  var.get_var_type_ref().borrow().into_widget() {
+            let mut panel = Panel::new_blank();
+            panel.add_widget(widget);
+            self.panel = panel; 
         }
-
+        else {
+                
+        }
 
         self.panel.size();
 

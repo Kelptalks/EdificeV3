@@ -47,7 +47,7 @@ impl ScriptElement {
     }
 
     pub fn wrap_into_var_type(self) -> VarType {
-        ProgrammingVar::ScriptingElement(self).wrap_into_var()
+        ProgrammingVar::ScriptingElement(self).wrap_into_var_type()
     }
 
     pub fn create_widget(&self, line: usize) -> WidgetType {

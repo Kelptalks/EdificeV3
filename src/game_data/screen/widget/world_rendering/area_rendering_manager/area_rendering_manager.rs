@@ -82,18 +82,31 @@ impl AreaRenderingManager {
         );
         
 
-        let mut tile_rays = Vec::new();
-        for (world_cords, local_cords) in expanded_face_orgins_vec {
-            let mut tile_ray = TileRay::new(
-                world_cords, 
-                local_cords, 
-            );
+        let num_threads = std::thread::available_parallelism()
+            .map(|n| n.get())
+            .unwrap_or(4);
+        let chunk_size = ((expanded_face_orgins_vec.len() + num_threads - 1) / num_threads).max(1);
 
+        let mut tile_rays: Vec<TileRay> = Vec::new();
+        std::thread::scope(|s| {
+            let handles: Vec<_> = expanded_face_orgins_vec
+                .chunks(chunk_size)
+                .map(|chunk| {
+                    s.spawn(|| {
+                        chunk.iter().map(|(world_cords, local_cords)| {
+                            let mut tile_ray = TileRay::new(*world_cords, *local_cords);
+                            tile_ray.cast(world, &ray_casting_config);
+                            tile_ray
+                        }).collect::<Vec<_>>()
+                    })
+                })
+                .collect();
 
-            tile_ray.cast(world, &ray_casting_config);
-            tile_rays.push(tile_ray);
-        }
-        
+            for handle in handles {
+                tile_rays.extend(handle.join().unwrap());
+            }
+        });
+
         return tile_rays;
 
     }

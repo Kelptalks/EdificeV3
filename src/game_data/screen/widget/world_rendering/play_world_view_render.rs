@@ -257,11 +257,9 @@ impl PlayWorldViewRender {
             },
             rendering_config::play_world_view_config::RenderMode::VarOnly(var) => {
                 if let Some(location_ref) = var.as_location() {
-                    println!("test");
                     world_area = *location_ref.borrow().get_area()
                 }
                 else {
-                    println!("bad test");
                     world_area = self.get_world_area_of_view()
                 }
             },

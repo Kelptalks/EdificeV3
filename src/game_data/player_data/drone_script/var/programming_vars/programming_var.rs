@@ -2,17 +2,23 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::{control_flow::condition::Condition, function::{function::Function, function_call::FunctionCall}, script_element::{self, ScriptElement}, var::{prim_vars::prim_var_type::PrimitiveVarType, var::Var, var_properties::{PropKey, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}}, screen::widget::widget::WidgetType, texture_manager::texture::Texture};
+use crate::game_data::{player_data::drone_script::{control_flow::condition::Condition, function::{function::Function, function_call::FunctionCall}, script_element::{self, ScriptElement}, var::{prim_vars::prim_var_type::PrimitiveVarType, var::Var, var_properties::{PropKey, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}}, screen::widget::{drone_programming::function_slot::FunctionSlot, widget::WidgetType}, texture_manager::texture::Texture, types::UITextures};
 
 #[derive(Clone, PartialEq)]
 pub enum ProgrammingVar {
     ScriptingElement(ScriptElement),
     Condition(Condition),
+
+    Script(Rc<RefCell<Function>>),
 }
 
 impl ProgrammingVar {
-    pub fn wrap_into_var(self) -> VarType {
+    pub fn wrap_into_var_type(self) -> VarType {
         VarType::ProgrammingVar(self)
+    }
+
+    pub fn create_var(self) -> Var {
+        self.wrap_into_var_type().create_var()
     }
     
     //=====================================
@@ -32,6 +38,9 @@ impl ProgrammingVar {
                 // return Texture::BlockTexture(crate::game_data::types::BlockTexture::Air)
                 condition.get_texture()
             }
+            ProgrammingVar::Script(ref_cell) => {
+                UITextures::ScallingIconMidLeft.wrap_into_texture()
+            },
         }
     }
 
@@ -43,6 +52,9 @@ impl ProgrammingVar {
             ProgrammingVar::Condition(condition) => {
                 None
             },
+            ProgrammingVar::Script(function_ref) => {
+                Some(FunctionSlot::new_with_function(function_ref).wrap_into_widget())
+            }
         }
     }
 
@@ -54,6 +66,7 @@ impl ProgrammingVar {
         match self {
             ProgrammingVar::ScriptingElement(_) =>  ProgrammingVarKind::Function(),
             ProgrammingVar::Condition(_) => ProgrammingVarKind::Condition(),
+            ProgrammingVar::Script(ref_cell) => ProgrammingVarKind::Script(),
         }
     }
 
@@ -61,6 +74,7 @@ impl ProgrammingVar {
         match self {
             ProgrammingVar::ScriptingElement(function) => function.get_name(),
             ProgrammingVar::Condition(condition) => condition.get_name(),
+            ProgrammingVar::Script(ref_cell) => ref_cell.borrow().get_name(),
         }
     }
 
@@ -79,6 +93,9 @@ impl ProgrammingVar {
             ProgrammingVar::Condition(condition) => {
                 todo!("");
             },
+            ProgrammingVar::Script(ref_cell) => {
+                todo!("")
+            },
         }
         props
     }
@@ -92,6 +109,9 @@ impl ProgrammingVar {
             ProgrammingVar::Condition(condition) => {
                 eprintln!("No props requests for Var Condition Exist");
             },
+            ProgrammingVar::Script(ref_cell) => {
+                eprintln!("No props requests for Var script Exist");
+            },
         }
     }
 
@@ -103,6 +123,7 @@ impl ProgrammingVar {
         match self {
             ProgrammingVar::ScriptingElement(function) => todo!(),
             ProgrammingVar::Condition(condition) => todo!(),
+            ProgrammingVar::Script(ref_cell) => todo!(),
         }
     }
 

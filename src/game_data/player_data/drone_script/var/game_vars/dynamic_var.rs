@@ -126,18 +126,20 @@ impl DynamicVarType {
                     let borrow = drone.borrow();
 
                     vec![
-                        VarProperty {key: PropKey::Name,      value: PrimitiveVarType::String(borrow.get_name().to_string()).create_var(),   mutible: true},
-                        VarProperty {key: PropKey::Id,        value: PrimitiveVarType::Num(borrow.get_id() as i32).create_var(),             mutible: false},
+                        VarProperty {key: PropKey::Name,           value: PrimitiveVarType::String(borrow.get_name().to_string()).create_var(),   mutible: true},
+                        VarProperty {key: PropKey::Id,             value: PrimitiveVarType::Num(borrow.get_id() as i32).create_var(),             mutible: false},
 
-                        VarProperty {key: PropKey::Cords,     value: PrimitiveGameVarType::construct_cords_var(borrow.get_cords()),          mutible: false},
+                        VarProperty {key: PropKey::Cords,          value: PrimitiveGameVarType::construct_cords_var(borrow.get_cords()),          mutible: false},
 
-                        VarProperty {key: PropKey::Health,    value: PrimitiveVarType::Num(borrow.get_health() as i32).create_var(),         mutible: true},
-                        VarProperty {key: PropKey::Fuel,      value: PrimitiveVarType::Num(borrow.get_fuel() as i32).create_var(),           mutible: true},
+                        VarProperty {key: PropKey::Health,         value: PrimitiveVarType::Num(borrow.get_health() as i32).create_var(),         mutible: true},
+                        VarProperty {key: PropKey::Fuel,           value: PrimitiveVarType::Num(borrow.get_fuel() as i32).create_var(),           mutible: true},
                         VarProperty {key: PropKey::BusyTime,       value: PrimitiveVarType::Num(borrow.get_busy() as i32).create_var(),                              mutible: true},
                         VarProperty {key: PropKey::InventorySlots, value: PrimitiveGameVarType::construct_inventory_var(borrow.get_inventory().get_slots().clone()), mutible: true},
 
-                        VarProperty {key: PropKey::MinePower, value: PrimitiveVarType::Num(borrow.get_mine_power() as i32).create_var(),     mutible: false},
-                        VarProperty {key: PropKey::ChopPower, value: PrimitiveVarType::Num(borrow.get_chop_power() as i32).create_var(),     mutible: false},
+                        VarProperty {key: PropKey::MinePower,      value: PrimitiveVarType::Num(borrow.get_mine_power() as i32).create_var(),     mutible: false},
+                        VarProperty {key: PropKey::ChopPower,      value: PrimitiveVarType::Num(borrow.get_chop_power() as i32).create_var(),     mutible: false},
+                        
+                        VarProperty {key: PropKey::Script,         value: ProgrammingVar::Script(borrow.get_function_ref().clone()).create_var(),   mutible: true},
                     ]
                 }
                 else {
