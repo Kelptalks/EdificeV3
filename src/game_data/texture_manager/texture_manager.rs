@@ -157,7 +157,6 @@ impl TextureManager {
     
     pub fn render_texture(&mut self, texture: Texture, pos: [f32; 4]) {
         let uv = self.get_texture_uv(texture);
-        self.get_texture_renderer().add_quad(pos, uv);
 
         match texture {
             Texture::TintedUITexture(uitextures, tint) => {
@@ -168,6 +167,22 @@ impl TextureManager {
             }
         }
     }
+
+    pub fn render_expanded_texture(&mut self, texture: Texture, pos : [f32; 4]) {
+        let uv = self.get_texture_uv(texture);
+        self.get_texture_renderer().add_quad(pos, uv);
+        
+        let expanded_pos = [
+            pos[0] - self.cached_expander,         // x1 (left)
+            pos[1] - self.cached_expander,         // y1 (top/bottom) 
+            pos[2] + self.cached_expander, // x2 (right)
+            pos[3] + self.cached_expander, // y2 (bottom/top)
+        ];
+
+        self.get_texture_renderer().add_quad(expanded_pos, uv); 
+    }
+
+
 
     pub fn render_tinted_texture(&mut self, texture: Texture, pos: [f32; 4], color: [f32; 3]) {
         let uv = self.get_texture_uv(texture);

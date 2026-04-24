@@ -268,6 +268,9 @@ impl PlayWorldViewRender {
         let mut area_rendering_manager = AreaRenderingManager::new(&world_area);
         let tiles = area_rendering_manager.get_casted_tile_rays(&world, &*config);
 
+
+        texture_manager.update_expander_cache(self.ndc_block_scale);
+
         for tile in tiles {
             let tile_area_cords = tile.get_area_cords();
 
@@ -281,7 +284,7 @@ impl PlayWorldViewRender {
                 draw_cords[1] + self.ndc_block_scale,
             ];
             for texture in left_textures {
-                texture_manager.render_texture(texture, left_pos);
+                texture_manager.render_expanded_texture(texture, left_pos);
             }
 
             let right_pos = [
@@ -291,9 +294,11 @@ impl PlayWorldViewRender {
                 draw_cords[1] + self.ndc_block_scale,
             ];
             for texture in right_textures {
-                texture_manager.render_texture(texture, right_pos);
+                texture_manager.render_expanded_texture(texture, right_pos);
             }
         }
+
+
 
         for var in config.get_vars_to_render() {
             let borrow = var.get_var_type_ref().borrow();
