@@ -7,7 +7,7 @@ use crate::game_data::{
 
 
 
-pub fn get_menu(screen_data: &ScreenData, player_data: &mut PlayerData) -> WidgetType {
+pub fn get_menu(screen_data: &ScreenData) -> WidgetType {
     let mut panel = WidgetType::new_panel(screen_data.get_viewport_uv(), [0.0; 4]);
     
     if let WidgetType::Panel(panel) = &mut panel {

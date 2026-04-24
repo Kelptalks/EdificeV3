@@ -58,11 +58,14 @@ impl AreaRenderingManager {
 
         // Lair managment
         let mut lair_block_manager = LairBlockManager::new();
+        
+        /*
         if rendering_config.should_render_all_location() {
             for location in &*rendering_config.get_locations_to_render().borrow() {
                 lair_block_manager.outline_world_area(location.borrow().get_area(), BlockTexture::Dot);
             }
         }
+         */
 
         for var in rendering_config.get_vars_to_render() {
             lair_block_manager.render_var(var.get_var_type_ref());

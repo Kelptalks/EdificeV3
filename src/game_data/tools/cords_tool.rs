@@ -8,6 +8,18 @@ static STRAIT_AXIS: [[i32; 3]; 6] = [
     [0, 0, -1],
 ];
 
+pub fn cords_to_key(cords: [i32; 3]) -> u64 {
+    const BITS: u32 = 21;
+    const MASK: u64 = (1 << BITS) - 1; // 0x1FFFFF
+
+    let x = (cords[0] as u64) & MASK;
+    let y = (cords[1] as u64) & MASK;
+    let z = (cords[2] as u64) & MASK;
+
+    x | (y << BITS) | (z << (BITS * 2))
+}
+
+
 pub fn get_strait_directions() -> [[i32; 3]; 6] {
     STRAIT_AXIS
 }

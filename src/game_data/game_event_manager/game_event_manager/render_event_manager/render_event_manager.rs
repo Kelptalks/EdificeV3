@@ -1,4 +1,6 @@
 
+use std::{cell::RefCell, rc::Rc};
+
 use crate::game_data::{game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}}, player_data::player_data::PlayerData, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::widget::WidgetType}};
 
 /*
@@ -33,7 +35,12 @@ impl RenderEvent {
         return Event::GameEvent(GameEvent::RenderEvent(self));
     }
 
-    pub fn construct_menu(current_menu: CurrentMenu, screen_mananager: &mut ScreenManager, event_tools: &mut GameEventManager, player_data: &mut PlayerData) -> WidgetType 
+    pub fn construct_menu(
+        current_menu: CurrentMenu, 
+        screen_mananager: &mut ScreenManager, 
+        event_tools: &mut GameEventManager, 
+        player_data: &Rc<RefCell<PlayerData>>,
+    ) -> WidgetType 
     {
         let mut menu_panel= WidgetType::new_panel([0.0; 4], [0.0; 4]);
         match current_menu {
@@ -52,7 +59,6 @@ impl RenderEvent {
                 menu_panel = 
                     menu_constructors::settings_menu::get_menu(
                         &screen_mananager.get_mut_screen_data(),
-                        player_data
                     );
             }
             CurrentMenu::PlayView => {
@@ -73,10 +79,15 @@ impl RenderEvent {
     //=====================================
     // Execution
     //=====================================
-    pub fn execute_render_event(&self, event_tools: &mut GameEventManager, screen_mananager: &mut ScreenManager, player_data: &mut PlayerData) {
+    pub fn execute_render_event(
+        &self, 
+        event_tools: &mut GameEventManager, 
+        screen_mananager: &mut ScreenManager, 
+        player_data: &Rc<RefCell<PlayerData>>
+    ) {
         let camera = screen_mananager.get_mut_camera();
         let camera_data = &camera.get_camera_data().clone();
-        let world = &player_data.get_world_ref();
+        let world = player_data.borrow().get_world_ref();
         match self {
             RenderEvent::QuitGame => {
                 screen_mananager.get_mut_screen_data().quit();
@@ -87,7 +98,7 @@ impl RenderEvent {
                     &camera_data, 
                     range as i32
                 );
-                camera.ray_cast_dirty_chunks(camera_data.clone().get_arc_ref(), world);
+                camera.ray_cast_dirty_chunks(camera_data.clone().get_arc_ref(), &world);
             },
             RenderEvent::ReRenderBlock(cords) => {
                 let casted_tile_cords = camera_data.world_to_casted_tile_cords(*cords);

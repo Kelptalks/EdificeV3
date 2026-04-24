@@ -15,7 +15,6 @@ pub struct PlayerData {
     // Location
     current_world: Arc<RwLock<World>>,
 
-
     // Drone Control data
     drone_manager: DroneManager,
     location_manager: LocationManager,

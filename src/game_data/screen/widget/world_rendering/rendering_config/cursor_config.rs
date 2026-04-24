@@ -1,6 +1,15 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::{Event, EventManager, LocationEvent, PlayerDataEvent}, locations::{world_area::WorldArea, world_area_side::WorldAreaSide, world_point::WorldPoint}, player_data::{drone_script::var::{game_vars::{dynamic_var::{self, DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}, locations::location::WorldLocation, player_data::PlayerData}};
+use crate::game_data::{
+    game_event_manager::prelude::{
+        Event, EventManager, LocationEvent, PlayerDataEvent
+    }, 
+    locations::{world_area::WorldArea, world_area_side::WorldAreaSide, world_point::WorldPoint}, 
+    player_data::{
+        drone_script::var::{game_vars::{dynamic_var::{DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}, 
+        locations::location::WorldLocation, player_data::PlayerData
+    }
+};
 
 #[derive(Clone)]
 pub enum CursorMode {
@@ -20,9 +29,15 @@ pub struct CursorConfig {
 
 impl CursorConfig {
 
-    pub fn new(player_data: &mut PlayerData) -> CursorConfig {
+    pub fn new(player_data_ref: &Rc<RefCell<PlayerData>>) -> CursorConfig {
+        
+        let location = 
+            player_data_ref.borrow_mut().
+            get_mut_location_manager().
+            create_location("Cursor".to_string(), WorldArea::new_blank());
+        
         CursorConfig {
-            location: player_data.get_mut_location_manager().create_location("Cursor".to_string(), WorldArea::new_blank()),
+            location: location,
             
             cursor_mode: CursorMode::Free(),
         }

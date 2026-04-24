@@ -34,7 +34,7 @@ pub struct RefManager {
 }
 
 impl RefManager {
-    pub fn new(player_data: &mut PlayerData) -> RefManager {
+    pub fn new(player_data: &Rc<RefCell<PlayerData>>) -> RefManager {
         let rendering_config = PlayViewRenderingConfig::new(player_data);
         let cursor_location =  rendering_config.borrow().get_cursor_location_ref().clone();
         let show_locations_bool = rendering_config.borrow().get_should_render_all_locations_ref().clone();
@@ -67,13 +67,13 @@ pub struct PlayViewConstructionManager {
 }
 
 impl PlayViewConstructionManager {
-    pub fn new(player_data: &mut PlayerData) -> PlayViewConstructionManager {
+    pub fn new(player_data: &Rc<RefCell<PlayerData>>) -> PlayViewConstructionManager {
         PlayViewConstructionManager {
             ref_manager: RefManager::new(player_data)
         }
     }
 
-    pub fn build_panel(&mut self, screen_data: &ScreenData, player_data: &mut PlayerData) -> WidgetType {
+    pub fn build_panel(&mut self, screen_data: &ScreenData) -> WidgetType {
         let mut panel = WidgetType::new_panel(screen_data.get_viewport_uv(), [0.0; 4]);
 
         if let WidgetType::Panel(panel) = &mut panel {

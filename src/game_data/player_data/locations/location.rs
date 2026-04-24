@@ -12,6 +12,8 @@ pub struct WorldLocation {
 
     // Visual
     lair_block_mods: Vec<LairBlock>,
+
+    // Blue Prints
 }
 
 impl WorldLocation {
@@ -44,6 +46,7 @@ impl WorldLocation {
     }
 
     pub fn get_lair_block_mods(&self) -> &Vec<LairBlock> {
+        
         return &self.lair_block_mods;
     }
 

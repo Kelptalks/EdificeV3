@@ -1,4 +1,4 @@
-use std::{cell::RefCell, rc::Rc, sync::{Arc, RwLock}};
+use std::{cell::{Ref, RefCell}, rc::Rc, sync::{Arc, RwLock}};
 
 use crate::game_data::{World, locations::world_area::WorldArea, player_data::{drone_script::var::{var::Var, var_type::VarType}, locations::location::WorldLocation, player_data::PlayerData}, screen::widget::world_rendering::rendering_config::cursor_config::CursorConfig, types::BlockTexture};
 
@@ -9,6 +9,7 @@ pub enum RenderMode {
 }
 
 pub struct PlayViewRenderingConfig {
+    player_data_ref: Rc<RefCell<PlayerData>>,
     world_ref: Arc<RwLock<World>>,
 
     render_mode: RenderMode,
@@ -26,7 +27,6 @@ pub struct PlayViewRenderingConfig {
     
     // All World Location Rendering
     render_all_locations: Rc<RefCell<bool>>,
-    all_locations: Rc<RefCell<Vec<Rc<RefCell<WorldLocation>>>>>,
 
     
 
@@ -35,11 +35,12 @@ pub struct PlayViewRenderingConfig {
 }
 
 impl PlayViewRenderingConfig {
-    pub fn new(player_data: &mut PlayerData) -> Rc<RefCell<PlayViewRenderingConfig>> {
-        
-        let world_ref = player_data.get_world_ref();
-        
+    pub fn new(player_data_ref: &Rc<RefCell<PlayerData>>) -> Rc<RefCell<PlayViewRenderingConfig>> {
+  
+        let world_ref = player_data_ref.borrow().get_world_ref();
+
         let config = PlayViewRenderingConfig {
+            player_data_ref: player_data_ref.clone(),
             world_ref: world_ref,
             
             zoom: Rc::new(RefCell::new(5)),
@@ -54,10 +55,9 @@ impl PlayViewRenderingConfig {
 
             // All World Location Rendering
             render_all_locations: Rc::new(RefCell::new(true)),
-            all_locations: player_data.get_mut_location_manager().get_locations_ref_vec().clone(),
 
 
-            cursor_config: CursorConfig::new(player_data),
+            cursor_config: CursorConfig::new(player_data_ref),
         };
 
         return Rc::new(RefCell::new(config));
@@ -130,10 +130,6 @@ impl PlayViewRenderingConfig {
 
     pub fn should_render_all_location(&self) -> bool {
         return *self.render_all_locations.borrow();
-    }
-
-    pub fn get_locations_to_render(&self) -> &Rc<RefCell<Vec<Rc<RefCell<WorldLocation>>>>> {
-        return &self.all_locations;
     }
 
 
