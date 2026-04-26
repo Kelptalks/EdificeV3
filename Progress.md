@@ -328,14 +328,18 @@ in
     4/21/26: 5
     4/22/26: 4
     4/23/26: 5
-    4/24/26: 3.5
+    4/24/26: 4
+    4/25/26: 2
 
 **Lines**
+    4/24/26: 23221
 
 **Notes:**
 
 ***Additions***
-
++ Script AST and Drone Execution
++ Location Tools
++ Var improvments like started migration to ID usage instead of refcells directly 
 
 ---------------------------------------------------------------
 ## Week NUM
