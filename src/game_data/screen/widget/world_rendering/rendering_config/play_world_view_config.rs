@@ -9,7 +9,6 @@ pub enum RenderMode {
 }
 
 pub struct PlayViewRenderingConfig {
-    player_data_ref: Rc<RefCell<PlayerData>>,
     world_ref: Arc<RwLock<World>>,
 
     render_mode: RenderMode,
@@ -35,12 +34,11 @@ pub struct PlayViewRenderingConfig {
 }
 
 impl PlayViewRenderingConfig {
-    pub fn new(player_data_ref: &Rc<RefCell<PlayerData>>) -> Rc<RefCell<PlayViewRenderingConfig>> {
+    pub fn new(player_data_ref: &PlayerData) -> Rc<RefCell<PlayViewRenderingConfig>> {
   
-        let world_ref = player_data_ref.borrow().get_world_ref();
+        let world_ref = player_data_ref.get_world_ref();
 
         let config = PlayViewRenderingConfig {
-            player_data_ref: player_data_ref.clone(),
             world_ref: world_ref,
             
             zoom: Rc::new(RefCell::new(5)),
@@ -57,7 +55,7 @@ impl PlayViewRenderingConfig {
             render_all_locations: Rc::new(RefCell::new(true)),
 
 
-            cursor_config: CursorConfig::new(player_data_ref),
+            cursor_config: CursorConfig::new(),
         };
 
         return Rc::new(RefCell::new(config));
@@ -95,10 +93,6 @@ impl PlayViewRenderingConfig {
     // Coursor
     //=====================================
 
-    pub fn get_cursor_location_ref(&self) -> &Rc<RefCell<WorldLocation>> {
-        return &self.cursor_config.get_location_ref();
-    }
-
     pub fn get_zoom_ref(&self) -> &Rc<RefCell<i32>> {
         return &self.zoom;
     }
@@ -106,7 +100,6 @@ impl PlayViewRenderingConfig {
     pub fn get_camera_movement_event_type_ref(&self) -> &Rc<RefCell<usize>> {
         return &self.camera_movment_event_type;
     }
-
 
     pub fn add_var_to_render(&mut self, var: Var) {
         self.vars_to_render.push(var);

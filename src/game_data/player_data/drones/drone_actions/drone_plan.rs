@@ -1,5 +1,6 @@
 use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::drones::{drone::Drone, drone_actions::drone_actions::DroneAction}};
 
+#[derive(Clone)]
 pub struct DronePlan {
     actions: Vec<DroneAction>,
 

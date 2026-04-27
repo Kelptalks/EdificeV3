@@ -22,7 +22,7 @@ pub struct GameData {
     // Other
     debug_data: DebugData,
     event_manager: EventManager,
-    player_data: Rc<RefCell<PlayerData>>,
+    player_data: PlayerData,
 
     // World
     world : Arc<RwLock<World>>,
@@ -62,7 +62,7 @@ impl GameData {
             // Other
             debug_data: DebugData::new(),
             event_manager: EventManager::new(),
-            player_data: Rc::new(RefCell::new(PlayerData::new(world.clone()))),
+            player_data: PlayerData::new(world.clone()),
 
             // World
             world: world,
@@ -166,20 +166,19 @@ impl GameData {
     pub fn render_camera(&mut self, ctx: &mut GlContext) {
         let frame_start_time = SystemTime::now();
 
-        let mut player_data_borrow = self.player_data.borrow_mut();
 
         self.screen_manager.render_screen(
             &mut self.texture_manager, 
             self.world.clone(), 
             &mut self.drone_rendering_task_manager, 
             &self.tik_manager,
-            &mut *player_data_borrow,
+            &mut self.player_data,
             &mut self.event_manager,
             ctx,
         );
         
         // Tik managing
-        self.tik_manager.new_update_tik_manager(&mut self.event_manager, &mut *player_data_borrow);
+        self.tik_manager.new_update_tik_manager(&mut self.event_manager, &mut self.player_data);
         //self.tik_manager.update_tik_manager(&mut self.world_task_manager, &mut self.drone_rendering_task_manager);
 
         let screen_mananager = &mut self.screen_manager;
@@ -199,7 +198,7 @@ impl GameData {
         // Update game events
         self.event_manager.execute_dispatch_events();
         self.event_manager.dispatch_input_events(screen_mananager);
-        self.event_manager.execute_player_data_events(&mut *player_data_borrow);
+        self.event_manager.execute_player_data_events(&mut self.player_data);
 
         //Get world gaurd
         let mut world_guard = match self.world.write() {
@@ -213,7 +212,6 @@ impl GameData {
         self.event_manager.execute_world_events(&mut world_guard);
         
         drop(world_guard);
-        drop(player_data_borrow);
 
         self.event_manager.execute_render_events(screen_mananager, &self.player_data);
         self.event_manager.execute_widget_events();

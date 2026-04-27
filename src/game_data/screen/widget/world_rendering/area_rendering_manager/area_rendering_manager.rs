@@ -9,16 +9,12 @@ of an area
 */
 
 use crate::game_data::{
-    World, 
-    locations::{world_area::WorldArea, world_area_side::WorldAreaSide}, 
-    screen::widget::{
+    World, locations::{world_area::WorldArea, world_area_side::WorldAreaSide}, player_data::player_data::PlayerData, screen::widget::{
         prelude::play_world_view_config::PlayViewRenderingConfig, 
-        world_rendering::{area_rendering_manager::{block_lair_manager::{lair_block::{LairBlockMod}, 
-        lair_block_manager::{LairBlockManager}}, 
-        ray_caster::{ray::TileRay, ray_casting_config::RayCastingConfig}}, 
-        }
-    }, 
-    types::BlockTexture
+        world_rendering::area_rendering_manager::{block_lair_manager::{lair_block::LairBlockMod, 
+        lair_block_manager::LairBlockManager}, 
+        ray_caster::{ray::TileRay, ray_casting_config::RayCastingConfig}}
+    }, types::BlockTexture
 };
 
 pub struct AreaRenderingManager {
@@ -35,7 +31,7 @@ impl AreaRenderingManager {
     }
 
 
-    pub fn get_casted_tile_rays(&mut self, world: &World, rendering_config: &PlayViewRenderingConfig) -> Vec<TileRay> {
+    pub fn get_casted_tile_rays(&mut self, world: &World, player_data: &PlayerData) -> Vec<TileRay> {
   
         
           
@@ -67,13 +63,16 @@ impl AreaRenderingManager {
         }
          */
 
+        /*
         for var in rendering_config.get_vars_to_render() {
             lair_block_manager.render_var(var.get_var_type_ref());
         }
+         */
 
         // Render Cursor location
-        let cursor_cords = rendering_config.get_cursor_config().get_cords();
-        lair_block_manager.add_lair_block_mod(&LairBlockMod::Cursor(cursor_cords, rendering_config.get_zoom()));
+        let cursor = player_data.get_cursor();
+
+        lair_block_manager.add_lair_block_mod(&LairBlockMod::Cursor(cursor.get_cords(), cursor.get_zoom()));
 
         
         let draw_distance = (expanded_world_area.get_dimensions().iter().max()).unwrap().abs() as u32;

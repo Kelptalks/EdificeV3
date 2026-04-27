@@ -69,7 +69,7 @@ impl LairBlockManager {
                     else {
                         texture = BlockTexture::SelectorVertical;
                     }
-                    for i in 1..*length {
+                    for i in 1..*length as i32 {
                         let cords = [
                             cursor_cords[0] + (axis[0] * i),
                             cursor_cords[1] + (axis[1] * i),

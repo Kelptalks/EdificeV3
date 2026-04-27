@@ -1,4 +1,4 @@
-use crate::game_data::{player_data::drone_script::action::{self, action::Action}, screen::{ScreenData, screen_data, widget::{drone_programming::scripting_widget_type::ScriptingElementWidget, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot}, widget::{Widget, WidgetType}, widget_calculations::{self, TextSize}, widget_properties::WidgetProperties}}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::{drone_script::action::{self, action::Action}, player_data::PlayerData}, screen::{ScreenData, screen_data, widget::{drone_programming::scripting_widget_type::ScriptingElementWidget, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot}, widget::{Widget, WidgetType}, widget_calculations::{self, TextSize}, widget_properties::WidgetProperties}}, texture_manager::texture::Texture};
 
 pub struct ActionSlot {
     panel: Panel,
@@ -90,8 +90,9 @@ impl Widget for ActionSlot {
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
+        player_data: &PlayerData,
     ) {
-        self.panel.render(texture_manager, screen_data, game_event_manager);
+        self.panel.render(texture_manager, screen_data, game_event_manager, player_data);
         
         self.panel.set_color(PanelColor::Yellow);
     }

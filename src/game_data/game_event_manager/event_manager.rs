@@ -148,7 +148,7 @@ impl EventManager {
         }
     }
 
-    pub fn execute_render_events(&mut self, screen_mananager: &mut ScreenManager, player_data: &Rc<RefCell<PlayerData>>) {
+    pub fn execute_render_events(&mut self, screen_mananager: &mut ScreenManager, player_data: &PlayerData) {
         while let Some(render_event) = self.game_event_manager.render_events.pop() {
             render_event.execute_render_event(&mut self.game_event_manager, screen_mananager, player_data);
         }

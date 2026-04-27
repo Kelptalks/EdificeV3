@@ -2,7 +2,7 @@
 
 use std::collections::VecDeque;
 
-use crate::game_data::{player_data::drone_script::{control_flow::control_flow::ControlFlow, element_body}, screen::{ScreenData, screen_data, ui_elements::panel, widget::{self, drone_programming::{script_element_body_slot::ScriptElementBodySlot, scripting_widget_type::ScriptingElementWidget}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_calculations::{self, TextSize}, widget_properties::WidgetProperties}}};
+use crate::game_data::{player_data::{drone_script::{control_flow::control_flow::ControlFlow, element_body}, player_data::PlayerData}, screen::{ScreenData, screen_data, ui_elements::panel, widget::{self, drone_programming::{script_element_body_slot::ScriptElementBodySlot, scripting_widget_type::ScriptingElementWidget}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_calculations::{self, TextSize}, widget_properties::WidgetProperties}}};
 
 pub struct ControlFlowSlot {
     panel: Panel,
@@ -89,8 +89,9 @@ impl Widget for ControlFlowSlot {
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
+        player_data: &PlayerData,
     ) {
-        self.panel.render(texture_manager, screen_data, game_event_manager);
+        self.panel.render(texture_manager, screen_data, game_event_manager, player_data);
         self.panel.set_color(PanelColor::Orange);
     }
 }

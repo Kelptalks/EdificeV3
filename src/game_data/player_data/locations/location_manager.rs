@@ -1,7 +1,18 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::locations::location::WorldLocation, screen::widget::selection_panel::selection_panel_config::WidgetUpdateManager};
+use crate::game_data::{locations::world_area::WorldArea, player_data::locations::location::WorldLocation};
 
+
+#[derive(Clone, Copy)]
+pub struct LocationId {
+    id: usize
+}
+
+impl LocationId {
+    pub fn as_usize(&self) -> usize {
+        self.id
+    }
+}
 
 /*
 #####################
@@ -18,8 +29,6 @@ pub struct LocationManager {
     next_id: u32,
 
 
-
-    selection_panel_update_manager: Rc<RefCell<WidgetUpdateManager>>,
 }
 
 impl LocationManager {
@@ -35,8 +44,6 @@ impl LocationManager {
             all_play_locations_vec_ref: Rc::new(RefCell::new(Vec::new())),
 
             next_id: 0,
-
-            selection_panel_update_manager: WidgetUpdateManager::new(), // Used for updating UI with new drones created
         }
     }
 
@@ -80,10 +87,6 @@ impl LocationManager {
     //=====================================
     // UI Updating
     //=====================================
-
-    pub fn get_panel_update_manager(&self) -> &Rc<RefCell<WidgetUpdateManager>> {
-        return &self.selection_panel_update_manager;
-    }
 
     pub fn add_all_location_to_selection_manager(&mut self) {
         for (key, location) in self.player_location_map.iter() {

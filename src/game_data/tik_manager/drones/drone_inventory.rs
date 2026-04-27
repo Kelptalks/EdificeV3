@@ -40,6 +40,8 @@ impl InventorySlot {
 
 }
 
+
+#[derive(Clone)]
 pub struct DroneInventory {
     slots: Vec<InventorySlot>,
     total_slots: u32,

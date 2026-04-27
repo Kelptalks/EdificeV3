@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{prelude::{Event, PrimEvent}, widget_event_manager::prim_events::i32_event::I32Event}, player_data::drone_script::var::{prim_vars::prim_var_type::PrimitiveVarType, var::Var, var_properties::{PropKey, PropValue, VarPropModRequest}, var_type::VarType}, screen::widget::{drone_programming::var_slot::var_prop_widgets::var_prop_widgets::VarPropVal, panel::panel::{Panel, PanelAlignment, PanelOrientation}, text::header::TextDisplay, widget::{Widget, WidgetType}}};
+use crate::game_data::{game_event_manager::{prelude::{Event, PrimEvent}, widget_event_manager::prim_events::i32_event::I32Event}, player_data::{drone_script::var::{prim_vars::prim_var_type::PrimitiveVarType, var::Var, var_properties::{PropKey, PropValue, VarPropModRequest}, var_type::VarType}, player_data::PlayerData}, screen::widget::{drone_programming::var_slot::var_prop_widgets::var_prop_widgets::VarPropVal, panel::panel::{Panel, PanelAlignment, PanelOrientation}, text::header::TextDisplay, widget::{Widget, WidgetType}}};
 
 pub struct NumDisplayPropWidget {
     // Mutable
@@ -123,7 +123,8 @@ impl Widget for NumDisplayPropWidget {
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
+        player_data: &PlayerData,
     ) {
-        self.panel.render(texture_manager, screen_data, game_event_manager);
+        self.panel.render(texture_manager, screen_data, game_event_manager, player_data);
     }
 }

@@ -41,6 +41,7 @@ impl DroneDirection {
 
 }
 
+#[derive(Clone)]
 pub struct Drone{
     // identity
     id: u32,

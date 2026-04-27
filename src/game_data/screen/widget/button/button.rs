@@ -1,5 +1,5 @@
 
-use crate::game_data::{TextureManager, game_event_manager::{event_manager::EventManager, prelude::Event}, screen::{ScreenData, render_centered_string_at_ndc, widget::{widget::Widget, widget_calculations, widget_properties::WidgetProperties}}, texture_manager::texture::Texture, types::{BlockTexture, FontType, UITextures}};
+use crate::game_data::{TextureManager, game_event_manager::{event_manager::EventManager, prelude::Event}, player_data::player_data::PlayerData, screen::{ScreenData, render_centered_string_at_ndc, widget::{widget::Widget, widget_calculations, widget_properties::WidgetProperties}}, texture_manager::texture::Texture, types::{BlockTexture, FontType, UITextures}};
 
 pub struct Button {
     widget_properties: WidgetProperties,
@@ -180,6 +180,7 @@ impl Widget for Button {
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
         game_event_manager: &mut EventManager,
+        player_data: &PlayerData,
     ) {
         if self.needs_resizing {
             self.size();

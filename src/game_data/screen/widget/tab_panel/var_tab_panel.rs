@@ -1,6 +1,6 @@
 use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc};
 
-use crate::game_data::{game_event_manager::{self, event_manager, player_data_event_manager::var_event_manager::var_events::VarEvents, prelude::{EventManager, PlayerDataEvent}}, player_data::drone_script::var::{self, game_vars::{dynamic_var::DynamicVarType, game_var_type::GameVarType, primitive_game_var::PrimitiveGameVarType}, var::Var, var_properties::{self, PropKey, PropValue, VarProperty}, var_type::{self, VarKind, VarType}}, screen::widget::{self, drone_programming::var_slot::var_slot, panel::{panel::Panel, panel_texture_manager::PanelTextureManager}, prelude::{TabPanel, VarSlot}, scroll_panel::scroll_panel::ScrollPanel, tab_panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}, types::drone_item::DroneItem};
+use crate::game_data::{game_event_manager::{self, event_manager, player_data_event_manager::var_event_manager::var_events::VarEvents, prelude::{EventManager, PlayerDataEvent}}, player_data::{self, drone_script::var::{self, game_vars::{dynamic_var::DynamicVarType, game_var_type::GameVarType, primitive_game_var::PrimitiveGameVarType}, var::Var, var_properties::{self, PropKey, PropValue, VarProperty}, var_type::{self, VarKind, VarType}}, player_data::PlayerData}, screen::widget::{self, drone_programming::var_slot::var_slot, panel::{panel::Panel, panel_texture_manager::PanelTextureManager}, prelude::{TabPanel, VarSlot}, scroll_panel::scroll_panel::ScrollPanel, tab_panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}, types::drone_item::DroneItem};
 
 
 pub struct PropWidgetPool {
@@ -165,6 +165,7 @@ impl Widget for VarTabPanel {
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
+        player_data: &PlayerData,
     ) {
         let bounds = self.widget_properties.bounds;
 
@@ -175,11 +176,11 @@ impl Widget for VarTabPanel {
         self.panel_texture.render(texture_manager, bounds);
 
 
-        self.var_slot.render(texture_manager, screen_data, game_event_manager);
+        self.var_slot.render(texture_manager, screen_data, game_event_manager, player_data);
 
         let widgets = self.get_widgets_for_var(game_event_manager);
 
         self.scroll_panel.get_mut_widget_properties().bounds = bounds;
-        self.scroll_panel.render_shared_widgets(&widgets, texture_manager, screen_data, game_event_manager);
+        
     }
 }

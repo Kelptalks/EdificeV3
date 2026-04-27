@@ -7,8 +7,6 @@ pub mod prelude;
 pub mod panel;
 pub mod tab_panel;
 pub mod scroll_panel;
-pub mod selection_panel;
-
 // Buttons
 pub mod button;
 pub mod bar_button;

@@ -1,10 +1,15 @@
 use crate::game_data::{
-    TextureManager,
-    game_event_manager::game_event_manager::EventManager,
-    screen::{ScreenData,
+    TextureManager, game_event_manager::game_event_manager::EventManager, player_data::player_data::PlayerData, screen::{ScreenData,
         widget::{
             bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::{
-                action_slot::ActionSlot, condition_slot::ConditionSlot, control_flow_slot::ControlFlowSlot, function_slot::FunctionSlot, script_element_body_slot::ScriptElementBodySlot, scripting_elements::scripting_panel::ScriptingPanel, scripting_widget_type::{ScriptingElementWidget, ScriptingWidgetType}, var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, selection_panel::selection_panel::SelectionPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, widget_properties::WidgetProperties, world_rendering::play_world_view_render::PlayWorldViewRender
+                action_slot::ActionSlot, 
+                condition_slot::ConditionSlot, 
+                control_flow_slot::ControlFlowSlot, 
+                function_slot::FunctionSlot, 
+                script_element_body_slot::ScriptElementBodySlot, 
+                scripting_elements::scripting_panel::ScriptingPanel, 
+                scripting_widget_type::{ScriptingElementWidget, ScriptingWidgetType}, 
+                var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, widget_properties::WidgetProperties, world_rendering::play_world_view_render::PlayWorldViewRender
         }
     }, texture_manager::rect::Pos};
 
@@ -30,6 +35,7 @@ pub trait Widget {
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
         game_event_manager: &mut EventManager,
+        player_data: &PlayerData,
     );
 }
 
@@ -38,7 +44,6 @@ pub enum WidgetType {
     Panel(Panel),
     TabPanel(TabPanel),
     ScrollPanel(ScrollPanel),
-    SelectionPanel(SelectionPanel),
     VarTabPanel(VarTabPanel),
 
     // Buttons
@@ -107,7 +112,6 @@ macro_rules! widget_match {
             WidgetType::Panel(w)       => w.$method($($arg),*),
             WidgetType::TabPanel(w)    => w.$method($($arg),*),
             WidgetType::ScrollPanel(w) => w.$method($($arg),*),
-            WidgetType::SelectionPanel(w) => w.$method($($arg), *),
             WidgetType::VarTabPanel(w)  => w.$method($($arg), *),
 
             // Buttons
@@ -148,7 +152,8 @@ impl Widget for WidgetType {
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
         game_event_manager: &mut EventManager,
+        player_data: &PlayerData,
     ) {
-        widget_match!(self, render, texture_manager, screen_data, game_event_manager)
+        widget_match!(self, render, texture_manager, screen_data, game_event_manager, player_data)
     }
 }

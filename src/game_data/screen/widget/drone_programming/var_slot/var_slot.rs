@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{TextureManager, game_event_manager::prelude::EventManager, player_data::drone_script::var::{self, var::Var, var_type::{VarKind, VarType}}, screen::{ScreenData, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}, texture_manager::{self, texture::Texture}, types::UITextures};
+use crate::game_data::{TextureManager, game_event_manager::prelude::EventManager, player_data::{self, drone_script::var::{self, var::Var, var_type::{VarKind, VarType}}, player_data::PlayerData}, screen::{ScreenData, text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}, texture_manager::{self, texture::Texture}, types::UITextures};
 
 
 
@@ -123,6 +123,7 @@ impl Widget for VarSlot {
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &ScreenData,
         game_event_manager: &mut EventManager,
+        player_data: &PlayerData,
     ) {
         let bounds = self.widget_properties.bounds;
         let pos = self.widget_properties.pos;

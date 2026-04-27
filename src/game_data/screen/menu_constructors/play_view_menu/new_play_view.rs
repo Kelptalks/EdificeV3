@@ -21,7 +21,6 @@ impl PlayViewMode {
 
 
 pub struct RefManager {
-    pub cursor_location: Rc<RefCell<WorldLocation>>,
     pub play_view_rendering_config: Rc<RefCell<PlayViewRenderingConfig>>,
 
     pub show_drones_toggle: Rc<RefCell<bool>>,
@@ -34,9 +33,8 @@ pub struct RefManager {
 }
 
 impl RefManager {
-    pub fn new(player_data: &Rc<RefCell<PlayerData>>) -> RefManager {
+    pub fn new(player_data: &PlayerData) -> RefManager {
         let rendering_config = PlayViewRenderingConfig::new(player_data);
-        let cursor_location =  rendering_config.borrow().get_cursor_location_ref().clone();
         let show_locations_bool = rendering_config.borrow().get_should_render_all_locations_ref().clone();
 
         let mut selected_var = Var::new_blank();
@@ -48,8 +46,6 @@ impl RefManager {
 
         RefManager {
             play_view_rendering_config: rendering_config.clone(),
-
-            cursor_location: cursor_location,
 
             show_drones_toggle: Rc::new(RefCell::new(false)),
             show_locations_toggle: show_locations_bool,
@@ -67,7 +63,7 @@ pub struct PlayViewConstructionManager {
 }
 
 impl PlayViewConstructionManager {
-    pub fn new(player_data: &Rc<RefCell<PlayerData>>) -> PlayViewConstructionManager {
+    pub fn new(player_data: &PlayerData) -> PlayViewConstructionManager {
         PlayViewConstructionManager {
             ref_manager: RefManager::new(player_data)
         }

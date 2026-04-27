@@ -107,7 +107,7 @@ impl ScreenManager {
 
         // Render Current Panel
         for panel in &mut self.menu_panels {
-            panel.render(texture_manager, &self.screen_data, game_event_manager);
+            panel.render(texture_manager, &self.screen_data, game_event_manager, player_data);
         }
 
         // Render Mouse On top

@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use miniquad::KeyCode;
 
-use crate::game_data::{game_event_manager::prelude::{BoolEvent, Event, InputEvent, StringEvent, UsizeEvent}, screen::widget::{panel::panel_texture_manager::PanelTextureManager, text::{header::TextDisplay, text_input_event_constructor}, widget::{Widget, WidgetType}, widget_properties::WidgetProperties}, texture_manager::texture::Texture};
+use crate::game_data::{game_event_manager::prelude::{BoolEvent, Event, InputEvent, StringEvent, UsizeEvent}, player_data::player_data::PlayerData, screen::widget::{panel::panel_texture_manager::PanelTextureManager, text::{header::TextDisplay, text_input_event_constructor}, widget::{Widget, WidgetType}, widget_properties::WidgetProperties}, texture_manager::texture::Texture};
 
 pub struct TextInput {
     widget_properties: WidgetProperties,
@@ -117,12 +117,13 @@ impl Widget for TextInput {
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
+        player_data: &PlayerData,
     ) {
         let bounds = self.widget_properties.bounds;
 
         self.panel_texture.render(texture_manager, bounds);
         self.text_display.get_mut_widget_properties().bounds = bounds;
-        self.text_display.render(texture_manager, screen_data, game_event_manager);
+        self.text_display.render(texture_manager, screen_data, game_event_manager, player_data);
 
         if screen_data.mouse_on_ndc_pos(self.get_pos()) {
             if screen_data.get_input_manager().get_mouse_input_data().was_left_clicked() {

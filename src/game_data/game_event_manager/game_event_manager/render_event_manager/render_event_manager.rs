@@ -39,7 +39,7 @@ impl RenderEvent {
         current_menu: CurrentMenu, 
         screen_mananager: &mut ScreenManager, 
         event_tools: &mut GameEventManager, 
-        player_data: &Rc<RefCell<PlayerData>>,
+        player_data: &PlayerData,
     ) -> WidgetType 
     {
         let mut menu_panel= WidgetType::new_panel([0.0; 4], [0.0; 4]);
@@ -83,11 +83,11 @@ impl RenderEvent {
         &self, 
         event_tools: &mut GameEventManager, 
         screen_mananager: &mut ScreenManager, 
-        player_data: &Rc<RefCell<PlayerData>>
+        player_data: &PlayerData
     ) {
         let camera = screen_mananager.get_mut_camera();
         let camera_data = &camera.get_camera_data().clone();
-        let world = player_data.borrow().get_world_ref();
+        let world = player_data.get_world_ref();
         match self {
             RenderEvent::QuitGame => {
                 screen_mananager.get_mut_screen_data().quit();

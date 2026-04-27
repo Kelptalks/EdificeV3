@@ -1,13 +1,24 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::{Arc, RwLock}};
 
 
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::drones::drone::Drone, screen::widget::selection_panel::selection_panel_config::WidgetUpdateManager};
+use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::drones::drone::Drone};
+
+
+#[derive(Clone, Copy)]
+pub struct DroneId {
+    id: usize
+}
+
+impl DroneId {
+    pub fn as_usize(&self) -> usize {
+        self.id
+    }
+}
 
 pub struct DroneManager{
     current_id: u32,
     drone_map: HashMap::<u32, Rc<RefCell<Drone>>>,
 
-    selection_panel_update_manager: Rc<RefCell<WidgetUpdateManager>>, // Used for updating UI with new drones created
 }
 
 /*
@@ -24,7 +35,6 @@ impl DroneManager {
             current_id: 0,
             drone_map: HashMap::new(),
 
-            selection_panel_update_manager: WidgetUpdateManager::new(),
         }
     }
 
@@ -60,10 +70,6 @@ impl DroneManager {
     // UI Updating
     //=====================================
 
-    pub fn get_panel_update_manager(&self) -> &Rc<RefCell<WidgetUpdateManager>> {
-        return &self.selection_panel_update_manager;
-    }
-
     pub fn add_all_drones_to_selection_manager(&mut self) {
         for (key, drone) in self.drone_map.iter() {
             // let widget = VarSource::new(Var::Game(GameVar::Dynamic(DynamicVar::Drone(Some(drone.clone())))));
@@ -92,8 +98,14 @@ impl DroneManager {
     // Drone Getters
     //=====================================
 
-    pub fn get_drone_with_id(&self, id: u32) -> Option<&Rc<RefCell<Drone>>> {
-        return self.drone_map.get(&id);
+    pub fn clone_drone_with_id(&self, id: DroneId) -> Option<Drone> {
+        let id = id.as_usize() as u32;
+        if let Some(drone) = self.drone_map.get(&id) {
+            return Some(drone.borrow().clone())
+        }
+        else {
+            None
+        }
     }
 
     pub fn get_drone_with_id_mut(&mut self, id: u32) -> Option<&mut Rc<RefCell<Drone>>> {

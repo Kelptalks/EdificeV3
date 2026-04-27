@@ -1,6 +1,6 @@
 use std::{cell::{RefCell}, rc::Rc};
 
-use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::GameEvent, prelude::EventManager, widget_event_manager::widget_event_manager::WidgetEvent}, screen::{ScreenData, widget::{self, bar_button::bar_button::BarButtonWidget, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::GameEvent, prelude::EventManager, widget_event_manager::widget_event_manager::WidgetEvent}, player_data::{self, player_data::PlayerData}, screen::{ScreenData, widget::{self, bar_button::bar_button::BarButtonWidget, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}, tik_manager::block_updates::plant_update};
 
 pub struct ScrollPanel {
     widget_properties: WidgetProperties,
@@ -56,74 +56,6 @@ impl ScrollPanel {
 
     pub fn clear_widgets(&mut self) {
         self.widgets.clear();
-    }
-
-    pub fn render_shared_widgets(
-        &mut self,
-        widgets: &Vec<Rc<RefCell<WidgetType>>>,
-        texture_manager: &mut TextureManager,
-        screen_data: &ScreenData,
-        game_event_manager: &mut EventManager,
-    ) {
-        // Clamp scroll value
-        if *self.scroll_value.borrow() < 0.0 {
-            *self.scroll_value.borrow_mut() = 0.0;
-        } else if *self.scroll_value.borrow() > self.max_scroll_value {
-            *self.scroll_value.borrow_mut() = self.max_scroll_value;
-        }
-
-        self.size();
-
-        let pos   = self.widget_properties.pos;
-        let scale = self.widget_properties.scale;
-        let internal_buffers = self.widget_properties.internal_buffers;
-        let outer_bounds = self.widget_properties.bounds;
-
-        let mut offset = -*self.scroll_value.borrow() + self.buttons[0].get_scale()[1];
-
-        for widget in widgets {
-            let mut w = widget.borrow_mut();
-            let mut widget_buffer = internal_buffers;
-            let preferred = w.get_preffered_scale();
-
-            widget_buffer[2] += (scale[0] - preferred[0]).max(0.0);
-            widget_buffer[3] += scale[1] - preferred[1];
-            widget_buffer[1] += offset;
-            widget_buffer[3] -= offset;
-
-            w.set_parent_pos(pos);
-            w.set_buffers(widget_buffer);
-            w.size();
-
-            let widget_scale = w.get_scale();
-            w.get_mut_widget_properties().bounds = Some(pos);
-            w.render(texture_manager, screen_data, game_event_manager);
-
-            offset += widget_scale[1] + internal_buffers[1] + internal_buffers[3];
-        }
-
-        self.max_scroll_value = offset;
-
-        for button in &mut self.buttons {
-            button.get_mut_widget_properties().bounds = outer_bounds;
-            button.render(texture_manager, screen_data, game_event_manager);
-        }
-
-        if screen_data.mouse_on_ndc_pos(pos) {
-            let inputs = screen_data.get_inputs();
-            for input in inputs {
-                match input {
-                    crate::game_data::screen::input_data::Input::MouseWheel(_x, y) => {
-                        if *y > 0.0 {
-                            game_event_manager.add_widget_event(WidgetEvent::Modf32Event(self.scroll_value.clone(), -0.03));
-                        } else if *y < 0.0 {
-                            game_event_manager.add_widget_event(WidgetEvent::Modf32Event(self.scroll_value.clone(), 0.03));
-                        }
-                    },
-                    _ => {}
-                }
-            }
-        }
     }
 
     pub fn set_prefered_scale(&mut self, scale: f32) {
@@ -215,6 +147,7 @@ impl Widget for ScrollPanel {
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
         game_event_manager: &mut EventManager,
+        player_data: &PlayerData,
     ) {
         if *self.scroll_value.borrow() < 0.0 {
             *self.scroll_value.borrow_mut() = 0.0;
@@ -231,13 +164,13 @@ impl Widget for ScrollPanel {
         for widget in &mut self.widgets {
             if widget_calculations::is_pos_overlapping_pos(pos, widget.get_pos()) {
                 widget.get_mut_widget_properties().bounds = clip_bounds;
-                widget.render(texture_manager, screen_data, game_event_manager);
+                widget.render(texture_manager, screen_data, game_event_manager, player_data);
             }
         }
 
         for button in &mut self.buttons {
             button.get_mut_widget_properties().bounds = outer_bounds;
-            button.render(texture_manager, screen_data, game_event_manager);
+            button.render(texture_manager, screen_data, game_event_manager, player_data);
         }
 
         if screen_data.mouse_on_ndc_pos(pos) {

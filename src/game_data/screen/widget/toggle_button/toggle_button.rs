@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{TextureManager, game_event_manager::{event_manager::EventManager, game_event_manager::game_event_manager::GameEvent, prelude::{BoolEvent, Event}, widget_event_manager::widget_event_manager::WidgetEvent}, screen::{ScreenData, widget::{button::button::Button, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}, types::{BlockTexture, UITextures}};
+use crate::game_data::{TextureManager, game_event_manager::{event_manager::EventManager, game_event_manager::game_event_manager::GameEvent, prelude::{BoolEvent, Event}, widget_event_manager::widget_event_manager::WidgetEvent}, player_data::player_data::PlayerData, screen::{ScreenData, widget::{button::button::Button, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}, types::{BlockTexture, UITextures}};
 
 pub struct ToggleButton {
     is_toggled: Rc<RefCell<bool>>,
@@ -117,12 +117,13 @@ impl Widget for ToggleButton {
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
         game_event_manager: &mut EventManager,
+        player_data: &PlayerData,
     ) {
         for event in &self.links.pop() {
             game_event_manager.add_game_event(event.clone());
         }
 
-        self.button.render(texture_manager, screen_data, game_event_manager);
+        self.button.render(texture_manager, screen_data, game_event_manager, player_data);
 
         if *self.is_toggled.borrow() {
             texture_manager.render_ui_element_with_pos(UITextures::XIcon, self.button.get_pos());

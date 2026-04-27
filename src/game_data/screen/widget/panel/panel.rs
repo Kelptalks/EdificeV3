@@ -1,7 +1,7 @@
 
 use image::{error, flat};
 
-use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::EventManager, prelude::Event}, screen::{ScreenData, screen_data, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::scroll_panel::ScrollPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::EventManager, prelude::Event}, player_data::player_data::PlayerData, screen::{ScreenData, screen_data, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::scroll_panel::ScrollPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}};
 
 
 #[derive(Clone, Copy)]
@@ -342,6 +342,7 @@ impl Widget for Panel {
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
         game_event_manager: &mut EventManager,
+        player_data: &PlayerData,
     ) {
         let bounds = self.widget_properties.bounds;
 
@@ -354,7 +355,7 @@ impl Widget for Panel {
         for section in &mut self.sections {
             let widget = section.get_mut_widget();
             widget.get_mut_widget_properties().bounds = bounds;
-            widget.render(texture_manager, screen_data, game_event_manager);
+            widget.render(texture_manager, screen_data, game_event_manager, player_data);
         }
         self.handle_inputs(screen_data, game_event_manager);
     }

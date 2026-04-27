@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::{drone_script::{function::{self, function::Function}, script_element::{self, ScriptElement}, var::{programming_vars::programming_var::{self, ProgrammingVar}, var::Var, var_type::VarType}}, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::{drone_invintory_actions::DroneInventoryAction, drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}, screen::{ScreenData, screen_data, ui_elements::panel, widget::{self, button::button::Button, drone_programming::function_slot::FunctionSlot, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, scroll_panel::{self, scroll_panel::ScrollPanel}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::{self, buffer_pos}, widget_properties::WidgetProperties}}};
+use crate::game_data::{player_data::{drone_script::{function::{self, function::Function}, script_element::{self, ScriptElement}, var::{programming_vars::programming_var::{self, ProgrammingVar}, var::Var, var_type::VarType}}, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::{drone_invintory_actions::DroneInventoryAction, drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}, player_data::PlayerData}, screen::{ScreenData, screen_data, ui_elements::panel, widget::{self, button::button::Button, drone_programming::function_slot::FunctionSlot, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, scroll_panel::{self, scroll_panel::ScrollPanel}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::{self, buffer_pos}, widget_properties::WidgetProperties}}};
 
 pub struct ScriptingPanel {
     widget_properties: WidgetProperties,
@@ -97,11 +97,12 @@ impl Widget for ScriptingPanel {
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
+        player_data: &PlayerData,
     ) {
     
         self.size();
 
-        self.panel.render(texture_manager, screen_data, game_event_manager);
-        self.scroll_panel.render(texture_manager, screen_data, game_event_manager);
+        self.panel.render(texture_manager, screen_data, game_event_manager, player_data);
+        self.scroll_panel.render(texture_manager, screen_data, game_event_manager, player_data);
     }
 }

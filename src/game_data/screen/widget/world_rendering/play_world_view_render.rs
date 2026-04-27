@@ -2,7 +2,7 @@ use std::{cell::RefCell, ops::Index, rc::Rc};
 
 
 use crate::game_data::{
-    TextureManager, game_event_manager::player_data_event_manager::var_event_manager::var_events::VarEvents, locations::world_area::WorldArea, player_data::drone_script::var::{game_vars::{dynamic_var::{self, DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}, screen::{
+    TextureManager, game_event_manager::player_data_event_manager::var_event_manager::var_events::VarEvents, locations::world_area::WorldArea, player_data::{self, cursor::cursor_event_scheduler::CursorEventScheduler, drone_script::var::{game_vars::{dynamic_var::{self, DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}, player_data::PlayerData}, screen::{
         ScreenData,
         iso_cord_tool,
         widget::{button::button::Button, prelude::{VarSlot, play_world_view_config::PlayViewRenderingConfig}, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties, world_rendering::{area_rendering_manager::area_rendering_manager::AreaRenderingManager, rendering_config}}
@@ -124,7 +124,51 @@ impl PlayWorldViewRender {
         self.events.append(events);
     }
 
-    fn handle_camera_panning(&mut self, screen_data: &ScreenData, game_event_manager: &mut EventManager) {
+    fn handle_camera_panning(
+        &mut self, 
+        screen_data: &ScreenData, 
+        event_manager: &mut EventManager, 
+        player_data: &PlayerData
+    ) {
+        
+        let mut cursor_scheduler = player_data.get_cursor_event_scheduler();
+
+        // Key panning
+        // Z Axis || Up and down
+        if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::Space) {
+            cursor_scheduler.mod_cords([0, 0, 1]);
+        }
+        if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::LeftShift) {
+            cursor_scheduler.mod_cords([0, 0, -1]);
+        }
+
+        // X Axis 
+        if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::A) {
+            cursor_scheduler.mod_cords([-1, 0, 0]);
+        }
+        if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::D) {
+            cursor_scheduler.mod_cords([1, 0, 0]);
+        }
+
+        // Y Axis 
+        if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::W) {
+            cursor_scheduler.mod_cords([0, -1, 0]);
+        }
+        if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::S) {
+            cursor_scheduler.mod_cords([0, 1, 0]);
+        }
+
+
+
+
+        if screen_data.get_input_manager().get_mouse_input_data().scrolled_up() {
+            cursor_scheduler.zoom_in()
+        }
+        else if screen_data.get_input_manager().get_mouse_input_data().scrolled_down() {
+            cursor_scheduler.zoom_out()
+        }
+
+        // Middle mouse button panning
         if screen_data.is_middle_mouse_held() {
             let scrolling_offset = screen_data.get_change_in_mouse_ndc();
             self.camera_ndc_offset[0] += scrolling_offset[0];
@@ -159,8 +203,30 @@ impl PlayWorldViewRender {
             self.camera_ndc_offset[1] += self.ndc_tile_half_scale;
         }
 
-        self.rendering_config.borrow().get_cursor_config().add_move_cursor_event_with_shift_mod(game_event_manager, cords_offset);
+        cursor_scheduler.mod_cords(cords_offset);
+        cursor_scheduler.schedul_events(event_manager);
     }
+
+
+    fn handle_mouse(&mut self, screen_data: &ScreenData, event_manager: &mut EventManager, player_data: &PlayerData) {
+        if self.mouse_on(screen_data) {
+            let mouse_cords = screen_data.get_mouse_ndc();
+            let mouse_play_view_cords = [
+                self.ndc_draw_centering_offset[0] + mouse_cords[0],
+                self.ndc_draw_centering_offset[1] + mouse_cords[1],
+            ];
+
+            let iso_mouse_cords = iso_cord_tool::ndi_screen_cords_to_iso_cords(self.ndc_block_scale, mouse_play_view_cords);
+            
+            println!("Mouse_Cords: {:?}", iso_mouse_cords);
+
+
+            
+
+
+        }
+    }
+
 
     //=====================================
     // Rendering
@@ -178,7 +244,7 @@ impl PlayWorldViewRender {
         ];
 
         let config = self.rendering_config.borrow();
-        let largest_side_of_location = config.get_cursor_location_ref().borrow().get_area().get_largest_dimension_scale();
+        let largest_side_of_location = 1;
         let block_diementions = largest_side_of_location + config.get_zoom() * 2 + 1;
 
         self.ndc_block_scale = (scale[0] / block_diementions as f32) / 2.0;
@@ -187,18 +253,6 @@ impl PlayWorldViewRender {
 
         self.ndc_draw_centering_offset[0] = self.center_ndc[0] - self.ndc_block_scale;
         self.ndc_draw_centering_offset[1] = self.center_ndc[1] - self.ndc_block_scale;
-    }
-
-    pub fn get_rendering_center_world_cor(&self) -> [i32; 3] {
-        let config = self.rendering_config.borrow();
-        return config.get_cursor_location_ref().borrow().get_area().get_center_world_cords();
-    }
-
-    fn world_to_area_cords(&self, cords: [i32; 3]) -> [i32; 3] {
-        cords_tool::diff_cords(
-            cords,
-            self.get_rendering_center_world_cor()
-        )
     }
 
     fn area_to_draw_cords(&self, area_cords: [i32; 3]) -> [f32; 2] {
@@ -217,56 +271,34 @@ impl PlayWorldViewRender {
         return draw_cords;
     }
 
-    pub fn get_world_area_of_view(&self) -> WorldArea {
-        let config = self.rendering_config.borrow();
-        let camera_cords = self.get_rendering_center_world_cor();
-
-        let mut p1 = [-config.get_zoom(); 3];
-        let mut p2 = [config.get_zoom(); 3];
-        for (axis, axis_cord) in camera_cords.iter().enumerate() {
-            p1[axis] += axis_cord;
-            p2[axis] += axis_cord;
-        }
-
-        return WorldArea::new_with_cords([p1, p2])
-    }
-
     pub fn ray_cast_view(
         &mut self,
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
-        game_event_manager: &mut EventManager
+        event_manager: &mut EventManager,
+        player_data: &PlayerData,
     ) {
         self.size();
 
         let world_arc = self.rendering_config.borrow().get_world_ref().clone();
         let world = world_arc.read().unwrap();
+    
+
+        // Get Mouse Area Cords
+        let mouse_cords = screen_data.get_mouse_ndc();
+        let mouse_play_view_cords = [
+            self.ndc_draw_centering_offset[0] + mouse_cords[0],
+            self.ndc_draw_centering_offset[1] + mouse_cords[1],
+        ];
+        
 
         
 
+        let cursor = player_data.get_cursor();
+        let world_area = cursor.get_rendering_area();
         
-        
-        let config = self.rendering_config.borrow();
-        
-
-        let world_area;
-        
-        match config.get_render_mode() {
-            rendering_config::play_world_view_config::RenderMode::All => {
-                world_area = self.get_world_area_of_view()
-            },
-            rendering_config::play_world_view_config::RenderMode::VarOnly(var) => {
-                if let Some(location_ref) = var.as_location() {
-                    world_area = *location_ref.borrow().get_area()
-                }
-                else {
-                    world_area = self.get_world_area_of_view()
-                }
-            },
-        }
-
         let mut area_rendering_manager = AreaRenderingManager::new(&world_area);
-        let tiles = area_rendering_manager.get_casted_tile_rays(&world, &*config);
+        let tiles = area_rendering_manager.get_casted_tile_rays(&world, player_data);
 
 
         texture_manager.update_expander_cache(self.ndc_block_scale);
@@ -296,22 +328,10 @@ impl PlayWorldViewRender {
             for texture in right_textures {
                 texture_manager.render_expanded_texture(texture, right_pos);
             }
+
         }
 
 
-
-        for var in config.get_vars_to_render() {
-            let borrow = var.get_var_type_ref().borrow();
-            if let VarType::Game(GameVarType::Dynamic(dynamic_var)) = &*borrow {
-                if let DynamicVarType::Drone(Some(drone_ref_option)) = dynamic_var {
-                    let area_cords = self.world_to_area_cords(drone_ref_option.borrow().get_cords());
-                    let draw_cords = self.area_to_draw_cords(area_cords);
-
-
-
-                }
-            }
-        }
     }
 
     //=====================================
@@ -349,16 +369,25 @@ impl Widget for PlayWorldViewRender {
         &mut self,
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
-        game_event_manager: &mut EventManager,
+        event_manager: &mut EventManager,
+        player_data: &PlayerData,
     ) {
-        self.ray_cast_view(texture_manager, screen_data, game_event_manager);
+
+    
+        self.ray_cast_view(texture_manager, screen_data, event_manager, &player_data);
+
 
         if !screen_data.mouse_on_ndc_pos(self.widget_properties.pos) {
             return;
         } else {
-            game_event_manager.add_events(&self.events);
+            event_manager.add_events(&self.events);
         }
 
-        self.handle_camera_panning(screen_data, game_event_manager);
+
+        
+        
+
+
+        self.handle_camera_panning(screen_data, event_manager, player_data);
     }
 }

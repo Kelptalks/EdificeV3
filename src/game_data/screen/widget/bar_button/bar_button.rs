@@ -1,15 +1,12 @@
 use crate::game_data::{
-    TextureManager,
-    game_event_manager::{event_manager::EventManager, game_event_manager::GameEvent},
-    screen::{
+    TextureManager, game_event_manager::{event_manager::EventManager, game_event_manager::GameEvent}, player_data::player_data::PlayerData, screen::{
         ScreenData, text::render_string_at_ndc, widget::{
             bar_button::bar_button_texture_manager::BarButtonTextureManager,
             widget::Widget,
             widget_calculations::{self, TextSize},
             widget_properties::WidgetProperties,
         }
-    },
-    types::FontType,
+    }, types::FontType
 };
 
 pub struct BarButtonWidget {
@@ -118,6 +115,7 @@ impl Widget for BarButtonWidget {
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
         game_event_manager: &mut EventManager,
+        player_data: &PlayerData,
     ) {
         if self.needs_resizing {
             self.size();

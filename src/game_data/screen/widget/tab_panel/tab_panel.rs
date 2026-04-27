@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::widget_event_manager::widget_event_manager::WidgetEvent, screen::{text::render_string_at_ndc, widget::{button::button::Button, panel::panel::Panel, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}};
+use crate::game_data::{game_event_manager::widget_event_manager::widget_event_manager::WidgetEvent, player_data::player_data::PlayerData, screen::{text::render_string_at_ndc, widget::{button::button::Button, panel::panel::Panel, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}};
 
 pub struct TabPanel {
     widget_properties: WidgetProperties,
@@ -163,6 +163,7 @@ impl Widget for TabPanel {
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
         game_event_manager: &mut crate::game_data::game_event_manager::event_manager::EventManager,
+        player_data: &PlayerData,
     ) {
         let bounds = self.widget_properties.bounds;
 
@@ -179,10 +180,10 @@ impl Widget for TabPanel {
         }
         if self.sub_panels.len() > 0 {
             self.sub_panels[current_index].get_mut_widget_properties().bounds = bounds;
-            self.sub_panels[current_index].render(texture_manager, screen_data, game_event_manager);
+            self.sub_panels[current_index].render(texture_manager, screen_data, game_event_manager, player_data);
         }
 
         self.button_panel.get_mut_widget_properties().bounds = bounds;
-        self.button_panel.render(texture_manager, screen_data, game_event_manager);
+        self.button_panel.render(texture_manager, screen_data, game_event_manager, player_data);
     }
 }

@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::{var::Var, var_properties::{PropValue, VarPropModRequest}}, screen::widget::{drone_programming::var_slot::var_prop_widgets::{invintory_display_prop_widget::InvintoryDisplayPropWidget, num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget, var_prop_widget::VarPropWidget}, panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetProperties}};
+use crate::game_data::{player_data::{drone_script::var::{var::Var, var_properties::{PropValue, VarPropModRequest}}, player_data::PlayerData}, screen::widget::{drone_programming::var_slot::var_prop_widgets::{invintory_display_prop_widget::InvintoryDisplayPropWidget, num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget, var_prop_widget::VarPropWidget}, panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetProperties}};
 
 pub enum VarPropVal {
     String(TextDisplayPropWidget),
@@ -74,7 +74,8 @@ impl Widget for VarPropVal {
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
+        player_data: &PlayerData,
     ) {
-        self.get_root_mut_panel().render(texture_manager, screen_data, game_event_manager);
+        self.get_root_mut_panel().render(texture_manager, screen_data, game_event_manager, player_data);
     }
 }

@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{screen::{text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations::{self, TextSize}, widget_properties::WidgetProperties}}, types::FontType};
+use crate::game_data::{player_data::player_data::PlayerData, screen::{text::render_string_at_ndc, widget::{widget::{Widget, WidgetType}, widget_calculations::{self, TextSize}, widget_properties::WidgetProperties}}, types::FontType};
 
 pub struct TextDisplay {
     widget_properties: WidgetProperties,
@@ -88,6 +88,7 @@ impl Widget for TextDisplay {
         texture_manager: &mut crate::game_data::TextureManager,
         screen_data: &crate::game_data::screen::ScreenData,
         game_event_manager: &mut crate::game_data::game_event_manager::game_event_manager::EventManager,
+        player_data: &PlayerData,
     ) {
         let pos = self.widget_properties.pos;
         render_string_at_ndc(texture_manager,

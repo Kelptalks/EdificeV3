@@ -1,11 +1,20 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, player_data_event_manager::location_event::LocationEvent}, player_data_event_manager::{drone_event::DroneEvent, var_event_manager::var_events::VarEvents}, prelude::{Event, GameEvent}}, player_data::{drone_script::var::{game_vars::dynamic_var::DynamicVarType, var_type::VarType}, drones::drone::Drone, locations::{location::WorldLocation, location_config::WorldLocationConfig}, player_data::PlayerData}};
+use crate::game_data::{game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, player_data_event_manager::location_event::LocationEvent}, player_data_event_manager::{drone_event::DroneEvent, var_event_manager::var_events::VarEvents}, prelude::{Event, GameEvent}}, player_data::{cursor::cursor_event_scheduler::CursorEvent, drone_script::var::{game_vars::dynamic_var::DynamicVarType, var_type::VarType}, drones::drone::Drone, locations::{location::WorldLocation, location_config::WorldLocationConfig}, player_data::PlayerData}};
 
 #[derive(Clone)]
 pub enum PlayerDataEvent {
+    
+    
+    CursorEvent(CursorEvent),
+    
+    
+    
+    
+    // Old
     CreateDrone([i32; 3]),
     DroneEvent(Rc<RefCell<Drone>>, DroneEvent),
+
 
     // Constructors
     CreateLocation(Rc<RefCell<WorldLocationConfig>>),
@@ -26,6 +35,11 @@ impl PlayerDataEvent {
 
     pub fn execute_player_data_events(&self, event_tools: &mut GameEventManager, player_data: &mut PlayerData) {
         match self {
+            PlayerDataEvent::CursorEvent(cursor_event) => {
+                cursor_event.execute_cursor_event(player_data);
+            }
+
+            // Old
             PlayerDataEvent::CreateDrone(cords) => {
                 player_data.get_mut_drone_manager().create_drone_at_cords(*cords);
             }

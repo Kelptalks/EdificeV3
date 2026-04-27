@@ -2,11 +2,12 @@
 
 use crate::game_data::{types::BlockTexture};
 
+#[derive(Clone)]
 pub enum LairBlockMod {
     AddOverlayTexture(BlockTexture, [i32; 3]),
     AddUnderlayTexture(BlockTexture, [i32; 3]),
     
-    Cursor([i32; 3], i32),
+    Cursor([i32; 3], usize),
 
 }
 

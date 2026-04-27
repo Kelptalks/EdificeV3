@@ -50,23 +50,9 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
         panel.set_color(PanelColor::DarkUI);
 
-        // Cursor Location Ref
-        let cursor_var_type = DynamicVarType::Location(Some(ref_manager.cursor_location.clone())).wrap_into_var_type();
-        let mut cursor_location_var_slot = VarSlot::new_with_type(cursor_var_type);
-        cursor_location_var_slot.set_dragging_properties(true, false, false);  
-        panel.add_widget(cursor_location_var_slot.wrap_into_widget());
-
 
         // Toggle create location
         let create_location_button = panel.add_button();
-
-        // Create a new location button
-        create_location_button.add_left_click_event(
-            PlayerDataEvent::CreateLocationInVar(
-                ref_manager.selected_var.get_var_type_ref().clone(),
-                ref_manager.cursor_location.clone(),
-            ).wrap_into_event()
-        );
 
         // Set the cameras mode to lock into the location
         create_location_button.add_left_click_event(
@@ -92,19 +78,7 @@ fn get_main_hotbar_panel(ref_manager: &mut RefManager) -> WidgetType {
         show_locations.set_icon(UITextures::AreaIcon);
         show_locations.set_text("Show Locations".to_string());
     
-        // Spawn Drone
-        let spawn_drone = panel.add_button();
-        spawn_drone.add_left_click_event(
-            PlayerDataEvent::CreateDroneInVar(
-                ref_manager.selected_var.get_var_type_ref().clone(), 
-                ref_manager.cursor_location.clone()
-            ).wrap_into_event()
-        );
-        spawn_drone.add_left_click_event(PlayViewMode::Drone.to_tab_panel_event(&ref_manager.play_view_mode));
-        spawn_drone.set_block(BlockTexture::DroneControler);
-        spawn_drone.set_text("Spawn Drone".to_string());
 
-        
         
     }
     return panel;
