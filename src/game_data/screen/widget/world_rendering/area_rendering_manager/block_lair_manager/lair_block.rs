@@ -7,7 +7,7 @@ pub enum LairBlockMod {
     AddOverlayTexture(BlockTexture, [i32; 3]),
     AddUnderlayTexture(BlockTexture, [i32; 3]),
     
-    Cursor([i32; 3], usize),
+    Cursor([i32; 3], BlockTexture, usize), // world_cords, ghost_block, length
 
 }
 

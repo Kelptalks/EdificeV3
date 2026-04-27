@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, log_init, player_data::{cursor::{cursor::Cursor, cursor_event_scheduler::CursorEventScheduler}, drones::{drone_event_scheduler::DroneEventScheduler, drone_manager::{DroneId, DroneManager}}, locations::location_manager::{LocationId, LocationManager}, settings::settings_manager::SettingsManager}};
+use crate::game_data::{World, log_init, player_data::{cursor::{cursor::Cursor, cursor_event_scheduler::CursorEventScheduler}, drones::{drone_event_scheduler::DroneEventScheduler, drone_manager::{DroneId, DroneManager}}, locations::location_manager::{LocationId, LocationManager}, settings::settings_manager::SettingsManager}, screen::menu_constructors::play_view_menu::new_play_view::PlayViewMode, types::BlockTexture};
 
 
 /*
@@ -12,11 +12,11 @@ rendering.
  
 */
 pub struct PlayerData {
-    // Activity
+    // View
     cursor: Cursor,
-    focused_object: Option<GameObject>,
+    view_mode: Option<ViewMode>,
 
-    // Location
+    // World
     current_world: Arc<RwLock<World>>,
 
     // Game Object Managment
@@ -32,7 +32,7 @@ impl PlayerData {
         log_init("Created Location Manager");
         PlayerData {
             // Player location
-            focused_object: None,
+            view_mode: Some(ViewMode::Start()),
             cursor: Cursor::new(),
             current_world: world,
 
@@ -47,6 +47,26 @@ impl PlayerData {
     //=====================================
     // Mutible Getters for execution
     //=====================================
+
+    pub fn set_view_mode(&mut self, mode: &Option<ViewMode>){
+        self.view_mode = mode.clone();
+        if let Some(mode) = self.view_mode {
+            match mode {
+                ViewMode::Start() => {
+                    self.cursor.set_ghost_block(BlockTexture::DroneBotRight)
+                },
+                ViewMode::Drone(drone_id) => {
+                    self.cursor.set_ghost_block(BlockTexture::Air)
+                },
+                ViewMode::Location(location_id) => {
+                    self.cursor.set_ghost_block(BlockTexture::Air)
+                },
+            }
+        }
+        else {
+            self.cursor.set_ghost_block(BlockTexture::Air);
+        }
+    }
 
     pub fn get_mut_cursor(&mut self) -> &mut Cursor {
         &mut self.cursor
@@ -94,19 +114,18 @@ impl PlayerData {
 
     
 
-    pub fn get_focused_game_object(&self) -> Option<GameObject> {
-        return self.focused_object.clone();
+    pub fn get_view_mode(&self) -> Option<ViewMode> {
+        return self.view_mode.clone();
     }
 
 }
 
 
 #[derive(Clone, Copy)]
-pub enum GameObject {
+pub enum ViewMode {
+    Start(),
+    
     Drone(DroneId),
-    Location(LocationId)
-}
-
-impl GameObject {
-
+    Location(LocationId),
+    
 }

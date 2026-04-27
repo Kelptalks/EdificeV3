@@ -180,7 +180,7 @@ fn move_drone(drone: &mut Drone, world: &World, relative_cords: [i32; 3], event_
 // Mine a block relative to the drone | Error 1 = is busy | Error 2 = Cords out of range
 fn mine_block(drone: &mut Drone, relative_cords: [i32; 3], world: &World, event_manager: &mut EventManager) -> Var {
     if drone.is_busy() {
-        println!("Drone {} cannot mine because busy", drone.get_id());
+        println!("Drone {} cannot mine because busy", drone.get_id().as_usize());
         return DroneActionError::Busy.wrap_into_var_type().create_var();
     }
 

@@ -74,37 +74,13 @@ impl PlayViewConstructionManager {
 
         if let WidgetType::Panel(panel) = &mut panel {
 
-            panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::TopLeft);
+            panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
             panel.set_color(PanelColor::Clear);
             panel.set_new_background(BackgroundType::Scrolling(crate::game_data::types::UITextures::VoidBackground));
 
 
             // Play view 
-            panel.add_widget(var_ref_hot_bar::get_widget(&mut self.ref_manager));
             panel.add_widget(world_view::get_widget(&mut self.ref_manager));
-
-
-            // Manager Panel
-            let mut manager_tab_panel = TabPanel::new(&Rc::new(RefCell::new(0)));
-            
-
-            // Var_Tab Panel Sub Widget
-            let mut var_tab_panel = VarTabPanel::new();
-            var_tab_panel.set_prefered_scale([0.50, 1.9]);
-            let var_tab_panel_button = manager_tab_panel.add_panel(WidgetType::VarTabPanel(var_tab_panel));
-            var_tab_panel_button.set_icon(crate::game_data::types::UITextures::AnyVarIcon);
-
-
-            // Scripting Panel
-            // let mut scipting_panel = ScriptingPanel::new();
-            // manager_tab_panel.add_panel(scipting_panel.wrap_into_widget());
-
-            panel.add_widget(manager_tab_panel.wrap_into_widget());
-
-
-            // Selection Panel
-            panel.add_widget(selection_panel::selection_panel::get_var_managment_panel_widget(&mut self.ref_manager));
-
 
             
 

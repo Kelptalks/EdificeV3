@@ -1,17 +1,21 @@
-use crate::game_data::locations::world_area::WorldArea;
+use crate::game_data::{locations::world_area::WorldArea, types::BlockTexture};
 
 
 #[derive(Clone)]
 pub struct Cursor {
     world_cords: [i32; 3],
     zoom: usize,
+
+    ghost_block: BlockTexture,
 }
 
 impl Cursor {
     pub fn new() -> Cursor{
         Cursor {
             world_cords: [0; 3],
-            zoom: 5
+            zoom: 5,
+
+            ghost_block: BlockTexture::DroneBotRight,
         }
     }
 
@@ -27,6 +31,10 @@ impl Cursor {
         self.zoom
     }
 
+    pub fn get_block_ghost(&self) -> BlockTexture {
+        return self.ghost_block
+    } 
+
     pub fn get_rendering_area(&self) -> WorldArea {
         let mut world_area = WorldArea::new_blank();
 
@@ -39,6 +47,8 @@ impl Cursor {
         world_area
     }
 
+
+
     //=====================================
     // Mutation
     //=====================================
@@ -47,6 +57,10 @@ impl Cursor {
         self.world_cords[0] += cord_mod[0];
         self.world_cords[1] += cord_mod[1];
         self.world_cords[2] += cord_mod[2];
+    }
+
+    pub fn set_cords(&mut self, new_cord: &[i32; 3]) {
+        self.world_cords = *new_cord
     }
 
     pub fn mod_zoom(&mut self, amount: &i32) {
@@ -59,6 +73,10 @@ impl Cursor {
         }
     }
 
-    
+    pub fn set_ghost_block(&mut self, block: BlockTexture) {
+        self.ghost_block = block;
+    }
+
+        
     
 }

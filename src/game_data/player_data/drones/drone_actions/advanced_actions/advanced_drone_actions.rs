@@ -1,11 +1,12 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_script::{action::action_type::ActionType, var::{game_vars::dynamic_var::{DynamicVarType, DynamicVarTypeKind}, var::Var, var_type::{VarKind, VarType}}}, drones::{drone::Drone, drone_actions::{advanced_actions::path_planner::plan_path_to_cords, drone_actions::{DroneAction, DroneActionError}}}, locations::location::WorldLocation}, texture_manager::texture::Texture, types::UITextures};
+use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_script::{action::action_type::ActionType, var::{game_vars::{dynamic_var::{DynamicVarType, DynamicVarTypeKind}, game_var_type::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}}, var::Var, var_type::{VarKind, VarType}}}, drones::{drone::Drone, drone_actions::{advanced_actions::path_planner::plan_path_to_cords, drone_actions::{DroneAction, DroneActionError}}}, locations::location::WorldLocation}, texture_manager::texture::Texture, types::UITextures};
 
 
 #[derive(Clone)]
 pub enum DroneAdvancedAction {
     PathToLocation(Option<Rc<RefCell<WorldLocation>>>),
+    PathToCords([i32; 3]),
 }
 
 impl DroneAdvancedAction {
@@ -17,11 +18,14 @@ impl DroneAdvancedAction {
                     plan_path_to_cords(drone, world, cords)
                 }
                 else {
-                    eprintln!("Drone({}) cannot plan path to NULL Location", drone.get_id());
+                    eprintln!("Drone({}) cannot plan path to NULL Location", drone.get_id().as_usize());
                     return DroneActionError::FailedToPath.wrap_into_var_type().create_var();
                 }
                 
             }
+            DroneAdvancedAction::PathToCords(cords) => {
+                plan_path_to_cords(drone, world, *cords)
+            },
         }
     }
 
@@ -51,12 +55,18 @@ impl DroneAdvancedAction {
                 "PathToLocation".to_string()
                 
             },
+            DroneAdvancedAction::PathToCords(_) => {
+                "PathToCords".to_string()
+            },
         }
     }
 
     pub fn get_texture(&self) -> Texture {
         match self {
             DroneAdvancedAction::PathToLocation(ref_cell) => {
+                UITextures::DroneActionPathIcon.wrap_into_texture()
+            },
+            DroneAdvancedAction::PathToCords(_) => {
                 UITextures::DroneActionPathIcon.wrap_into_texture()
             },
         }
@@ -72,6 +82,9 @@ impl DroneAdvancedAction {
             DroneAdvancedAction::PathToLocation(_location_ref) => {
                 params.push(DynamicVarTypeKind::Location.wrap_into_var_kind());
             },
+            DroneAdvancedAction::PathToCords(_) => {
+                params.push(PrimitiveGameVarTypeKind::Cords.wrap_into_var_kind());
+            },
         }
         params
     }
@@ -81,6 +94,12 @@ impl DroneAdvancedAction {
             DroneAdvancedAction::PathToLocation(location_ref) => {
                 let var_location_option_ref =  DynamicVarType::into_location_ref(&params[0]);
                 *location_ref = var_location_option_ref;
+            },
+            DroneAdvancedAction::PathToCords(cords) => {
+                let var_cords_ref =  params[0].as_cords();
+                if let Some(new_cords) = var_cords_ref {
+                    *cords = new_cords
+                }
             },
         }
     }

@@ -72,7 +72,8 @@ impl AreaRenderingManager {
         // Render Cursor location
         let cursor = player_data.get_cursor();
 
-        lair_block_manager.add_lair_block_mod(&LairBlockMod::Cursor(cursor.get_cords(), cursor.get_zoom()));
+        let lair_block_mod = &LairBlockMod::Cursor(cursor.get_cords(), cursor.get_block_ghost(), cursor.get_zoom());
+        lair_block_manager.add_lair_block_mod(lair_block_mod);
 
         
         let draw_distance = (expanded_world_area.get_dimensions().iter().max()).unwrap().abs() as u32;

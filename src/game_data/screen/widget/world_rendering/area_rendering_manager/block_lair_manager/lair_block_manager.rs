@@ -15,7 +15,7 @@ pub struct LairBlockManager {
     // block_hashmap
     lair_block_map: HashMap<u64, LairBlock>,
 
-    //
+
 
 
 }
@@ -54,9 +54,12 @@ impl LairBlockManager {
             LairBlockMod::AddUnderlayTexture(block_texture, cords) => {
                 self.add_texture_at_cords(*cords, *block_texture, false);
             },
-            LairBlockMod::Cursor(cursor_cords, length) => {
+            LairBlockMod::Cursor(cursor_cords, block_texture, length) => {
                 let strait_axis = cords_tool::get_strait_directions();
+                
+                self.add_texture_at_cords(*cursor_cords, *block_texture, false);
                 self.add_texture_at_cords(*cursor_cords, BlockTexture::Selector, false);
+                
                 for axis in strait_axis {
 
                     let texture;

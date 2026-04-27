@@ -205,6 +205,16 @@ impl Var {
         }
     }
 
+    pub fn as_cords(&self) -> Option<[i32; 3]> {
+        let var_type_ref = self.var_type_ref.borrow();
+        if let VarType::Game(GameVarType::Primitive(PrimitiveGameVarType::Cords(cords))) = &*var_type_ref {
+            Some(cords.clone())
+        }
+        else {
+            None
+        }
+    }
+
     //=====================================
     // Dynamic Game Var Converters
     //=====================================

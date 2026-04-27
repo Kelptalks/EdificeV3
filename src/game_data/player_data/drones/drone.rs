@@ -13,6 +13,7 @@ use crate::game_data::player_data::drone_script::var::var::Var;
 use crate::game_data::player_data::drone_script::var::var_type::VarType;
 use crate::game_data::player_data::drones::drone_actions::drone_actions::{DroneAction, DroneActionError};
 use crate::game_data::player_data::drones::drone_actions::drone_plan::DronePlan;
+use crate::game_data::player_data::drones::drone_manager::DroneId;
 use crate::game_data::player_data::locations::location::WorldLocation;
 use crate::game_data::screen::widget::button::button::Button;
 use crate::game_data::screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod;
@@ -44,7 +45,7 @@ impl DroneDirection {
 #[derive(Clone)]
 pub struct Drone{
     // identity
-    id: u32,
+    id: DroneId,
     name: String,
 
     // Actions
@@ -75,11 +76,11 @@ pub struct Drone{
 }
 
 impl Drone {
-    pub fn new(cords: [i32; 3], id: u32) -> Drone {
+    pub fn new(cords: [i32; 3], id: DroneId) -> Drone {
         let drone = Drone {
             // identity
             id: id,
-            name: id.to_string(),
+            name: id.as_usize().to_string(),
             
             // Actions
             drone_function: Rc::new(RefCell::new(Function::new_drone_function())),
@@ -88,7 +89,7 @@ impl Drone {
             // Position
             cords: cords,
             direction: DroneDirection::ForwardLeft,
-            world_location: Rc::new(RefCell::new(WorldLocation::new(id.to_string(), WorldArea::new_with_cords([cords; 2]), id))),
+            world_location: Rc::new(RefCell::new(WorldLocation::new(id.as_usize().to_string(), WorldArea::new_with_cords([cords; 2]), id.as_usize() as u32))),
 
             // Stats
             busy_time: 0,
@@ -260,7 +261,7 @@ impl Drone {
             *a += b;
         }
     }
-    pub fn get_id(&self) -> u32 {
+    pub fn get_id(&self) -> DroneId {
         return self.id;
     }
 

@@ -127,7 +127,7 @@ impl DynamicVarType {
 
                     vec![
                         VarProperty {key: PropKey::Name,           value: PrimitiveVarType::String(borrow.get_name().to_string()).create_var(),   mutible: true},
-                        VarProperty {key: PropKey::Id,             value: PrimitiveVarType::Num(borrow.get_id() as i32).create_var(),             mutible: false},
+                        VarProperty {key: PropKey::Id,             value: PrimitiveVarType::Num(borrow.get_id().as_usize() as i32).create_var(),             mutible: false},
 
                         VarProperty {key: PropKey::Cords,          value: PrimitiveGameVarType::construct_cords_var(borrow.get_cords()),          mutible: false},
 

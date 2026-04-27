@@ -12,8 +12,9 @@ use crate::game_data::game_event_manager::prelude::*;
 pub fn get_widget(ref_manager: &mut RefManager) -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
 
+
     if let WidgetType::Panel(panel) = &mut panel {
-        panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
+        panel.set_orientation(PanelOrientation::Horizontal, PanelAlignment::Center);
         panel.set_color(PanelColor::Clear);
 
         panel.add_event(InputEvent::KeyDown(miniquad::KeyCode::M, vec![RenderEvent::ChangeMenu(CurrentMenu::MapView).wrap_into_event()]).wrap_into_event());
@@ -49,22 +50,12 @@ pub fn get_widget(ref_manager: &mut RefManager) -> WidgetType {
         );
         */
 
-
-        let mut inputs = Vec::new();
         let mut play_view = PlayWorldViewRender::new(ref_manager.play_view_rendering_config.clone());
-        
-        // Add Controls
-        inputs.append(&mut construct_zoom_events(ref_manager));
-        inputs.append(&mut construct_area_selection_events(ref_manager));
-        inputs.append(&mut construct_camera_keyboard_movements(ref_manager));
-        panel.add_events(&mut inputs);
 
-        play_view.set_prefered_size(0.95);
+        play_view.set_prefered_size(1.0);
         panel.add_widget(play_view.wrap_into_widget());
 
-
-
-        panel.add_widget(world_hot_bar::get_widget(ref_manager));        
+  
     }
 
     return panel;
