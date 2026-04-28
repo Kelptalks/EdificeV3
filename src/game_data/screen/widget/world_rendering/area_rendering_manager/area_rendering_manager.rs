@@ -13,7 +13,7 @@ use crate::game_data::{
         prelude::play_world_view_config::PlayViewRenderingConfig, 
         world_rendering::area_rendering_manager::{block_lair_manager::{lair_block::LairBlockMod, 
         lair_block_manager::LairBlockManager}, 
-        ray_caster::{ray::TileRay, ray_casting_config::RayCastingConfig}}
+        ray_caster::{casted_tile::CastedTile, ray_casting_config::RayCastingConfig}}
     }, types::BlockTexture
 };
 
@@ -24,17 +24,20 @@ pub struct AreaRenderingManager {
 // 
 impl AreaRenderingManager {
 
-    pub fn new(world_area: &WorldArea) -> AreaRenderingManager {
+    pub fn new() -> AreaRenderingManager {
         AreaRenderingManager {
-            area_to_render: *world_area,
+            area_to_render: WorldArea::new_blank(),
         }
     }
 
 
-    pub fn get_casted_tile_rays(&mut self, world: &World, player_data: &PlayerData) -> Vec<TileRay> {
+    pub fn set_world_area(&mut self, world_area: WorldArea) {
+        self.area_to_render = world_area;
+    }
+
+    pub fn get_casted_tile_rays(&mut self, world: &World, player_data: &PlayerData, lair_block_mods: &Vec<LairBlockMod>) -> Vec<CastedTile> {
   
-        
-          
+                  
         // Create an expanded world area for calculating ray start cords
         // Why : This prevents rays from starting inside of a solid block
         let mut expanded_face_orgins_vec: Vec<([i32; 3], [i32; 3])> = Vec::new();
@@ -75,6 +78,10 @@ impl AreaRenderingManager {
         let lair_block_mod = &LairBlockMod::Cursor(cursor.get_cords(), cursor.get_block_ghost(), cursor.get_zoom());
         lair_block_manager.add_lair_block_mod(lair_block_mod);
 
+        for lair_mod in lair_block_mods {
+            lair_block_manager.add_lair_block_mod(lair_mod);
+        }
+
         
         let draw_distance = (expanded_world_area.get_dimensions().iter().max()).unwrap().abs() as u32;
         let ray_casting_config = RayCastingConfig::new(
@@ -90,14 +97,14 @@ impl AreaRenderingManager {
             .unwrap_or(4);
         let chunk_size = ((expanded_face_orgins_vec.len() + num_threads - 1) / num_threads).max(1);
 
-        let mut tile_rays: Vec<TileRay> = Vec::new();
+        let mut tile_rays: Vec<CastedTile> = Vec::new();
         std::thread::scope(|s| {
             let handles: Vec<_> = expanded_face_orgins_vec
                 .chunks(chunk_size)
                 .map(|chunk| {
                     s.spawn(|| {
                         chunk.iter().map(|(world_cords, local_cords)| {
-                            let mut tile_ray = TileRay::new(*world_cords, *local_cords);
+                            let mut tile_ray = CastedTile::new(*world_cords, *local_cords);
                             tile_ray.cast(world, &ray_casting_config);
                             tile_ray
                         }).collect::<Vec<_>>()

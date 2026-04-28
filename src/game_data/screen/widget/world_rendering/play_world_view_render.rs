@@ -1,9 +1,9 @@
-use std::{cell::RefCell, ops::Index, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, ops::Index, rc::Rc};
 
 
 use crate::game_data::{
     TextureManager, game_event_manager::player_data_event_manager::var_event_manager::var_events::VarEvents, locations::world_area::WorldArea, player_data::{self, cursor::{self, cursor::Cursor, cursor_event_scheduler::{self, CursorEventScheduler}}, drone_script::var::{game_vars::{dynamic_var::{self, DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}, drones::{drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, prim_actions::drone_world_actions::DroneWorldAction}, drone_event_scheduler}, player_data::PlayerData}, screen::{
-        ScreenData, input_data, iso_cord_tool, screen_data, widget::{button::button::Button, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot, play_world_view_config::PlayViewRenderingConfig}, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block_manager::LairBlockManager, ray_caster::{ray::TileRay, ray_casting_config::{self, RayCastingConfig}}}, rendering_config}}
+        ScreenData, input_data, iso_cord_tool, screen_data, widget::{button::button::Button, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot, play_world_view_config::PlayViewRenderingConfig}, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::{lair_block::LairBlockMod, lair_block_manager::LairBlockManager}, ray_caster::{casted_tile::CastedTile, ray_casting_config::{self, RayCastingConfig}}}, rendering_config, view_mode::ViewMode}}
     }, tools::cords_tool
 };
 
@@ -61,11 +61,11 @@ pub struct PlayWorldViewRender {
     // Input | Handling
     events: Vec<Event>,
 
-    // World Rendering
-    rendering_config: Rc<RefCell<PlayViewRenderingConfig>>,
+    area_rendering_manager: AreaRenderingManager,
+    lair_block_mods: Vec<LairBlockMod>,
+    casted_tiles: HashMap<[i32; 2], CastedTile>,
 
     camera_direction: ViewDirection,
-    mouse_ray: TileRay,
 
     // Camera Motion
     camera_ndc_offset: [f32; 2],
@@ -78,7 +78,7 @@ pub struct PlayWorldViewRender {
 }
 
 impl PlayWorldViewRender {
-    pub fn new(play_view_rendering_config: Rc<RefCell<PlayViewRenderingConfig>>) -> PlayWorldViewRender {
+    pub fn new() -> PlayWorldViewRender {
 
         let mut wp = WidgetProperties::new_blank();
         wp.prefered_scale = [1.0; 2];
@@ -92,10 +92,13 @@ impl PlayWorldViewRender {
 
             events: Vec::new(),
 
-            rendering_config: play_view_rendering_config,
+            area_rendering_manager: AreaRenderingManager::new(),
+            lair_block_mods: Vec::new(),
+            casted_tiles: HashMap::new(),
 
             camera_direction: ViewDirection::North,
-            mouse_ray: TileRay::new([0; 3], [0; 3]),
+            
+
 
             camera_ndc_offset: [0.0, 0.0],
 
@@ -110,9 +113,6 @@ impl PlayWorldViewRender {
         WidgetType::PlayWorldViewRender(self)
     }
 
-    pub fn get_rendering_config(&self) -> &Rc<RefCell<PlayViewRenderingConfig>> {
-        return &self.rendering_config;
-    }
 
     //=====================================
     // Controls
@@ -124,6 +124,22 @@ impl PlayWorldViewRender {
 
     pub fn add_events(&mut self, events: &mut Vec<Event>) {
         self.events.append(events);
+    }
+
+    fn handle_camera_zooming(
+        &mut self, 
+        screen_data: &ScreenData, 
+        event_manager: &mut EventManager, 
+        player_data: &PlayerData
+    ) {
+        let mut cursor_scheduler = player_data.get_cursor_event_scheduler();
+        if screen_data.get_input_manager().get_mouse_input_data().scrolled_up() {
+            cursor_scheduler.zoom_in()
+        }
+        else if screen_data.get_input_manager().get_mouse_input_data().scrolled_down() {
+            cursor_scheduler.zoom_out()
+        }
+        cursor_scheduler.schedul_events(event_manager);
     }
 
     fn handle_camera_panning(
@@ -160,15 +176,6 @@ impl PlayWorldViewRender {
             cursor_scheduler.mod_cords([0, 1, 0]);
         }
 
-
-
-
-        if screen_data.get_input_manager().get_mouse_input_data().scrolled_up() {
-            cursor_scheduler.zoom_in()
-        }
-        else if screen_data.get_input_manager().get_mouse_input_data().scrolled_down() {
-            cursor_scheduler.zoom_out()
-        }
 
         // Middle mouse button panning
         if screen_data.is_middle_mouse_held() {
@@ -209,10 +216,20 @@ impl PlayWorldViewRender {
         cursor_scheduler.schedul_events(event_manager);
     }
 
+    fn get_mouse_world_cords(
+        &mut self, 
+        screen_data: &ScreenData, 
+        event_manager: &mut EventManager, 
+        player_data: &PlayerData
+    ) -> Option<[i32; 3]> {
 
-    fn get_mouse_world_cords(&mut self, screen_data: &ScreenData, event_manager: &mut EventManager, player_data: &PlayerData) -> [i32; 3] {
+        let mut mouse_cords = screen_data.get_mouse_ndc();
 
-        let mouse_cords = screen_data.get_mouse_ndc();
+        mouse_cords[0] -= self.ndc_draw_centering_offset[0];
+        mouse_cords[1] -= self.ndc_draw_centering_offset[1];
+
+        mouse_cords[0] -= self.camera_ndc_offset[0];
+        mouse_cords[1] -= self.camera_ndc_offset[1];
 
 
         let iso_mouse_cords = 
@@ -221,32 +238,57 @@ impl PlayWorldViewRender {
                 mouse_cords
             );
 
-        // get the highest z value
-        let cursor = player_data.get_cursor();
-        
-        // Get the cords of the highest value
-        let mut ray_world_cords = cursor.get_cords();
-        
-        // Offset hight with zoom
-        ray_world_cords[0] += cursor.get_zoom() as i32;
-        ray_world_cords[1] += cursor.get_zoom() as i32;
-        ray_world_cords[2] += cursor.get_zoom() as i32;
-        
-        // Offset horizontal with mouse
-        ray_world_cords[0] += iso_mouse_cords[0] as i32;
-        ray_world_cords[1] += iso_mouse_cords[1] as i32;
-        
+        let tile_key = [
+            iso_mouse_cords[0].round() as i32 - 1, 
+            iso_mouse_cords[1].round() as i32
+        ];
 
-        let block = self.mouse_ray.left_block_struck();
-        let cords = self.mouse_ray.left_block_struck_cords();
+        let iso_offest = 
+            iso_cord_tool::casted_to_ndc_cords(
+                self.ndc_block_scale, 
+                tile_key
+            );
+
+        let tile_ndc_cords = [
+            mouse_cords[0] - iso_offest[0],
+            mouse_cords[1] - iso_offest[1],
+        ];
+
+        let mouses_tile = self.casted_tiles.get(&tile_key);
+        
+        if let Some(mouse_tile) = mouses_tile {
+            
+            let triangle;
+            if tile_ndc_cords[0] > (self.ndc_block_scale) {
+                triangle = mouse_tile.get_right_triangle();
+            } 
+            else {
+                triangle = mouse_tile.get_left_triangle();
+            }
+
+            if triangle.has_first_struck {
+                let cords = triangle.get_first_block_cords_struck();
+                
+                self.lair_block_mods.push(
+                    LairBlockMod::AddOverlayTexture(
+                        crate::game_data::types::BlockTexture::Selector, 
+                        cords
+                    )
+                );
+
+                return Some(cords);
+                
+            }
+            else {
+                None
+            }
+        }
+        else {
+            return None
+        }
+
 
         
-        // println!("Block of mouse: {} | Cords: {:?}", block.get_name(), cords);
-
-        self.mouse_ray = TileRay::new(ray_world_cords, [0; 3]);
-        
-
-        ray_world_cords
     }
 
 
@@ -277,22 +319,6 @@ impl PlayWorldViewRender {
         self.ndc_draw_centering_offset[1] = self.center_ndc[1] - self.ndc_block_scale;
     }
 
-    fn area_to_draw_cords(&self, area_cords: [i32; 3]) -> [f32; 2] {
-        let draw_iso_cords = [
-            area_cords[0] - area_cords[2],
-            area_cords[1] - area_cords[2],
-        ];
-
-        let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, draw_iso_cords);
-        draw_cords[0] += self.ndc_draw_centering_offset[0];
-        draw_cords[1] += self.ndc_draw_centering_offset[1];
-
-        draw_cords[0] += self.camera_ndc_offset[0];
-        draw_cords[1] += self.camera_ndc_offset[1];
-
-        return draw_cords;
-    }
-
     pub fn ray_cast_view(
         &mut self,
         texture_manager: &mut TextureManager,
@@ -302,36 +328,49 @@ impl PlayWorldViewRender {
     ) {
         self.size_play_view(player_data.get_cursor());
 
-        let world_arc = self.rendering_config.borrow().get_world_ref().clone();
+        let world_arc = player_data.get_world_ref();
         let world = world_arc.read().unwrap();
     
 
+
         let cursor = player_data.get_cursor();
         let world_area = cursor.get_rendering_area();
+        self.area_rendering_manager.set_world_area(world_area);
+
+
+
         
-
-        let mut area_rendering_manager = AreaRenderingManager::new(&world_area);
-
-        // Mouse ray
-        self.get_mouse_world_cords(screen_data, event_manager, player_data);
-        let config = RayCastingConfig::new(
-            LairBlockManager::new(),
-            &world_area,
-            [1, 1, 1],
-            200,
-        );
-        self.mouse_ray.cast(&world, &config);
-        let tiles = area_rendering_manager.get_casted_tile_rays(&world, player_data);
+        // Cast the tiles and add them to the map
+        self.casted_tiles.clear();
+        let tiles = self.area_rendering_manager.get_casted_tile_rays(&world, player_data, &self.lair_block_mods);
+        for tile in tiles {
+            
+            let area_cords = tile.get_area_cords();
+            let flattened_iso_cords = [
+                area_cords[0] - area_cords[2],
+                area_cords[1] - area_cords[2],
+            ];
+            self.casted_tiles.insert(flattened_iso_cords, tile);
+            
+        }
 
 
         texture_manager.update_expander_cache(self.ndc_block_scale);
 
-        for tile in tiles {
+
+        for (flattened_iso_cords, tile) in &mut self.casted_tiles {
             let tile_area_cords = tile.get_area_cords();
 
-            let draw_cords = self.area_to_draw_cords(tile_area_cords);
-            let [left_textures, right_textures] = tile.get_tile_textures();
+            let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, *flattened_iso_cords);
+            
+            
+            draw_cords[0] += self.ndc_draw_centering_offset[0];
+            draw_cords[1] += self.ndc_draw_centering_offset[1];
 
+            draw_cords[0] += self.camera_ndc_offset[0];
+            draw_cords[1] += self.camera_ndc_offset[1];
+
+            let left_textures = tile.get_left_triangle().get_textures().clone();
             let left_pos = [
                 draw_cords[0],
                 draw_cords[1],
@@ -342,6 +381,7 @@ impl PlayWorldViewRender {
                 texture_manager.render_expanded_texture(texture, left_pos);
             }
 
+            let right_textures = tile.get_right_triangle().get_textures().clone();
             let right_pos = [
                 draw_cords[0] + self.ndc_block_scale,
                 draw_cords[1],
@@ -398,10 +438,11 @@ impl Widget for PlayWorldViewRender {
         // Render View
         self.ray_cast_view(texture_manager, screen_data, event_manager, &player_data);
         
+        self.lair_block_mods.clear();
 
         if let Some(view_mode) = player_data.get_view_mode() {
             match view_mode {
-                player_data::player_data::ViewMode::Start() => {
+                ViewMode::Start() => {
                     // Handle Visuals
                     let mut panel = Panel::new_blank();
                     panel.set_parent_pos(screen_data.get_viewport_uv());
@@ -420,6 +461,9 @@ impl Widget for PlayWorldViewRender {
 
                     // Handle Controls
                     self.handle_camera_panning(screen_data, event_manager, player_data);
+                    self.handle_camera_zooming(screen_data, event_manager, player_data);
+                    self.get_mouse_world_cords(screen_data, event_manager, player_data);
+
                     if screen_data.was_right_released() {
                         // Spawn drone at cursor cords
                         let mut cursor_event_scheduler = player_data.get_cursor_event_scheduler();
@@ -427,7 +471,7 @@ impl Widget for PlayWorldViewRender {
                         cursor_event_scheduler.schedul_events(event_manager);
                     }
                 }
-                player_data::player_data::ViewMode::Drone(drone_id) => {
+                ViewMode::Drone(drone_id) => {
                     // Handle Visuals
                     let mut panel = Panel::new_blank();
                     panel.set_parent_pos(screen_data.get_viewport_uv());
@@ -439,34 +483,40 @@ impl Widget for PlayWorldViewRender {
                     self.overlay_panel = panel;
 
                     // Handle Controls
+                    self.handle_camera_zooming(screen_data, event_manager, player_data);
                     let mut drone_event_scheduler = player_data.get_drone_event_scheduler(drone_id);
                     
+
                     if let Some(mut drone_event_scheduler) = drone_event_scheduler {
                         let mut cursor_event_scheduler = player_data.get_cursor_event_scheduler();
                             
                         let drone = drone_event_scheduler.get_drone();
                         cursor_event_scheduler.set_cords(drone.get_cords());
-                        
 
-                        if screen_data.was_right_pressed() {
-                            let mut cords = self.mouse_ray.left_block_struck_cords();
+                        let cords = self.get_mouse_world_cords(screen_data, event_manager, player_data);
+                        if let Some(mut cords) = cords {
                             cords[2] += 1;
 
-                            drone_event_scheduler.give_action(
-                                DroneAction::AdvancedAction(
-                                    DroneAdvancedAction::PathToCords(
-                                        cords
+                            if screen_data.was_right_pressed() {
+                                
+                                drone_event_scheduler.give_action(
+                                    DroneAction::AdvancedAction(
+                                        DroneAdvancedAction::PathToCords(
+                                            cords
+                                        )
                                     )
-                                )
-                            );
+                                );
+                            }
                         }
-
 
                         cursor_event_scheduler.schedul_events(event_manager);
                         drone_event_scheduler.schedul_events(event_manager);
-                    }                    
+
+                    }                  
+
+
                 },
-                player_data::player_data::ViewMode::Location(location_id) => {
+                ViewMode::Location(location_id) => {
 
                 },
             }
@@ -474,6 +524,7 @@ impl Widget for PlayWorldViewRender {
         }
         else {
             self.handle_camera_panning(screen_data, event_manager, player_data);
+            self.handle_camera_zooming(screen_data, event_manager, player_data);
             self.overlay_panel = Panel::new_blank();
         }
 

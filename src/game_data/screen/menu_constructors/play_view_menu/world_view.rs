@@ -50,7 +50,7 @@ pub fn get_widget(ref_manager: &mut RefManager) -> WidgetType {
         );
         */
 
-        let mut play_view = PlayWorldViewRender::new(ref_manager.play_view_rendering_config.clone());
+        let mut play_view = PlayWorldViewRender::new();
 
         play_view.set_prefered_size(1.0);
         panel.add_widget(play_view.wrap_into_widget());

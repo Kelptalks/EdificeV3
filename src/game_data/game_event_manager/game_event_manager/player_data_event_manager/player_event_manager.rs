@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, player_data_event_manager::location_event::LocationEvent}, player_data_event_manager::{drone_event::DroneEvent, var_event_manager::var_events::VarEvents}, prelude::{Event, GameEvent}}, player_data::{cursor::cursor_event_scheduler::CursorEvent, drone_script::var::{game_vars::dynamic_var::DynamicVarType, var_type::VarType}, drones::{drone::Drone, drone_event_scheduler::NewDroneEvent, drone_manager::DroneId}, locations::{location::WorldLocation, location_config::WorldLocationConfig}, player_data::{PlayerData, ViewMode}}};
+use crate::game_data::{game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, player_data_event_manager::location_event::LocationEvent}, player_data_event_manager::{drone_event::DroneEvent, var_event_manager::var_events::VarEvents}, prelude::{Event, GameEvent}}, player_data::{cursor::cursor_event_scheduler::CursorEvent, drone_script::var::{game_vars::dynamic_var::DynamicVarType, var_type::VarType}, drones::{drone::Drone, drone_event_scheduler::NewDroneEvent, drone_manager::DroneId}, locations::{location::WorldLocation, location_config::WorldLocationConfig}, player_data::PlayerData}, screen::widget::world_rendering::view_mode::ViewMode};
 
 #[derive(Clone)]
 pub enum PlayerDataEvent {

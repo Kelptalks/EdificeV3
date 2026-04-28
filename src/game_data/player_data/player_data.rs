@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, log_init, player_data::{cursor::{cursor::Cursor, cursor_event_scheduler::CursorEventScheduler}, drones::{drone_event_scheduler::DroneEventScheduler, drone_manager::{DroneId, DroneManager}}, locations::location_manager::{LocationId, LocationManager}, settings::settings_manager::SettingsManager}, screen::menu_constructors::play_view_menu::new_play_view::PlayViewMode, types::BlockTexture};
+use crate::game_data::{World, log_init, player_data::{cursor::{cursor::Cursor, cursor_event_scheduler::CursorEventScheduler}, drones::{drone_event_scheduler::DroneEventScheduler, drone_manager::{DroneId, DroneManager}}, locations::location_manager::{LocationId, LocationManager}, settings::settings_manager::SettingsManager}, screen::{menu_constructors::play_view_menu::new_play_view::PlayViewMode, widget::world_rendering::view_mode::ViewMode}, types::BlockTexture};
 
 
 /*
@@ -118,14 +118,4 @@ impl PlayerData {
         return self.view_mode.clone();
     }
 
-}
-
-
-#[derive(Clone, Copy)]
-pub enum ViewMode {
-    Start(),
-    
-    Drone(DroneId),
-    Location(LocationId),
-    
 }

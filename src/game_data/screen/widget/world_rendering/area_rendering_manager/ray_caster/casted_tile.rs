@@ -1,9 +1,7 @@
 
 use crate::game_data::{
     World, 
-    screen::widget::world_rendering::area_rendering_manager::{
-        ray_caster::ray_casting_config::RayCastingConfig
-    }, 
+    screen::widget::world_rendering::area_rendering_manager::ray_caster::{casted_triangle::CastedTriangle, ray_casting_config::RayCastingConfig}, 
     texture_manager::texture::Texture, 
     types::{
         BlockTexture, BlockTriangle
@@ -16,6 +14,8 @@ struct RaySide {
     struck: bool,
 
     block_struck: BlockTexture,
+    block_triangle_struck: BlockTriangle,
+
     cords_struck: [i32; 3],
 }
 
@@ -25,15 +25,18 @@ impl RaySide {
             textures: Vec::new(), 
             struck: false, 
             block_struck: BlockTexture::Air,
+            block_triangle_struck: BlockTriangle::LeftBot,
+            
             cords_struck: [0; 3],
         }
     }
 
-    pub fn check_block(&mut self, block_to_check: BlockTexture, triangle: BlockTriangle) -> bool{
+    pub fn check_block(&mut self, block_to_check: BlockTexture, triangle: BlockTriangle) -> bool {
         if block_to_check.is_visible() {
             self.textures.insert(0, Texture::BlockTriangle(block_to_check, triangle));
             if block_to_check.is_opaque() {
                 self.struck = true;
+                self.block_triangle_struck = triangle;
                 return true;
             }
         }
@@ -98,110 +101,107 @@ impl RaySide {
     pub fn get_textures(self) -> Vec<Texture> {
         return self.textures;
     }
+
+    pub fn get_block_triangle(&self) -> BlockTriangle {
+        self.block_triangle_struck
+    } 
 }
 
-pub struct TileRay {
+pub struct CastedTile {
     start_cords: [i32; 3],
     area_cords: [i32; 3],
 
-    left_side: RaySide,
-    right_side: RaySide,
+    left_triangle: CastedTriangle,
+    right_triangle: CastedTriangle,
 }
 
 
-impl TileRay {
+impl CastedTile {
     pub fn new(
         start_cords:[i32; 3], 
         area_cords: [i32; 3],
-    ) -> TileRay {
-        TileRay {
+    ) -> CastedTile {
+        CastedTile {
             // Input
             start_cords,
             area_cords,
 
             // Output
-            left_side: RaySide::new(),
-            right_side: RaySide::new(),
+            left_triangle: CastedTriangle::new(),
+            right_triangle: CastedTriangle::new(),
 
         }
     }
 
-    pub fn left_block_struck(&self) -> BlockTexture {
-        self.left_side.get_block_struck()
-    }
-
-    pub fn left_block_struck_cords(&self) -> [i32; 3] {
-        self.left_side.cords_struck
-    }
-
-
-
     pub fn get_area_cords(&self) -> [i32; 3] {
-        return self.area_cords;
+        self.area_cords
     }
 
-    pub fn get_tile_textures(self) -> [Vec<Texture>; 2] {
-        return [self.left_side.get_textures(), self.right_side.get_textures()];
+    pub fn get_left_triangle(&self) -> &CastedTriangle {
+        &self.left_triangle
     }
 
-    fn left_branch(&mut self, world: &World, ray_casting_config: &RayCastingConfig, current_cords: [i32; 3]) {
+    pub fn get_right_triangle(&self) -> &CastedTriangle {
+        &self.right_triangle
+    }
+
+
+    fn cast_left_branch(&mut self, world: &World, ray_casting_config: &RayCastingConfig, current_cords: [i32; 3]) {
         let mut left_current_cords = current_cords;
+        let left_triangle = &mut self.left_triangle;
+        
         // x
         left_current_cords[0] -= ray_casting_config.direction[0];
-        if self.left_side.handle_current_block(world, ray_casting_config, left_current_cords, BlockTriangle::RightTop) {return;}
+        if !left_triangle.has_struck_solid {
+            left_triangle.handle_current_block(world, ray_casting_config, left_current_cords, BlockTriangle::RightTop);
+        }
 
         // y
         left_current_cords[1] -= ray_casting_config.direction[1];
-        if self.left_side.handle_current_block(world, ray_casting_config, left_current_cords, BlockTriangle::LeftBot) {return;}
-
+        if !left_triangle.has_struck_solid {
+            left_triangle.handle_current_block(world, ray_casting_config, left_current_cords, BlockTriangle::LeftBot);
+        }
         // z
+
+        if !left_triangle.has_struck_solid {
         left_current_cords[2] -= ray_casting_config.direction[2];
-        if self.left_side.handle_current_block(world, ray_casting_config,left_current_cords, BlockTriangle::TopLeft) {return;}
+            left_triangle.handle_current_block(world, ray_casting_config,left_current_cords, BlockTriangle::TopLeft);
+        }
     }
 
-    fn simple_left_branch(&mut self, world: &World, current_cords: [i32; 3]) {
-        let mut left_current_cords = current_cords;
-        
-        // x
-        left_current_cords[0] -= 1;
-        if self.left_side.simple_current_block(world, left_current_cords, BlockTriangle::RightTop) {return;}
-
-        // y
-        left_current_cords[1] -= 1;
-        if self.left_side.simple_current_block(world, left_current_cords, BlockTriangle::LeftBot) {return;}
-
-        // z
-        left_current_cords[2] -= 1;
-        if self.left_side.simple_current_block(world, left_current_cords, BlockTriangle::TopLeft) {return;}
-
-    }
-
-    fn right_branch(&mut self, world: &World, ray_casting_config: &RayCastingConfig, current_cords: [i32; 3]) {
+    fn cast_right_branch(&mut self, world: &World, ray_casting_config: &RayCastingConfig, current_cords: [i32; 3]) {
         let mut right_current_cords = current_cords;
+        let right_triangle = &mut self.right_triangle;
+
         // y
         right_current_cords[1] -= ray_casting_config.direction[1];
-        if self.right_side.handle_current_block(world, ray_casting_config, right_current_cords, BlockTriangle::LeftTop) {return;}
+        if !right_triangle.has_struck_solid {
+            right_triangle.handle_current_block(world, ray_casting_config, right_current_cords, BlockTriangle::LeftTop);
+        }
 
         // x
         right_current_cords[0] -= ray_casting_config.direction[0];
-        if self.right_side.handle_current_block(world, ray_casting_config, right_current_cords, BlockTriangle::RightBot) {return;}
-
+        if !right_triangle.has_struck_solid {
+            right_triangle.handle_current_block(world, ray_casting_config, right_current_cords, BlockTriangle::RightBot);
+        }
         // z
         right_current_cords[2] -= ray_casting_config.direction[2];
-        if self.right_side.handle_current_block(world, ray_casting_config, right_current_cords, BlockTriangle::TopRight) {return;}
+        if !right_triangle.has_struck_solid {
+            right_triangle.handle_current_block(world, ray_casting_config, right_current_cords, BlockTriangle::TopRight);
+        }
     }
 
     pub fn cast(&mut self, world: &World, ray_casting_config: &RayCastingConfig) {
         let mut current_cords = self.start_cords;
         
         for _ in 0..ray_casting_config.view_distance {
-            if !self.left_side.struck { 
-                self.left_branch(world, ray_casting_config, current_cords);
+            if !self.left_triangle.has_struck_solid { 
+                self.cast_left_branch(world, ray_casting_config, current_cords);
             }
-            if !self.right_side.struck {
-                self.right_branch(world, ray_casting_config, current_cords);
+            if !self.right_triangle.has_struck_solid {
+                self.cast_right_branch(world, ray_casting_config, current_cords);
             }
-            if self.left_side.struck && self.right_side.struck {
+            if self.left_triangle.has_struck_solid && self.right_triangle.has_struck_solid {
                 return;
             }
 
@@ -211,21 +211,4 @@ impl TileRay {
         }
     }
 
-    pub fn simple_cast(&mut self, world: &World, left_side: bool) -> Option<[i32; 3]> {
-        let mut current_cords = self.start_cords;
-        
-        for _ in 0..200 {
-            if !self.left_side.struck {
-                self.simple_left_branch(world, current_cords);
-            }
-            else {
-                return Some(self.left_side.cords_struck);
-            }
-            current_cords[0] -= 1;
-            current_cords[1] -= 1;
-            current_cords[2] -= 1;
-        }
-
-        return None
-    }
 }

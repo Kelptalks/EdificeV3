@@ -1,4 +1,4 @@
-use crate::game_data::{game_event_manager::prelude::{Event, EventManager, PlayerDataEvent}, player_data::{cursor::cursor::Cursor, player_data::{PlayerData, ViewMode}}};
+use crate::game_data::{game_event_manager::prelude::{Event, EventManager, PlayerDataEvent}, player_data::{cursor::cursor::Cursor, player_data::PlayerData}, screen::widget::world_rendering::view_mode::ViewMode};
 
 #[derive(Clone)]
 pub enum CursorEvent {

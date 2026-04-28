@@ -1,0 +1,121 @@
+use crate::game_data::{World, screen::widget::world_rendering::area_rendering_manager::ray_caster::ray_casting_config::RayCastingConfig, texture_manager::texture::Texture, types::{BlockTexture, BlockTriangle}};
+
+
+
+pub struct CastedTriangle {
+    pub has_first_struck: bool,
+    pub has_struck_solid: bool,
+    
+
+    first_block_struck_cords: [i32; 3],
+    first_block_struck_type: BlockTexture,
+    first_block_triangle_struck: BlockTriangle,
+
+    solid_block_cords_struck: [i32; 3],
+    solid_block_type_struck: BlockTexture,
+    solid_block_triangle_struck: BlockTriangle,
+
+    // rendering
+    draw_pos: [f32; 4],
+    textures: Vec<Texture>,
+}
+
+impl CastedTriangle {
+    pub fn new() -> CastedTriangle {
+        CastedTriangle {
+            // Ray Data
+            has_first_struck: false,
+            has_struck_solid: false, 
+
+            first_block_struck_cords: [0; 3],
+            first_block_struck_type: BlockTexture::Air,
+            first_block_triangle_struck: BlockTriangle::LeftBot,
+
+
+            // rendering
+            solid_block_cords_struck: [0; 3],
+            solid_block_type_struck: BlockTexture::Air,
+            solid_block_triangle_struck: BlockTriangle::LeftBot,
+
+            draw_pos: [0.0; 4],
+            textures: Vec::new(),
+        }
+    }
+
+    #[inline]
+    pub fn check_block(
+        &mut self, 
+        block_cords: [i32; 3], 
+        block_to_check: BlockTexture, 
+        triangle: BlockTriangle
+    ) {
+        if block_to_check.is_visible() {
+            self.textures.insert(0, Texture::BlockTriangle(block_to_check, triangle));
+            if block_to_check.is_opaque() {
+                self.has_struck_solid = true;
+                self.solid_block_type_struck = block_to_check;
+                self.solid_block_triangle_struck = triangle;
+                self.solid_block_cords_struck = block_cords;
+                
+                if !self.has_first_struck {
+                    self.has_first_struck = true;
+
+                    self.first_block_triangle_struck = triangle;
+                    self.first_block_struck_type = block_to_check;
+                    self.first_block_struck_cords = block_cords;
+                }
+            }
+            else if block_to_check.is_translucent() {
+                if !self.has_first_struck {
+                    self.has_first_struck = true;
+
+                    self.first_block_triangle_struck = triangle;
+                    self.first_block_struck_type = block_to_check;
+                    self.first_block_struck_cords = block_cords;
+                }
+            }
+        }
+    } 
+
+    #[inline]
+    pub fn handle_current_block(
+        &mut self, 
+        world: &World, 
+        ray_casting_config: &RayCastingConfig, 
+        current_cords: [i32; 3], 
+        triangle: BlockTriangle
+    ) {
+        if !ray_casting_config.world_area.cords_in_area(current_cords) {
+            return;
+        }
+        
+        // Overlay Lair
+        let lair_block_to_check = ray_casting_config.lair_manager.get_lair_block_at_cords(current_cords);
+        if let Some(lair_block) = lair_block_to_check {
+            for texture in lair_block.get_overlay_textures() {
+                self.check_block(current_cords, *texture, triangle);
+            }
+        }
+
+        // World Block
+        let block_to_check = BlockTexture::from_id(world.get_world_value(current_cords));
+        self.check_block(current_cords, block_to_check, triangle);
+
+        // Underlay Lair
+        let lair_block_to_check = ray_casting_config.lair_manager.get_lair_block_at_cords(current_cords);
+        if let Some(lair_block) = lair_block_to_check {
+            for texture in lair_block.get_underlay_textures() {
+                self.check_block(current_cords, *texture, triangle);
+            }
+        }
+    }
+
+    
+    pub fn get_textures(&self) -> &Vec<Texture>{
+        &self.textures
+    }
+
+    pub fn get_first_block_cords_struck(&self) -> [i32; 3] {
+        return self.first_block_struck_cords;
+    }
+}
