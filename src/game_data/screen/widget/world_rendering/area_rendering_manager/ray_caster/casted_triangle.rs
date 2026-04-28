@@ -118,4 +118,27 @@ impl CastedTriangle {
     pub fn get_first_block_cords_struck(&self) -> [i32; 3] {
         return self.first_block_struck_cords;
     }
+
+    pub fn get_solid_block_cords_struck(&self) -> [i32; 3] {
+        return self.solid_block_cords_struck;
+    }
+}
+
+
+
+#[cfg(test)]
+mod tests {
+    use crate::game_data::screen::iso_cord_tool;
+
+    #[test]
+    fn test_depth_check() {
+
+        let cords_1 = [10; 3];
+
+        let cords_2 = [5; 3];
+
+        println!("Depth: {}", iso_cord_tool::get_depth_from_world_cords(cords_1));
+        println!("Depth 2: {}", iso_cord_tool::get_depth_from_world_cords(cords_2));
+
+    }
 }

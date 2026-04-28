@@ -54,6 +54,8 @@ pub struct Drone{
 
     // Position
     cords: [i32; 3],
+    world_pos: [f32; 3],
+
     direction: DroneDirection,
     world_location: Rc<RefCell<WorldLocation>>,
 
@@ -88,6 +90,7 @@ impl Drone {
 
             // Position
             cords: cords,
+            world_pos: [0.0; 3],
             direction: DroneDirection::ForwardLeft,
             world_location: Rc::new(RefCell::new(WorldLocation::new(id.as_usize().to_string(), WorldArea::new_with_cords([cords; 2]), id.as_usize() as u32))),
 
@@ -117,7 +120,7 @@ impl Drone {
     //=====================================
 
     pub fn get_texture(&self) -> Texture {
-        return Texture::DroneItemTexture(crate::game_data::types::DroneItemTexture::DroneChassis)
+        return Texture::BlockTexture(BlockTexture::from_id(self.direction.to_block_id()));
     }
 
     pub fn get_name(&self) -> String {
@@ -256,6 +259,9 @@ impl Drone {
     pub fn get_cords(&self) -> [i32; 3] {
         return self.cords;
     }
+    pub fn get_world_pos(&self) -> [f32; 3] {
+        return self.world_pos
+    }
     pub fn mod_cords(&mut self, cords: [i32; 3]) {
         for (a, b) in self.cords.iter_mut().zip(cords.iter()) {
             *a += b;
@@ -340,7 +346,12 @@ impl Drone {
         // Update world location
         self.world_location.borrow_mut().get_mut_area().set_point_1_cords(self.cords);
         self.world_location.borrow_mut().get_mut_area().set_point_2_cords(self.cords);
-        
+        self.world_pos = [
+            self.cords[0] as f32,
+            self.cords[1] as f32,
+            self.cords[2] as f32,
+        ];
+
         // If dead set kill drone and prevent actions
         if self.health == 0 {
             event_manager.add_event(WorldEvent::ModBlock(self.cords, BlockTexture::DroneDead).wrap_into_event()); // Clear drone in old location

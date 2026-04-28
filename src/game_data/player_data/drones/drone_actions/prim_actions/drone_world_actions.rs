@@ -154,13 +154,13 @@ fn move_drone(drone: &mut Drone, world: &World, relative_cords: [i32; 3], event_
 
             drone.set_direction(Drone::relative_move_cords_to_direction(relative_cords));
             // Update drones cords
-            event_manager.add_event(WorldEvent::ModBlock(drone.get_cords(), BlockTexture::Air).wrap_into_event()); // Clear drone in old location
+            // event_manager.add_event(WorldEvent::ModBlock(drone.get_cords(), BlockTexture::Air).wrap_into_event()); // Clear drone in old location
             
             
             drone.mod_cords(relative_cords);
 
             
-            event_manager.add_event(WorldEvent::ModBlock(drone.get_cords(), BlockTexture::from_id(drone.get_directoin().to_block_id())).wrap_into_event()); // Add drone back in new location
+            // event_manager.add_event(WorldEvent::ModBlock(drone.get_cords(), BlockTexture::from_id(drone.get_directoin().to_block_id())).wrap_into_event()); // Add drone back in new location
 
             // Set drone busy time based off new block below drone
             let cords_below_drone = drone.get_relative_world_cords([0, 0, -1]);

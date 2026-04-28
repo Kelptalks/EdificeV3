@@ -4,7 +4,7 @@ use std::{cell::RefCell, collections::HashMap, ops::Index, rc::Rc};
 use crate::game_data::{
     TextureManager, game_event_manager::player_data_event_manager::var_event_manager::var_events::VarEvents, locations::world_area::WorldArea, player_data::{self, cursor::{self, cursor::Cursor, cursor_event_scheduler::{self, CursorEventScheduler}}, drone_script::var::{game_vars::{dynamic_var::{self, DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}, drones::{drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, prim_actions::drone_world_actions::DroneWorldAction}, drone_event_scheduler}, player_data::PlayerData}, screen::{
         ScreenData, input_data, iso_cord_tool, screen_data, widget::{button::button::Button, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot, play_world_view_config::PlayViewRenderingConfig}, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::{lair_block::LairBlockMod, lair_block_manager::LairBlockManager}, ray_caster::{casted_tile::CastedTile, ray_casting_config::{self, RayCastingConfig}}}, rendering_config, view_mode::ViewMode}}
-    }, tools::cords_tool
+    }, texture_manager::texture::Texture, tools::cords_tool
 };
 
 use crate::game_data::game_event_manager::prelude::*;
@@ -295,6 +295,106 @@ impl PlayWorldViewRender {
     //=====================================
     // Rendering
     //=====================================
+    pub fn render_tile(&self, texture_manager: &mut TextureManager, flattened_iso_cords: &[i32; 2], tile: &CastedTile) {
+        let tile_area_cords = tile.get_area_cords();
+
+            let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, *flattened_iso_cords);
+            
+            
+            draw_cords[0] += self.ndc_draw_centering_offset[0];
+            draw_cords[1] += self.ndc_draw_centering_offset[1];
+
+            draw_cords[0] += self.camera_ndc_offset[0];
+            draw_cords[1] += self.camera_ndc_offset[1];
+
+            let left_textures = tile.get_left_triangle().get_textures().clone();
+            let left_pos = [
+                draw_cords[0],
+                draw_cords[1],
+                draw_cords[0] + self.ndc_block_scale,
+                draw_cords[1] + self.ndc_block_scale,
+            ];
+            for texture in left_textures {
+                texture_manager.render_expanded_texture(texture, left_pos);
+            }
+
+            let right_textures = tile.get_right_triangle().get_textures().clone();
+            let right_pos = [
+                draw_cords[0] + self.ndc_block_scale,
+                draw_cords[1],
+                draw_cords[0] + (self.ndc_block_scale * 2.0),
+                draw_cords[1] + self.ndc_block_scale,
+            ];
+            for texture in right_textures {
+                texture_manager.render_expanded_texture(texture, right_pos);
+            }
+    }
+
+    pub fn render_enitity_at_world_pos(
+        &self, 
+        texture_manager: &mut TextureManager, 
+        player_data: &PlayerData, 
+        world_pos: [f32; 3], 
+        texture: Texture
+    ) {
+        // render the entity texture
+        let cursor_cords = player_data.get_cursor().get_cords();
+        let offset_world_cords = [
+            world_pos[0] - cursor_cords[0] as f32,
+            world_pos[1] - cursor_cords[1] as f32,
+            world_pos[2] - cursor_cords[2] as f32,
+        ];
+
+        let draw_cords = iso_cord_tool::world_pos_to_ndc_cords(self.ndc_block_scale, offset_world_cords);
+
+
+        // Scale to size of block
+        let mut draw_pos = [
+            draw_cords[0] - self.ndc_block_scale, 
+            draw_cords[1] - self.ndc_block_scale,
+            draw_cords[0] + self.ndc_block_scale, 
+            draw_cords[1] + self.ndc_block_scale,
+        ];
+
+        // Center on block
+        draw_pos[0] -= self.ndc_tile_half_scale;
+        draw_pos[1] -= self.ndc_tile_half_scale / 2.0;
+        draw_pos[2] -= self.ndc_tile_half_scale;
+        draw_pos[3] -= self.ndc_tile_half_scale / 2.0;
+
+        
+        texture_manager.render_texture(texture, draw_pos);
+
+
+        // re render the casted tiles over the entity texture.
+        let sprite_depth = iso_cord_tool::get_depth_from_world_cords(iso_cord_tool::world_pos_to_world_cords(world_pos));
+        let flattened_cords = iso_cord_tool::world_pos_to_tile_cords(offset_world_cords);
+        // println!("flattened_cords: {:?}", flattened_cords);
+        // println!("sprite_depth: {}", sprite_depth);
+
+
+
+        for x in -3..3 {
+            for y in -3..3 {
+                let cords = [
+                    flattened_cords[0] + x,
+                    flattened_cords[1] + y,
+                ];
+                let tile = self.casted_tiles.get(&cords);
+                
+                if let Some(tile) = tile {
+                    let tile_world_cords = tile.get_left_triangle().get_solid_block_cords_struck();
+                    let tile_depth = iso_cord_tool::get_depth_from_world_cords(tile_world_cords);
+                    // println!("sprite_depth: {} | tile_depth: {}", sprite_depth, tile_depth);
+                    
+                    if tile_depth > sprite_depth {
+                        self.render_tile(texture_manager, &cords, tile);
+                    }
+                }
+            }
+        }
+
+    }
 
     pub fn size_play_view(&mut self, cursor: &Cursor) {
         self.widget_properties.scale_based_off_parent();
@@ -345,7 +445,7 @@ impl PlayWorldViewRender {
         let tiles = self.area_rendering_manager.get_casted_tile_rays(&world, player_data, &self.lair_block_mods);
         for tile in tiles {
             
-            let area_cords = tile.get_area_cords();
+            let area_cords = tile.get_world_cords();
             let flattened_iso_cords = [
                 area_cords[0] - area_cords[2],
                 area_cords[1] - area_cords[2],
@@ -358,40 +458,8 @@ impl PlayWorldViewRender {
         texture_manager.update_expander_cache(self.ndc_block_scale);
 
 
-        for (flattened_iso_cords, tile) in &mut self.casted_tiles {
-            let tile_area_cords = tile.get_area_cords();
-
-            let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, *flattened_iso_cords);
-            
-            
-            draw_cords[0] += self.ndc_draw_centering_offset[0];
-            draw_cords[1] += self.ndc_draw_centering_offset[1];
-
-            draw_cords[0] += self.camera_ndc_offset[0];
-            draw_cords[1] += self.camera_ndc_offset[1];
-
-            let left_textures = tile.get_left_triangle().get_textures().clone();
-            let left_pos = [
-                draw_cords[0],
-                draw_cords[1],
-                draw_cords[0] + self.ndc_block_scale,
-                draw_cords[1] + self.ndc_block_scale,
-            ];
-            for texture in left_textures {
-                texture_manager.render_expanded_texture(texture, left_pos);
-            }
-
-            let right_textures = tile.get_right_triangle().get_textures().clone();
-            let right_pos = [
-                draw_cords[0] + self.ndc_block_scale,
-                draw_cords[1],
-                draw_cords[0] + (self.ndc_block_scale * 2.0),
-                draw_cords[1] + self.ndc_block_scale,
-            ];
-            for texture in right_textures {
-                texture_manager.render_expanded_texture(texture, right_pos);
-            }
-
+        for (flattened_iso_cords, tile) in &self.casted_tiles {
+            self.render_tile(texture_manager, flattened_iso_cords, tile);
         }
 
 
@@ -491,6 +559,8 @@ impl Widget for PlayWorldViewRender {
                         let mut cursor_event_scheduler = player_data.get_cursor_event_scheduler();
                             
                         let drone = drone_event_scheduler.get_drone();
+                        self.render_enitity_at_world_pos(texture_manager, player_data, drone.get_world_pos(), drone.get_texture());
+
                         cursor_event_scheduler.set_cords(drone.get_cords());
 
                         let cords = self.get_mouse_world_cords(screen_data, event_manager, player_data);
@@ -508,6 +578,9 @@ impl Widget for PlayWorldViewRender {
                                 );
                             }
                         }
+
+
+                        
 
                         cursor_event_scheduler.schedul_events(event_manager);
                         drone_event_scheduler.schedul_events(event_manager);

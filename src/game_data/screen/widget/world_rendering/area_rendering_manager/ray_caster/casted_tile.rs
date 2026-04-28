@@ -133,6 +133,10 @@ impl CastedTile {
         }
     }
 
+    pub fn get_world_cords(&self) -> [i32; 3] {
+        return self.area_cords
+    }
+
     pub fn get_area_cords(&self) -> [i32; 3] {
         self.area_cords
     }

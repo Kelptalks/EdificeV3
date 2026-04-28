@@ -33,3 +33,44 @@ pub fn ndi_screen_cords_to_iso_cords(scale : f32, ndi_cords : [f32 ; 2]) -> [f32
     // Return unrounded values so caller can determine tile side before flooring
     return [iso_x, iso_y];
 }
+
+
+pub fn get_depth_from_world_cords(world_cords: [i32; 3]) -> i32 {
+    return (world_cords[0] + world_cords[1]) + world_cords[2]
+}
+
+
+pub fn world_pos_to_ndc_cords(scale : f32, world_pos: [f32; 3]) -> [f32; 2] {
+    let flattened_iso_cords = 
+    [
+        world_pos[0] - world_pos[2],
+        world_pos[1] - world_pos[2]
+    ]; 
+
+    return float_iso_to_ndc_cords(scale, flattened_iso_cords)
+}
+
+pub fn world_pos_to_world_cords(world_pos: [f32; 3]) -> [i32; 3] {
+    [
+        world_pos[0].round() as i32,
+        world_pos[1].round() as i32,
+        world_pos[2].round() as i32,
+    ]
+}
+
+pub fn world_pos_to_tile_cords(world_pos: [f32; 3]) -> [i32; 2] {
+    let world_cords = [
+        world_pos[0].round() as i32,
+        world_pos[1].round() as i32,
+        world_pos[2].round() as i32,
+    ];
+
+    world_cords_to_tile_cords(world_cords)
+}
+
+pub fn world_cords_to_tile_cords(world_cords: [i32; 3]) -> [i32; 2] {
+    [
+        world_cords[0] - world_cords[2],
+        world_cords[1] - world_cords[2],
+    ]
+}
