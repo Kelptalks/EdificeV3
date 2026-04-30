@@ -346,12 +346,21 @@ in
 
 **Hours:**
     4/26/26: 1
-    4/27/26: 8,
-    4/28/26: 2.5
+    4/27/26: 8
+    4/28/26: 3
+    4/29/26: 1
+    4/30/26: 
 
 **Lines**
 
 **Notes:**
 
 ***Additions***
++ Drone ID System with events
+
++ Rendering improvments
+    - Casted block plain    
+        - Lets me get mouse block world cord
+        - Lets me render entitiy's that are obscured with blocks
+
 
