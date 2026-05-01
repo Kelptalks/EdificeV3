@@ -2,6 +2,7 @@ use crate::game_data::{World, screen::widget::world_rendering::area_rendering_ma
 
 
 
+#[derive(Clone)]
 pub struct CastedTriangle {
     pub has_first_struck: bool,
     pub has_struck_solid: bool,
@@ -119,7 +120,7 @@ impl CastedTriangle {
         return self.first_block_struck_cords;
     }
 
-    pub fn get_solid_block_cords_struck(&self) -> [i32; 3] {
+    pub fn get_first_solid_block_cords_struck(&self) -> [i32; 3] {
         return self.solid_block_cords_struck;
     }
 }

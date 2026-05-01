@@ -354,7 +354,6 @@ impl Drone {
 
         // If dead set kill drone and prevent actions
         if self.health == 0 {
-            event_manager.add_event(WorldEvent::ModBlock(self.cords, BlockTexture::DroneDead).wrap_into_event()); // Clear drone in old location
             return;
         }
         // Prevent Actions if moved this tik
@@ -379,13 +378,10 @@ impl Drone {
             block_below_drone[2] -= 1;
             let block_bellow_drone = BlockTexture::from_id(world.get_world_value(block_below_drone));
             if !block_bellow_drone.is_solid() {
-                event_manager.add_event(WorldEvent::ModBlock(self.cords, BlockTexture::Air).wrap_into_event()); // Clear drone before movement
-                
-
+  
                 self.cords[2] -= 1; // Move drone down one
                 self.moved = true;
 
-                event_manager.add_event(WorldEvent::ModBlock(self.cords, BlockTexture::from_id(self.direction.to_block_id())).wrap_into_event()); // Add drone back
                 return;
             }
         }

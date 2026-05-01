@@ -1,5 +1,9 @@
 
 
+//=====================================
+// Screen
+//=====================================
+
 // Convert isometric coordinates to normalized device coordinates
 pub fn casted_to_ndc_cords(scale : f32, cords : [i32 ; 2]) -> [f32; 2] {
     let iso_x = cords[0] as f32;
@@ -34,11 +38,20 @@ pub fn ndi_screen_cords_to_iso_cords(scale : f32, ndi_cords : [f32 ; 2]) -> [f32
     return [iso_x, iso_y];
 }
 
+//=====================================
+// World
+//=====================================
+
+pub fn flatten_world_cords(world_cords : [i32 ; 3]) -> [i32; 2] {
+    [
+        world_cords[0] - world_cords[2],
+        world_cords[1] - world_cords[2],
+    ]
+} 
 
 pub fn get_depth_from_world_cords(world_cords: [i32; 3]) -> i32 {
     return (world_cords[0] + world_cords[1]) + world_cords[2]
 }
-
 
 pub fn world_pos_to_ndc_cords(scale : f32, world_pos: [f32; 3]) -> [f32; 2] {
     let flattened_iso_cords = 

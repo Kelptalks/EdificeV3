@@ -21,7 +21,10 @@ pub struct PlayerData {
 
     // Game Object Managment
     drone_manager: DroneManager,
+    // nature_manager: NatureManager,
     location_manager: LocationManager,
+
+
 
     // Settings
     settings: SettingsManager,
