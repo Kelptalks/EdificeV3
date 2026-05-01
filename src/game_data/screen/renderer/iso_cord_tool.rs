@@ -63,6 +63,14 @@ pub fn world_pos_to_ndc_cords(scale : f32, world_pos: [f32; 3]) -> [f32; 2] {
     return float_iso_to_ndc_cords(scale, flattened_iso_cords)
 }
 
+pub fn world_cords_to_world_pos(world_cords: [i32; 3]) -> [f32; 3] {
+    [
+        world_cords[0] as f32,
+        world_cords[1] as f32,
+        world_cords[2] as f32, 
+    ]
+}
+
 pub fn world_pos_to_world_cords(world_pos: [f32; 3]) -> [i32; 3] {
     [
         world_pos[0].round() as i32,

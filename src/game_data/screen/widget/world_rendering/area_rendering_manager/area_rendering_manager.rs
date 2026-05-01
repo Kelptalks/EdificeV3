@@ -35,7 +35,7 @@ impl AreaRenderingManager {
         self.area_to_render = world_area;
     }
 
-    pub fn get_casted_tile_rays(&mut self, world: &World, player_data: &PlayerData, lair_block_mods: &Vec<LairBlockMod>) -> Vec<CastedTile> {
+    pub fn get_casted_tile_rays(&mut self, world: &World, lair_block_mods: &Vec<LairBlockMod>) -> Vec<CastedTile> {
   
                   
         // Create an expanded world area for calculating ray start cords
@@ -57,26 +57,7 @@ impl AreaRenderingManager {
 
         // Lair managment
         let mut lair_block_manager = LairBlockManager::new();
-        
-        /*
-        if rendering_config.should_render_all_location() {
-            for location in &*rendering_config.get_locations_to_render().borrow() {
-                lair_block_manager.outline_world_area(location.borrow().get_area(), BlockTexture::Dot);
-            }
-        }
-         */
 
-        /*
-        for var in rendering_config.get_vars_to_render() {
-            lair_block_manager.render_var(var.get_var_type_ref());
-        }
-         */
-
-        // Render Cursor location
-        let cursor = player_data.get_cursor();
-
-        let lair_block_mod = &LairBlockMod::Cursor(cursor.get_cords(), cursor.get_block_ghost(), cursor.get_zoom());
-        lair_block_manager.add_lair_block_mod(lair_block_mod);
 
         for lair_mod in lair_block_mods {
             lair_block_manager.add_lair_block_mod(lair_mod);

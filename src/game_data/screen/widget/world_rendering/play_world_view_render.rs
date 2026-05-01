@@ -149,6 +149,7 @@ impl PlayWorldViewRender {
         player_data: &PlayerData
     ) {
         
+        let cursor = player_data.get_cursor();
         let mut cursor_scheduler = player_data.get_cursor_event_scheduler();
 
         // Key panning
@@ -189,28 +190,6 @@ impl PlayWorldViewRender {
         let iso_offset =
             iso_cord_tool::ndi_screen_cords_to_iso_cords(self.ndc_tile_scale, self.camera_ndc_offset);
 
-        if iso_offset[0] > 1.0 {
-            cords_offset[0] -= 1;
-            self.camera_ndc_offset[0] -= self.ndc_tile_scale;
-            self.camera_ndc_offset[1] -= self.ndc_tile_half_scale;
-        }
-        if iso_offset[0] < -1.0 {
-            cords_offset[0] += 1;
-            self.camera_ndc_offset[0] += self.ndc_tile_scale;
-            self.camera_ndc_offset[1] += self.ndc_tile_half_scale;
-        }
-
-        if iso_offset[1] > 1.0 {
-            cords_offset[1] -= 1;
-            self.camera_ndc_offset[0] += self.ndc_tile_scale;
-            self.camera_ndc_offset[1] -= self.ndc_tile_half_scale;
-        }
-
-        if iso_offset[1] < -1.0 {
-            cords_offset[1] += 1;
-            self.camera_ndc_offset[0] -= self.ndc_tile_scale;
-            self.camera_ndc_offset[1] += self.ndc_tile_half_scale;
-        }
 
         cursor_scheduler.mod_cords(cords_offset);
         cursor_scheduler.schedul_events(event_manager);
@@ -228,8 +207,8 @@ impl PlayWorldViewRender {
         mouse_cords[0] -= self.ndc_draw_centering_offset[0];
         mouse_cords[1] -= self.ndc_draw_centering_offset[1];
 
-        mouse_cords[0] -= self.camera_ndc_offset[0];
-        mouse_cords[1] -= self.camera_ndc_offset[1];
+        mouse_cords[0] += self.camera_ndc_offset[0];
+        mouse_cords[1] += self.camera_ndc_offset[1];
 
 
         let iso_mouse_cords = 
@@ -250,8 +229,8 @@ impl PlayWorldViewRender {
             );
 
         let tile_ndc_cords = [
-            mouse_cords[0] - iso_offest[0],
-            mouse_cords[1] - iso_offest[1],
+            mouse_cords[0] + iso_offest[0],
+            mouse_cords[1] + iso_offest[1],
         ];
 
         let mouses_tile = self.tile_map.get_tile_with_flattened_cords(&tile_key);
@@ -323,38 +302,6 @@ impl PlayWorldViewRender {
         }
     }
 
-    pub fn render_tile(&self, texture_manager: &mut TextureManager, flattened_iso_cords: &[i32; 2], tile: &CastedTile) {
-        let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, *flattened_iso_cords);
-        
-        draw_cords[0] += self.ndc_draw_centering_offset[0];
-        draw_cords[1] += self.ndc_draw_centering_offset[1];
-
-        draw_cords[0] += self.camera_ndc_offset[0];
-        draw_cords[1] += self.camera_ndc_offset[1];
-
-        let left_textures = tile.get_left_triangle().get_textures().clone();
-        let left_pos = [
-            draw_cords[0],
-            draw_cords[1],
-            draw_cords[0] + self.ndc_block_scale,
-            draw_cords[1] + self.ndc_block_scale,
-        ];
-        for texture in left_textures {
-            texture_manager.render_expanded_texture(texture, left_pos);
-        }
-
-        let right_textures = tile.get_right_triangle().get_textures().clone();
-        let right_pos = [
-            draw_cords[0] + self.ndc_block_scale,
-            draw_cords[1],
-            draw_cords[0] + (self.ndc_block_scale * 2.0),
-            draw_cords[1] + self.ndc_block_scale,
-        ];
-        for texture in right_textures {
-            texture_manager.render_expanded_texture(texture, right_pos);
-        }
-    }
-
     pub fn render_enitity_at_world_pos(
         &self, 
         texture_manager: &mut TextureManager, 
@@ -380,9 +327,6 @@ impl PlayWorldViewRender {
             draw_cords[0] + self.ndc_block_scale, 
             draw_cords[1] + self.ndc_block_scale,
         ];
-
-        
-
         
         texture_manager.render_texture(texture, draw_pos);
 
@@ -449,37 +393,67 @@ impl PlayWorldViewRender {
         event_manager: &mut EventManager,
         player_data: &PlayerData,
     ) {
+
+        
         self.size_play_view(player_data.get_cursor());
 
         let world_arc = player_data.get_world_ref();
-        let world = world_arc.read().unwrap();
+        let mut world = world_arc.write().unwrap();
     
-
+        
 
         let cursor = player_data.get_cursor();
+
+        self.camera_ndc_offset = iso_cord_tool::world_pos_to_ndc_cords(
+            self.ndc_block_scale, 
+            iso_cord_tool::world_cords_to_world_pos(cursor.get_cords())
+        );
+
         let world_area = cursor.get_rendering_area();
         self.area_rendering_manager.set_world_area(world_area);
         
-        // Cast the tiles and add them to the map
-        self.tile_map.reset(cursor.get_cords());
-        let tiles = self.area_rendering_manager.get_casted_tile_rays(&world, player_data, &self.lair_block_mods);
-        for tile in tiles {
-            
-            let world_cords = tile.get_world_cords();
-            let flattened_iso_cords = [
-                world_cords[0] - world_cords[2],
-                world_cords[1] - world_cords[2],
-            ];
-            self.tile_map.incert_tile_with_flattened_cords(flattened_iso_cords, tile);
-            
-        }
+
+        let test_world_chunk = world.get_chunk_at_world_cords_mut(cursor.get_cords());
+        
+
+        let mut draw_cords = [0.0; 2];
+        draw_cords[0] += self.ndc_draw_centering_offset[0];
+        draw_cords[1] += self.ndc_draw_centering_offset[1];
+
+        draw_cords[0] -= self.camera_ndc_offset[0];
+        draw_cords[1] -= self.camera_ndc_offset[1];
+
+
         texture_manager.update_expander_cache(self.ndc_block_scale);
 
-        for (flattened_iso_cords, tile) in self.tile_map.get_map() {
-            self.render_tile(texture_manager, flattened_iso_cords, tile);
+        if (cursor.get_zoom() * 2) > 16 {
+            let chunk_cords = test_world_chunk.get_cords();
+            for x in -2..2 {
+                for y in -2..2 {
+                    for z in -2..2 {
+                        let chunk_index = [
+                            chunk_cords[0] + x,
+                            chunk_cords[1] + y,
+                            chunk_cords[2] + z,
+                        ];
+
+                        world.render_chunk(
+                            texture_manager, 
+                            self.ndc_block_scale, 
+                            draw_cords, 
+                            chunk_index
+                        );
+                    }
+                }
+
+            }
         }
-
-
+        else {
+            // Cast the tiles and add them to the map
+            self.tile_map.reset(cursor.get_cords());
+            self.tile_map.ray_cast_world_area(world_area, &world);
+            self.tile_map.render(texture_manager, self.ndc_block_scale, draw_cords);
+        }
     }
 
     //=====================================

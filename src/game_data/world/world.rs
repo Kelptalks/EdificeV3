@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
+use crate::game_data::TextureManager;
 use crate::game_data::{types::BlockTexture, world_chunk::WorldChunk};
-
+use crate::game_data::world::world_chunk::CHUNK_VOLUME;
 
 
 
@@ -49,7 +50,7 @@ impl World {
 
 
     //=====================================
-    // Getters / Setters
+    // Chunk
     //=====================================
 
     // Get a chunk at chunk cords or create it if it doesn't exist
@@ -84,6 +85,17 @@ impl World {
         let chunk_cords = Self::world_cords_to_chunk_cords(cords);
         return self.get_chunk_at_chunk_cords(chunk_cords);
     }
+
+    pub fn set_chunk_block_data(&mut self, chunk_cords: [i16; 3], block_data: Box<[u16; CHUNK_VOLUME]>) {
+        let chunk = self.get_chunk_at_chunk_cords_mut(chunk_cords);
+
+        chunk.set_block_data(block_data);
+    }
+    
+
+    //=====================================
+    // Single Block
+    //=====================================
 
     // Get the modded world cords that give the local chunk cords
     pub fn world_cords_to_internal_chunk_cords(cords : [i32 ; 3]) -> [usize; 3]
@@ -127,8 +139,22 @@ impl World {
     }
 
     pub fn clear(&mut self) {
-        println!("Clearing");
+        println!("Clearing World");
         self.loaded_chunks.clear();
+    }
+
+    //=====================================
+    // Single Block
+    //=====================================
+
+    pub fn render_chunk(&mut self, texture_manager: &mut TextureManager, draw_block_scale: f32, draw_offset: [f32; 2], cords : [i16 ; 3]) {
+        let chunk = self.get_chunk_at_chunk_cords_mut(cords);
+        if !chunk.is_dirty() {
+            chunk.render(texture_manager, draw_block_scale, draw_offset);
+        }
+        else {
+            chunk.ray_cast_tile_map();
+        }
         
     }
 

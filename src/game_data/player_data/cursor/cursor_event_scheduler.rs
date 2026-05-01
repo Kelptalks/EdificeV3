@@ -56,7 +56,7 @@ impl CursorEventScheduler {
     pub fn get_cursor(&self) -> &Cursor {
         return &self.cursor_clone;
     }
-
+        
     //=====================================
     // Event constructors
     //=====================================

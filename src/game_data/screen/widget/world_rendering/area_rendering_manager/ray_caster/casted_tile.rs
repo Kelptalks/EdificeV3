@@ -1,111 +1,10 @@
 
 use crate::game_data::{
-    World, 
-    screen::widget::world_rendering::area_rendering_manager::ray_caster::{casted_triangle::CastedTriangle, ray_casting_config::RayCastingConfig}, 
-    texture_manager::texture::Texture, 
-    types::{
+    TextureManager, World, screen::{iso_cord_tool, widget::world_rendering::area_rendering_manager::ray_caster::{casted_triangle::CastedTriangle, ray_casting_config::RayCastingConfig}}, texture_manager::texture::Texture, types::{
         BlockTexture, BlockTriangle
     }
 };
 
-
-struct RaySide {
-    textures: Vec<Texture>,
-    struck: bool,
-
-    block_struck: BlockTexture,
-    block_triangle_struck: BlockTriangle,
-
-    cords_struck: [i32; 3],
-}
-
-impl RaySide {
-    fn new() -> RaySide {
-        RaySide {
-            textures: Vec::new(), 
-            struck: false, 
-            block_struck: BlockTexture::Air,
-            block_triangle_struck: BlockTriangle::LeftBot,
-            
-            cords_struck: [0; 3],
-        }
-    }
-
-    pub fn check_block(&mut self, block_to_check: BlockTexture, triangle: BlockTriangle) -> bool {
-        if block_to_check.is_visible() {
-            self.textures.insert(0, Texture::BlockTriangle(block_to_check, triangle));
-            if block_to_check.is_opaque() {
-                self.struck = true;
-                self.block_triangle_struck = triangle;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    #[inline]
-    pub fn handle_current_block(&mut self, world: &World, ray_casting_config: &RayCastingConfig, current_cords: [i32; 3], triangle: BlockTriangle) -> bool {
-        if !ray_casting_config.world_area.cords_in_area(current_cords) {
-            return false;
-        }
-        
-        // Overlay Lair
-        let lair_block_to_check = ray_casting_config.lair_manager.get_lair_block_at_cords(current_cords);
-        if let Some(lair_block) = lair_block_to_check {
-            for texture in lair_block.get_overlay_textures() {
-                if self.check_block(*texture, triangle) {
-                    self.cords_struck = current_cords;
-                    return true;
-                }
-            }
-        }
-
-        // World Block
-        let block_to_check = BlockTexture::from_id(world.get_world_value(current_cords));
-        if self.check_block(block_to_check, triangle) {
-            self.block_struck = block_to_check;
-            self.cords_struck = current_cords;
-            return true;
-        }
-
-        // Underlay Lair
-        let lair_block_to_check = ray_casting_config.lair_manager.get_lair_block_at_cords(current_cords);
-        if let Some(lair_block) = lair_block_to_check {
-            for texture in lair_block.get_underlay_textures() {
-                if self.check_block(*texture, triangle) {
-                    self.cords_struck = current_cords;
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    pub fn simple_current_block(&mut self, world: &World, current_cords: [i32; 3], triangle: BlockTriangle) -> bool {
-        // World Block
-        let block_to_check = BlockTexture::from_id(world.get_world_value(current_cords));
-        if self.check_block(block_to_check, triangle) {
-            self.block_struck = block_to_check;
-            self.cords_struck = current_cords;
-            return true;
-        }
-
-        false
-    }
-
-    pub fn get_block_struck(&self) -> BlockTexture {
-        self.block_struck
-    }
-
-    pub fn get_textures(self) -> Vec<Texture> {
-        return self.textures;
-    }
-
-    pub fn get_block_triangle(&self) -> BlockTriangle {
-        self.block_triangle_struck
-    } 
-}
 
 pub struct CastedTile {
     start_cords: [i32; 3],
@@ -129,12 +28,15 @@ impl CastedTile {
             // Output
             left_triangle: CastedTriangle::new(),
             right_triangle: CastedTriangle::new(),
-
         }
     }
 
+    //=====================================
+    // Getters 
+    //=====================================
+
     pub fn get_world_cords(&self) -> [i32; 3] {
-        return self.area_cords
+        return self.start_cords
     }
 
     pub fn get_area_cords(&self) -> [i32; 3] {
@@ -150,6 +52,10 @@ impl CastedTile {
     }
 
 
+    //=====================================
+    // Ray Casting
+    //=====================================
+    
     fn cast_left_branch(&mut self, world: &World, ray_casting_config: &RayCastingConfig, current_cords: [i32; 3]) {
         let mut left_current_cords = current_cords;
         let left_triangle = &mut self.left_triangle;
@@ -212,6 +118,41 @@ impl CastedTile {
             current_cords[0] -= ray_casting_config.direction[0];
             current_cords[1] -= ray_casting_config.direction[1];
             current_cords[2] -= ray_casting_config.direction[2];
+        }
+    }
+
+    //=====================================
+    // Rendering
+    //=====================================
+
+    pub fn render(&self, texture_manager: &mut TextureManager, draw_block_scale: f32, draw_offset: [f32; 2]) {
+        let flattened_cords = iso_cord_tool::flatten_world_cords(self.get_world_cords());
+        let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(draw_block_scale, flattened_cords);
+        
+        draw_cords[0] += draw_offset[0];
+        draw_cords[1] += draw_offset[1];
+
+
+        let left_textures = self.get_left_triangle().get_textures().clone();
+        let left_pos = [
+            draw_cords[0],
+            draw_cords[1],
+            draw_cords[0] + draw_block_scale,
+            draw_cords[1] + draw_block_scale,
+        ];
+        for texture in left_textures {
+            texture_manager.render_expanded_texture(texture, left_pos);
+        }
+
+        let right_textures = self.get_right_triangle().get_textures().clone();
+        let right_pos = [
+            draw_cords[0] + draw_block_scale,
+            draw_cords[1],
+            draw_cords[0] + (draw_block_scale * 2.0),
+            draw_cords[1] + draw_block_scale,
+        ];
+        for texture in right_textures {
+            texture_manager.render_expanded_texture(texture, right_pos);
         }
     }
 
