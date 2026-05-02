@@ -22,3 +22,4 @@ pub mod world_rendering;
 pub mod drone_programming;
 
 pub mod widget_properties;
+pub mod window_manager;

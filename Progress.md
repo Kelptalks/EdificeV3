@@ -350,6 +350,7 @@ in
     4/28/26: 3
     4/29/26: 1
     4/30/26: 1
+    5/1/26: 4
 
 **Lines**
 
@@ -359,8 +360,12 @@ in
 + Drone ID System with events
 
 + Rendering improvments
-    - Casted block plain    
+    
+    - Tile Map system
         - Lets me get mouse block world cord
         - Lets me render entitiy's that are obscured with blocks
+        - Lets me cashe chunk ray_casting 
 
+    
+    
 

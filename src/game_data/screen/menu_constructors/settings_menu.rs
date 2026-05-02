@@ -3,37 +3,14 @@ use std::{cell::RefCell, rc::Rc};
 use crate::game_data::{
     game_event_manager::render_event_manager::render_event_manager::RenderEvent, 
     player_data::{drone_script::{action::{action::Action, action_type::ActionType}, 
-    script_element, var::{game_vars::{game_var_type::{GameVarKind, GameVarType}, primitive_game_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}}, var_type::{VarKind, VarType}}}, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::{drone_invintory_actions::DroneInventoryAction, drone_prim_actions::DronePrimAction}}, player_data::PlayerData}, screen::{ScreenData, widget::{drone_programming::{action_slot::ActionSlot, function_slot::FunctionSlot, scripting_elements::scripting_panel, var_slot::var_slot::VarSlot}, panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, tab_panel::var_tab_panel::{self, VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, widget::{Widget, WidgetType}, widget_calculations::TextSize}}, types::{BlockTexture, drone_item::DroneItem}};
+    script_element, var::{game_vars::{game_var_type::{GameVarKind, GameVarType}, primitive_game_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}}, var_type::{VarKind, VarType}}}, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::{drone_invintory_actions::DroneInventoryAction, drone_prim_actions::DronePrimAction}}, player_data::PlayerData}, screen::{ScreenData, widget::{drone_programming::{action_slot::ActionSlot, function_slot::FunctionSlot, scripting_elements::scripting_panel, var_slot::var_slot::VarSlot}, panel::{panel::{Panel, PanelAlignment, PanelOrientation}, panel_background::BackgroundType, panel_color::PanelColor}, tab_panel::var_tab_panel::{self, VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, widget::{Widget, WidgetType}, widget_calculations::TextSize, window_manager::widget_window_manager::{self, WidgetWindowManager}}}, types::{BlockTexture, drone_item::DroneItem}};
 
 
 
 pub fn get_menu(screen_data: &ScreenData) -> WidgetType {
-    let mut panel = WidgetType::new_panel(screen_data.get_viewport_uv(), [0.0; 4]);
     
-    if let WidgetType::Panel(panel) = &mut panel {
-        panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-        panel.set_color(PanelColor::Clear);
-        panel.set_new_background(BackgroundType::Scrolling(crate::game_data::types::UITextures::MirrorBackground));
+    let widget_window_manager = WidgetWindowManager::new(screen_data);
+    WidgetType::WidgetWindowManager(widget_window_manager)
 
-        let header = panel.add_text_display("Settings".to_string());
-        header.set_text_scale(TextSize::ExtraLarge);
-
-
-        // Back button
-        let button = panel.add_button();
-        button.add_left_click_event(RenderEvent::ChangeMenu(screen_data.get_current_menu()).wrap_into_event());
-        button.set_icon(crate::game_data::types::UITextures::XIcon);
-        button.set_text("Back".to_string());
-
-
-        panel.add_widget(TextInput::new_text_input(&Rc::new(RefCell::new("test".to_string()))).wrap_into_widget());
-
-
-  
-
-        panel.size();
-    }
-
-    return panel;
 
 }

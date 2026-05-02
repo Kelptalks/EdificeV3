@@ -10,11 +10,12 @@ Panel sections are to orginize scaling
 of widgets within a panel
 
 */
-pub struct PanelSection {
+pub struct PanelSection {    
     // Parent
     orientation: PanelOrientation,
     alignment: PanelAlignment,
-    
+    id: u32,
+
     // Self 
     pos: [f32; 4],
     scale: [f32; 2],
@@ -24,11 +25,12 @@ pub struct PanelSection {
 }
 
 impl PanelSection {
-    pub fn new(widget: WidgetType, orientation: PanelOrientation, alignment: PanelAlignment) -> PanelSection {
+    pub fn new(widget: WidgetType, orientation: PanelOrientation, alignment: PanelAlignment, id: u32) -> PanelSection {
         PanelSection {
             // Parent
             orientation: orientation,
             alignment: alignment,
+            id, 
 
             // Self
             pos: [0.0; 4],

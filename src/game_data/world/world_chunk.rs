@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, World, locations::world_area::WorldArea, player_data::player_data::PlayerData, screen::widget::world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod}, rendering_config, tile_map::TileMap}, texture_manager};
+use crate::game_data::{TextureManager, World, locations::world_area::WorldArea, player_data::{self, game_object::GameObjectType, player_data::PlayerData}, screen::widget::world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod}, rendering_config, tile_map::TileMap}, texture_manager};
 
 const CHUNK_SIZE: usize = 16;
 const CHUNK_AREA: usize = CHUNK_SIZE * CHUNK_SIZE;
@@ -13,10 +13,12 @@ pub struct WorldChunk {
     cords : [i16; 3],
     block_data : Box<[u16; CHUNK_VOLUME]>,
 
-
     // Cashed rendering
     dirty: bool,
     tile_map: TileMap,
+
+    // Game objects
+    game_objects: Vec<GameObjectType>,
 }
 
 impl WorldChunk {
@@ -27,7 +29,9 @@ impl WorldChunk {
             block_data : Box::new([0; CHUNK_VOLUME]),
 
             dirty: true,
-            tile_map: TileMap::new(Self::chunk_cords_to_world_cords(chunk_cords))
+            tile_map: TileMap::new(Self::chunk_cords_to_world_cords(chunk_cords)),
+
+            game_objects: Vec::new(),
         }
     }
 
@@ -134,6 +138,19 @@ impl WorldChunk {
     pub fn render(&self, texture_manager: &mut TextureManager, draw_block_scale: f32, draw_offset: [f32; 2]) {
 
         self.tile_map.render(texture_manager, draw_block_scale, draw_offset);
+    }
+
+    //=====================================
+    // Game Object Manamgnet
+    //=====================================
+
+    // Remove game objects that are not contained within the chunk
+    pub fn update_game_objects(&mut self, player_data: &PlayerData) {
+        
+        for game_object in &mut self.game_objects {
+            // let current_object = player_data.get_game_object();
+
+        }
     }
 
 }

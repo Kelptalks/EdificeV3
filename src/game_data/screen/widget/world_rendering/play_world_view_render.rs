@@ -115,6 +115,12 @@ impl PlayWorldViewRender {
     }
 
     //=====================================
+    // Tile Map Managment
+    //=====================================
+
+
+
+    //=====================================
     // Controls
     //=====================================
 
@@ -188,7 +194,10 @@ impl PlayWorldViewRender {
         let mut cords_offset = [0; 3];
 
         let iso_offset =
-            iso_cord_tool::ndi_screen_cords_to_iso_cords(self.ndc_tile_scale, self.camera_ndc_offset);
+            iso_cord_tool::ndi_screen_cords_to_iso_cords(
+                self.ndc_tile_scale, 
+                self.camera_ndc_offset
+            );
 
 
         cursor_scheduler.mod_cords(cords_offset);
@@ -255,12 +264,11 @@ impl PlayWorldViewRender {
         
     }
 
-
     //=====================================
     // Core Rendering
     //=====================================
 
-    pub fn render_left_triangle(&self, texture_manager: &mut TextureManager, flattened_iso_cords: &[i32; 2], tile: &CastedTile) {
+    fn render_left_triangle(&self, texture_manager: &mut TextureManager, flattened_iso_cords: &[i32; 2], tile: &CastedTile) {
         let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, *flattened_iso_cords);
         
         draw_cords[0] += self.ndc_draw_centering_offset[0];
@@ -281,7 +289,7 @@ impl PlayWorldViewRender {
         }
     }
 
-    pub fn render_right_triangle(&self, texture_manager: &mut TextureManager, flattened_iso_cords: &[i32; 2], tile: &CastedTile) {
+    fn render_right_triangle(&self, texture_manager: &mut TextureManager, flattened_iso_cords: &[i32; 2], tile: &CastedTile) {
         let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, *flattened_iso_cords);
         
         draw_cords[0] += self.ndc_draw_centering_offset[0];
@@ -302,7 +310,7 @@ impl PlayWorldViewRender {
         }
     }
 
-    pub fn render_enitity_at_world_pos(
+    fn render_enitity_at_world_pos(
         &self, 
         texture_manager: &mut TextureManager, 
         player_data: &PlayerData, 
@@ -386,7 +394,7 @@ impl PlayWorldViewRender {
         self.ndc_draw_centering_offset[1] = self.center_ndc[1] - self.ndc_block_scale;
     }
 
-    pub fn render_full_view(
+    fn render_full_view(
         &mut self,
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,

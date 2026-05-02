@@ -9,7 +9,7 @@ use crate::game_data::{
                 script_element_body_slot::ScriptElementBodySlot, 
                 scripting_elements::scripting_panel::ScriptingPanel, 
                 scripting_widget_type::{ScriptingElementWidget, ScriptingWidgetType}, 
-                var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, widget_properties::WidgetProperties, world_rendering::play_world_view_render::PlayWorldViewRender
+                var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, widget_properties::WidgetProperties, window_manager::widget_window_manager::WidgetWindowManager, world_rendering::play_world_view_render::PlayWorldViewRender
         }
     }, texture_manager::rect::Pos};
 
@@ -68,7 +68,7 @@ pub enum WidgetType {
     ScriptElementBodySlot(ScriptElementBodySlot),
 
     ScriptingPanel(ScriptingPanel),
-
+    WidgetWindowManager(WidgetWindowManager),
 }
 
 impl WidgetType {
@@ -133,6 +133,7 @@ macro_rules! widget_match {
             WidgetType::ConditionSlot(w)   => w.$method($($arg),*),
             WidgetType::ScriptingPanel(w)   => w.$method($($arg),*),
             WidgetType::ScriptElementBodySlot(w) => w.$method($($arg),*),
+            WidgetType::WidgetWindowManager(w) => w.$method($($arg),*),
             
         }
     };

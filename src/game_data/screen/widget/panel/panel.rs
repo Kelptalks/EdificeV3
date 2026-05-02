@@ -29,11 +29,11 @@ impl PanelOrientation {
 
 pub struct Panel {
     widget_properties: WidgetProperties,
-
     panel_texture: PanelTextureManager,
 
     // Sections
     sections: Vec<PanelSection>,
+    current_id: u32,
 
     // Appearance
     orientation: PanelOrientation,
@@ -62,8 +62,8 @@ impl Panel {
             widget_properties: wp,
 
             panel_texture: PanelTextureManager::new(),
-
             sections: Vec::new(),
+            current_id: 0,
 
             orientation: PanelOrientation::Horizontal,
             alignment: PanelAlignment::Center,
@@ -174,9 +174,17 @@ impl Panel {
         self.panel_texture.size(pos, scale);
     }
 
-    pub fn add_widget(&mut self, widget: WidgetType) {
-        let section = PanelSection::new(widget, self.orientation, self.alignment);
+    pub fn add_widget(&mut self, mut widget: WidgetType) -> u32 {
+        let id = self.current_id;
+        widget.set_parent_pos(self.widget_properties.pos);
+        widget.size();
+
+        let section = PanelSection::new(widget, self.orientation, self.alignment, id);
+        self.current_id += 1;
+
         self.sections.push(section);
+        id
+        
     }
 
     //=====================================
@@ -312,6 +320,15 @@ impl Panel {
             widgets.push(section.get_mut_widget());
         }
         widgets
+    }
+
+    pub fn get_mut_widget_with_id(&mut self, id: u32) -> Option<&mut WidgetType> {
+        if let Some(section) = self.sections.get_mut(id as usize) {
+            Some(section.get_mut_widget())
+        }
+        else {
+            None
+        }
     }
 }
 

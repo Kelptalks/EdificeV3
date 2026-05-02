@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, log_init, player_data::{cursor::{cursor::Cursor, cursor_event_scheduler::CursorEventScheduler}, drones::{drone_event_scheduler::DroneEventScheduler, drone_manager::{DroneId, DroneManager}}, locations::location_manager::{LocationId, LocationManager}, settings::settings_manager::SettingsManager}, screen::{menu_constructors::play_view_menu::new_play_view::PlayViewMode, widget::world_rendering::view_mode::ViewMode}, types::BlockTexture};
+use crate::game_data::{World, log_init, player_data::{cursor::{cursor::Cursor, cursor_event_scheduler::CursorEventScheduler}, drones::{drone_event_scheduler::DroneEventScheduler, drone_manager::{DroneId, DroneManager}}, locations::location_manager::{LocationId, LocationManager}, nature_manager::nature_manager::NatureManager, settings::settings_manager::SettingsManager}, screen::{menu_constructors::play_view_menu::new_play_view::PlayViewMode, widget::world_rendering::view_mode::ViewMode}, types::BlockTexture};
 
 
 /*
@@ -13,15 +13,15 @@ rendering.
 */
 pub struct PlayerData {
     // View
-    cursor: Cursor,
     view_mode: Option<ViewMode>,
 
     // World
     current_world: Arc<RwLock<World>>,
 
     // Game Object Managment
+    cursor_manager: Cursor,
     drone_manager: DroneManager,
-    // nature_manager: NatureManager,
+    nature_manager: NatureManager,
     location_manager: LocationManager,
 
 
@@ -36,12 +36,14 @@ impl PlayerData {
         PlayerData {
             // Player location
             view_mode: Some(ViewMode::Start()),
-            cursor: Cursor::new(),
             current_world: world,
 
             // Game object managment
+            cursor_manager: Cursor::new(),
             drone_manager: DroneManager::new(),
+            nature_manager: NatureManager::new(),
             location_manager: LocationManager::new(),
+            
             settings: SettingsManager::new(),
         }
     }
@@ -56,23 +58,23 @@ impl PlayerData {
         if let Some(mode) = self.view_mode {
             match mode {
                 ViewMode::Start() => {
-                    self.cursor.set_ghost_block(BlockTexture::DroneBotRight)
+                    self.cursor_manager.set_ghost_block(BlockTexture::DroneBotRight)
                 },
                 ViewMode::Drone(drone_id) => {
-                    self.cursor.set_ghost_block(BlockTexture::Air)
+                    self.cursor_manager.set_ghost_block(BlockTexture::Air)
                 },
                 ViewMode::Location(location_id) => {
-                    self.cursor.set_ghost_block(BlockTexture::Air)
+                    self.cursor_manager.set_ghost_block(BlockTexture::Air)
                 },
             }
         }
         else {
-            self.cursor.set_ghost_block(BlockTexture::Air);
+            self.cursor_manager.set_ghost_block(BlockTexture::Air);
         }
     }
 
     pub fn get_mut_cursor(&mut self) -> &mut Cursor {
-        &mut self.cursor
+        &mut self.cursor_manager
     }
 
     pub fn get_mut_drone_manager(&mut self) -> &mut DroneManager {
@@ -84,7 +86,7 @@ impl PlayerData {
     //=====================================
 
     pub fn get_cursor(&self) -> &Cursor {
-        &self.cursor
+        &self.cursor_manager
     }
 
     pub fn get_world_ref(&self) -> Arc<RwLock<World>> {
@@ -99,10 +101,12 @@ impl PlayerData {
         return &self.drone_manager
     }
 
-
+    //=================================================
+    // Game Object Scedulers
+    //=================================================
 
     pub fn get_cursor_event_scheduler(&self) -> CursorEventScheduler {
-        return CursorEventScheduler::new(self.cursor.clone());
+        return CursorEventScheduler::new(self.cursor_manager.clone());
     }
 
     pub fn get_drone_event_scheduler(&self, drone_id: DroneId) -> Option<DroneEventScheduler> {
@@ -114,8 +118,9 @@ impl PlayerData {
         }
     }
 
-
-    
+    //=================================================
+    // Game Object Scedulers
+    //=================================================
 
     pub fn get_view_mode(&self) -> Option<ViewMode> {
         return self.view_mode.clone();
