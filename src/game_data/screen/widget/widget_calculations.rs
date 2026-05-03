@@ -16,6 +16,15 @@ pub fn buffer_pos(pos: [f32; 4], buffer: [f32; 4]) -> [f32; 4] {
     ];
 }
 
+pub fn offset_buffer(buffer: &mut [f32; 4], offset: [f32; 2]) {
+    
+    buffer[0] += offset[0];
+    buffer[1] += offset[1];
+    buffer[2] -= offset[0];
+    buffer[3] -= offset[1];
+    
+}
+
 pub fn is_pos_contained_within_pos(box_pos: [f32; 4], internal_pos: [f32; 4]) -> bool {
     if box_pos[0] > internal_pos[0] {
         return false;

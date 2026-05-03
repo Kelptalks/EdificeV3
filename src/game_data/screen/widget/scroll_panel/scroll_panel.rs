@@ -1,6 +1,6 @@
 use std::{cell::{RefCell}, rc::Rc};
 
-use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::GameEvent, prelude::EventManager, widget_event_manager::widget_event_manager::WidgetEvent}, player_data::{self, player_data::PlayerData}, screen::{ScreenData, widget::{self, bar_button::bar_button::BarButtonWidget, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}, tik_manager::block_updates::plant_update};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::GameEvent, prelude::EventManager, widget_event_manager::widget_event_manager::WidgetEvent}, player_data::{self, player_data::PlayerData}, screen::{ScreenData, widget::{self, bar_button::bar_button::BarButtonWidget, widget::{Widget, WidgetType}, widget_calculations, widget_properties::{WidgetId, WidgetProperties}}}, tik_manager::block_updates::plant_update};
 
 pub struct ScrollPanel {
     widget_properties: WidgetProperties,
@@ -56,6 +56,15 @@ impl ScrollPanel {
 
     pub fn clear_widgets(&mut self) {
         self.widgets.clear();
+    }
+
+    pub fn find_widget_with_id(&mut self, id: WidgetId) -> Option<&mut WidgetType> {
+        for widget in &mut self.widgets {
+            if let Some(found) = widget.find_with_id(id) {
+                return Some(found);
+            }
+        }
+        None
     }
 
     pub fn set_prefered_scale(&mut self, scale: f32) {

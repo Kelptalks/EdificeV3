@@ -1,7 +1,7 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::{dispatch_event_manager::dispatch_event_manager::DispatchEvent, game_event_manager::{game_event_manager::{GameEvent, GameEventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::render_event_manager::RenderEvent, widget_event_manager::widget_event_manager::WidgetEvent, world_event_manager::world_event_manager::WorldEvent}, input_event_manager::input_event_manager::InputEvent}, player_data::player_data::PlayerData, screen::screen_mananager::ScreenManager};
+use crate::game_data::{World, game_event_manager::{debug_data::debug_data::DebugData, dispatch_event_manager::dispatch_event_manager::DispatchEvent, game_event_manager::{game_event_manager::{GameEvent, GameEventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::render_event_manager::RenderEvent, widget_event_manager::widget_event_manager::WidgetEvent, world_event_manager::world_event_manager::WorldEvent}, input_event_manager::input_event_manager::InputEvent}, player_data::player_data::PlayerData, screen::screen_mananager::ScreenManager};
 
 /*
 ###################
@@ -23,6 +23,9 @@ pub struct EventManager {
 
     // Event tools
     game_event_manager: GameEventManager,
+
+    // Debug 
+    debug_data: DebugData,
 }
 
 impl EventManager {
@@ -35,6 +38,8 @@ impl EventManager {
             // Event tools
             game_event_manager: GameEventManager::new(),
             
+            // Debug
+            debug_data: DebugData::new()
         }
     }
 
@@ -165,6 +170,14 @@ impl EventManager {
             let events = widget_event.execute_widget_event(&mut self.game_event_manager);
             self.add_events(&events);
         }
+    }
+
+    //=====================================
+    // Debug
+    //=====================================
+
+    pub fn get_mut_debug_data(&mut self) -> &mut DebugData {
+        &mut self.debug_data
     }
 
 }

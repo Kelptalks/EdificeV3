@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::widget_event_manager::widget_event_manager::WidgetEvent, player_data::player_data::PlayerData, screen::{text::render_string_at_ndc, widget::{button::button::Button, panel::panel::Panel, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}};
+use crate::game_data::{game_event_manager::widget_event_manager::widget_event_manager::WidgetEvent, player_data::player_data::PlayerData, screen::{text::render_string_at_ndc, widget::{button::button::Button, panel::panel::Panel, widget::{Widget, WidgetType}, widget_calculations, widget_properties::{WidgetId, WidgetProperties}}}};
 
 pub struct TabPanel {
     widget_properties: WidgetProperties,
@@ -49,6 +49,18 @@ impl TabPanel {
             WidgetEvent::SetUsizeEvent(self.current_panel_index.clone(), self.sub_panels.len() - 1).wrap_into_event());
 
         return button;
+    }
+
+    pub fn find_widget_with_id(&mut self, id: WidgetId) -> Option<&mut WidgetType> {
+        if let Some(found) = self.button_panel.find_widget_with_id(id) {
+            return Some(found);
+        }
+        for panel in &mut self.sub_panels {
+            if let Some(found) = panel.find_with_id(id) {
+                return Some(found);
+            }
+        }
+        None
     }
 
     pub fn set_button_panel_visiblity(&mut self, visible: bool) {

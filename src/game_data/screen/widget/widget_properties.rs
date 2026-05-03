@@ -1,6 +1,27 @@
 use crate::game_data::screen::{ScreenData, widget::{widget::{Widget, WidgetType}, widget_calculations}};
 
+
+
+use std::sync::atomic::{AtomicU32, Ordering};
+
+static NEXT_ID: AtomicU32 = AtomicU32::new(0);
+
+#[derive(Clone, Copy, PartialEq)]
+pub struct WidgetId {
+    id: u32,
+}
+
+impl WidgetId {
+    pub fn get_next_id() -> WidgetId {
+        WidgetId {
+            id: NEXT_ID.fetch_add(1, Ordering::Relaxed),
+        }
+    }
+}
+
 pub struct WidgetProperties {
+    id: WidgetId,
+
     // Parent rendering
     pub parent_pos: [f32; 4],
     pub parent_scale: [f32; 2],
@@ -19,8 +40,26 @@ pub struct WidgetProperties {
 
 impl WidgetProperties {
 
+    pub fn new_with_parent_props(parent_props: &WidgetProperties) -> WidgetProperties {
+        WidgetProperties {
+            id: WidgetId::get_next_id(),
+            
+            parent_pos: parent_props.pos,
+            parent_scale: parent_props.scale,
+            prefered_scale: [0.0; 2],
+            dirty: false,
+            external_buffers: [0.0; 4],
+            internal_buffers: [0.0; 4],
+            pos: [0.0; 4],
+            scale: [0.0; 2],
+            bounds: None,
+        }
+    }
+
     pub fn new_blank() -> WidgetProperties {
         WidgetProperties {
+            id: WidgetId::get_next_id(),
+            
             parent_pos: [0.0; 4],
             parent_scale: [0.0; 2],
             prefered_scale: [0.0; 2],
@@ -31,6 +70,10 @@ impl WidgetProperties {
             scale: [0.0; 2],
             bounds: None,
         }
+    }
+
+    pub fn get_id(&self) -> WidgetId {
+        self.id
     }
 
     pub fn mouse_on(&self, screen_data: &ScreenData) -> bool {

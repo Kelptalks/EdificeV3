@@ -1,7 +1,7 @@
 
 use image::{error, flat};
 
-use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::EventManager, prelude::Event}, player_data::player_data::PlayerData, screen::{ScreenData, screen_data, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::scroll_panel::ScrollPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::EventManager, prelude::Event}, player_data::player_data::PlayerData, screen::{ScreenData, screen_data, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::scroll_panel::ScrollPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, widget_properties::{self, WidgetId, WidgetProperties}}}};
 
 
 #[derive(Clone, Copy)]
@@ -50,6 +50,25 @@ impl Panel {
     //=====================================
     // Init
     //=====================================
+
+    pub fn new_with_parent_props(widget_properties: &WidgetProperties) -> Panel {
+        let mut wp = WidgetProperties::new_with_parent_props(widget_properties);
+
+        Panel {
+            widget_properties: wp,
+
+            panel_texture: PanelTextureManager::new(),
+            sections: Vec::new(),
+            current_id: 0,
+
+            orientation: PanelOrientation::Horizontal,
+            alignment: PanelAlignment::Center,
+            new_background: None,
+
+            events: Vec::new(),
+            mouse_on: false,
+        }
+    }
 
     pub fn new(parent_pos: [f32; 4], buffers: [f32; 4]) -> Panel {
         let mut wp = WidgetProperties::new_blank();
@@ -330,6 +349,16 @@ impl Panel {
             None
         }
     }
+
+    pub fn find_widget_with_id(&mut self, id: WidgetId) -> Option<&mut WidgetType> {   
+        for section in &mut self.sections {       
+            if let Some(found) = section.get_mut_widget().find_with_id(id) {
+                return Some(found);
+            }
+        }
+        None
+    }
+
 }
 
 

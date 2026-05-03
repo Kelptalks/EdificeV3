@@ -2,14 +2,14 @@ use crate::game_data::{
     TextureManager, game_event_manager::game_event_manager::EventManager, player_data::player_data::PlayerData, screen::{ScreenData,
         widget::{
             bar_button::bar_button::BarButtonWidget, button::button::Button, drone_programming::{
-                action_slot::ActionSlot, 
-                condition_slot::ConditionSlot, 
-                control_flow_slot::ControlFlowSlot, 
-                function_slot::FunctionSlot, 
-                script_element_body_slot::ScriptElementBodySlot, 
-                scripting_elements::scripting_panel::ScriptingPanel, 
-                scripting_widget_type::{ScriptingElementWidget, ScriptingWidgetType}, 
-                var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, widget_properties::WidgetProperties, window_manager::widget_window_manager::WidgetWindowManager, world_rendering::play_world_view_render::PlayWorldViewRender
+                action_slot::ActionSlot,
+                condition_slot::ConditionSlot,
+                control_flow_slot::ControlFlowSlot,
+                function_slot::FunctionSlot,
+                script_element_body_slot::ScriptElementBodySlot,
+                scripting_elements::scripting_panel::ScriptingPanel,
+                scripting_widget_type::{ScriptingElementWidget, ScriptingWidgetType},
+                var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, widget_properties::{WidgetId, WidgetProperties}, window_manager::{widget_window_manager::WidgetWindowManager, windows::window_type::WindowType}, world_rendering::play_world_view_render::PlayWorldViewRender
         }
     }, texture_manager::rect::Pos};
 
@@ -20,6 +20,7 @@ pub trait Widget {
     fn get_pos(&self) -> [f32; 4] { self.get_widget_properties().pos }
     fn get_scale(&self) -> [f32; 2] { self.get_widget_properties().scale }
     fn get_preffered_scale(&self) -> [f32; 2] { self.get_widget_properties().prefered_scale }
+    fn get_id(&self) -> WidgetId { self.get_widget_properties().get_id() }
 
     fn set_buffers(&mut self, pos: [f32; 4]) { self.get_mut_widget_properties().external_buffers = pos; }
     fn set_parent_pos(&mut self, pos: [f32; 4]) { self.get_mut_widget_properties().parent_pos = pos; }
@@ -69,6 +70,7 @@ pub enum WidgetType {
 
     ScriptingPanel(ScriptingPanel),
     WidgetWindowManager(WidgetWindowManager),
+    WindowType(WindowType)
 }
 
 impl WidgetType {
@@ -77,6 +79,18 @@ impl WidgetType {
         return WidgetType::Panel(Panel::new(parent_pos, buffers));
     }
 
+
+    pub fn find_with_id(&mut self, id: WidgetId) -> Option<&mut WidgetType> {
+        if self.get_id() == id {
+            return Some(self);
+        }
+        match self {
+            WidgetType::Panel(p)        => p.find_widget_with_id(id),
+            WidgetType::ScrollPanel(sp) => sp.find_widget_with_id(id),
+            WidgetType::TabPanel(tp)    => tp.find_widget_with_id(id),
+            _ => None,
+        }
+    }
 
     pub fn as_scripting_widget(&mut self) -> Option<ScriptingWidgetType> {
         match self {
@@ -134,6 +148,7 @@ macro_rules! widget_match {
             WidgetType::ScriptingPanel(w)   => w.$method($($arg),*),
             WidgetType::ScriptElementBodySlot(w) => w.$method($($arg),*),
             WidgetType::WidgetWindowManager(w) => w.$method($($arg),*),
+            WidgetType::WindowType(w) => w.$method($($arg),*),
             
         }
     };

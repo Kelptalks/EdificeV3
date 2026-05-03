@@ -14,7 +14,8 @@
       "Bash(wc -l \"C:\\\\Users\\\\Spencer\\\\EdificeV3/src\"/**/*.rs)",
       "Bash(cargo build:*)",
       "Bash(xargs grep *)",
-      "Bash(xargs ls *)"
+      "Bash(xargs ls *)",
+      "Bash(pip install *)"
     ]
   }
 }
