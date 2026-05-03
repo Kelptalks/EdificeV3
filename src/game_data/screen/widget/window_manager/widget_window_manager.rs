@@ -46,6 +46,10 @@ impl WidgetWindowManager {
         widget_props.scale = widget_calculations::pos_to_scale(widget_props.pos);
         widget_props.parent_scale = widget_calculations::pos_to_scale(widget_props.pos);
 
+
+        let mut play_view = PlayWorldViewRender::new(&widget_props);
+        play_view.set_prefered_size(1.0);
+
         WidgetWindowManager {
             widget_props: widget_props,
 
@@ -56,7 +60,7 @@ impl WidgetWindowManager {
             windows: HashMap::new(),
 
             next_window_id: 0,
-            play_view: PlayWorldViewRender::new(),
+            play_view: play_view,
         }
     }
 
@@ -132,8 +136,7 @@ impl Widget for WidgetWindowManager {
         self.size();
 
         // render play view / Background
-        let temp_background = UITextures::FaceBackground.wrap_into_texture();
-        texture_manager.render_texture(temp_background, self.widget_props.pos);
+        self.play_view.render(texture_manager, screen_data, game_event_manager, player_data);
 
 
         // render the windows
@@ -146,7 +149,6 @@ impl Widget for WidgetWindowManager {
         }
 
         // Menu 
-
         if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::F3){
             let window = DebugWin::new().wrap_into_window_type();
             self.new_window(window, "Debug");
@@ -158,9 +160,8 @@ impl Widget for WidgetWindowManager {
 
 
 
-        let debug_data = game_event_manager.get_mut_debug_data();
-        debug_data.clear_window_debug_data();
-        debug_data.add_window_debug_data(WindowDebugData::OpenWindows(self.windows.len()));
+        let debug_data = game_event_manager.get_mut_debug_data().get_window_debug_data();
+        debug_data.open_windows = self.windows.len();
 
         
 

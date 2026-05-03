@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::game_data::TextureManager;
+use crate::game_data::screen::widget::world_rendering::tile_map_manager::TileMapManager;
 use crate::game_data::{types::BlockTexture, world_chunk::WorldChunk};
 use crate::game_data::world::world_chunk::CHUNK_VOLUME;
 
@@ -147,15 +148,11 @@ impl World {
     // Single Block
     //=====================================
 
-    pub fn render_chunk(&mut self, texture_manager: &mut TextureManager, draw_block_scale: f32, draw_offset: [f32; 2], cords : [i16 ; 3]) {
+    pub fn update_chunk_rendering(&mut self, tile_map_manager: &mut TileMapManager, cords : [i16 ; 3]) {
         let chunk = self.get_chunk_at_chunk_cords_mut(cords);
-        if !chunk.is_dirty() {
-            chunk.render(texture_manager, draw_block_scale, draw_offset);
+        if chunk.is_dirty() {
+            chunk.ray_cast_tile_map(tile_map_manager);
         }
-        else {
-            chunk.ray_cast_tile_map();
-        }
-        
     }
 
 }

@@ -1,4 +1,4 @@
-use crate::game_data::{World, screen::widget::world_rendering::area_rendering_manager::ray_caster::ray_casting_config::RayCastingConfig, texture_manager::texture::Texture, types::{BlockTexture, BlockTriangle}};
+use crate::game_data::{World, screen::{iso_cord_tool, widget::world_rendering::area_rendering_manager::ray_caster::ray_casting_config::RayCastingConfig}, texture_manager::texture::Texture, types::{BlockTexture, BlockTriangle}};
 
 
 
@@ -123,6 +123,13 @@ impl CastedTriangle {
     pub fn get_first_solid_block_cords_struck(&self) -> [i32; 3] {
         return self.solid_block_cords_struck;
     }
+
+    pub fn get_struck_depth(&self) -> i32 {
+        iso_cord_tool::get_depth_from_world_cords(
+            self.get_first_solid_block_cords_struck()
+        )
+    }
+
 }
 
 

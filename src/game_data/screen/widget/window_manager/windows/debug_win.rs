@@ -3,6 +3,8 @@ use crate::game_data::{screen::{ui_elements::panel, widget::{panel::panel::Panel
 pub struct DebugWin {
     panel: Panel,
 
+
+
     scroll_panel_id: WidgetId
 }
 
@@ -10,12 +12,14 @@ impl DebugWin {
     pub fn new() -> DebugWin {
         let mut panel = Panel::new_blank();
 
+
+
         let scroll_panel = panel.add_scroll_panel();
         let scroll_panel_id = scroll_panel.get_id();
 
+
         DebugWin {
             panel,
-
             scroll_panel_id
         }
     }
@@ -45,12 +49,14 @@ impl Window for DebugWin {
         if let Some(scroll_panel) = self.panel.find_widget_with_id(self.scroll_panel_id) {
             if let WidgetType::ScrollPanel(scroll_panel) = scroll_panel {
                 scroll_panel.clear_widgets();
-                let debug_data = game_event_manager.get_mut_debug_data();
+                let debug_data = game_event_manager.get_mut_debug_data().get_rendering_debug_data();
 
-                for data in debug_data.get_window_debug_data() {
-                    let text_display = TextDisplay::new(data.to_string());
+                let strings = debug_data.to_string_vec();
+                for string in strings {
+                    let text_display = TextDisplay::new(string);
                     scroll_panel.add_widget(text_display.wrap_into_widget());
                 }
+                
             }
         }
         

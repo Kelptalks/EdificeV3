@@ -1,18 +1,39 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, hash_map};
 
 use crate::game_data::{TextureManager, World, locations::world_area::{self, WorldArea}, player_data::{self, player_data::PlayerData}, screen::{iso_cord_tool, renderer::casted_block_manager::casted_tile, widget::{prelude::play_world_view_config::PlayViewRenderingConfig, world_rendering::{area_rendering_manager::{self, area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::{self, LairBlockMod}, ray_caster::casted_tile::CastedTile}, rendering_config}}}, world_chunk::{self, WorldChunk}};
 
+
+use std::sync::atomic::{AtomicU32, Ordering};
+
+static NEXT_ID: AtomicU32 = AtomicU32::new(0);
+
+#[derive(Clone, Copy, PartialEq, Hash, Eq)]
+pub struct TileMapId {
+    id: u32,
+}
+
+impl TileMapId {
+    pub fn get_next_id() -> TileMapId {
+        TileMapId {
+            id: NEXT_ID.fetch_add(1, Ordering::Relaxed),
+        }
+    }
+}
+
+
 pub struct TileMap {
-    map_root_world_cords: [i32; 3], // Used to convert world cords to map index
+    id: TileMapId,
+    depth: i32, // Used to convert world cords to map index
     map: HashMap<[i32; 2], CastedTile>,
 }
 
 
 
 impl TileMap {
-    pub fn new(root_world_cords: [i32; 3]) -> TileMap {
+    pub fn new(depth: i32) -> TileMap {
         TileMap {
-            map_root_world_cords: root_world_cords,
+            id: TileMapId::get_next_id(),
+            depth: depth,
             map: HashMap::new(),
         }
     }
@@ -21,8 +42,19 @@ impl TileMap {
     // Getters / Setters
     //=====================================
 
+    pub fn get_id(&self) -> TileMapId {
+        self.id
+    }
+
+    pub fn get_tile_map(&self) -> &HashMap<[i32; 2], CastedTile> {
+        &self.map
+    }
+
     pub fn get_tile_with_flattened_cords(&self, iso_cords: &[i32; 2]) -> Option<&CastedTile> {
         self.map.get(iso_cords)
+    }
+    pub fn get_mut_tile_with_flattened_cords(&mut self, iso_cords: &[i32; 2]) -> Option<&mut CastedTile> {
+        self.map.get_mut(iso_cords)
     }
 
 
@@ -31,19 +63,18 @@ impl TileMap {
     }
     
 
-    pub fn get_tile_at_world_cords(&self, world_cords: &[i32; 3]) -> Option<&CastedTile> {
+    pub fn get_tile_at_area_cords(&self, world_cords: &[i32; 3]) -> Option<&CastedTile> {
         let flattened_iso_cords = iso_cord_tool::flatten_world_cords(*world_cords);
         self.get_tile_with_flattened_cords(&flattened_iso_cords)
     }
 
-    pub fn incert_tile_with_world_cords(&mut self, world_cords: [i32; 3], tile: CastedTile) {
+    pub fn incert_tile_with_area_cords(&mut self, world_cords: [i32; 3], tile: CastedTile) {
         let flattened_iso_cords = iso_cord_tool::flatten_world_cords(world_cords); 
         self.incert_tile_with_flattened_cords(flattened_iso_cords, tile);
     }
 
-    pub fn reset(&mut self, root_world_cords: [i32; 3]) {
-        self.map_root_world_cords = root_world_cords;
-
+    pub fn reset(&mut self, depth: i32) {
+        self.depth = depth;
         self.map.clear();
     }
 
@@ -66,8 +97,10 @@ impl TileMap {
 
         let tiles = area_rendering_manager.get_casted_tile_rays(world, &lair_block_mods);
         for tile in tiles {
-            let world_cords = tile.get_world_cords();
-            self.incert_tile_with_world_cords(world_cords, tile);
+            if tile.struck() {
+                let world_cords = tile.get_world_cords();
+                self.incert_tile_with_area_cords(world_cords, tile);
+            }
         }
     }
 
@@ -75,6 +108,6 @@ impl TileMap {
         for (key, tile) in self.map.iter() {
             tile.render(texture_manager, draw_block_scale, draw_offset);
         }
-    } 
+    }
 
 }

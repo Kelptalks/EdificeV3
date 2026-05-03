@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, World, locations::world_area::WorldArea, player_data::{self, game_object::GameObjectType, player_data::PlayerData}, screen::widget::world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod}, rendering_config, tile_map::TileMap}, texture_manager};
+use crate::game_data::{TextureManager, World, locations::world_area::WorldArea, player_data::{self, game_object::GameObjectType, player_data::PlayerData}, screen::{iso_cord_tool, widget::world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod}, rendering_config, tile_map::{TileMap, TileMapId}, tile_map_manager::{self, TileMapManager}}}, texture_manager};
 
 const CHUNK_SIZE: usize = 16;
 const CHUNK_AREA: usize = CHUNK_SIZE * CHUNK_SIZE;
@@ -15,7 +15,7 @@ pub struct WorldChunk {
 
     // Cashed rendering
     dirty: bool,
-    tile_map: TileMap,
+    tile_map_id: Option<TileMapId>,
 
     // Game objects
     game_objects: Vec<GameObjectType>,
@@ -29,7 +29,7 @@ impl WorldChunk {
             block_data : Box::new([0; CHUNK_VOLUME]),
 
             dirty: true,
-            tile_map: TileMap::new(Self::chunk_cords_to_world_cords(chunk_cords)),
+            tile_map_id: None,
 
             game_objects: Vec::new(),
         }
@@ -70,6 +70,16 @@ impl WorldChunk {
         let max_world_cords = [max_x, max_y, max_z];
 
         WorldArea::new_with_cords([min_world_cords, max_world_cords])
+    }
+
+    pub fn get_depth(&self) -> i32 {
+        let chunk_size = WorldChunk::get_chunk_size_i32();
+
+        let min_x = self.cords[0] as i32 * chunk_size;
+        let min_y = self.cords[1] as i32 * chunk_size;
+        let min_z = self.cords[2] as i32 * chunk_size;
+
+        iso_cord_tool::get_depth_from_world_cords([min_x, min_y, min_z])
     }
 
     //=====================================
@@ -119,25 +129,28 @@ impl WorldChunk {
         self.dirty
     }
 
-    pub fn ray_cast_tile_map(&mut self) { 
-        
+    pub fn ray_cast_tile_map(&mut self, tile_map_manager: &mut TileMapManager) { 
         // Create a temp world for rendering
         // Why : this allows the chunk to be modified without passing in world
         // Also the only data required for rendering the chunk is in the chunk itself
 
-        let mut temp_world = World::new();
-        temp_world.set_chunk_block_data(self.cords, self.block_data.clone());
+        if let Some(id) = self.tile_map_id {
+            if let Some(tile_map) = tile_map_manager.get_mut_tile_map(id) {
+                let mut temp_world = World::new();
+                temp_world.set_chunk_block_data(self.cords, self.block_data.clone());
 
-        let world_area = self.get_world_area();
-        
+                let world_area = self.get_world_area();
+                
 
-        self.tile_map.ray_cast_world_area(world_area, &temp_world);
-        self.dirty = false;
-    }
+                tile_map.ray_cast_world_area(world_area, &temp_world);
+                self.dirty = false;
+            }
+        }
+        else {
+            self.tile_map_id = Some(tile_map_manager.new_tile_map(self.get_depth()));
+        }
 
-    pub fn render(&self, texture_manager: &mut TextureManager, draw_block_scale: f32, draw_offset: [f32; 2]) {
 
-        self.tile_map.render(texture_manager, draw_block_scale, draw_offset);
     }
 
     //=====================================

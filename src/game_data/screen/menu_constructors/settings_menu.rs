@@ -9,8 +9,9 @@ use crate::game_data::{
 
 pub fn get_menu(screen_data: &ScreenData) -> WidgetType {
     
-    let widget_window_manager = WidgetWindowManager::new(screen_data);
-    WidgetType::WidgetWindowManager(widget_window_manager)
+    let panel = Panel::new_blank();
+
+    panel.wrap_into_widget()
 
 
 }

@@ -1,14 +1,15 @@
-use std::{cell::RefCell, collections::HashMap, ops::Index, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, ops::Index, rc::Rc, time::{Instant, SystemTime}};
 
 
 use crate::game_data::{
-    TextureManager, game_event_manager::player_data_event_manager::var_event_manager::var_events::VarEvents, locations::world_area::WorldArea, player_data::{self, cursor::{self, cursor::Cursor, cursor_event_scheduler::{self, CursorEventScheduler}}, drone_script::var::{game_vars::{dynamic_var::{self, DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}, drones::{drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, prim_actions::drone_world_actions::DroneWorldAction}, drone_event_scheduler}, player_data::PlayerData}, screen::{
-        ScreenData, input_data, iso_cord_tool, screen_data, widget::{button::button::Button, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot, play_world_view_config::PlayViewRenderingConfig}, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::{lair_block::LairBlockMod, lair_block_manager::LairBlockManager}, ray_caster::{casted_tile::CastedTile, casted_triangle::CastedTriangle, ray_casting_config::{self, RayCastingConfig}}}, rendering_config, tile_map::TileMap, view_mode::ViewMode}}
+    TextureManager, game_event_manager::{self, player_data_event_manager::var_event_manager::var_events::VarEvents}, locations::world_area::WorldArea, player_data::{self, cursor::{self, cursor::Cursor, cursor_event_scheduler::{self, CursorEventScheduler}}, drone_script::var::{game_vars::{dynamic_var::{self, DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}, drones::{drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, prim_actions::drone_world_actions::DroneWorldAction}, drone_event_scheduler}, player_data::PlayerData}, screen::{
+        ScreenData, input_data, iso_cord_tool, screen_data, widget::{button::button::Button, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot, play_world_view_config::PlayViewRenderingConfig}, widget::{Widget, WidgetType}, widget_calculations, widget_properties::{self, WidgetProperties}, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::{lair_block::LairBlockMod, lair_block_manager::LairBlockManager}, ray_caster::{casted_tile::CastedTile, casted_triangle::CastedTriangle, ray_casting_config::{self, RayCastingConfig}}}, rendering_config, tile_map::{TileMap, TileMapId}, tile_map_manager::TileMapManager, view_mode::ViewMode}}
     }, texture_manager::texture::Texture, tools::cords_tool
 };
 
 use crate::game_data::game_event_manager::prelude::*;
 
+/*
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
 enum ViewDirection {
@@ -52,6 +53,8 @@ impl ViewDirection {
     }
 }
 
+ */
+
 pub struct PlayWorldViewRender {
     widget_properties: WidgetProperties,
     overlay_panel: Panel,
@@ -63,9 +66,9 @@ pub struct PlayWorldViewRender {
 
     area_rendering_manager: AreaRenderingManager,
     lair_block_mods: Vec<LairBlockMod>,
+    tile_map_manager: TileMapManager,
     tile_map: TileMap,
 
-    camera_direction: ViewDirection,
 
     // Camera Motion
     camera_ndc_offset: [f32; 2],
@@ -75,15 +78,22 @@ pub struct PlayWorldViewRender {
     ndc_tile_scale: f32,
     ndc_tile_half_scale: f32,
     ndc_draw_centering_offset: [f32; 3],
+
+    // debug
+    entitys_drawn: u32,
 }
 
 impl PlayWorldViewRender {
     
-    pub fn new() -> PlayWorldViewRender {
+    pub fn new(parent_props: &WidgetProperties) -> PlayWorldViewRender {
 
-        let mut wp = WidgetProperties::new_blank();
+        let mut wp = WidgetProperties::new_with_parent_props(parent_props);
         wp.prefered_scale = [1.0; 2];
         wp.internal_buffers = [0.012; 4];
+
+
+        let tile_map_manager = TileMapManager::new();
+        let tile_map = TileMap::new(0);
 
         PlayWorldViewRender {
             widget_properties: wp,
@@ -95,30 +105,24 @@ impl PlayWorldViewRender {
 
             area_rendering_manager: AreaRenderingManager::new(),
             lair_block_mods: Vec::new(),
-            tile_map: TileMap::new([0; 3]), // Just set blank as they are reset every frame in render_view
-
-            camera_direction: ViewDirection::North,
-            
-
+            tile_map_manager: tile_map_manager, // Just set blank as they are reset every frame in render_view
+            tile_map,
 
             camera_ndc_offset: [0.0, 0.0],
 
-            ndc_block_scale: 0.0,
-            ndc_tile_scale: 0.0,
-            ndc_tile_half_scale: 0.0,
+            ndc_block_scale: 1.0,
+            ndc_tile_scale: 1.0,
+            ndc_tile_half_scale: 1.0,
             ndc_draw_centering_offset: [0.0; 3],
+
+            // debug
+            entitys_drawn: 0,
         }
     }
 
     pub fn wrap_into_widget(self) -> WidgetType {
         WidgetType::PlayWorldViewRender(self)
     }
-
-    //=====================================
-    // Tile Map Managment
-    //=====================================
-
-
 
     //=====================================
     // Controls
@@ -213,6 +217,8 @@ impl PlayWorldViewRender {
 
         let mut mouse_cords = screen_data.get_mouse_ndc();
 
+        
+
         mouse_cords[0] -= self.ndc_draw_centering_offset[0];
         mouse_cords[1] -= self.ndc_draw_centering_offset[1];
 
@@ -220,11 +226,14 @@ impl PlayWorldViewRender {
         mouse_cords[1] += self.camera_ndc_offset[1];
 
 
+
         let iso_mouse_cords = 
             iso_cord_tool::ndi_screen_cords_to_iso_cords(
                 self.ndc_block_scale, 
                 mouse_cords
             );
+
+        
 
         let tile_key = [
             iso_mouse_cords[0].round() as i32 - 1, 
@@ -242,7 +251,7 @@ impl PlayWorldViewRender {
             mouse_cords[1] + iso_offest[1],
         ];
 
-        let mouses_tile = self.tile_map.get_tile_with_flattened_cords(&tile_key);
+        let mouses_tile = self.tile_map_manager.get_tile_with_flattened_cords(&tile_key);
         
         if let Some(mouse_tile) = mouses_tile {
             
@@ -311,7 +320,7 @@ impl PlayWorldViewRender {
     }
 
     fn render_enitity_at_world_pos(
-        &self, 
+        &mut self, 
         texture_manager: &mut TextureManager, 
         player_data: &PlayerData, 
         world_pos: [f32; 3], 
@@ -347,7 +356,7 @@ impl PlayWorldViewRender {
                     flattened_cords[0] + x,
                     flattened_cords[1] + y,
                 ];
-                let tile = self.tile_map.get_tile_with_flattened_cords(&cords);
+                let tile = self.tile_map_manager.get_tile_with_flattened_cords(&cords);
                 
                 if let Some(tile) = tile {
                     let left_tile_world_cords = tile.get_left_triangle().get_first_solid_block_cords_struck();
@@ -360,15 +369,16 @@ impl PlayWorldViewRender {
 
                     
                     if re_render_left {
-                        self.render_left_triangle(texture_manager, &cords, tile);
+                        self.render_left_triangle(texture_manager, &cords, &tile);
                     }
                     if re_render_right {
-                        self.render_right_triangle(texture_manager, &cords, tile);
+                        self.render_right_triangle(texture_manager, &cords, &tile);
                     }
                 }
             }
         }
 
+        self.entitys_drawn += 1;
     }
 
     pub fn size_play_view(&mut self, cursor: &Cursor) {
@@ -433,7 +443,6 @@ impl PlayWorldViewRender {
 
 
         texture_manager.update_expander_cache(self.ndc_block_scale);
-
         if (cursor.get_zoom() * 2) > 16 {
             let chunk_cords = test_world_chunk.get_cords();
             for x in -2..2 {
@@ -445,23 +454,22 @@ impl PlayWorldViewRender {
                             chunk_cords[2] + z,
                         ];
 
-                        world.render_chunk(
-                            texture_manager, 
-                            self.ndc_block_scale, 
-                            draw_cords, 
+                        world.update_chunk_rendering(
+                            &mut self.tile_map_manager, 
                             chunk_index
                         );
                     }
                 }
 
             }
+            self.tile_map_manager.render(texture_manager, self.ndc_block_scale, draw_cords);
         }
         else {
-            // Cast the tiles and add them to the map
-            self.tile_map.reset(cursor.get_cords());
+            self.tile_map.reset(0);
             self.tile_map.ray_cast_world_area(world_area, &world);
             self.tile_map.render(texture_manager, self.ndc_block_scale, draw_cords);
         }
+        
     }
 
     //=====================================
@@ -508,6 +516,8 @@ impl Widget for PlayWorldViewRender {
         event_manager: &mut EventManager,
         player_data: &PlayerData,
     ) {
+        let start = Instant::now();
+
         // Render View
         self.render_full_view(texture_manager, screen_data, event_manager, &player_data);        
         self.lair_block_mods.clear();
@@ -602,5 +612,27 @@ impl Widget for PlayWorldViewRender {
             self.handle_camera_zooming(screen_data, event_manager, player_data);
             self.overlay_panel = Panel::new_blank();
         }
+        
+
+        let frame_time = start.elapsed().as_secs_f32() * 1000.0;
+
+        let debug = event_manager.get_mut_debug_data().get_rendering_debug_data();
+        debug.frame_time_ms = frame_time;
+        
+        debug.tiles_cashed = 0;
+        debug.tiles_rendered = 0;
+
+        debug.chunks_cashed = 0;
+        debug.chunks_rendered = 0;
+        
+        debug.total_lairs = self.tile_map_manager.get_lairs().len();
+
+        debug.entitys_drawn = self.entitys_drawn;
+        self.entitys_drawn = 0;
+
+        
     }
+
+
+    
 }

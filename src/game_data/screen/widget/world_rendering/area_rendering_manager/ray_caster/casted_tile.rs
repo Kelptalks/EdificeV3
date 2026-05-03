@@ -5,7 +5,7 @@ use crate::game_data::{
     }
 };
 
-
+#[derive(Clone)]
 pub struct CastedTile {
     start_cords: [i32; 3],
     area_cords: [i32; 3],
@@ -14,8 +14,22 @@ pub struct CastedTile {
     right_triangle: CastedTriangle,
 }
 
-
 impl CastedTile {
+    pub fn new_with_triangles(
+        left_triangle: CastedTriangle,
+        right_triangle: CastedTriangle,
+    ) -> CastedTile {
+        CastedTile {
+            // Input
+            start_cords: [0; 3],
+            area_cords: [0; 3],
+
+            // Output
+            left_triangle: left_triangle,
+            right_triangle: right_triangle,
+        }
+    }
+
     pub fn new(
         start_cords:[i32; 3], 
         area_cords: [i32; 3],
@@ -35,6 +49,14 @@ impl CastedTile {
     // Getters 
     //=====================================
 
+    pub fn struck(&self) -> bool {
+        self.left_triangle.has_struck_solid || self.right_triangle.has_struck_solid
+    }
+
+    pub fn both_struck(&self) -> bool {
+        self.left_triangle.has_struck_solid && self.right_triangle.has_struck_solid
+    }
+
     pub fn get_world_cords(&self) -> [i32; 3] {
         return self.start_cords
     }
@@ -50,6 +72,15 @@ impl CastedTile {
     pub fn get_right_triangle(&self) -> &CastedTriangle {
         &self.right_triangle
     }
+
+    pub fn set_left_triangle(&mut self, triangle: CastedTriangle) {
+        self.left_triangle = triangle;
+    }
+
+    pub fn set_right_triangle(&mut self, triangle: CastedTriangle) {
+        self.right_triangle = triangle;
+    }
+
 
 
     //=====================================
