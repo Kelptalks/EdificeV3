@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use miniquad::{GlContext, PassAction, RenderPass, RenderingBackend};
 
-use crate::game_data::{TextureManager, debuging::debug_data::DebugData, screen::renderer::{casted_block_manager::casted_chunk::CastedChunk, render_cache_manager::{canvas::Canvas, canvas_chunk::CanvasChunk, canvas_data::CanvasData}}};
+use crate::game_data::{TextureManager, screen::renderer::{casted_block_manager::casted_chunk::CastedChunk, render_cache_manager::{canvas::Canvas, canvas_chunk::CanvasChunk, canvas_data::CanvasData}}};
 
 pub struct RenderCacheManager {
     canvas: Canvas,
@@ -76,8 +76,5 @@ impl RenderCacheManager {
             
     }
 
-    pub fn collect_debug_data(&self, debug_data: &mut DebugData) {
-        self.canvas.collect_debug_data(debug_data);
-    }
 
 }

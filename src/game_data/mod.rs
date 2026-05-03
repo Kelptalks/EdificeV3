@@ -19,7 +19,5 @@ mod screen;
 
 mod tik_manager;
 
-mod debuging;
-
 mod types;
 mod tools;

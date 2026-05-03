@@ -6,7 +6,6 @@ use std::rc::Rc;
 use std::sync::{Arc, RwLock};
 use std::time::SystemTime;
 
-use crate::game_data::debuging::debug_data::DebugData;
 use crate::game_data::game_event_manager::game_event_manager::EventManager;
 use crate::game_data::player_data::player_data::PlayerData;
 use crate::game_data::{log_indent, log_init, log_unindent};
@@ -20,7 +19,6 @@ use crate::game_data::world_task_manager::world_task_manager::WorldTaskManager;
 
 pub struct GameData {
     // Other
-    debug_data: DebugData,
     event_manager: EventManager,
     player_data: PlayerData,
 
@@ -60,7 +58,6 @@ impl GameData {
 
         Self {
             // Other
-            debug_data: DebugData::new(),
             event_manager: EventManager::new(),
             player_data: PlayerData::new(world.clone()),
 
@@ -182,7 +179,6 @@ impl GameData {
         //self.tik_manager.update_tik_manager(&mut self.world_task_manager, &mut self.drone_rendering_task_manager);
 
         let screen_mananager = &mut self.screen_manager;
-        screen_mananager.collect_debug_data(&mut self.debug_data);
         
         // Test sprite sheet
         // self.texture_manager.test_sprites(ctx);
@@ -217,9 +213,6 @@ impl GameData {
         self.event_manager.execute_widget_events();
 
         // Update debug data
-        self.debug_data.set_frame_time(frame_duration_ms as u32);
-        self.debug_data.render_debug_data(&mut self.texture_manager, screen_mananager.get_screen_data());
-        self.tik_manager.update_debug_data(&mut self.debug_data);
         self.texture_manager.get_texture_renderer().flush(ctx);
 
         // Clear inputs for this frame

@@ -2,7 +2,7 @@ use image::{ImageBuffer, RgbaImage};
 use miniquad::{GlContext, RenderingBackend, TextureId};
 use std::collections::HashMap;
 
-use crate::game_data::{debuging::debug_data::DebugData, screen::renderer::render_cache_manager::{canvas_chunk::CanvasChunk, canvas_data::CanvasData}};
+use crate::game_data::{screen::renderer::render_cache_manager::{canvas_chunk::CanvasChunk, canvas_data::CanvasData}};
 
 pub struct Canvas {
     texture_id: TextureId,
@@ -158,14 +158,6 @@ impl Canvas {
 
     pub fn get_canvas_data(&self) -> &CanvasData {
         return &self.canvas_data;
-    }
-
-    // ===================
-    // Debug Data
-    // ===================
-    pub fn collect_debug_data(&self, debug_data: &mut DebugData) {
-        debug_data.set_total_cached_chunks(self.canvas_map.len() as u32);
-        debug_data.set_max_cached_chunks(self.max_tiles);
     }
 
 }

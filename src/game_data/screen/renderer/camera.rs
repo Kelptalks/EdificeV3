@@ -2,7 +2,7 @@ use std::{collections::HashSet, sync::{Arc, RwLock, TryLockError}, time::SystemT
 
 use miniquad::{GlContext, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::DebugData, log_init, screen::{camera_data::CameraData, iso_cord_tool, renderer::{render_cache_manager::render_cashe_manager::RenderCacheManager, thread_manager::raycast_thread_pool::RaycastThreadPool}}, types::UITextures};
+use crate::game_data::{TextureManager, World, log_init, screen::{camera_data::CameraData, iso_cord_tool, renderer::{render_cache_manager::render_cashe_manager::RenderCacheManager, thread_manager::raycast_thread_pool::RaycastThreadPool}}, types::UITextures};
 use super::casted_block_manager::casted_block_manager::CastedChunkManager;
 
 pub struct Camera
@@ -433,16 +433,5 @@ impl Camera {
     }
 
 
-    //=====================================
-    // Debugging
-    //=====================================
-
-    pub fn collect_debug_data(&self, debug_data: &mut DebugData) { 
-        debug_data.set_frame_time(self.camera_data.get_frame_time());
-        debug_data.set_frame_count(self.camera_data.get_frame_count());
-        debug_data.set_total_tiles_raycasted(self.tiles_raycasted_this_frame);
-
-        self.render_cache_manager.as_ref().unwrap().collect_debug_data(debug_data);
-    }
     
 }

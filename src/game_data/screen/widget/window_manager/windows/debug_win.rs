@@ -1,4 +1,4 @@
-use crate::game_data::{debuging::debug_data, screen::{ui_elements::panel, widget::{panel::panel::Panel, prelude::TabPanel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_properties::WidgetId, window_manager::windows::window_type::Window}}};
+use crate::game_data::{screen::{ui_elements::panel, widget::{panel::panel::Panel, prelude::TabPanel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_properties::WidgetId, window_manager::windows::window_type::Window}}};
 
 pub struct DebugWin {
     panel: Panel,
@@ -49,7 +49,6 @@ impl Window for DebugWin {
 
                 for data in debug_data.get_window_debug_data() {
                     let text_display = TextDisplay::new(data.to_string());
-
                     scroll_panel.add_widget(text_display.wrap_into_widget());
                 }
             }

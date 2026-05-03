@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, debuging::debug_data::{DebugData}, game_event_manager::{game_event_manager::EventManager, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{Camera, ScreenData, camera_controls, camera_data::CameraData, camera_ui::camera_ui_manager::CameraUIManager, input_data::Input, renderer::casted_block_manager::casted_tile::CastedTile, screen_data::CurrentMenu, screen_task_manager::rendering_task_manager::RenderingTaskManager, widget::widget::{Widget, WidgetType}}, tik_manager::tik_manager::TikManager, world_task_manager::world_task_manager::WorldTaskManager};
+use crate::game_data::{TextureManager, World, game_event_manager::{game_event_manager::EventManager, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{Camera, ScreenData, camera_controls, camera_data::CameraData, camera_ui::camera_ui_manager::CameraUIManager, input_data::Input, renderer::casted_block_manager::casted_tile::CastedTile, screen_data::CurrentMenu, screen_task_manager::rendering_task_manager::RenderingTaskManager, widget::widget::{Widget, WidgetType}}, tik_manager::tik_manager::TikManager, world_task_manager::world_task_manager::WorldTaskManager};
 
 
 
@@ -331,15 +331,5 @@ impl ScreenManager {
         return casted_tile;
     }
 
-    //=====================================
-    // Debugging
-    //=====================================
-
-    pub fn collect_debug_data(&self, debug_data: &mut DebugData) { 
-        self.camera.collect_debug_data(debug_data);
-        // self.play_view.collect_debug_data(debug_data);
-
-        debug_data.set_mouse_tile_cords(self.screen_data.get_mouse_iso_world_cords());
-    }
 
 }
