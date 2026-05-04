@@ -473,8 +473,12 @@ impl PlayWorldViewRender {
     }
 
     //=====================================
-    // View Mode Rendering
+    // Getters
     //=====================================
+
+    pub fn get_tile_map_manager(&mut self) -> &mut TileMapManager {
+        &mut self.tile_map_manager
+    }
 
 
     

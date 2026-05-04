@@ -148,6 +148,9 @@ impl WorldChunk {
         }
         else {
             self.tile_map_id = Some(tile_map_manager.new_tile_map(self.get_depth()));
+            if let Some(new_tile_map) = tile_map_manager.get_mut_tile_map(self.tile_map_id.unwrap()) {
+                new_tile_map.cashe();
+            }
         }
 
 

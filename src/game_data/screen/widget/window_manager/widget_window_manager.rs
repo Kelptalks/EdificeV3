@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use miniquad::window;
 use mlua::Debug;
 
-use crate::game_data::{game_event_manager::debug_data::window_debug_data::WindowDebugData, screen::{ScreenData, screen_data, widget::{panel::panel::Panel, prelude::PlayWorldViewRender, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties, window_manager::{widget_window_manager, window::WidgetWindow, windows::{debug_win::DebugWin, window_type::{Window, WindowType}}}}}, types::UITextures};
+use crate::game_data::{game_event_manager::debug_data::window_debug_data::WindowDebugData, screen::{ScreenData, menu_constructors::play_view_menu::new_play_view::PlayViewConstructionManager, screen_data, widget::{panel::panel::Panel, prelude::PlayWorldViewRender, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties, window_manager::{widget_window_manager, window::WidgetWindow, windows::{debug_win::DebugWin, window_type::{Window, WindowType}}}, world_rendering::tile_map_manager::TileMapManager}}, types::UITextures};
 
 
 #[derive(Hash, PartialEq, Eq)]
@@ -68,6 +68,10 @@ impl WidgetWindowManager {
         let new_id = WidgetWindowId::new(self.next_window_id);
         self.next_window_id+=1;
         new_id
+    }
+
+    pub fn get_tile_map_manager(&mut self) -> &mut TileMapManager {
+        self.play_view.get_tile_map_manager()
     }
 
 

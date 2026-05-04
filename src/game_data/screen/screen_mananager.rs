@@ -2,7 +2,7 @@ use std::sync::{Arc, RwLock};
 
 use miniquad::{window, GlContext, KeyCode, KeyMods, MouseButton, RenderingBackend};
 
-use crate::game_data::{TextureManager, World, game_event_manager::{game_event_manager::EventManager, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{Camera, ScreenData, camera_controls, camera_data::CameraData, camera_ui::camera_ui_manager::CameraUIManager, input_data::Input, renderer::casted_block_manager::casted_tile::CastedTile, screen_data::CurrentMenu, screen_task_manager::rendering_task_manager::RenderingTaskManager, widget::widget::{Widget, WidgetType}}, tik_manager::tik_manager::TikManager, world_task_manager::world_task_manager::WorldTaskManager};
+use crate::game_data::{TextureManager, World, game_event_manager::{game_event_manager::EventManager, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{Camera, ScreenData, camera_controls, camera_data::CameraData, camera_ui::camera_ui_manager::CameraUIManager, input_data::Input, renderer::casted_block_manager::casted_tile::CastedTile, screen_data::CurrentMenu, screen_task_manager::rendering_task_manager::RenderingTaskManager, widget::{widget::{Widget, WidgetType}, world_rendering::tile_map_manager::TileMapManager}}, tik_manager::tik_manager::TikManager, world_task_manager::world_task_manager::WorldTaskManager};
 
 
 
@@ -48,6 +48,7 @@ impl ScreenManager {
         
         return  new_screen;
     }
+
 
     //=====================================
     // Init functions
@@ -268,9 +269,9 @@ impl ScreenManager {
         }
     }
 
-//=====================================
-// Getters / Setters
- //=====================================
+    //=====================================
+    // Getters / Setters
+    //=====================================
 
     pub fn set_menu_panel(&mut self, panel: WidgetType) {
         self.menu_panels.clear();
@@ -310,6 +311,22 @@ impl ScreenManager {
         return &mut self.screen_data;
     }
 
+    pub fn get_mut_tile_map_manager(&mut self) -> Option<&mut TileMapManager> {
+        match self.screen_data.get_current_menu() {
+            CurrentMenu::PlayView => {
+                if let WidgetType::WidgetWindowManager(window_manager) = &mut self.menu_panels[0] {
+                    Some(window_manager.get_tile_map_manager())
+                }
+                else {
+                    eprintln!("Missing window manager from play view");
+                    None
+                }
+            },
+            _ => {
+                None
+            },
+        }
+    }
 
     //=====================================
     // Mouse / Control handling

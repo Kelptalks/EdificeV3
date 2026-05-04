@@ -22,11 +22,14 @@ unique optimizations that are perfect for this type of game.
     - Ray casting returns an array of all the textures intercepted by the ray. Rays stop only once they have hit a solid block. And return a Vec of all the translucent textures they hit on the way to that block.  
 
     ***Render Cashing***
+    - Tile Map: A tile map is a flattened collection of casted tiles.
 
-    - Tile Map
-
+    - Tile Manager: Manages the flatting of a collection of tile maps. The flattened map contains only the casted tile that hit a solid block of the highst depth. The flattend map is updated when a tile map lair is dirtyed. 
+    
 
 - **Widget System:** 
+
+
 
 - **World Storage:** 3D chunk based world storage where coordinates to these chunks are packed into a u64 key.
 

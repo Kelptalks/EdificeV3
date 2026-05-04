@@ -25,6 +25,9 @@ pub struct TileMap {
     id: TileMapId,
     depth: i32, // Used to convert world cords to map index
     map: HashMap<[i32; 2], CastedTile>,
+
+    is_cashed: bool,
+    is_cashe_dirty: bool,
 }
 
 
@@ -35,7 +38,22 @@ impl TileMap {
             id: TileMapId::get_next_id(),
             depth: depth,
             map: HashMap::new(),
+            
+            is_cashed: false,
+            is_cashe_dirty: true,
         }
+    }
+
+    pub fn is_cashed(&self) -> bool{
+        self.is_cashed
+    }
+
+    pub fn cashe(&mut self) {
+        self.is_cashed = true;
+    }
+
+    pub fn is_cashe_dirty(&self) -> bool {
+        self.is_cashe_dirty
     }
 
     //=====================================
@@ -109,5 +127,11 @@ impl TileMap {
             tile.render(texture_manager, draw_block_scale, draw_offset);
         }
     }
+
+    //=====================================
+    // 
+    //=====================================
+
+    
 
 }

@@ -212,8 +212,15 @@ impl GameData {
         self.event_manager.execute_render_events(screen_mananager, &self.player_data);
         self.event_manager.execute_widget_events();
 
-        // Update debug data
-        self.texture_manager.get_texture_renderer().flush(ctx);
+        
+        if let Some(map_manager) = screen_mananager.get_mut_tile_map_manager() {
+            map_manager.get_texture_cashe_manager().flush(
+                self.texture_manager.get_texture_renderer(),                
+                ctx
+            );
+        } 
+        
+        self.texture_manager.flush(ctx);
 
         // Clear inputs for this frame
         self.screen_manager.get_mut_screen_data().clear_inputs();

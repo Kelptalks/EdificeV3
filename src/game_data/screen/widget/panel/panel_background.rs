@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use crate::game_data::{TextureManager, screen::widget::widget_calculations, texture_manager::rect::Pos, types::UITextures};
+use crate::game_data::{TextureManager, screen::widget::widget_calculations, types::UITextures};
 
 pub enum BackgroundType {
     Static(UITextures),

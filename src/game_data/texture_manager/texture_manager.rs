@@ -1,5 +1,12 @@
 
-use crate::game_data::{texture_manager::{texture::Texture, texture_atlas::{self, TextureAtlas}, texture_renderer::TextureRenderingManager}, types::{BlockShader, BlockTexture, BlockTriangle, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
+use crate::game_data::{
+    screen::widget::world_rendering::{
+        tile_map::TileMapId, 
+        tile_map_manager::{self, TileMapManager}
+    }, 
+    texture_manager::{
+        atlas::texture_atlas::TextureAtlas, 
+        texture::Texture, texture_renderer::TextureRenderingManager}, types::{BlockShader, BlockTexture, BlockTriangle, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
 use miniquad::*;
 
 // Expander tuning constants - adjust these to control gap prevention
@@ -22,6 +29,7 @@ pub struct TextureManager {
     texture_renderer : Option<TextureRenderingManager>,
     texture_atlas : Option<TextureAtlas>,
 
+
     // Expander caching for performance
     cached_scale: f32,
     cached_expander: f32,
@@ -38,6 +46,7 @@ impl TextureManager {
             textures_initialized : false,
             texture_renderer : None,
             texture_atlas : None,
+
             cached_scale: 0.0,
             cached_expander: 0.0,
         }
@@ -394,6 +403,16 @@ impl TextureManager {
         self.get_texture_renderer().add_quad(pos, uv);
     }
 
+
+
+    //=====================================
+    // Sprite Cashing
+    //=====================================
+
+    pub fn flush(&mut self, ctx : &mut GlContext) {
+        self.get_texture_renderer().flush(ctx);
+        
+    }
 
     //==========
     // Testing

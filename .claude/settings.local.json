@@ -15,7 +15,10 @@
       "Bash(cargo build:*)",
       "Bash(xargs grep *)",
       "Bash(xargs ls *)",
-      "Bash(pip install *)"
+      "Bash(pip install *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Spencer\\\\EdificeV3\\\\game_data\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)"
     ]
   }
 }

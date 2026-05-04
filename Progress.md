@@ -15,7 +15,7 @@ This is where I track progress through time worked and other metrics
 - 1/5/25 = 3801
 
 **Notes:**
-***Additions***
+
 + Cashed rendering system
 + World customazation menu and other UI elements
 + Drones with lua controls
@@ -37,7 +37,6 @@ This is where I track progress through time worked and other metrics
 
 **Notes:**
 
-***Additions***
 + Finished part 1 of devblog
 + Drone tools, crafting, and inventorys
 
@@ -50,7 +49,6 @@ This is where I track progress through time worked and other metrics
 
 **Notes:**
 
-***Additions***
 + Progress Tracker
 
 ---------------------------------------------------------------
@@ -66,7 +64,6 @@ This is where I track progress through time worked and other metrics
 
 **Notes:**
 
-***Additions***
 + Tik speed controls
 + Buttons for rebuilding lua scripts and resetting the world for testing
 
@@ -87,7 +84,6 @@ This is where I track progress through time worked and other metrics
 
 **Notes:**
 
-***Additions***
 + Drone tree chopping script
 + Finished Part 2 Of devblog
 + Added level menu system
@@ -109,7 +105,6 @@ This is where I track progress through time worked and other metrics
 
 **Notes:**
 
-***Additions***
 + Lower due to pet sitting at moms house
 + Added block update system for leaf decay and grass spreading
 + Completed quarry scripts
@@ -133,7 +128,6 @@ This is where I track progress through time worked and other metrics
 
 **Notes:**
 
-***Additions***
 + Started on Player View Camera
     + Basic World Rendering
     + World building crosshair
@@ -155,7 +149,6 @@ in
 
 **Notes:**
 
-***Additions***
 + Area selection
 + Area selcetion rendering
 
@@ -173,7 +166,6 @@ in
 
 **Notes:**
 
-***Additions***
 + GUI Work
 + Player data 
 
@@ -198,7 +190,6 @@ in
 
 **Notes:**
 
-***Additions***
 + New Widget System
 
 ---------------------------------------------------------------
@@ -221,7 +212,6 @@ in
 
 **Notes:**
 
-***Additions***
 + Variable Widget System for creating ui elements to support drone programming 
 + Many improvments to game event manager and widget input handling
 
@@ -243,8 +233,6 @@ in
 
 **Notes:**
 
-
-***Additions***
 + Controls for manging player locations and drones
 + Started on raytraced play_view
 
@@ -268,7 +256,6 @@ in
 
 **Notes:**
 
-***Additions***
 + Play View Rework 
 + Rendering Config  
 + Drone Actions
@@ -289,7 +276,6 @@ in
 
 **Notes:**
 
-***Additions***
 + Drone Pathing
 + World Lair Rendereing System
 
@@ -313,7 +299,6 @@ in
 
 **Notes:**
 
-***Additions***
 + Scipting System 
 + Script building system
 + Many Icon Improvments
@@ -336,15 +321,14 @@ in
 
 **Notes:**
 
-***Additions***
 + Script AST and Drone Execution
 + Location Tools
 + Var improvments like started migration to ID usage instead of refcells directly 
 
 ---------------------------------------------------------------
-## Week NUM
+## Week 17
 
-**Hours: 18**
+**Hours: 19**
     4/26/26: 1
     4/27/26: 8
     4/28/26: 3
@@ -357,15 +341,37 @@ in
 
 **Notes:**
 
-***Additions***
 + Drone ID System with events
 
 + Rendering improvments
-    
+
     - Tile Map system
-        - Lets me get mouse block world cord
-        - Lets me render entitiy's that are obscured with blocks
-        - Lets me cashe chunk ray_casting 
+        - get mouse block world cord
+        - render entitiy's that are obscured with blocks
+        - cashe chunk tilemap
+
+
+
+
+---------------------------------------------------------------
+## Week NUM
+
+**Hours: 6.5**
+    5/3/26: 6.5
+
+**Lines**
+    5/3/26: 24383
+
+**Notes:**
+
+- Window 
+    - Get widget with id
+    - Draggable windows
+    - Debug window and data
+
+
+- TileMapMangement system
+    - Flatting of of a collection of tile maps
 
     
     
