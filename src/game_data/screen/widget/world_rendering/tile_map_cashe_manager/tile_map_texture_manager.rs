@@ -33,7 +33,7 @@ impl TileMapTextureCasher {
         map: &mut TileMap
     ) {
         if let Some(texture) = self.textures.get(&map.get_id()) {
-            
+                
 
 
 

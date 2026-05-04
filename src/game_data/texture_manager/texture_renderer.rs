@@ -1,6 +1,8 @@
 
 use miniquad::*;
 
+use crate::game_data::texture_manager::rendering_managager::rendering_batch::RenderBatch;
+
 
 // Static vars
 const MAX_QUADS_PER_BATCH: usize = 500_000;
@@ -286,6 +288,36 @@ impl TextureRenderingManager {
         // Clear for next frame
         self.vertices.clear();
         self.indices.clear();
+    }
+
+    pub fn flush_batch(&mut self, ctx: &mut GlContext, batch: &mut RenderBatch) {
+        if batch.vertices.is_empty() {
+            return;
+        }
+
+        // Upload batch data to GPU buffers
+        ctx.buffer_update(self.vertex_buffer, BufferSource::slice(&batch.vertices));
+        ctx.buffer_update(self.index_buffer, BufferSource::slice(&batch.indices));
+
+        let bindings = Bindings {
+            vertex_buffers: vec![self.vertex_buffer],
+            index_buffer: self.index_buffer,
+            images: vec![batch.src_texture],
+        };
+
+        // Select pipeline based on batch's alpha
+        if batch.alpha == 1.0 {
+            ctx.apply_pipeline(&self.opaque_pipeline);
+            ctx.apply_bindings(&bindings);
+        } else {
+            ctx.apply_pipeline(&self.translucent_pipeline);
+            ctx.apply_bindings(&bindings);
+            ctx.apply_uniforms(UniformsSource::table(&Uniforms { alpha: batch.alpha }));
+        }
+
+        ctx.draw(0, batch.indices.len() as i32, 1);
+
+        batch.clear();
     }
 
 }

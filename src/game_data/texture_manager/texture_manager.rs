@@ -5,8 +5,7 @@ use crate::game_data::{
         tile_map_manager::{self, TileMapManager}
     }, 
     texture_manager::{
-        atlas::texture_atlas::TextureAtlas, 
-        texture::Texture, texture_renderer::TextureRenderingManager}, types::{BlockShader, BlockTexture, BlockTriangle, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
+        atlas::texture_atlas::TextureAtlas, rendering_managager::rendering_batch::RenderBatch, texture::Texture, texture_renderer::TextureRenderingManager}, types::{BlockShader, BlockTexture, BlockTriangle, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
 use miniquad::*;
 
 // Expander tuning constants - adjust these to control gap prevention
@@ -33,6 +32,8 @@ pub struct TextureManager {
     // Expander caching for performance
     cached_scale: f32,
     cached_expander: f32,
+
+    render_batches: Vec<RenderBatch>,
 }
 
 impl TextureManager {
@@ -49,6 +50,8 @@ impl TextureManager {
 
             cached_scale: 0.0,
             cached_expander: 0.0,
+
+            render_batches: Vec::new(),
         }
     }
 
@@ -177,6 +180,11 @@ impl TextureManager {
         }
     }
 
+    pub fn render_texture_to_batch(&mut self, batch: &mut RenderBatch, texture: Texture, pos : [f32; 4]) {
+        let uv = self.get_texture_uv(texture);
+        batch.add_quad(pos, uv);
+    }
+
     pub fn render_expanded_texture(&mut self, texture: Texture, pos : [f32; 4]) {
         let uv = self.get_texture_uv(texture);
         self.get_texture_renderer().add_quad(pos, uv);
@@ -213,9 +221,6 @@ impl TextureManager {
         }
     }
 
- 
-
-
     pub fn render_texture_within_pos_option(&mut self, texture: Texture, draw_pos: [f32; 4], bounds_pos: Option<[f32; 4]>) {
         if let Some(bounds) = bounds_pos {
             self.render_texture_within_pos(texture, draw_pos, bounds);
@@ -224,10 +229,6 @@ impl TextureManager {
             self.render_texture(texture, draw_pos);
         }
     }
-
-    
-
-
     
     //=================================================
     // Block Rendering
