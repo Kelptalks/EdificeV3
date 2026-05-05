@@ -205,7 +205,7 @@ impl Drone {
     pub fn add_action(&mut self, action: impl Into<DroneAction>) {
         let mut plan = DronePlan::new();
         plan.add_action(action.into());
-        self.drone_plans.push(plan);
+        self.drone_plans.insert(0, plan);
     }
 
     pub fn add_plan(&mut self, plan: DronePlan) {

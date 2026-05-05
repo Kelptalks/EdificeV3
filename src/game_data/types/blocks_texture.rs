@@ -176,7 +176,7 @@ pub struct BlockProperties {
 }
 
 static BLOCK_PROPERTIES: [BlockProperties; 400] = [
-    BlockProperties { name: "Air",                 transparent: true,  translucent: true,  solid: false, hardness: 0,   friction: 1,   item: DroneItem::Ash,          item_quantity: 1   },
+    BlockProperties { name: "Air",                 transparent: true,  translucent: true,  solid: false, hardness: 0,   friction: 1,   item: DroneItem::Ash,         item_quantity: 0   },
     BlockProperties { name: "Stone",              transparent: false, translucent: false, solid: true,  hardness: 100, friction: 5,   item: DroneItem::Stone,        item_quantity: 1   },
     BlockProperties { name: "Grass",              transparent: false, translucent: false, solid: true,  hardness: 50,  friction: 30,  item: DroneItem::PlantMatter,  item_quantity: 2   },
     BlockProperties { name: "Dirt",               transparent: false, translucent: false, solid: true,  hardness: 40,  friction: 20,  item: DroneItem::Dirt,         item_quantity: 1   },

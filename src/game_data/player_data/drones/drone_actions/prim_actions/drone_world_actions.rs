@@ -158,9 +158,11 @@ fn move_drone(drone: &mut Drone, world: &World, relative_cords: [i32; 3], event_
             
             
 
-
+            
             drone.mod_cords(relative_cords);
-            drone.get_mut_inventory().add_item(block_type_of_new_location.item(), block_type_of_new_location.item_quantity() as i32);
+            if !block_type_of_new_location.is_transparent() {
+                drone.add_action(DroneWorldAction::MineBlock([0; 3]));
+            }
 
 
             

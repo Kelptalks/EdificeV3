@@ -35,7 +35,10 @@ impl Widget for WindowType {
     }
 
     fn size(&mut self) {
-        self.get_mut_panel().size();
+        let panel = self.get_mut_panel();
+        panel.size();
+        // panel.set_parent_pos(pos);
+
     }
 
     fn render(

@@ -1,3 +1,5 @@
+use std::fmt::format;
+
 use miniquad::StencilOp;
 
 use crate::game_data::{player_data::{drone_script::var::{game_vars::game_var_type::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}, var::Var, var_type::VarKind}, game_object::GameObjectType}, screen::widget::{drone_programming::var_slot::var_slot::VarSlot, panel::panel::Panel, widget::Widget, widget_properties::WidgetProperties}};
@@ -42,6 +44,8 @@ impl Widget for InvintoryDisplayWidget {
         player_data: &crate::game_data::player_data::player_data::PlayerData,
     ) {
 
+        self.panel.render(texture_manager, screen_data, game_event_manager, player_data);
+
         self.panel = Panel::new_blank();
 
         // Extract the invintory from the game object
@@ -66,15 +70,20 @@ impl Widget for InvintoryDisplayWidget {
 
                 if let Some(item) = item {
 
+                    let mut slot_panel = Panel::new_blank();
+
                     let var = Var::new_with_var_type(PrimitiveGameVarType::DroneItem(item).wrap_into_var_type()); 
                     let var_slot = VarSlot::new_with_var(var);
                 
-                    self.panel.add_widget(var_slot.wrap_into_widget());
+                    slot_panel.add_widget(var_slot.wrap_into_widget());
+
+                    let text = format!("{}", quantity);
+                    slot_panel.add_text_display(text);
+
+                    self.panel.add_widget(slot_panel.wrap_into_widget());
                 }
             }
         }
-        
-        self.panel.size();
-        self.panel.render(texture_manager, screen_data, game_event_manager, player_data);
+
     }
 }

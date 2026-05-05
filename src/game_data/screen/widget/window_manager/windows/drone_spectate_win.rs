@@ -65,6 +65,7 @@ impl Window for DroneSpectateWindow {
 
         }
 
+        
         self.panel.render(texture_manager, screen_data, game_event_manager, player_data);
     }
 
