@@ -131,9 +131,6 @@ impl PropValue {
             PropValue::Num(_) => {
                 NumDisplayPropWidget::new(*prop_key, mutable).wrap_into_widget()
             }
-            PropValue::Inventory(_) => {
-                InvintoryDisplayPropWidget::new(*prop_key, mutable).wrap_into_widget()
-            }
             PropValue::Var(_) => {
                 VarPropWidget::new(*prop_key, mutable).wrap_into_widget()
             }

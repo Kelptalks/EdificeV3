@@ -6,3 +6,4 @@ pub mod drones;
 pub mod cursor;
 pub mod nature_manager;
 pub mod game_object;
+pub mod progress_manager;

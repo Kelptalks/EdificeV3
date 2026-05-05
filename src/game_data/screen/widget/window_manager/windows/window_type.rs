@@ -1,7 +1,8 @@
-use crate::game_data::screen::widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, window_manager::windows::debug_win::DebugWin};
+use crate::game_data::screen::widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, window_manager::windows::{debug_win::DebugWin, drone_spectate_win::DroneSpectateWindow}};
 
 pub enum WindowType {
-    Debug(DebugWin)
+    Debug(DebugWin),
+    DroneSpectate(DroneSpectateWindow),
 }
 
 impl WindowType {
@@ -12,12 +13,14 @@ impl WindowType {
     fn get_panel(&self) -> &Panel {
         match self {
             WindowType::Debug(debug_win) => debug_win.get_panel(),
+            WindowType::DroneSpectate(drone_spectate_window) => drone_spectate_window.get_panel(),
         }  
     } 
 
     fn get_mut_panel(&mut self) -> &mut Panel {
         match self {
             WindowType::Debug(debug_win) => debug_win.get_mut_panel(),
+            WindowType::DroneSpectate(drone_spectate_window) => drone_spectate_window.get_mut_panel(),
         }
     } 
 }
@@ -46,6 +49,9 @@ impl Widget for WindowType {
             WindowType::Debug(debug_win) => {
                 debug_win.render(texture_manager, screen_data, game_event_manager, player_data)
             },
+            WindowType::DroneSpectate(drone_spectate_window) => {
+                drone_spectate_window.render(texture_manager, screen_data, game_event_manager, player_data);
+            },
         }
     }
 }
@@ -53,6 +59,7 @@ impl Widget for WindowType {
 pub trait Window {
     fn wrap_into_window_type(self) -> WindowType;
     
+
     fn render(
         &mut self,
         texture_manager: &mut crate::game_data::TextureManager,

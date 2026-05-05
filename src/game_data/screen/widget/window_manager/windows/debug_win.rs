@@ -37,7 +37,7 @@ impl Window for DebugWin {
     fn get_panel(&self) -> &Panel {
         &self.panel
     }
-    
+
     fn render(
         &mut self,
         texture_manager: &mut crate::game_data::TextureManager,
@@ -59,9 +59,11 @@ impl Window for DebugWin {
                 
             }
         }
+        self.panel.size();
         
         self.panel.render(texture_manager, screen_data, game_event_manager, player_data);
     }
+
     
     
 }

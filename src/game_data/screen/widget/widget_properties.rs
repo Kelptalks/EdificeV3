@@ -19,6 +19,8 @@ impl WidgetId {
     }
 }
 
+
+#[derive(Clone)]
 pub struct WidgetProperties {
     id: WidgetId,
 

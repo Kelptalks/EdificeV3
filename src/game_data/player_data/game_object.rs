@@ -1,7 +1,8 @@
-use crate::game_data::{World, game_event_manager::prelude::Event, player_data::{nature_manager::nature_manager::NatureObject, player_data::PlayerData}};
+use crate::game_data::{World, game_event_manager::prelude::Event, player_data::{drones::drone_manager::DroneId, nature_manager::nature_manager::NatureObject, player_data::PlayerData}};
 
 pub enum GameObjectType {
     Nature(NatureObject),
+    Drone(DroneId),
 }
 
 

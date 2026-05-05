@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, log_init, player_data::{cursor::{cursor::Cursor, cursor_event_scheduler::CursorEventScheduler}, drones::{drone_event_scheduler::DroneEventScheduler, drone_manager::{DroneId, DroneManager}}, locations::location_manager::{LocationId, LocationManager}, nature_manager::nature_manager::NatureManager, settings::settings_manager::SettingsManager}, screen::{menu_constructors::play_view_menu::new_play_view::PlayViewMode, widget::world_rendering::view_mode::ViewMode}, types::BlockTexture};
+use crate::game_data::{World, log_init, player_data::{cursor::{cursor::Cursor, cursor_event_scheduler::CursorEventScheduler}, drones::{drone_event_scheduler::DroneEventScheduler, drone_manager::{DroneId, DroneManager}}, locations::location_manager::{LocationId, LocationManager}, nature_manager::nature_manager::NatureManager, progress_manager::progress_manager::ProgressManager, settings::settings_manager::SettingsManager}, screen::{menu_constructors::play_view_menu::new_play_view::PlayViewMode, widget::world_rendering::view_mode::ViewMode}, types::BlockTexture};
 
 
 /*
@@ -26,6 +26,8 @@ pub struct PlayerData {
 
 
 
+    progress_manager: ProgressManager,
+
     // Settings
     settings: SettingsManager,
 }
@@ -44,6 +46,8 @@ impl PlayerData {
             nature_manager: NatureManager::new(),
             location_manager: LocationManager::new(),
             
+            progress_manager: ProgressManager::new(),
+
             settings: SettingsManager::new(),
         }
     }

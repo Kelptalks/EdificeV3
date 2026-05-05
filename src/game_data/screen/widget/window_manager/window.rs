@@ -102,7 +102,6 @@ impl Widget for WidgetWindow {
 
     fn size(&mut self) {
         self.panel.size();
-        self.panel.set_parent_pos(self.get_pos());
     }
 
     fn render(
@@ -141,8 +140,6 @@ impl Widget for WidgetWindow {
                     self.offset[1] -= mouse_change[1];
                 }
             }
-
-
         }
 
 
