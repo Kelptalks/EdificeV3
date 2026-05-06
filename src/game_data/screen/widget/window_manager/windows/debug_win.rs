@@ -1,9 +1,9 @@
-use crate::game_data::{screen::{ui_elements::panel, widget::{panel::panel::Panel, prelude::TabPanel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_properties::WidgetId, window_manager::windows::window_type::Window}}};
+use crate::game_data::{screen::{ui_elements::panel, widget::{panel::panel::Panel, prelude::TabPanel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_properties::WidgetId, window_manager::windows::window_type::Window}}, texture_manager::{texture::Texture, texture_cashe::texture_cashe::CashedTextureID}};
 
 pub struct DebugWin {
     panel: Panel,
 
-
+    cashed_texture: [Option<CashedTextureID>; 64],
 
     scroll_panel_id: WidgetId
 }
@@ -20,6 +20,8 @@ impl DebugWin {
 
         DebugWin {
             panel,
+
+            cashed_texture: [None; 64],
             scroll_panel_id
         }
     }
@@ -46,6 +48,8 @@ impl Window for DebugWin {
         player_data: &crate::game_data::player_data::player_data::PlayerData,
     ) {
 
+
+
         if let Some(scroll_panel) = self.panel.find_widget_with_id(self.scroll_panel_id) {
             if let WidgetType::ScrollPanel(scroll_panel) = scroll_panel {
                 scroll_panel.clear_widgets();
@@ -61,7 +65,9 @@ impl Window for DebugWin {
         }
         self.panel.size();
         
+
         self.panel.render(texture_manager, screen_data, game_event_manager, player_data);
+
     }
 
     

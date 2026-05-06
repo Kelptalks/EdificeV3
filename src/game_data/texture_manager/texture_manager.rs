@@ -1,11 +1,11 @@
 
 use crate::game_data::{
-    screen::widget::world_rendering::{
+    screen::{ScreenData, screen_data, widget::world_rendering::{
         tile_map::TileMapId, 
         tile_map_manager::{self, TileMapManager}
-    }, 
+    }}, 
     texture_manager::{
-        atlas::texture_atlas::TextureAtlas, rendering_managager::rendering_batch::RenderBatch, texture::Texture, texture_renderer::TextureRenderingManager}, types::{BlockShader, BlockTexture, BlockTriangle, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
+        atlas::texture_atlas::TextureAtlas, rendering_managager::rendering_batch::RenderBatch, texture::Texture, texture_cashe::texture_cashe::{CashedTextureID, TextureCashe}, texture_renderer::TextureRenderingManager}, types::{BlockShader, BlockTexture, BlockTriangle, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
 use miniquad::*;
 
 // Expander tuning constants - adjust these to control gap prevention
@@ -33,6 +33,9 @@ pub struct TextureManager {
     cached_scale: f32,
     cached_expander: f32,
 
+    texture_cashe: TextureCashe,
+
+
     render_batches: Vec<RenderBatch>,
 }
 
@@ -50,6 +53,8 @@ impl TextureManager {
 
             cached_scale: 0.0,
             cached_expander: 0.0,
+
+            texture_cashe: TextureCashe::new(),
 
             render_batches: Vec::new(),
         }
@@ -79,6 +84,7 @@ impl TextureManager {
     pub fn are_textures_initialized(&self) -> bool {
         return self.textures_initialized;
     }
+
 
     pub fn get_texture_renderer(&mut self) -> &mut TextureRenderingManager {
         return self.texture_renderer.as_mut().unwrap();
@@ -164,6 +170,7 @@ impl TextureManager {
             Texture::TintedUITexture(uitextures, _) => {
                 return texture_atlas.get_precalculated_ui_uv(uitextures)
             },
+            Texture::CashedTexture(cashed_texture_id) => [0.0; 4],
         }
     }
     
@@ -174,10 +181,27 @@ impl TextureManager {
             Texture::TintedUITexture(uitextures, tint) => {
                 self.get_texture_renderer().add_quad_tinted(pos, uv, tint);   
             },
+            Texture::CashedTexture(cashed_texture_id) => {
+                self.texture_cashe.render_cashed_texture(cashed_texture_id, pos);
+            }
             _ => {
                 self.get_texture_renderer().add_quad(pos, uv);                
             }
         }
+    }
+
+    pub fn render_to_cashed_texture(
+        &mut self, 
+        cashed_texture: CashedTextureID, 
+        texture: Texture, 
+        pos : [f32; 4]
+    ) {
+        let uv = self.get_texture_uv(texture);
+        self.texture_cashe.render_to_cashed_texture(cashed_texture, uv, pos);
+    }
+
+    pub fn get_free_cashed_texture(&mut self) -> Option<CashedTextureID> {
+        self.texture_cashe.get_free_cashed_texture()
     }
 
     pub fn render_texture_to_batch(&mut self, batch: &mut RenderBatch, texture: Texture, pos : [f32; 4]) {
@@ -410,9 +434,24 @@ impl TextureManager {
     // Sprite Cashing
     //=====================================
 
-    pub fn flush(&mut self, ctx : &mut GlContext) {
-        self.get_texture_renderer().flush(ctx);
+    pub fn flush(&mut self, screen_data: &ScreenData, ctx : &mut GlContext) {
+        let mut texture_cashe_batches = self.texture_cashe.get_cashing_batches(ctx);
         
+        for batch in &mut texture_cashe_batches {
+            self.get_texture_renderer().flush_batch(ctx, screen_data, batch);
+        }
+
+        
+        // set the viewport using ctx before rendering to main screen
+        // screen_data.apply_port(ctx);
+
+        let mut texture_draw_batches = self.texture_cashe.get_drawing_batches();
+        for batch in &mut texture_draw_batches {
+            self.get_texture_renderer().flush_batch(ctx, screen_data, batch);
+        }
+
+
+        self.get_texture_renderer().flush(ctx);
     }
 
     //==========
@@ -429,7 +468,6 @@ impl TextureManager {
             if let Some(texture_atlas) = self.texture_atlas.as_mut() {
                 //texture_renderer.set_texture(texture_atlas.texture_id);
                 
-
                 
                 // Render the entire shader spritesheet for debugging
                 texture_renderer.add_quad(

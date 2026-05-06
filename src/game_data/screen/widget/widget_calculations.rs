@@ -22,7 +22,15 @@ pub fn offset_buffer(buffer: &mut [f32; 4], offset: [f32; 2]) {
     buffer[1] += offset[1];
     buffer[2] -= offset[0];
     buffer[3] -= offset[1];
-    
+}
+
+pub fn offset_pos(pos: [f32; 4], offset: [f32; 2]) -> [f32; 4] {
+    [
+        pos[0] + offset[0],
+        pos[1] + offset[1],
+        pos[2] + offset[0],
+        pos[3] + offset[1],
+    ]
 }
 
 pub fn is_pos_contained_within_pos(box_pos: [f32; 4], internal_pos: [f32; 4]) -> bool {

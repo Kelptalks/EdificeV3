@@ -1,4 +1,4 @@
-use crate::game_data::types::{BlockShader, BlockTexture, BlockTriangle, DroneItemTexture, UITextures};
+use crate::game_data::{texture_manager::texture_cashe::texture_cashe::CashedTextureID, types::{BlockShader, BlockTexture, BlockTriangle, DroneItemTexture, UITextures}};
 
 #[derive(Clone, Copy)]
 pub enum Texture {
@@ -11,6 +11,6 @@ pub enum Texture {
     UITexture(UITextures),
 
     TintedUITexture(UITextures, [f32; 3]),
-
+    CashedTexture(CashedTextureID),
 }
 

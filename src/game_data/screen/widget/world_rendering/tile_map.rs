@@ -52,8 +52,12 @@ impl TileMap {
         self.is_cashed = true;
     }
 
-    pub fn is_cashe_dirty(&self) -> bool {
+    pub fn is_texture_dirty(&self) -> bool {
         self.is_cashe_dirty
+    }
+
+    pub fn mark_texture_dirty(&mut self, state: bool) {
+        self.is_cashe_dirty = state;
     }
 
     //=====================================

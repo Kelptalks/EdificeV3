@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, screen::{iso_cord_tool, widget::world_rendering::{area_rendering_manager::ray_caster::casted_tile::CastedTile, tile_map::{TileMap, TileMapId}, tile_map_cashe_manager::tile_map_texture_manager::TileMapTextureCasher}}, texture_manager};
+use crate::game_data::{TextureManager, screen::{iso_cord_tool, widget::world_rendering::{area_rendering_manager::ray_caster::casted_tile::CastedTile, tile_map::{TileMap, TileMapId}}}, texture_manager};
 
 
 pub struct TileMapManager {
-    texture_manager: TileMapTextureCasher,
     map_lairs: HashMap<TileMapId, TileMap>,
     flattened_lair: TileMap,
 
@@ -13,10 +12,8 @@ pub struct TileMapManager {
 impl TileMapManager {
     pub fn new() -> TileMapManager {
         TileMapManager {
-            texture_manager: TileMapTextureCasher::new(),
             map_lairs: HashMap::new(),
             flattened_lair: TileMap::new(0),
-            
         }
     }
 
@@ -90,25 +87,16 @@ impl TileMapManager {
     }
 
     pub fn render(&mut self, texture_manager: &mut TextureManager, ndc_block_scale: f32, draw_cords: [f32; 2]) {
-        for (id, lair) in &mut self.map_lairs {
-            if lair.is_cashed() {
 
-                if lair.is_cashe_dirty() {
-                    self.texture_manager.render_tile_map(texture_manager, lair)
-                }
-
-            }
-        }   
         
         
         self.flattened_lair.reset(0);
         self.flatten();
-        self.flattened_lair.render(texture_manager, ndc_block_scale, draw_cords);
+        
+        // self.flattened_lair.render(texture_manager, ndc_block_scale, draw_cords);
+        
     }
 
-    pub fn get_texture_cashe_manager(&mut self) -> &mut TileMapTextureCasher {
-        &mut self.texture_manager
-    }
 }
 
 

@@ -75,6 +75,7 @@ impl ScreenManager {
         game_event_manager: &mut EventManager,
         ctx : &mut GlContext
     ){
+
         // If quit
         if self.screen_data.should_quit() {
             window::order_quit();

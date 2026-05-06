@@ -11,6 +11,7 @@ A Collection Of verticies with a src and destination texture
 
 use miniquad::TextureId;
 
+#[derive(Clone)]
 #[repr(C)]
 pub struct Vertex {
     pos: [f32; 2],
@@ -19,9 +20,10 @@ pub struct Vertex {
 }
 
 
+#[derive(Clone)]
 pub struct RenderBatch {
     // Textures
-    pub src_texture: TextureId,
+    pub src_texture: Option<TextureId>,
     pub target_texture: Option<TextureId>, // If non to viewport
 
     // Quads
@@ -33,10 +35,10 @@ pub struct RenderBatch {
 
 impl RenderBatch {
 
-    pub fn new(src_texture: TextureId) -> RenderBatch {
+    pub fn new(src_texture: Option<TextureId>, target_texture: Option<TextureId>) -> RenderBatch {
         RenderBatch {
             src_texture: src_texture,
-            target_texture: None,
+            target_texture: target_texture,
             vertices: Vec::new(),
             indices: Vec::new(),
 
@@ -54,12 +56,12 @@ impl RenderBatch {
     // Texture Managment
     //=====================================
 
-    pub fn set_src_texture(&mut self, texture_id: TextureId) {
+    pub fn set_src_texture(&mut self, texture_id: Option<TextureId>) {
         self.src_texture = texture_id;
     }
 
-    pub fn set_tartget_texture(&mut self, texture_id: TextureId) {
-        self.target_texture = Some(texture_id);
+    pub fn set_target_texture(&mut self, texture_id: Option<TextureId>) {
+        self.target_texture = texture_id;
     }
 
     //=====================================

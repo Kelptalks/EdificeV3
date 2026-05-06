@@ -172,6 +172,15 @@ impl ScreenData {
     // Rendering
     //=====================================
 
+    pub fn apply_port(&self, ctx : &mut GlContext) {
+        ctx.apply_viewport(
+            self.viewport_offset[0] as i32, 
+            self.viewport_offset[1] as i32, 
+            self.viewport_rez[0] as i32, 
+            self.viewport_rez[1] as i32, 
+        );
+    }
+
     pub fn set_screen_rez(&mut self, screen_rez: [f32; 2], ctx : &mut GlContext) {
         // Calculate and setup viewport and set the correct values 
         let viewport_size: f32;

@@ -1,7 +1,7 @@
 
 use miniquad::*;
 
-use crate::game_data::texture_manager::rendering_managager::rendering_batch::RenderBatch;
+use crate::game_data::{screen::{ScreenData, screen_data}, texture_manager::rendering_managager::rendering_batch::RenderBatch};
 
 
 // Static vars
@@ -290,9 +290,23 @@ impl TextureRenderingManager {
         self.indices.clear();
     }
 
-    pub fn flush_batch(&mut self, ctx: &mut GlContext, batch: &mut RenderBatch) {
+    pub fn flush_batch(&mut self, ctx: &mut GlContext, screen_data: &ScreenData, batch: &mut RenderBatch) {
         if batch.vertices.is_empty() {
             return;
+        }
+
+        // Resolve src texture: use batch's or fall back to renderer's current texture
+        let src_texture = batch.src_texture
+            .or(self.current_texture).unwrap();
+
+        // Set up render target
+        if let Some(target) = batch.target_texture {
+            let render_pass = ctx.new_render_pass(target, None);
+            ctx.begin_pass(Some(render_pass), PassAction::Nothing);
+            
+        } else {
+            ctx.begin_default_pass(PassAction::Nothing);
+            screen_data.apply_port(ctx);
         }
 
         // Upload batch data to GPU buffers
@@ -302,7 +316,7 @@ impl TextureRenderingManager {
         let bindings = Bindings {
             vertex_buffers: vec![self.vertex_buffer],
             index_buffer: self.index_buffer,
-            images: vec![batch.src_texture],
+            images: vec![src_texture],
         };
 
         // Select pipeline based on batch's alpha
@@ -316,6 +330,7 @@ impl TextureRenderingManager {
         }
 
         ctx.draw(0, batch.indices.len() as i32, 1);
+        ctx.end_render_pass();
 
         batch.clear();
     }
