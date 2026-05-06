@@ -1,6 +1,6 @@
 
 use crate::game_data::{
-    TextureManager, World, screen::{iso_cord_tool, widget::world_rendering::area_rendering_manager::ray_caster::{casted_triangle::CastedTriangle, ray_casting_config::RayCastingConfig}}, texture_manager::texture::Texture, types::{
+    TextureManager, World, screen::{iso_cord_tool, widget::world_rendering::area_rendering_manager::ray_caster::{casted_triangle::CastedTriangle, ray_casting_config::RayCastingConfig}}, texture_manager::{texture::Texture, texture_cashe::texture_cashe::CashedTextureID}, types::{
         BlockTexture, BlockTriangle
     }
 };
@@ -187,4 +187,37 @@ impl CastedTile {
         }
     }
 
+    pub fn render_to_cashed_texture(
+        &self, 
+        texture_manager: &mut TextureManager, 
+        cashed_texture_id: CashedTextureID, 
+        draw_block_scale: f32, 
+        draw_offset: [f32; 2]
+    ){
+
+
+        let left_textures = self.get_left_triangle().get_textures().clone();
+        let left_pos = [
+            draw_offset[0],
+            draw_offset[1],
+            draw_offset[0] + draw_block_scale,
+            draw_offset[1] + draw_block_scale,
+        ];
+        for texture in left_textures {
+            texture_manager.render_to_cashed_texture(cashed_texture_id, texture, left_pos);
+        }
+
+        let right_textures = self.get_right_triangle().get_textures().clone();
+        let right_pos = [
+            draw_offset[0] + draw_block_scale,
+            draw_offset[1],
+            draw_offset[0] + (draw_block_scale * 2.0),
+            draw_offset[1] + draw_block_scale,
+        ];
+        for texture in right_textures {
+            texture_manager.render_to_cashed_texture(cashed_texture_id, texture, right_pos);
+        }
+    }
+
+    
 }

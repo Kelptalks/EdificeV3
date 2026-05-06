@@ -123,7 +123,7 @@ impl TextureCashe {
             let mut render_batch = RenderBatch::new(Some(*src_texture_id), None); 
             
             let uv = cashed_texture.src_uv;
-            render_batch.add_quad(pos, [1.0, 1.0, 0.0, 0.0]);
+            render_batch.add_quad(pos, uv);
 
             self.drawing_batches.push(render_batch);
         }
@@ -160,7 +160,12 @@ impl TextureCashe {
                         uv_scale * (y as f32 + 1.0) - 1.0,
                     ];
 
-                    let src_uv = [0.0; 4];
+                    let src_uv = [
+                        src_pos[0] * 0.5 + 0.5,
+                        src_pos[1] * 0.5 + 0.5,
+                        src_pos[2] * 0.5 + 0.5,
+                        src_pos[3] * 0.5 + 0.5,
+                    ];
 
                     self.free_id.push(
                         CashedTextureID::get_next_id(

@@ -68,6 +68,24 @@ impl Window for DebugWin {
 
         self.panel.render(texture_manager, screen_data, game_event_manager, player_data);
 
+        let cashed_textures = self.cashed_texture.clone();
+        
+        for (i, cashed_texture_option) in cashed_textures.iter().enumerate() {
+            if let Some(cashed_texture) = cashed_texture_option {
+                let texture = Texture::UITexture(crate::game_data::types::UITextures::FaceBackground);
+                // let pos = [-0.5, -0.5, 0.5, 0.5];
+                let pos = [-1.0, -1.0, 1.0, 1.0];
+                texture_manager.render_to_cashed_texture(*cashed_texture, texture, pos);
+                
+                let pos = [-0.5, -0.5, 0.5, 0.5];
+                texture_manager.render_texture(Texture::CashedTexture(*cashed_texture), pos);
+
+            }
+            else {
+                self.cashed_texture[i] = texture_manager.get_free_cashed_texture();
+            }
+        }
+
     }
 
     

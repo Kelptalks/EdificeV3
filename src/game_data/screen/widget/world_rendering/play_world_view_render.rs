@@ -441,6 +441,8 @@ impl PlayWorldViewRender {
         draw_cords[0] -= self.camera_ndc_offset[0];
         draw_cords[1] -= self.camera_ndc_offset[1];
 
+        self.tile_map_manager.update_rendering_data(self.ndc_block_scale, draw_cords);
+
 
         texture_manager.update_expander_cache(self.ndc_block_scale);
         if (cursor.get_zoom() * 2) > 16 {
@@ -454,7 +456,8 @@ impl PlayWorldViewRender {
                             chunk_cords[2] + z,
                         ];
 
-                        world.update_chunk_rendering(
+                        world.render_chunk(
+                            texture_manager,
                             &mut self.tile_map_manager, 
                             chunk_index
                         );
@@ -462,7 +465,7 @@ impl PlayWorldViewRender {
                 }
 
             }
-            self.tile_map_manager.render(texture_manager, self.ndc_block_scale, draw_cords);
+            self.tile_map_manager.flatten_lairs();
         }
         else {
             self.tile_map.reset(0);

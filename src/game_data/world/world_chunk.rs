@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, World, locations::world_area::WorldArea, player_data::{self, game_object::GameObjectType, player_data::PlayerData}, screen::{iso_cord_tool, widget::world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod}, rendering_config, tile_map::{TileMap, TileMapId}, tile_map_manager::{self, TileMapManager}}}, texture_manager};
+use crate::game_data::{TextureManager, World, locations::world_area::WorldArea, player_data::{self, game_object::GameObjectType, player_data::PlayerData}, screen::{iso_cord_tool, text, widget::world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod}, rendering_config, tile_map::{TileMap, TileMapId}, tile_map_manager::{self, TileMapManager}}}, texture_manager::{self, texture::Texture, texture_cashe::texture_cashe::CashedTextureID}};
 
 const CHUNK_SIZE: usize = 16;
 const CHUNK_AREA: usize = CHUNK_SIZE * CHUNK_SIZE;
@@ -14,8 +14,11 @@ pub struct WorldChunk {
     block_data : Box<[u16; CHUNK_VOLUME]>,
 
     // Cashed rendering
-    dirty: bool,
+    tile_map_dirty: bool,
     tile_map_id: Option<TileMapId>,
+
+    cashed_texture_dirty: bool,
+    cashed_texture_id: Option<CashedTextureID>,
 
     // Game objects
     game_objects: Vec<GameObjectType>,
@@ -28,8 +31,11 @@ impl WorldChunk {
             cords : chunk_cords,
             block_data : Box::new([0; CHUNK_VOLUME]),
 
-            dirty: true,
+            tile_map_dirty: true,
             tile_map_id: None,
+
+            cashed_texture_dirty: true,
+            cashed_texture_id: None,
 
             game_objects: Vec::new(),
         }
@@ -44,6 +50,14 @@ impl WorldChunk {
             chunk_cords[0] as i32 * CHUNK_SIZE_I32,
             chunk_cords[1] as i32 * CHUNK_SIZE_I32,
             chunk_cords[2] as i32 * CHUNK_SIZE_I32,
+        ]
+    }
+
+    pub fn get_world_cords(&self) -> [i32; 3] {
+        [
+            self.cords[0] as i32 * CHUNK_SIZE_I32,
+            self.cords[1] as i32 * CHUNK_SIZE_I32,
+            self.cords[2] as i32 * CHUNK_SIZE_I32,
         ]
     }
 
@@ -126,7 +140,7 @@ impl WorldChunk {
     //=====================================
 
     pub fn is_dirty(&self) -> bool {
-        self.dirty
+        self.tile_map_dirty
     }
 
     pub fn ray_cast_tile_map(&mut self, tile_map_manager: &mut TileMapManager) { 
@@ -143,17 +157,66 @@ impl WorldChunk {
                 
 
                 tile_map.ray_cast_world_area(world_area, &temp_world);
-                self.dirty = false;
+                self.tile_map_dirty = false;
             }
         }
         else {
             self.tile_map_id = Some(tile_map_manager.new_tile_map(self.get_depth()));
-            if let Some(new_tile_map) = tile_map_manager.get_mut_tile_map(self.tile_map_id.unwrap()) {
-                new_tile_map.cashe();
-            }
         }
+    }
+
+    pub fn render(
+        &mut self, 
+        texture_manager: &mut TextureManager, 
+        tile_map_manager: &mut TileMapManager
+    ) {
+
+        if let Some(cashed_texture_id) = self.cashed_texture_id {
+
+            let world_cords = self.get_world_cords();
+            let block_scale = tile_map_manager.get_block_scale();
+            let draw_cords = 
+            iso_cord_tool::world_pos_to_ndc_cords(
+                block_scale, 
+                iso_cord_tool::world_cords_to_world_pos(world_cords)
+            );
 
 
+
+            if self.cashed_texture_dirty {
+                if let Some(id) = self.tile_map_id {
+                    if let Some(tile_map) = tile_map_manager.get_mut_tile_map(id) {
+                        for (key, tile) in tile_map.get_mut_map() {
+                            let scale = 0.2;
+                            let draw_offset = iso_cord_tool::casted_to_ndc_cords(scale, *key);
+                            
+                            
+                            tile.render_to_cashed_texture(texture_manager, cashed_texture_id, scale, draw_offset);
+                        }
+                        
+                        
+                        self.cashed_texture_dirty = false;
+                    }
+                }
+            }
+            else {
+                let draw_offset = tile_map_manager.get_draw_offset();
+
+                let pos = [
+                    draw_cords[0] + draw_offset[0],
+                    draw_cords[1] + draw_offset[0],
+                    draw_cords[0] + draw_offset[0] + block_scale * 16.0,
+                    draw_cords[1] + draw_offset[0] + block_scale * 16.0,
+                ];
+
+                let texture = Texture::CashedTexture(cashed_texture_id);
+                texture_manager.render_texture(texture, pos);
+            }
+
+        }
+        else {
+            self.cashed_texture_id = texture_manager.get_free_cashed_texture();
+        }
     }
 
     //=====================================
@@ -168,5 +231,7 @@ impl WorldChunk {
 
         }
     }
+
+
 
 }

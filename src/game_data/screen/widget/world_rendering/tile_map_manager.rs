@@ -1,9 +1,12 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, screen::{iso_cord_tool, widget::world_rendering::{area_rendering_manager::ray_caster::casted_tile::CastedTile, tile_map::{TileMap, TileMapId}}}, texture_manager};
+use crate::game_data::{TextureManager, screen::{iso_cord_tool, widget::world_rendering::{area_rendering_manager::ray_caster::casted_tile::CastedTile, tile_map::{self, TileMap, TileMapId}}}, texture_manager};
 
 
 pub struct TileMapManager {
+    block_ncd_scale: f32,
+    draw_offset: [f32; 2],
+    
     map_lairs: HashMap<TileMapId, TileMap>,
     flattened_lair: TileMap,
 
@@ -12,12 +15,26 @@ pub struct TileMapManager {
 impl TileMapManager {
     pub fn new() -> TileMapManager {
         TileMapManager {
+            block_ncd_scale: 0.0,
+            draw_offset: [0.0; 2],
+
             map_lairs: HashMap::new(),
             flattened_lair: TileMap::new(0),
         }
     }
 
-    
+    pub fn get_block_scale(&self) -> f32 {
+        self.block_ncd_scale
+    }
+
+    pub fn get_draw_offset(&self) -> [f32; 2] {
+        self.draw_offset
+    }
+
+    pub fn update_rendering_data(&mut self, block_ncd_scale: f32, draw_offset: [f32; 2]) {
+        self.block_ncd_scale = block_ncd_scale;
+        self.draw_offset = draw_offset;
+    } 
 
     pub fn get_lairs(&self) -> &HashMap<TileMapId, TileMap> {
         &self.map_lairs
@@ -86,15 +103,9 @@ impl TileMapManager {
         }
     }
 
-    pub fn render(&mut self, texture_manager: &mut TextureManager, ndc_block_scale: f32, draw_cords: [f32; 2]) {
-
-        
-        
+    pub fn flatten_lairs(&mut self) {        
         self.flattened_lair.reset(0);
         self.flatten();
-        
-        // self.flattened_lair.render(texture_manager, ndc_block_scale, draw_cords);
-        
     }
 
 }

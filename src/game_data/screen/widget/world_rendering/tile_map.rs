@@ -1,6 +1,6 @@
 use std::collections::{HashMap, hash_map};
 
-use crate::game_data::{TextureManager, World, locations::world_area::{self, WorldArea}, player_data::{self, player_data::PlayerData}, screen::{iso_cord_tool, renderer::casted_block_manager::casted_tile, widget::{prelude::play_world_view_config::PlayViewRenderingConfig, world_rendering::{area_rendering_manager::{self, area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::{self, LairBlockMod}, ray_caster::casted_tile::CastedTile}, rendering_config}}}, world_chunk::{self, WorldChunk}};
+use crate::game_data::{TextureManager, World, locations::world_area::{self, WorldArea}, player_data::{self, player_data::PlayerData}, screen::{iso_cord_tool, renderer::casted_block_manager::casted_tile, widget::{prelude::play_world_view_config::PlayViewRenderingConfig, world_rendering::{area_rendering_manager::{self, area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::{self, LairBlockMod}, ray_caster::casted_tile::CastedTile}, rendering_config}}}, texture_manager::{texture::Texture, texture_cashe::texture_cashe::CashedTextureID}, world_chunk::{self, WorldChunk}};
 
 
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -26,8 +26,6 @@ pub struct TileMap {
     depth: i32, // Used to convert world cords to map index
     map: HashMap<[i32; 2], CastedTile>,
 
-    is_cashed: bool,
-    is_cashe_dirty: bool,
 }
 
 
@@ -38,26 +36,7 @@ impl TileMap {
             id: TileMapId::get_next_id(),
             depth: depth,
             map: HashMap::new(),
-            
-            is_cashed: false,
-            is_cashe_dirty: true,
         }
-    }
-
-    pub fn is_cashed(&self) -> bool{
-        self.is_cashed
-    }
-
-    pub fn cashe(&mut self) {
-        self.is_cashed = true;
-    }
-
-    pub fn is_texture_dirty(&self) -> bool {
-        self.is_cashe_dirty
-    }
-
-    pub fn mark_texture_dirty(&mut self, state: bool) {
-        self.is_cashe_dirty = state;
     }
 
     //=====================================
@@ -70,6 +49,10 @@ impl TileMap {
 
     pub fn get_tile_map(&self) -> &HashMap<[i32; 2], CastedTile> {
         &self.map
+    }
+
+    pub fn get_mut_map(&mut self) -> &mut HashMap<[i32; 2], CastedTile> {
+        &mut self.map
     }
 
     pub fn get_tile_with_flattened_cords(&self, iso_cords: &[i32; 2]) -> Option<&CastedTile> {
@@ -126,10 +109,11 @@ impl TileMap {
         }
     }
 
-    pub fn render(&self, texture_manager: &mut TextureManager, draw_block_scale: f32, draw_offset: [f32; 2]) {
+    pub fn render(&mut self, texture_manager: &mut TextureManager, draw_block_scale: f32, draw_offset: [f32; 2]) {
         for (key, tile) in self.map.iter() {
             tile.render(texture_manager, draw_block_scale, draw_offset);
         }
+        
     }
 
     //=====================================
