@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 
+use mlua::Chunk;
+
 use crate::game_data::player_data::player_data::PlayerData;
 use crate::game_data::world_gen::WorldGenManager;
-use crate::game_data::{TextureManager, player_data, texture_manager};
+use crate::game_data::{TextureManager, player_data, texture_manager, world_chunk};
 use crate::game_data::screen::widget::world_rendering::tile_map_manager::TileMapManager;
 use crate::game_data::{types::BlockTexture, world_chunk::WorldChunk};
 use crate::game_data::world::world_chunk::CHUNK_VOLUME;
@@ -64,14 +66,14 @@ impl World {
 
 
     //=====================================
-    // Chunk
+    // Chunk Getters
     //=====================================
 
-    // Get a chunk at chunk cords or create it if it doesn't exist
-    // Optimization Note : Could use Entry API to elimanate one hashmap lookup.
-    pub fn get_chunk_at_chunk_cords_mut(&mut self, cords : [i16 ; 3] ) -> &mut WorldChunk {
-        let chunk_key = Self::chunk_cords_to_key(cords);
+    // Get a chunk at chunk cords
+    pub fn force_get_chunk_at_cords_mut(&mut self, cords : [i16 ; 3] ) -> &mut WorldChunk {
         
+        let chunk_key = Self::chunk_cords_to_key(cords);
+
         // If world chunk does not exist create it
         if !self.loaded_chunks.contains_key(&chunk_key) 
         {
@@ -79,8 +81,8 @@ impl World {
 
             self.loaded_chunks.insert(chunk_key, new_chunk);
         }
-
         return self.loaded_chunks.get_mut(&chunk_key).unwrap();
+
     }
 
     // Gets the chunk if it exists 
@@ -89,24 +91,33 @@ impl World {
         return self.loaded_chunks.get(&chunk_key);
     }
 
-    pub fn get_chunk_at_world_cords_mut(&mut self, cords : [i32 ; 3]) -> &mut WorldChunk
-    {
+    pub fn force_get_chunk_at_world_cords_mut(&mut self, cords : [i32 ; 3]) -> &mut WorldChunk {
         let chunk_cords = Self::world_cords_to_chunk_cords(cords);
-        return self.get_chunk_at_chunk_cords_mut(chunk_cords);
+        return self.force_get_chunk_at_cords_mut(chunk_cords);
     }
-
-    pub fn get_chunk_at_world_cords(&self, cords : [i32 ; 3]) -> Option<&WorldChunk>
-    {
+    pub fn get_chunk_at_world_cords(&self, cords : [i32 ; 3]) -> Option<&WorldChunk> {
         let chunk_cords = Self::world_cords_to_chunk_cords(cords);
         return self.get_chunk_at_chunk_cords(chunk_cords);
     }
 
-    pub fn set_chunk_block_data(&mut self, chunk_cords: [i16; 3], block_data: Box<[u16; CHUNK_VOLUME]>) {
-        let chunk = self.get_chunk_at_chunk_cords_mut(chunk_cords);
+    pub fn get_or_construct_chunk(&mut self, player_data: &PlayerData, cords : [i16 ; 3]) -> &mut WorldChunk {
+        let chunk_key = Self::chunk_cords_to_key(cords);
+        
+        // If world chunk does not exist create it
+        if !self.loaded_chunks.contains_key(&chunk_key) 
+        {
+            self.load_chunk(player_data, cords);
+        }
 
-        chunk.set_block_data(block_data);
+        return self.loaded_chunks.get_mut(&chunk_key).unwrap();
+
     }
-    
+
+    pub fn set_chunk_block_data(&mut self, chunk_cords: [i16; 3], block_data: Box<[u16; CHUNK_VOLUME]>) {
+        let chunk = self.force_get_chunk_at_cords_mut(chunk_cords);
+        chunk.set_block_data(block_data);
+        
+    }
 
     //=====================================
     // Single Block
@@ -127,7 +138,7 @@ impl World {
     }
 
     pub fn set_world_value (&mut self, value : u16, cords : [i32 ; 3]) {
-        let world_chunk = self.get_chunk_at_world_cords_mut(cords);
+        let world_chunk = self.force_get_chunk_at_world_cords_mut(cords);
         let internal_chunk_cords = Self::world_cords_to_internal_chunk_cords(cords);
 
         world_chunk.set_chunk_value(value, internal_chunk_cords);  
@@ -136,15 +147,12 @@ impl World {
     pub fn get_world_value (&self, cords : [i32 ; 3]) -> u16
     {
         let world_chunk = self.get_chunk_at_world_cords(cords);
-        let internal_chunk_cords = Self::world_cords_to_internal_chunk_cords(cords);
 
-        if world_chunk.is_some()
-        {
-            let chunk = world_chunk.unwrap();
-            return chunk.get_chunk_value(internal_chunk_cords);
+        if let Some(world_chunk) = world_chunk {
+            let internal_chunk_cords = Self::world_cords_to_internal_chunk_cords(cords);
+            return world_chunk.get_chunk_value(internal_chunk_cords);
         }
-        else
-        {
+        else {
             return 0;    
         }
     }
@@ -164,30 +172,15 @@ impl World {
 
     pub fn load_chunk(
         &mut self, 
-        texture_manager: &mut TextureManager, 
-        tile_map_manager: &mut TileMapManager, 
         player_data: &PlayerData,
         cords : [i16 ; 3]
     ) {
-        if self.get_chunk_at_chunk_cords(cords).is_some() {
-
+        let chunk = self.force_get_chunk_at_cords_mut(cords);
+        if !chunk.terrain_generated {
+            chunk.terrain_generated = true;
+            let world_area = chunk.get_world_area();
+            player_data.world_gen.generate_area(self, world_area);
         }
-        else {
-            let mut chunk = WorldChunk::new(cords);
-            
-            
-            player_data.world_gen.generate_area(self, chunk.get_world_area());
-            chunk.dirty = true;
-
-            let key = Self::chunk_cords_to_key(cords);
-            self.loaded_chunks.insert(key, chunk);
-        }
-
-        
-        
-
-        
-    
     }
 
     pub fn render_world(

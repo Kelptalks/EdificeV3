@@ -14,7 +14,10 @@ pub struct WorldChunk {
     block_data : Box<[u16; CHUNK_VOLUME]>,
 
     // Cashed rendering
+    
     pub depth: i16,
+
+    pub terrain_generated: bool,
     pub dirty: bool,
     pub tile_map_id: Option<TileMapId>,
 
@@ -31,6 +34,7 @@ impl WorldChunk {
             cords : chunk_cords,
             block_data : Box::new([0; CHUNK_VOLUME]),
 
+            terrain_generated: false,
             dirty: true,
             tile_map_id: None,
             depth,
@@ -166,13 +170,15 @@ impl WorldChunk {
         else {
             self.tile_map_id = Some(tile_map_manager.new_tile_map());
         }
+        
     }    
 
     pub fn render(&mut self, texture_manager: &mut TextureManager, tile_map_manager: &mut TileMapManager) {
         let block_scale = tile_map_manager.get_block_scale();
         let draw_offset = tile_map_manager.get_draw_offset();
         
-        if self.dirty {
+        
+        if self.dirty && self.terrain_generated {
             self.clean(texture_manager, tile_map_manager);
         }
         else if let Some(id) = self.tile_map_id {
@@ -187,6 +193,7 @@ impl WorldChunk {
         else {
             self.tile_map_id = Some(tile_map_manager.new_tile_map());
         }
+        
     }
 
     //=====================================
