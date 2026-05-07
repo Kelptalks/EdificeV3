@@ -135,10 +135,10 @@ impl TileMap {
             let tiles = area_rendering_manager.get_casted_tile_rays(world, &lair_block_mods);
             for tile in tiles {
                 
-                if tile.struck() {
-                    let world_cords = tile.get_world_cords();
-                    self.incert_tile_with_area_cords(world_cords, tile);
-                }
+                
+                let world_cords = tile.get_world_cords();
+                self.incert_tile_with_area_cords(world_cords, tile);
+                
             }
             self.ray_casting_dirty = false;
         }

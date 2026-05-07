@@ -44,6 +44,15 @@ impl LayerManager {
             .collect()
     }
 
+    pub fn get_block_at_layer_z(&self, layer_z: i32) -> Option<BlockTexture> {
+        for layer in &self.layers {
+            if layer.get_if_z_in_lair_bounds(layer_z) {
+                return Some(layer.get_block_type());
+            }
+        }
+        None
+    }
+
 
     pub fn test(&self) {
         let z_range = [100, -100];
@@ -61,6 +70,8 @@ impl LayerManager {
 
     }
 }
+
+const WATER_LEVEL: i32 = -50;
 
 pub struct WorldGenManager {
     layer_manager: LayerManager,
@@ -84,47 +95,47 @@ impl WorldGenManager {
     //=====================================
 
     pub fn generate_area(&self, world: &mut World, area: WorldArea) {
-
         let start_cords = area.get_point_1_cords();
         let end_cords = area.get_point_2_cords();
-        
-        
-        let lair_rules_in_range = self.layer_manager.get_layer_rules_in_range(start_cords[2], end_cords[2]);
-
 
         let terrain_height = 100.0;
-        
         let terrain_noise = TerrainNoise::new(152452, 4, 500.0);
+        let mut grass_gen_manager = GrassGenManager::new();
 
-        
-        //Create generator managers
-        let mut grass_gen_manager = GrassGenManager::new(); 
-        
-
-        // Loop through cords
         for x in start_cords[0]..=end_cords[0] {
             for y in start_cords[1]..=end_cords[1] {
-                for z in start_cords[2]..=end_cords[2] {
-                    let current_cords = [x, y, z];
+                let z_mod = terrain_noise.get_normalized(x as f32, y as f32) * terrain_height;
+                let surface_z = (-z_mod) as i32;
+                let below_water = surface_z < WATER_LEVEL;
 
-                    // Apply terrain noise modification
-                    let z_mod = terrain_noise.get_normalized(x as f32, y as f32) * terrain_height;
-                    let modded_cords = [x, y, (z as f32 - z_mod) as i32];
-                        
-                    for layer in &lair_rules_in_range {
-                        if layer.get_if_z_in_lair_bounds(z) {
-                            
-                    
-                            let block_to_gen = layer.get_block_type().id();
-                            if block_to_gen == BlockTexture::Grass.id() {
-                                grass_gen_manager.gen_grass(modded_cords, world);
+                for z in start_cords[2]..=end_cords[2] {
+                    // Convert world z to layer z to determine which block goes here
+                    let layer_z = (z as f32 + z_mod) as i32;
+
+                    if let Some(block_type) = self.layer_manager.get_block_at_layer_z(layer_z) {
+                        if block_type == BlockTexture::Grass {
+                            if below_water {
+                                world.set_world_value(BlockTexture::Sand.id_as_u16(), [x, y, z]);
+                            } else {
+                                grass_gen_manager.gen_grass([x, y, z], world);
                             }
-                            else {
-                                world.set_world_value(layer.get_block_type().id_as_u16(), modded_cords);
+                        } else {
+                            world.set_world_value(block_type.id_as_u16(), [x, y, z]);
+                        }
+                    }
+                }
+
+                // Fill water from just above terrain surface up to water level
+                if below_water {
+                    let water_start = (surface_z + 1).max(start_cords[2]);
+                    let water_end = WATER_LEVEL.min(end_cords[2]);
+                    if water_start <= water_end {
+                        for wz in water_start..=water_end {
+                            if world.get_world_value([x, y, wz]) == 0 {
+                                world.set_world_value(BlockTexture::Water.id_as_u16(), [x, y, wz]);
                             }
                         }
                     }
-                    
                 }
             }
         }

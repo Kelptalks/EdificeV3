@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicU32, Ordering};
 
-use miniquad::{GlContext, RenderingBackend, TextureId};
+use miniquad::{FilterMode, GlContext, MipmapFilterMode, RenderingBackend, TextureId};
 use rodio::cpal::InputStreamTimestamp;
 
 use crate::game_data::{TextureManager, screen::widget::widget_calculations, texture_manager::rendering_managager::rendering_batch::RenderBatch};
@@ -50,8 +50,8 @@ pub struct TextureCashe {
 
 impl TextureCashe {
     pub fn new() -> TextureCashe {
-        let atlas_count = 8;
-        let scale = 16;
+        let atlas_count = 64;
+        let scale = 4;
         
 
         
@@ -165,10 +165,12 @@ impl TextureCashe {
         for i in 0..self.atlas_count {
             
             // Create the textures
-            let width = 8192u16;
-            let height = 8192u16;
-            let bytes = vec![0u8; (width as usize * height as usize * 4) as usize];
-            let new_texture = ctx.new_texture_from_rgba8(width, height, &bytes);
+            let new_texture = ctx.new_texture_from_rgba8(1, 1, &[0, 0, 0, 0]);
+            ctx.texture_resize(new_texture, 8192, 8192, None);
+            ctx.texture_set_min_filter(new_texture, FilterMode::Nearest, MipmapFilterMode::None);
+            ctx.texture_set_mag_filter(new_texture, FilterMode::Nearest);
+
+
 
             self.atlas.push(new_texture);
             
