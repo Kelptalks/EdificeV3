@@ -50,7 +50,7 @@ pub fn flatten_world_cords(world_cords : [i32 ; 3]) -> [i32; 2] {
 } 
 
 pub fn get_depth_from_world_cords(world_cords: [i32; 3]) -> i32 {
-    return (world_cords[0] + world_cords[2]) + (world_cords[1] + world_cords[2])
+    world_cords[0] + world_cords[1] + world_cords[2]
 }
 
 pub fn world_pos_to_ndc_cords(scale : f32, world_pos: [f32; 3]) -> [f32; 2] {

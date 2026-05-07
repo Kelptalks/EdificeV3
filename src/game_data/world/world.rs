@@ -178,9 +178,6 @@ impl World {
             
             player_data.world_gen.generate_area(self, chunk.get_world_area());
             chunk.dirty = true;
-            
-            let value = cords[0].abs() as u16 % 30 + 1;
-            //chunk.fill(value);
 
             let key = Self::chunk_cords_to_key(cords);
             self.loaded_chunks.insert(key, chunk);

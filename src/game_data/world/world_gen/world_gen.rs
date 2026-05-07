@@ -72,7 +72,7 @@ impl WorldGenManager {
         let mut layer_manager = LayerManager::new();
         layer_manager.add_lair(BlockTexture::Grass, 0, 0);
         layer_manager.add_lair(BlockTexture::Dirt, -3, -1);
-        layer_manager.add_lair(BlockTexture::Stone, -5, -4);
+        layer_manager.add_lair(BlockTexture::Stone, -500, -4);
 
         Self {
             layer_manager: layer_manager,

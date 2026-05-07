@@ -26,7 +26,7 @@ pub struct WorldChunk {
 impl WorldChunk {
     pub fn new(chunk_cords :[i16; 3]) -> Self
     {
-        let depth = (chunk_cords[0] + chunk_cords[2]) + (chunk_cords[1] + chunk_cords[2]);
+        let depth = chunk_cords[0] + chunk_cords[1] + chunk_cords[2];
         Self {
             cords : chunk_cords,
             block_data : Box::new([0; CHUNK_VOLUME]),
