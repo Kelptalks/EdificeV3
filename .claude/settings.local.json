@@ -18,7 +18,9 @@
       "Bash(pip install *)",
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Spencer\\\\EdificeV3\\\\game_data\" -Recurse -Directory)",
       "Bash(Select-Object -ExpandProperty FullName)",
-      "Bash(Sort-Object)"
+      "Bash(Sort-Object)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Spencer\\\\EdificeV3\" -Directory)",
+      "Bash(Select-Object -First 20)"
     ]
   }
 }

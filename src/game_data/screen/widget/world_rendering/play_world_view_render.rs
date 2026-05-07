@@ -401,10 +401,10 @@ impl PlayWorldViewRender {
 
         texture_manager.update_expander_cache(self.ndc_block_scale);
         if (cursor.get_zoom() * 2) > 16 {
-            let chunk_cords = test_world_chunk.get_cords();
-            for z in -2..2 {
-                for y in -2..2 {
-                    for x in -2..2 {
+            let chunk_cords = [0; 3];
+            for z in -5..2 {
+                for y in -0..3 {
+                    for x in -0..20 {
                         let chunk_index = [
                             chunk_cords[0] + x,
                             chunk_cords[1] + y,
@@ -421,14 +421,15 @@ impl PlayWorldViewRender {
                 }
 
             }
-            world.render_world(texture_manager, &mut self.tile_map_manager);
         }
         else {
             self.tile_map.reset(0);
             self.tile_map.set_world_area(world_area);
             self.tile_map.clean(&world, texture_manager);
-            self.tile_map.render(texture_manager, self.ndc_block_scale, draw_cords);
+            self.tile_map.render_tiles(texture_manager, self.ndc_block_scale, draw_cords);
         }
+
+        world.render_world(texture_manager, &mut self.tile_map_manager);
         
     }
 

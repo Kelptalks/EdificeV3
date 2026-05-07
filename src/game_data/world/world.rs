@@ -43,6 +43,13 @@ impl World {
         return (z << 32) | (y << 16) | x
     }
 
+    pub fn key_to_chunk_cords(key: u64) -> [i16; 3] {
+        let x = (key & 0xFFFF) as u16 as i16;
+        let y = ((key >> 16) & 0xFFFF) as u16 as i16;
+        let z = ((key >> 32) & 0xFFFF) as u16 as i16;
+        [x, y, z]
+    }
+
     pub fn world_cords_to_chunk_cords(cords : [i32 ; 3]) -> [i16; 3]
     {
         let chunk_size = WorldChunk::get_chunk_size_i32();
@@ -166,8 +173,12 @@ impl World {
 
         }
         else {
-            let chunk = WorldChunk::new(cords);
+            let mut chunk = WorldChunk::new(cords);
+            
+            
             player_data.world_gen.generate_area(self, chunk.get_world_area());
+            chunk.dirty = true;
+            
             let key = Self::chunk_cords_to_key(cords);
             self.loaded_chunks.insert(key, chunk);
         }
@@ -184,10 +195,14 @@ impl World {
         texture_manager: &mut TextureManager, 
         tile_map_manager: &mut TileMapManager, 
     ) {
-        for (key, chunk) in &mut self.loaded_chunks {
+
+        
+        let mut chunks: Vec<(&u64, &mut WorldChunk)> = self.loaded_chunks.iter_mut().collect();
+        chunks.sort_by_key(|(_, chunk)| chunk.depth);
+
+        for (_, chunk) in chunks {
             chunk.render(texture_manager, tile_map_manager);
         }
-    
     }
 
 }

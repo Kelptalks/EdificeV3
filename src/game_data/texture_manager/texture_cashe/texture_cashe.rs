@@ -51,7 +51,7 @@ pub struct TextureCashe {
 impl TextureCashe {
     pub fn new() -> TextureCashe {
         let atlas_count = 8;
-        let scale = 8;
+        let scale = 16;
         
 
         
@@ -147,7 +147,7 @@ impl TextureCashe {
             // Create the textures
             let width = 8192u16;
             let height = 8192u16;
-            let bytes = vec![10u8; (width as usize * height as usize * 4) as usize];
+            let bytes = vec![0u8; (width as usize * height as usize * 4) as usize];
             let new_texture = ctx.new_texture_from_rgba8(width, height, &bytes);
 
             self.atlas.push(new_texture);

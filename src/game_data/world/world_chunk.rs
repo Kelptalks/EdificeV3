@@ -14,8 +14,10 @@ pub struct WorldChunk {
     block_data : Box<[u16; CHUNK_VOLUME]>,
 
     // Cashed rendering
+    pub depth: i16,
     pub dirty: bool,
     pub tile_map_id: Option<TileMapId>,
+
 
     // Game objects
     game_objects: Vec<GameObjectType>,
@@ -24,12 +26,14 @@ pub struct WorldChunk {
 impl WorldChunk {
     pub fn new(chunk_cords :[i16; 3]) -> Self
     {
+        let depth = (chunk_cords[0] + chunk_cords[2]) + (chunk_cords[1] + chunk_cords[2]);
         Self {
             cords : chunk_cords,
             block_data : Box::new([0; CHUNK_VOLUME]),
 
             dirty: true,
             tile_map_id: None,
+            depth,
 
             game_objects: Vec::new(),
         }
@@ -110,6 +114,10 @@ impl WorldChunk {
         return self.cords
     }
 
+    pub fn fill(&mut self, value : u16) {
+        self.block_data.fill(value);
+    }
+
     // Set the value of at a cord in a chunk
     pub fn set_chunk_value(&mut self, value : u16, cords :[usize; 3])
     {
@@ -167,8 +175,7 @@ impl WorldChunk {
         if self.dirty {
             self.clean(texture_manager, tile_map_manager);
         }
-
-        if let Some(id) = self.tile_map_id {
+        else if let Some(id) = self.tile_map_id {
             if let Some(tile_map) = tile_map_manager.get_mut_tile_map(id) {
                 tile_map.render(
                     texture_manager, 

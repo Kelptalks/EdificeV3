@@ -72,7 +72,7 @@ impl WorldGenManager {
         let mut layer_manager = LayerManager::new();
         layer_manager.add_lair(BlockTexture::Grass, 0, 0);
         layer_manager.add_lair(BlockTexture::Dirt, -3, -1);
-        layer_manager.add_lair(BlockTexture::Stone, -100, -4);
+        layer_manager.add_lair(BlockTexture::Stone, -5, -4);
 
         Self {
             layer_manager: layer_manager,
@@ -96,17 +96,15 @@ impl WorldGenManager {
         
         let terrain_noise = TerrainNoise::new(152452, 4, 500.0);
 
-        println!("Generating Terrain");
-        println!(" - Total Lair rules in area = {}", lair_rules_in_range.len());
         
         //Create generator managers
         let mut grass_gen_manager = GrassGenManager::new(); 
         
 
         // Loop through cords
-        for x in start_cords[0]..end_cords[0] {
-            for y in start_cords[1]..end_cords[1] {
-                for z in start_cords[2]..end_cords[2] {
+        for x in start_cords[0]..=end_cords[0] {
+            for y in start_cords[1]..=end_cords[1] {
+                for z in start_cords[2]..=end_cords[2] {
                     let current_cords = [x, y, z];
 
                     // Apply terrain noise modification
