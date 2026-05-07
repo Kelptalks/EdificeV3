@@ -10,6 +10,8 @@ pub struct RenderingDebugData {
     pub chunks_cashed: u32,
     pub chunks_rendered: u32,
 
+    pub free_cashed_textures: u32,
+
     pub entitys_drawn: u32,
 
     pub total_lairs: usize,
@@ -27,6 +29,8 @@ impl RenderingDebugData {
             chunks_cashed: 0,
             chunks_rendered: 0,
 
+            free_cashed_textures: 0,
+
             entitys_drawn: 0,
 
             total_lairs: 0,
@@ -42,7 +46,8 @@ impl RenderingDebugData {
             chunks_cashed, 
             entitys_drawn,
             total_lairs,
-            frame_time_ms
+            frame_time_ms,
+            free_cashed_textures
         )
     }
 

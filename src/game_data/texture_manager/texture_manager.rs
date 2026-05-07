@@ -110,7 +110,7 @@ impl TextureManager {
         self.cached_expander = cashed_expander;
     }
 
-    fn get_copped_pos_and_uv(uv: [f32; 4], draw_pos: [f32; 4], bounds_pos: [f32; 4]) -> Option<([f32; 4], [f32; 4])> {
+    pub fn get_copped_pos_and_uv(uv: [f32; 4], draw_pos: [f32; 4], bounds_pos: [f32; 4]) -> Option<([f32; 4], [f32; 4])> {
         let [dx1, dy1, dx2, dy2] = draw_pos;
         let [bx1, by1, bx2, by2] = bounds_pos;
 
@@ -171,6 +171,7 @@ impl TextureManager {
                 return texture_atlas.get_precalculated_ui_uv(uitextures)
             },
             Texture::CashedTexture(cashed_texture_id) => [0.0; 4],
+            Texture::Atlas(_) => [0.0, 0.0, 1.0, 1.0],
         }
     }
     
@@ -190,12 +191,23 @@ impl TextureManager {
         }
     }
 
+    pub fn get_texture_cashe(&self) -> &TextureCashe {
+        &self.texture_cashe
+    }
+
     pub fn render_to_cashed_texture(
         &mut self, 
         cashed_texture: CashedTextureID, 
         texture: Texture, 
-        pos : [f32; 4]
+        mut pos : [f32; 4]
     ) {
+
+        pos[0] *= -1.0;
+        pos[1] *= -1.0;
+        pos[2] *= -1.0;
+        pos[3] *= -1.0;
+
+
         let uv = self.get_texture_uv(texture);
         self.texture_cashe.render_to_cashed_texture(cashed_texture, uv, pos);
     }

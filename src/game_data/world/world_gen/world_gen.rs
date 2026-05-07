@@ -1,4 +1,4 @@
-use crate::game_data::{World, types::BlockTexture, world_gen::{terrain_gen::{grass_gen::GrassGenManager, perlin_noise::TerrainNoise}, world_config::WorldConfig}};
+use crate::game_data::{World, locations::world_area::WorldArea, types::BlockTexture, world_gen::{terrain_gen::{grass_gen::GrassGenManager, perlin_noise::TerrainNoise}, world_config::WorldConfig}};
 
 struct LayerRule {
     main_block_type: BlockTexture,
@@ -63,7 +63,6 @@ impl LayerManager {
 }
 
 pub struct WorldGenManager {
-    world_config: WorldConfig,
     layer_manager: LayerManager,
 }
 
@@ -76,42 +75,25 @@ impl WorldGenManager {
         layer_manager.add_lair(BlockTexture::Stone, -100, -4);
 
         Self {
-            world_config: WorldConfig::new(),
             layer_manager: layer_manager,
         }
-    }
-
-    //=====================================
-    // Getters
-    //=====================================
-
-    pub fn get_mut_world_config(&mut self) -> &mut WorldConfig {
-        return &mut self.world_config;
-    }
-
-    pub fn get_world_config(&self) -> &WorldConfig {
-        return &self.world_config;
     }
 
     //=====================================
     // Terrain Generation
     //=====================================
 
-    pub fn generate_area(&self, world: &mut World) {
-        let size = self.world_config.get_scale() as i32 / 2;
-        let start_cords = [-size, -size, -200];
-        let end_cords = [size, size, 200];
+    pub fn generate_area(&self, world: &mut World, area: WorldArea) {
+
+        let start_cords = area.get_point_1_cords();
+        let end_cords = area.get_point_2_cords();
         
         
         let lair_rules_in_range = self.layer_manager.get_layer_rules_in_range(start_cords[2], end_cords[2]);
 
-        let terrain_height;
-        if self.world_config.world_flat() {
-            terrain_height = 1.0;
-        }
-        else {
-            terrain_height = 100.0;
-        }
+
+        let terrain_height = 100.0;
+        
         let terrain_noise = TerrainNoise::new(152452, 4, 500.0);
 
         println!("Generating Terrain");

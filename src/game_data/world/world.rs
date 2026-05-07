@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, texture_manager};
+use crate::game_data::player_data::player_data::PlayerData;
+use crate::game_data::world_gen::WorldGenManager;
+use crate::game_data::{TextureManager, player_data, texture_manager};
 use crate::game_data::screen::widget::world_rendering::tile_map_manager::TileMapManager;
 use crate::game_data::{types::BlockTexture, world_chunk::WorldChunk};
 use crate::game_data::world::world_chunk::CHUNK_VOLUME;
@@ -11,6 +13,8 @@ use crate::game_data::world::world_chunk::CHUNK_VOLUME;
 pub struct World {
     loaded_chunks : HashMap<u64, WorldChunk>,
     total_chunks : u32,
+
+    world_gen_manager: WorldGenManager,
 }
 
 impl World {
@@ -19,6 +23,8 @@ impl World {
         Self { 
             loaded_chunks: HashMap::new(),
             total_chunks: 0,
+
+            world_gen_manager: WorldGenManager::new()
         }
     }
 
@@ -63,6 +69,7 @@ impl World {
         if !self.loaded_chunks.contains_key(&chunk_key) 
         {
             let new_chunk = WorldChunk::new(cords);
+
             self.loaded_chunks.insert(chunk_key, new_chunk);
         }
 
@@ -148,19 +155,39 @@ impl World {
     // Single Block
     //=====================================
 
-    pub fn render_chunk(
+    pub fn load_chunk(
         &mut self, 
         texture_manager: &mut TextureManager, 
         tile_map_manager: &mut TileMapManager, 
+        player_data: &PlayerData,
         cords : [i16 ; 3]
     ) {
-        let chunk = self.get_chunk_at_chunk_cords_mut(cords);
-        if chunk.is_dirty() {
-            chunk.ray_cast_tile_map(tile_map_manager);
+        if self.get_chunk_at_chunk_cords(cords).is_some() {
+
         }
         else {
+            let chunk = WorldChunk::new(cords);
+            player_data.world_gen.generate_area(self, chunk.get_world_area());
+            let key = Self::chunk_cords_to_key(cords);
+            self.loaded_chunks.insert(key, chunk);
+        }
+
+        
+        
+
+        
+    
+    }
+
+    pub fn render_world(
+        &mut self, 
+        texture_manager: &mut TextureManager, 
+        tile_map_manager: &mut TileMapManager, 
+    ) {
+        for (key, chunk) in &mut self.loaded_chunks {
             chunk.render(texture_manager, tile_map_manager);
         }
+    
     }
 
 }

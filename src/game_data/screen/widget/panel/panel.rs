@@ -1,7 +1,7 @@
 
 use image::{error, flat};
 
-use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::EventManager, prelude::Event}, player_data::player_data::PlayerData, screen::{ScreenData, screen_data, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::scroll_panel::ScrollPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, widget_properties::{self, WidgetId, WidgetProperties}}}};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::EventManager, prelude::Event}, player_data::player_data::PlayerData, screen::{ScreenData, screen_data, widget::{bar_button::bar_button::BarButtonWidget, button::button::Button, panel::{image_display_panel::ImageDisplayPanel, panel_background::{BackgroundType, PanelBackground}, panel_color::PanelColor, panel_section::PanelSection, panel_texture_manager::PanelTextureManager}, scroll_panel::scroll_panel::ScrollPanel, text::header::TextDisplay, toggle_button::toggle_button::ToggleButton, widget::{Widget, WidgetType}, widget_calculations, widget_properties::{self, WidgetId, WidgetProperties}}}, types::UITextures};
 
 
 #[derive(Clone, Copy)]
@@ -220,6 +220,7 @@ impl Panel {
             panic!("Sub Panel was just inserted but could not be retrieved in Panel");
         }
     }
+
 
     pub fn add_scroll_panel(&mut self) -> &mut ScrollPanel {
         let scroll_panel = ScrollPanel::new();

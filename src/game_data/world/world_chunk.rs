@@ -14,11 +14,8 @@ pub struct WorldChunk {
     block_data : Box<[u16; CHUNK_VOLUME]>,
 
     // Cashed rendering
-    tile_map_dirty: bool,
-    tile_map_id: Option<TileMapId>,
-
-    cashed_texture_dirty: bool,
-    cashed_texture_id: Option<CashedTextureID>,
+    pub dirty: bool,
+    pub tile_map_id: Option<TileMapId>,
 
     // Game objects
     game_objects: Vec<GameObjectType>,
@@ -31,11 +28,8 @@ impl WorldChunk {
             cords : chunk_cords,
             block_data : Box::new([0; CHUNK_VOLUME]),
 
-            tile_map_dirty: true,
+            dirty: true,
             tile_map_id: None,
-
-            cashed_texture_dirty: true,
-            cashed_texture_id: None,
 
             game_objects: Vec::new(),
         }
@@ -140,82 +134,51 @@ impl WorldChunk {
     //=====================================
 
     pub fn is_dirty(&self) -> bool {
-        self.tile_map_dirty
+        self.dirty
     }
 
-    pub fn ray_cast_tile_map(&mut self, tile_map_manager: &mut TileMapManager) { 
-        // Create a temp world for rendering
-        // Why : this allows the chunk to be modified without passing in world
-        // Also the only data required for rendering the chunk is in the chunk itself
-
+    pub fn clean(&mut self, texture_manager: &mut TextureManager, tile_map_manager: &mut TileMapManager) {
         if let Some(id) = self.tile_map_id {
             if let Some(tile_map) = tile_map_manager.get_mut_tile_map(id) {
                 let mut temp_world = World::new();
+
                 temp_world.set_chunk_block_data(self.cords, self.block_data.clone());
-
-                let world_area = self.get_world_area();
                 
+                let world_area = self.get_world_area();
+                tile_map.set_world_area(world_area);
 
-                tile_map.ray_cast_world_area(world_area, &temp_world);
-                self.tile_map_dirty = false;
-            }
-        }
-        else {
-            self.tile_map_id = Some(tile_map_manager.new_tile_map(self.get_depth()));
-        }
-    }
-
-    pub fn render(
-        &mut self, 
-        texture_manager: &mut TextureManager, 
-        tile_map_manager: &mut TileMapManager
-    ) {
-
-        if let Some(cashed_texture_id) = self.cashed_texture_id {
-
-            let world_cords = self.get_world_cords();
-            let block_scale = tile_map_manager.get_block_scale();
-            let draw_cords = 
-            iso_cord_tool::world_pos_to_ndc_cords(
-                block_scale, 
-                iso_cord_tool::world_cords_to_world_pos(world_cords)
-            );
-
-
-
-            if self.cashed_texture_dirty {
-                if let Some(id) = self.tile_map_id {
-                    if let Some(tile_map) = tile_map_manager.get_mut_tile_map(id) {
-                        for (key, tile) in tile_map.get_mut_map() {
-                            let scale = 0.2;
-                            let draw_offset = iso_cord_tool::casted_to_ndc_cords(scale, *key);
-                            
-                            
-                            tile.render_to_cashed_texture(texture_manager, cashed_texture_id, scale, draw_offset);
-                        }
-                        
-                        
-                        self.cashed_texture_dirty = false;
-                    }
+                if tile_map.clean(
+                    &temp_world,
+                    texture_manager, 
+                ) {
+                    self.dirty = false;
                 }
             }
-            else {
-                let draw_offset = tile_map_manager.get_draw_offset();
-
-                let pos = [
-                    draw_cords[0] + draw_offset[0],
-                    draw_cords[1] + draw_offset[0],
-                    draw_cords[0] + draw_offset[0] + block_scale * 16.0,
-                    draw_cords[1] + draw_offset[0] + block_scale * 16.0,
-                ];
-
-                let texture = Texture::CashedTexture(cashed_texture_id);
-                texture_manager.render_texture(texture, pos);
-            }
-
         }
         else {
-            self.cashed_texture_id = texture_manager.get_free_cashed_texture();
+            self.tile_map_id = Some(tile_map_manager.new_tile_map());
+        }
+    }    
+
+    pub fn render(&mut self, texture_manager: &mut TextureManager, tile_map_manager: &mut TileMapManager) {
+        let block_scale = tile_map_manager.get_block_scale();
+        let draw_offset = tile_map_manager.get_draw_offset();
+        
+        if self.dirty {
+            self.clean(texture_manager, tile_map_manager);
+        }
+
+        if let Some(id) = self.tile_map_id {
+            if let Some(tile_map) = tile_map_manager.get_mut_tile_map(id) {
+                tile_map.render(
+                    texture_manager, 
+                    block_scale, 
+                    draw_offset
+                );
+            }
+        }
+        else {
+            self.tile_map_id = Some(tile_map_manager.new_tile_map());
         }
     }
 
@@ -225,7 +188,6 @@ impl WorldChunk {
 
     // Remove game objects that are not contained within the chunk
     pub fn update_game_objects(&mut self, player_data: &PlayerData) {
-        
         for game_object in &mut self.game_objects {
             // let current_object = player_data.get_game_object();
 

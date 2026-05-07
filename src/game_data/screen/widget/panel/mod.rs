@@ -7,3 +7,4 @@ pub mod panel_section;
 pub mod panel_background;
 
 pub mod panel_texture_manager;
+pub mod image_display_panel;

@@ -3,7 +3,7 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use miniquad::{GlContext, RenderingBackend, TextureId};
 use rodio::cpal::InputStreamTimestamp;
 
-use crate::game_data::{screen::widget::widget_calculations, texture_manager::rendering_managager::rendering_batch::RenderBatch};
+use crate::game_data::{TextureManager, screen::widget::widget_calculations, texture_manager::rendering_managager::rendering_batch::RenderBatch};
 
 static NEXT_ID: AtomicU32 = AtomicU32::new(0);
 
@@ -71,6 +71,9 @@ impl TextureCashe {
     }
 
 
+    pub fn total_free_textures(&self) -> usize {
+        self.free_id.len()
+    }
     
 
     fn get_batch_cashing_batch(&mut self, cashed_texture: CashedTextureID) -> Option<&mut RenderBatch> {
@@ -87,6 +90,9 @@ impl TextureCashe {
         uv: [f32; 4],
         pos: [f32; 4],
     ) {
+
+
+
         let cell_size = 1.0 / self.scale as f32;
         let cashe_pos = [
             cashed_texture.src_pos[0] + cell_size,
@@ -96,7 +102,7 @@ impl TextureCashe {
         let render_batch = self.get_batch_cashing_batch(cashed_texture);
         if let Some(render_batch) = render_batch {
 
-           
+        
 
             let scaled_pos = [
                 pos[0] * cell_size - cashe_pos[0],
@@ -110,6 +116,7 @@ impl TextureCashe {
         else {
             eprintln!("Missing render batch for texture cashe id({})", cashed_texture.id)
         }
+        
     }
 
     pub fn render_cashed_texture(
@@ -138,8 +145,8 @@ impl TextureCashe {
         for i in 0..self.atlas_count {
             
             // Create the textures
-            let width = 4096u16;
-            let height = 4096u16;
+            let width = 8192u16;
+            let height = 8192u16;
             let bytes = vec![10u8; (width as usize * height as usize * 4) as usize];
             let new_texture = ctx.new_texture_from_rgba8(width, height, &bytes);
 
@@ -177,9 +184,9 @@ impl TextureCashe {
                 }
             }
 
-
         }
         self.textures_init = true;
+        println!("total_texture_cashe_slots: {}", self.free_id.len())
     }
 
     pub fn get_free_cashed_texture(&mut self) -> Option<CashedTextureID> {

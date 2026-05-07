@@ -81,6 +81,14 @@ impl CastedTile {
         self.right_triangle = triangle;
     }
 
+    pub fn get_triangles_depths(&self) -> [i32; 2] {
+        let left_max = self.left_triangle.get_struck_depth();
+        let right_max = self.left_triangle.get_struck_depth();
+
+        [left_max, right_max]
+
+    }
+
 
 
     //=====================================
@@ -194,8 +202,6 @@ impl CastedTile {
         draw_block_scale: f32, 
         draw_offset: [f32; 2]
     ){
-
-
         let left_textures = self.get_left_triangle().get_textures().clone();
         let left_pos = [
             draw_offset[0],

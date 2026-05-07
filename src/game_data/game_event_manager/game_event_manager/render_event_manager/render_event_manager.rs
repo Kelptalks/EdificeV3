@@ -48,12 +48,12 @@ impl RenderEvent {
                 menu_panel = menu_constructors::main_menu::get_menu(&screen_mananager.get_mut_screen_data());
             }
             CurrentMenu::WorldCreationMenu => {
+                
                 menu_panel =
                     menu_constructors::world_creation_menu::get_menu(
-                        &screen_mananager.get_mut_screen_data(), 
-                        event_tools.get_mut_world_gen_manager().get_mut_world_config(
+                        &screen_mananager.get_mut_screen_data()
                     )
-                );
+                
             }
             CurrentMenu::SettingsMenu => {
                 menu_panel = 
@@ -93,12 +93,14 @@ impl RenderEvent {
                 screen_mananager.get_mut_screen_data().quit();
             }
             RenderEvent::InitWorldRender() => {
+                /*
                 let range = event_tools.get_world_gen_manager().get_world_config().get_chunk_rendering_range();
                 camera.dirty_chunks_in_area(
                     &camera_data, 
                     range as i32
                 );
                 camera.ray_cast_dirty_chunks(camera_data.clone().get_arc_ref(), &world);
+                 */
             },
             RenderEvent::ReRenderBlock(cords) => {
                 let casted_tile_cords = camera_data.world_to_casted_tile_cords(*cords);

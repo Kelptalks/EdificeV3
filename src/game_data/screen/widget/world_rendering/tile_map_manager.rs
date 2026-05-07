@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, screen::{iso_cord_tool, widget::world_rendering::{area_rendering_manager::ray_caster::casted_tile::CastedTile, tile_map::{self, TileMap, TileMapId}}}, texture_manager};
+use crate::game_data::{TextureManager, World, screen::{iso_cord_tool, widget::world_rendering::{area_rendering_manager::ray_caster::casted_tile::CastedTile, tile_map::{self, TileMap, TileMapId}}}, texture_manager};
 
 
 pub struct TileMapManager {
@@ -19,7 +19,7 @@ impl TileMapManager {
             draw_offset: [0.0; 2],
 
             map_lairs: HashMap::new(),
-            flattened_lair: TileMap::new(0),
+            flattened_lair: TileMap::new(),
         }
     }
 
@@ -49,11 +49,11 @@ impl TileMapManager {
     }
 
 
-    pub fn new_tile_map(&mut self, depth: i32) -> TileMapId {
-        let new_map = TileMap::new(depth);
-        let id = new_map.get_id();
+    pub fn new_tile_map(&mut self) -> TileMapId {
+        let new_map = TileMap::new();
+        let id = new_map.id;
 
-        self.map_lairs.insert(new_map.get_id(), new_map);
+        self.map_lairs.insert(new_map.id, new_map);
 
         id
     }
@@ -65,9 +65,9 @@ impl TileMapManager {
     // Compair all the lairs and set each tile to the one with the lowest depth
     pub fn flatten(&mut self) {
         for (id, lair) in &mut self.map_lairs {
-            for (cords, lair_tile) in lair.get_tile_map() {
+            for (cords, lair_tile) in &mut lair.map {
                 
-                let current_tile = self.flattened_lair.get_mut_tile_with_flattened_cords(cords);
+                let current_tile = self.flattened_lair.get_mut_tile_with_flattened_cords(&cords);
                 if let Some(current_tile) = current_tile {
                         
                     let lair_left_triangle = lair_tile.get_left_triangle(); 
@@ -103,9 +103,13 @@ impl TileMapManager {
         }
     }
 
-    pub fn flatten_lairs(&mut self) {        
-        self.flattened_lair.reset(0);
-        self.flatten();
+    pub fn flatten_lairs(&mut self, texture_manager: &mut TextureManager) {        
+        // self.flattened_lair.reset(0);
+        // self.flatten();
+
+        for (id, lair) in &mut self.map_lairs {
+            lair.render(texture_manager, self.block_ncd_scale, self.draw_offset);
+        }
     }
 
 }

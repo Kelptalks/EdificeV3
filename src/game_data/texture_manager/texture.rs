@@ -12,5 +12,7 @@ pub enum Texture {
 
     TintedUITexture(UITextures, [f32; 3]),
     CashedTexture(CashedTextureID),
+
+    Atlas(usize)
 }
 

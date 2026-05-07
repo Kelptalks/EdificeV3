@@ -9,7 +9,7 @@ use crate::game_data::{
                 script_element_body_slot::ScriptElementBodySlot,
                 scripting_elements::scripting_panel::ScriptingPanel,
                 scripting_widget_type::{ScriptingElementWidget, ScriptingWidgetType},
-                var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, game_object_prop_displays::invintory_display::InvintoryDisplayWidget, panel::panel::Panel, scroll_panel::scroll_panel::ScrollPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, widget_properties::{WidgetId, WidgetProperties}, window_manager::{widget_window_manager::WidgetWindowManager, windows::window_type::WindowType}, world_rendering::play_world_view_render::PlayWorldViewRender
+                var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, game_object_prop_displays::invintory_display::InvintoryDisplayWidget, panel::{panel::Panel, image_display_panel::ImageDisplayPanel}, scroll_panel::scroll_panel::ScrollPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, widget_properties::{WidgetId, WidgetProperties}, window_manager::{widget_window_manager::WidgetWindowManager, windows::window_type::WindowType}, world_rendering::play_world_view_render::PlayWorldViewRender
         }
     }, };
 
@@ -73,6 +73,8 @@ pub enum WidgetType {
     WindowType(WindowType),
 
     InvintoryDisplayWidget(InvintoryDisplayWidget),
+
+    ImageDisplayPanel(ImageDisplayPanel),
 }
 
 impl WidgetType {
@@ -153,6 +155,8 @@ macro_rules! widget_match {
             WidgetType::WindowType(w) => w.$method($($arg),*),
             
             WidgetType::InvintoryDisplayWidget(w) => w.$method($($arg),*),
+
+            WidgetType::ImageDisplayPanel(w) => w.$method($($arg),*),
         }
     };
 }

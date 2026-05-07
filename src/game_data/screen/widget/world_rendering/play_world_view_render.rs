@@ -93,7 +93,7 @@ impl PlayWorldViewRender {
 
 
         let tile_map_manager = TileMapManager::new();
-        let tile_map = TileMap::new(0);
+        let tile_map = TileMap::new();
 
         PlayWorldViewRender {
             widget_properties: wp,
@@ -273,51 +273,6 @@ impl PlayWorldViewRender {
         
     }
 
-    //=====================================
-    // Core Rendering
-    //=====================================
-
-    fn render_left_triangle(&self, texture_manager: &mut TextureManager, flattened_iso_cords: &[i32; 2], tile: &CastedTile) {
-        let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, *flattened_iso_cords);
-        
-        draw_cords[0] += self.ndc_draw_centering_offset[0];
-        draw_cords[1] += self.ndc_draw_centering_offset[1];
-
-        draw_cords[0] += self.camera_ndc_offset[0];
-        draw_cords[1] += self.camera_ndc_offset[1];
-
-        let left_textures = tile.get_left_triangle().get_textures().clone();
-        let left_pos = [
-            draw_cords[0],
-            draw_cords[1],
-            draw_cords[0] + self.ndc_block_scale,
-            draw_cords[1] + self.ndc_block_scale,
-        ];
-        for texture in left_textures {
-            texture_manager.render_expanded_texture(texture, left_pos);
-        }
-    }
-
-    fn render_right_triangle(&self, texture_manager: &mut TextureManager, flattened_iso_cords: &[i32; 2], tile: &CastedTile) {
-        let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(self.ndc_block_scale, *flattened_iso_cords);
-        
-        draw_cords[0] += self.ndc_draw_centering_offset[0];
-        draw_cords[1] += self.ndc_draw_centering_offset[1];
-
-        draw_cords[0] += self.camera_ndc_offset[0];
-        draw_cords[1] += self.camera_ndc_offset[1];
-
-        let right_textures = tile.get_right_triangle().get_textures().clone();
-        let right_pos = [
-            draw_cords[0] + self.ndc_block_scale,
-            draw_cords[1],
-            draw_cords[0] + (self.ndc_block_scale * 2.0),
-            draw_cords[1] + self.ndc_block_scale,
-        ];
-        for texture in right_textures {
-            texture_manager.render_expanded_texture(texture, right_pos);
-        }
-    }
 
     fn render_enitity_at_world_pos(
         &mut self, 
@@ -369,10 +324,10 @@ impl PlayWorldViewRender {
 
                     
                     if re_render_left {
-                        self.render_left_triangle(texture_manager, &cords, &tile);
+                        // self.render_left_triangle(texture_manager, &cords, &tile);
                     }
                     if re_render_right {
-                        self.render_right_triangle(texture_manager, &cords, &tile);
+                        // self.render_right_triangle(texture_manager, &cords, &tile);
                     }
                 }
             }
@@ -447,29 +402,31 @@ impl PlayWorldViewRender {
         texture_manager.update_expander_cache(self.ndc_block_scale);
         if (cursor.get_zoom() * 2) > 16 {
             let chunk_cords = test_world_chunk.get_cords();
-            for x in -2..2 {
+            for z in -2..2 {
                 for y in -2..2 {
-                    for z in -2..2 {
+                    for x in -2..2 {
                         let chunk_index = [
                             chunk_cords[0] + x,
                             chunk_cords[1] + y,
                             chunk_cords[2] + z,
                         ];
 
-                        world.render_chunk(
+                        world.load_chunk(
                             texture_manager,
                             &mut self.tile_map_manager, 
+                            player_data,
                             chunk_index
                         );
                     }
                 }
 
             }
-            self.tile_map_manager.flatten_lairs();
+            world.render_world(texture_manager, &mut self.tile_map_manager);
         }
         else {
             self.tile_map.reset(0);
-            self.tile_map.ray_cast_world_area(world_area, &world);
+            self.tile_map.set_world_area(world_area);
+            self.tile_map.clean(&world, texture_manager);
             self.tile_map.render(texture_manager, self.ndc_block_scale, draw_cords);
         }
         
@@ -633,6 +590,8 @@ impl Widget for PlayWorldViewRender {
         debug.chunks_rendered = 0;
         
         debug.total_lairs = self.tile_map_manager.get_lairs().len();
+
+        debug.free_cashed_textures = texture_manager.get_texture_cashe().total_free_textures() as u32;
 
         debug.entitys_drawn = self.entitys_drawn;
         self.entitys_drawn = 0;
