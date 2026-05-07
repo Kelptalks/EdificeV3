@@ -85,38 +85,58 @@ impl TextureCashe {
     }
 
     pub fn render_to_cashed_texture(
-        &mut self, 
+        &mut self,
         cashed_texture: CashedTextureID,
         uv: [f32; 4],
         pos: [f32; 4],
     ) {
-
-
-
         let cell_size = 1.0 / self.scale as f32;
         let cashe_pos = [
             cashed_texture.src_pos[0] + cell_size,
             cashed_texture.src_pos[1] + cell_size,
         ];
 
-        let render_batch = self.get_batch_cashing_batch(cashed_texture);
-        if let Some(render_batch) = render_batch {
+        // Map from negated tile-map-local NDC → atlas NDC
+        let atlas_pos = [
+            cashe_pos[0] - pos[0] * cell_size,
+            cashe_pos[1] - pos[1] * cell_size,
+            cashe_pos[0] - pos[2] * cell_size,
+            cashe_pos[1] - pos[3] * cell_size,
+        ];
 
-        
-
-            let scaled_pos = [
-                pos[0] * cell_size - cashe_pos[0],
-                pos[1] * cell_size - cashe_pos[1],
-                pos[2] * cell_size - cashe_pos[0],
-                pos[3] * cell_size - cashe_pos[1],
-            ];
-
-            render_batch.add_quad(scaled_pos, uv);
+        // Clip to cell bounds to prevent bleeding into adjacent cells
+        if let Some((clipped_uv, clipped_atlas)) = Self::clip_to_bounds(uv, atlas_pos, cashed_texture.src_pos) {
+            // add_quad negates Y, so pass -atlas_y to get the correct GPU vertex Y
+            let quad_pos = [clipped_atlas[0], -clipped_atlas[1], clipped_atlas[2], -clipped_atlas[3]];
+            if let Some(render_batch) = self.get_batch_cashing_batch(cashed_texture) {
+                render_batch.add_quad(quad_pos, clipped_uv);
+            } else {
+                eprintln!("Missing render batch for texture cashe id({})", cashed_texture.id);
+            }
         }
-        else {
-            eprintln!("Missing render batch for texture cashe id({})", cashed_texture.id)
-        }
-        
+    }
+
+    fn clip_to_bounds(uv: [f32; 4], draw_pos: [f32; 4], bounds: [f32; 4]) -> Option<([f32; 4], [f32; 4])> {
+        let [dx1, dy1, dx2, dy2] = draw_pos;
+        let [bx1, by1, bx2, by2] = bounds;
+        let cx1 = dx1.max(bx1);
+        let cy1 = dy1.max(by1);
+        let cx2 = dx2.min(bx2);
+        let cy2 = dy2.min(by2);
+        if cx1 >= cx2 || cy1 >= cy2 { return None; }
+        let dw = dx2 - dx1;
+        let dh = dy2 - dy1;
+        let clip_l = (cx1 - dx1) / dw;
+        let clip_t = (cy1 - dy1) / dh;
+        let clip_r = (dx2 - cx2) / dw;
+        let clip_b = (dy2 - cy2) / dh;
+        let [u, v, u2, v2] = uv;
+        let uw = u2 - u;
+        let uh = v2 - v;
+        Some((
+            [u + clip_l * uw, v + clip_t * uh, u2 - clip_r * uw, v2 - clip_b * uh],
+            [cx1, cy1, cx2, cy2],
+        ))
     }
 
     pub fn render_cashed_texture(

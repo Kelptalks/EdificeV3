@@ -134,8 +134,11 @@ impl TileMap {
 
             let tiles = area_rendering_manager.get_casted_tile_rays(world, &lair_block_mods);
             for tile in tiles {
-                let world_cords = tile.get_world_cords();
-                self.incert_tile_with_area_cords(world_cords, tile);
+                
+                if tile.struck() {
+                    let world_cords = tile.get_world_cords();
+                    self.incert_tile_with_area_cords(world_cords, tile);
+                }
             }
             self.ray_casting_dirty = false;
         }
@@ -146,54 +149,37 @@ impl TileMap {
             self.ray_cast_world_area(world);
         }
 
-        // Compute after ray casting so min_key/max_key are up to date
-        let self_center_key = [
-            (self.min_key[0] + self.max_key[0]) as f32 / 2.0,
-            (self.min_key[1] + self.max_key[1]) as f32 / 2.0,
-        ];
-
-        let self_scale = [
-            (self.min_key[0] - self.max_key[0]).abs() as f32,
-            (self.min_key[1] - self.max_key[1]).abs() as f32,
-        ];
-
-        // Use the larger axis so tiles near the y-extremes don't overflow the cache
-        let block_scale = 2.0 / self_scale[0].max(self_scale[1]);
-
         if self.cashed_texture_dirty {
-            if let Some(cashed_texture_id) = self.cashed_texture_id {
+            if let Some(world_area) = self.world_area {
+                let center_world = world_area.get_center_world_cords();
+                let iso_center = iso_cord_tool::flatten_world_cords(center_world);
+                let iso_center_f = [iso_center[0] as f32, iso_center[1] as f32];
 
-                for (key, tile) in self.map.iter() {
-                    let offset_iso_cords = [
-                        key[0] as f32 - self_center_key[0],
-                        key[1] as f32 - self_center_key[1],
-                    ];
+                let dims = world_area.get_dimensions();
+                let iso_extent = (dims[0] + dims[2]).max(dims[1] + dims[2]) as f32;
+                let block_scale = 1.0 / iso_extent;
 
-                    let cords = iso_cord_tool::float_iso_to_ndc_cords(block_scale, offset_iso_cords);
-
-
-
-                    tile.render_to_cashed_texture(
-                        texture_manager,
-                        cashed_texture_id, 
-                        block_scale, 
-                        cords
-                    );
-                    
+                if let Some(cashed_texture_id) = self.cashed_texture_id {
+                    for (key, tile) in self.map.iter() {
+                        let offset_iso_cords = [
+                            key[0] as f32 - iso_center_f[0],
+                            key[1] as f32 - iso_center_f[1],
+                        ];
+                        let cords = iso_cord_tool::float_iso_to_ndc_cords(block_scale, offset_iso_cords);
+                        tile.render_to_cashed_texture(texture_manager, cashed_texture_id, block_scale, cords);
+                    }
+                    self.cashed_texture_dirty = false;
                 }
-
-                self.cashed_texture_dirty = false;
+                else {
+                    self.cashed_texture_id = texture_manager.get_free_cashed_texture();
+                }
             }
-            else {
-                self.cashed_texture_id = texture_manager.get_free_cashed_texture();
-            }
-            
         }
 
         if self.ray_casting_dirty {
             false
         }
-        else if self.cashed_texture_dirty{
+        else if self.cashed_texture_dirty {
             false
         }
         else {
@@ -202,32 +188,27 @@ impl TileMap {
     }
 
     pub fn render(
-        &mut self, 
-        texture_manager: &mut TextureManager, 
-        draw_block_scale: f32, 
+        &mut self,
+        texture_manager: &mut TextureManager,
+        draw_block_scale: f32,
         draw_offset: [f32; 2]
     ) {
-        
-        let self_center_key = [
-            (self.min_key[0] + self.max_key[0]) as f32 / 2.0,
-            (self.min_key[1] + self.max_key[1]) as f32 / 2.0,
-        ];
-
-        let iso_extent_x = (self.min_key[0] - self.max_key[0]).abs() as f32;
-        let iso_extent_y = (self.min_key[1] - self.max_key[1]).abs() as f32;
-        // Must match clean(): cache was normalized by the larger axis
-        let half = iso_extent_x.max(iso_extent_y) * draw_block_scale;
-
         if let Some(cashed_texture_id) = self.cashed_texture_id {
             let texture = Texture::CashedTexture(cashed_texture_id);
 
             if let Some(world_area) = self.world_area {
+                let center_world = world_area.get_center_world_cords();
+                let iso_center = iso_cord_tool::flatten_world_cords(center_world);
+                let iso_center_f = [iso_center[0] as f32, iso_center[1] as f32];
 
+                let dims = world_area.get_dimensions();
+                let iso_extent = (dims[0] + dims[2]).max(dims[1] + dims[2]) as f32;
+                let half = iso_extent * draw_block_scale;
 
-                let mut center = iso_cord_tool::float_iso_to_ndc_cords(draw_block_scale, self_center_key);
-
+                let mut center = iso_cord_tool::float_iso_to_ndc_cords(draw_block_scale, iso_center_f);
                 center[0] += draw_offset[0];
                 center[1] += draw_offset[1];
+
                 let pos = [
                     center[0] - half,
                     center[1] - half,
@@ -235,14 +216,8 @@ impl TileMap {
                     center[1] + half,
                 ];
 
-       
-
-
                 texture_manager.render_texture(texture, pos);
             }
-            
-            
-            
         }
     }
 

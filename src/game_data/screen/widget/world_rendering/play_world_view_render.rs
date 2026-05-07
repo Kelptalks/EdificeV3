@@ -399,12 +399,13 @@ impl PlayWorldViewRender {
         self.tile_map_manager.update_rendering_data(self.ndc_block_scale, draw_cords);
 
 
+
         texture_manager.update_expander_cache(self.ndc_block_scale);
         if (cursor.get_zoom() * 2) > 16 {
             let chunk_cords = [0; 3];
-            for z in -5..2 {
-                for y in -0..3 {
-                    for x in -0..20 {
+            for z in -2..2 {
+                for y in -0..10 {
+                    for x in -0..10 {
                         let chunk_index = [
                             chunk_cords[0] + x,
                             chunk_cords[1] + y,

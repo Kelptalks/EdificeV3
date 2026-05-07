@@ -217,9 +217,9 @@ impl WorldArea {
     pub fn get_center_world_cords(&self) -> [i32; 3] {
         let [start, end] = self.points;
         [
-            start.cords[0] + (end.cords[0] - start.cords[0]) / 2,
-            start.cords[1] + (end.cords[1] - start.cords[1]) / 2,
-            start.cords[2] + (end.cords[2] - start.cords[2]) / 2,
+            start.cords[0] + ((end.cords[0] - start.cords[0]) / 2),
+            start.cords[1] + ((end.cords[1] - start.cords[1]) / 2),
+            start.cords[2] + ((end.cords[2] - start.cords[2]) / 2),
         ]
     }
 
