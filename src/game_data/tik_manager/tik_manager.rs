@@ -1,7 +1,7 @@
 
 use std::{sync::{Arc, RwLock}, time::{SystemTime, UNIX_EPOCH}, u128};
 
-use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::player_data::PlayerData, screen::screen_task_manager::rendering_task_manager::RenderingTaskManager, tik_manager::{block_updates::block_update_manager::BlockUpdateManager, drones::{drone_manager::DroneManager, lua_manager::LuaManager}}, world_task_manager::world_task_manager::WorldTaskManager};
+use crate::game_data::{self, World, game_event_manager::prelude::EventManager, player_data::player_data::PlayerData, screen::screen_task_manager::rendering_task_manager::RenderingTaskManager, tik_manager::{block_updates::block_update_manager::BlockUpdateManager, drones::{drone_manager::DroneManager, lua_manager::LuaManager}}, world, world_task_manager::world_task_manager::WorldTaskManager};
 
 /*
 #################
@@ -128,8 +128,14 @@ impl TikManager {
             self.last_tik_micros = current_millis;
 
             let current_world = player_data.get_world_ref();
+            player_data.tik_game_objects(event_manager);
             player_data.get_mut_drone_manager().tik_drones(current_world.clone(), event_manager);
 
+
+            let mut world_gaurd = current_world.write().unwrap();
+            world_gaurd.tik(player_data, event_manager);
+
+            event_manager.execute_world_events(&mut world_gaurd);
 
             // Decrement tiks left to execute
             total_tiks_to_execute-=1;

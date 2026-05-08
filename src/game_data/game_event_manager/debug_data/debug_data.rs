@@ -1,4 +1,4 @@
-use crate::game_data::game_event_manager::debug_data::{rendering_debug_data::RenderingDebugData, window_debug_data::WindowDebugData};
+use crate::game_data::{game_event_manager::debug_data::{self, rendering_debug_data::RenderingDebugData, window_debug_data::WindowDebugData, world_debug_data::WorldDebugData}, screen::widget::widget_properties::WidgetId};
 
 
 #[macro_export]
@@ -10,24 +10,64 @@ macro_rules! debug_fields {
 
 
 pub struct DebugData {
-    window_debug_data: WindowDebugData,
-    rendering_debug_data: RenderingDebugData,
+
+    pub debug_data_tabs_names: Vec<String>,
+    pub debug_data: Vec<Vec<String>>,
+    pub debug_data_widget_ids: Vec<WidgetId>,
 }
 
 impl DebugData {
     pub fn new() -> DebugData {
+
+        let mut debug_data_tabs_names = Vec::new();
+        let mut debug_data = Vec::new();
+
+        debug_data_tabs_names.push("window_debug_data".to_string());
+        debug_data.push(Vec::new());
+
+        debug_data_tabs_names.push("rendering_debug_data".to_string());
+        debug_data.push(Vec::new());
+        
+        debug_data_tabs_names.push("world_debug_data".to_string());
+        debug_data.push(Vec::new());
+
         DebugData {
-            window_debug_data: WindowDebugData::new(),
-            rendering_debug_data: RenderingDebugData::new(),
+
+            debug_data_tabs_names,
+            debug_data: debug_data,
+            debug_data_widget_ids: Vec::new()
         }
     }
 
 
-    pub fn get_window_debug_data(&mut self) -> &mut WindowDebugData {
-        &mut self.window_debug_data
+    pub fn get_data(&self, index: usize) -> &Vec<String> {
+        if index < self.debug_data.len() {
+            &self.debug_data[index]
+        }
+        else {
+            &self.debug_data[0]
+        }
     }
 
-    pub fn get_rendering_debug_data(&mut self) -> &mut RenderingDebugData {
-        &mut self.rendering_debug_data
+    pub fn clear_window_data(&mut self) {
+        self.debug_data[0].clear();
     }
+    pub fn add_window_data(&mut self, string: String) {
+        self.debug_data[0].push(string);
+    }
+
+    pub fn clear_rendering_data(&mut self) {
+        self.debug_data[1].clear();
+    }
+    pub fn add_rendering_data(&mut self, string: String) {
+        self.debug_data[1].push(string);
+    }
+
+    pub fn clear_world_data(&mut self) {
+        self.debug_data[2].clear();
+    }
+    pub fn add_world_data(&mut self, string: String) {
+        self.debug_data[2].push(string);
+    }
+
 }

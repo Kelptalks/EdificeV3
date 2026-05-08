@@ -1,7 +1,9 @@
 use std::collections::HashMap;
+use std::fmt::format;
 
 use mlua::Chunk;
 
+use crate::game_data::game_event_manager::event_manager::{self, EventManager};
 use crate::game_data::player_data::player_data::PlayerData;
 use crate::game_data::world_gen::WorldGenManager;
 use crate::game_data::{TextureManager, player_data, texture_manager, world_chunk};
@@ -14,7 +16,13 @@ use crate::game_data::world::world_chunk::CHUNK_VOLUME;
 
 pub struct World {
     loaded_chunks : HashMap<u64, WorldChunk>,
+    
+    chunks_to_load: Vec<u64>,
+    chunks_to_generate: Vec<u64>,
+
     total_chunks : u32,
+
+
 
     world_gen_manager: WorldGenManager,
 }
@@ -24,6 +32,9 @@ impl World {
     {   
         Self { 
             loaded_chunks: HashMap::new(),
+            chunks_to_load: Vec::new(),
+            chunks_to_generate: Vec::new(),
+
             total_chunks: 0,
 
             world_gen_manager: WorldGenManager::new()
@@ -98,23 +109,19 @@ impl World {
         return self.get_chunk_at_chunk_cords(chunk_cords);
     }
 
-    pub fn get_or_construct_chunk(&mut self, player_data: &PlayerData, cords : [i16 ; 3]) -> &mut WorldChunk {
-        let chunk_key = Self::chunk_cords_to_key(cords);
-        
-        // If world chunk does not exist create it
-        if !self.loaded_chunks.contains_key(&chunk_key) 
-        {
-            self.load_chunk(player_data, cords);
-        }
-
-        return self.loaded_chunks.get_mut(&chunk_key).unwrap();
-
-    }
 
     pub fn set_chunk_block_data(&mut self, chunk_cords: [i16; 3], block_data: Box<[u16; CHUNK_VOLUME]>) {
         let chunk = self.force_get_chunk_at_cords_mut(chunk_cords);
         chunk.set_block_data(block_data);
         
+    }
+
+    pub fn create_chunk(&mut self, key: u64) {
+        let cords = Self::key_to_chunk_cords(key);
+        let world_chunk = WorldChunk::new(cords);
+        self.chunks_to_generate.push(key);
+
+        self.loaded_chunks.insert(key, world_chunk);
     }
 
     //=====================================
@@ -165,20 +172,71 @@ impl World {
     }
 
     //=====================================
+    // Tik
+    //=====================================
+
+    pub fn tik(&mut self, player_data: &PlayerData, event_manager: &mut EventManager) {
+        
+        let debug_data = event_manager.get_mut_debug_data();
+        debug_data.clear_world_data();
+        
+        let chunks_loaded = format!("Chunks Loaded({})", self.loaded_chunks.len());
+        debug_data.add_world_data(chunks_loaded);
+
+        let chunks_to_gen = format!("Chunks to gen({})", self.chunks_to_generate.len());
+        debug_data.add_world_data(chunks_to_gen);
+        
+        let chunks_to_load = format!("chunks to load({})", self.chunks_to_load.len());
+        debug_data.add_world_data(chunks_to_load);
+
+        // Generate chunks terrain
+        while let Some(key) = self.chunks_to_generate.pop() {
+            if let Some(chunk) = &mut self.loaded_chunks.get_mut(&key) {
+                let area_to_gen = chunk.get_world_area();
+                chunk.terrain_generated = true;
+                player_data.world_gen.generate_area(self, area_to_gen);
+                
+            }
+        }
+
+        // Gen chunks to load
+        while let Some(key) = self.chunks_to_load.pop() {
+            if let Some(chunk) = &mut self.loaded_chunks.get_mut(&key) {
+                chunk.loaded_this_tik = true;
+            }
+            else {
+                self.create_chunk(key);
+            }
+        }
+
+        let mut chunks_to_unload = Vec::new();
+        for (key, chunk) in &mut self.loaded_chunks {
+            if !chunk.loaded_this_tik {
+                chunks_to_unload.push(*key);
+            }
+            else {
+                chunk.loaded_this_tik = false;
+            }
+        }
+
+        let chunks_to_unload_debug = format!("Chunks to unload ({})", chunks_to_unload.len());
+        debug_data.add_world_data(chunks_to_unload_debug);
+
+        for k in chunks_to_unload {
+            self.loaded_chunks.remove(&k);
+        }
+    }
+
+    //=====================================
     // Single Block
     //=====================================
 
     pub fn load_chunk(
         &mut self, 
-        player_data: &PlayerData,
-        cords : [i16 ; 3]
+        cords : &[i16 ; 3]
     ) {
-        let chunk = self.force_get_chunk_at_cords_mut(cords);
-        if !chunk.terrain_generated {
-            chunk.terrain_generated = true;
-            let world_area = chunk.get_world_area();
-            player_data.world_gen.generate_area(self, world_area);
-        }
+        let key = Self::chunk_cords_to_key(*cords);
+        self.chunks_to_load.push(key);
     }
 
     pub fn render_world(
@@ -186,8 +244,6 @@ impl World {
         texture_manager: &mut TextureManager, 
         tile_map_manager: &mut TileMapManager, 
     ) {
-
-        
         let mut chunks: Vec<(&u64, &mut WorldChunk)> = self.loaded_chunks.iter_mut().collect();
         chunks.sort_by_key(|(_, chunk)| chunk.depth);
 
@@ -195,5 +251,6 @@ impl World {
             chunk.render(texture_manager, tile_map_manager);
         }
     }
-
 }
+
+

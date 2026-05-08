@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 
-use crate::game_data::{World, game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, prelude::{Event, GameEvent}}, player_data::locations::location::WorldLocation, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, prelude::{Event, GameEvent}, world_event_manager::chunk_event::ChunkEvent}, player_data::locations::location::WorldLocation, types::BlockTexture};
 
 /*
 #################
@@ -15,8 +15,9 @@ to modifications to the world
 pub enum WorldEvent {
     // Direct
     Clear,                              // No Data                      // Params: () | Clear the world
-    GenWorld(),              // World Config                            // Params: () | Generate the world
-    
+    _GenWorld(),              // World Config                            // Params: () | Generate the world
+    ChunkEvent(ChunkEvent),
+
     // Modifcation
     GenLevel(u32),                                                      // Params: (Level Id) | Generate a level with id
     PlaceBlock([i32; 3], BlockTexture),                                 // Params: (Block Cords, Block Type) | Modifys a block and also attempts to create entitys if block is of a cirtain type
@@ -42,13 +43,16 @@ impl WorldEvent {
             WorldEvent::Clear => {
                 world.clear();
             },
-            WorldEvent::GenWorld() => {
+            WorldEvent::_GenWorld() => {
                 /*
                 let render_range = event_data.get_mut_world_gen_manager().get_world_config().get_chunk_rendering_range();
                 event_data.get_mut_world_gen_manager().generate_area(world);
                  */
-    
             },
+
+            WorldEvent::ChunkEvent(chunk_event) => {
+                chunk_event.execute_chunk_event(world, event_data);
+            }
             WorldEvent::GenLevel(level) => {
                 event_data.get_level_manager().get_level_at_index(level.clone() as usize).gen_level(world);
             },

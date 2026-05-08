@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, log_init, player_data::{cursor::{cursor::Cursor, cursor_event_scheduler::CursorEventScheduler}, drones::{drone_event_scheduler::DroneEventScheduler, drone_manager::{DroneId, DroneManager}}, locations::location_manager::{LocationId, LocationManager}, nature_manager::nature_manager::NatureManager, progress_manager::progress_manager::ProgressManager, settings::settings_manager::SettingsManager}, screen::{menu_constructors::play_view_menu::new_play_view::PlayViewMode, widget::world_rendering::view_mode::ViewMode}, types::BlockTexture, world_gen::WorldGenManager};
+use crate::game_data::{World, game_event_manager::{self, event_manager::{self, EventManager}, game_event_manager::GameEventManager}, log_init, player_data::{cursor::{cursor::Cursor, cursor_event_scheduler::CursorEventScheduler}, drones::{drone_event_scheduler::DroneEventScheduler, drone_manager::{DroneId, DroneManager}}, locations::location_manager::{LocationId, LocationManager}, nature_manager::nature_manager::NatureManager, progress_manager::progress_manager::ProgressManager, settings::settings_manager::SettingsManager}, screen::{menu_constructors::play_view_menu::new_play_view::PlayViewMode, widget::world_rendering::view_mode::ViewMode}, types::BlockTexture, world_gen::WorldGenManager};
 
 
 /*
@@ -20,7 +20,7 @@ pub struct PlayerData {
     pub world_gen: WorldGenManager,
 
     // Game Object Managment
-    cursor_manager: Cursor,
+    cursor: Cursor,
     drone_manager: DroneManager,
     nature_manager: NatureManager,
     location_manager: LocationManager,
@@ -43,7 +43,7 @@ impl PlayerData {
             world_gen: WorldGenManager::new(),
 
             // Game object managment
-            cursor_manager: Cursor::new(),
+            cursor: Cursor::new(),
             drone_manager: DroneManager::new(),
             nature_manager: NatureManager::new(),
             location_manager: LocationManager::new(),
@@ -64,23 +64,23 @@ impl PlayerData {
         if let Some(mode) = self.view_mode {
             match mode {
                 ViewMode::Start() => {
-                    self.cursor_manager.set_ghost_block(BlockTexture::DroneBotRight)
+                    self.cursor.set_ghost_block(BlockTexture::DroneBotRight)
                 },
                 ViewMode::Drone(drone_id) => {
-                    self.cursor_manager.set_ghost_block(BlockTexture::Air)
+                    self.cursor.set_ghost_block(BlockTexture::Air)
                 },
                 ViewMode::Location(location_id) => {
-                    self.cursor_manager.set_ghost_block(BlockTexture::Air)
+                    self.cursor.set_ghost_block(BlockTexture::Air)
                 },
             }
         }
         else {
-            self.cursor_manager.set_ghost_block(BlockTexture::Air);
+            self.cursor.set_ghost_block(BlockTexture::Air);
         }
     }
 
     pub fn get_mut_cursor(&mut self) -> &mut Cursor {
-        &mut self.cursor_manager
+        &mut self.cursor
     }
 
     pub fn get_mut_drone_manager(&mut self) -> &mut DroneManager {
@@ -92,7 +92,7 @@ impl PlayerData {
     //=====================================
 
     pub fn get_cursor(&self) -> &Cursor {
-        &self.cursor_manager
+        &self.cursor
     }
 
     pub fn get_world_ref(&self) -> Arc<RwLock<World>> {
@@ -111,8 +111,12 @@ impl PlayerData {
     // Game Object Scedulers
     //=================================================
 
+    pub fn tik_game_objects(&mut self, event_manager: &mut EventManager) {
+        self.cursor.tik(event_manager);
+    }
+
     pub fn get_cursor_event_scheduler(&self) -> CursorEventScheduler {
-        return CursorEventScheduler::new(self.cursor_manager.clone());
+        return CursorEventScheduler::new(self.cursor.clone());
     }
 
     pub fn get_drone_event_scheduler(&self, drone_id: DroneId) -> Option<DroneEventScheduler> {

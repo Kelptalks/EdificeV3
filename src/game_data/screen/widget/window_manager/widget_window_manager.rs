@@ -154,7 +154,9 @@ impl Widget for WidgetWindowManager {
 
         // Menu 
         if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::F3){
-            let window = DebugWin::new().wrap_into_window_type();
+            let debug = game_event_manager.get_mut_debug_data();
+
+            let window = DebugWin::new(debug).wrap_into_window_type();
             self.new_window(window, "Debug");
         }
         else if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::F2) {
@@ -176,8 +178,11 @@ impl Widget for WidgetWindowManager {
         }
 
 
-        let debug_data = game_event_manager.get_mut_debug_data().get_window_debug_data();
-        debug_data.open_windows = self.windows.len();
+        let debug_data = game_event_manager.get_mut_debug_data();
+        debug_data.clear_window_data();
+
+        let windows_open = format!("Windows Open: {}", self.windows.len());
+        debug_data.add_window_data(windows_open);
 
         
 

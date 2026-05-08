@@ -384,11 +384,7 @@ impl PlayWorldViewRender {
 
         let world_area = cursor.get_rendering_area();
         self.area_rendering_manager.set_world_area(world_area);
-        
 
-        let chunk_cords = World::world_cords_to_chunk_cords(cursor.get_cords());
-        let test_world_chunk = world.get_or_construct_chunk(player_data, chunk_cords);
-        
 
         let mut draw_cords = [0.0; 2];
         draw_cords[0] += self.ndc_draw_centering_offset[0];
@@ -402,32 +398,14 @@ impl PlayWorldViewRender {
 
 
         texture_manager.update_expander_cache(self.ndc_block_scale);
-        if (cursor.get_zoom() * 2) > 32 {
-            let chunk_cords = test_world_chunk.get_cords();
-            for z in -3..3 {
-                for y in -3..3 {
-                    for x in -3..3 {
-                        let chunk_index = [
-                            chunk_cords[0] + x,
-                            chunk_cords[1] + y,
-                            chunk_cords[2] + z,
-                        ];
-
-                        world.load_chunk(
-                            player_data,
-                            chunk_index
-                        );
-                    }
-                }
-
-            }
-        }
-        else {
+        if (cursor.get_zoom() * 2) < 32 {
             self.tile_map.reset(0);
             self.tile_map.set_world_area(world_area);
             self.tile_map.clean(&world, texture_manager);
             self.tile_map.render_tiles(texture_manager, self.ndc_block_scale, draw_cords);
+
         }
+
 
         
         world.render_world(texture_manager, &mut self.tile_map_manager);
@@ -580,22 +558,15 @@ impl Widget for PlayWorldViewRender {
         }
         
 
-        let frame_time = start.elapsed().as_secs_f32() * 1000.0;
 
-        let debug = event_manager.get_mut_debug_data().get_rendering_debug_data();
-        debug.frame_time_ms = frame_time;
-        
-        debug.tiles_cashed = 0;
-        debug.tiles_rendered = 0;
+        let debug = event_manager.get_mut_debug_data();
+        debug.clear_rendering_data();
 
-        debug.chunks_cashed = 0;
-        debug.chunks_rendered = 0;
-        
-        debug.total_lairs = self.tile_map_manager.get_lairs().len();
+        let frame_time = format!("Frame Time ({})ms", start.elapsed().as_secs_f32() * 1000.0);
+        debug.add_rendering_data(frame_time);
 
-        debug.free_cashed_textures = texture_manager.get_texture_cashe().total_free_textures() as u32;
-
-        debug.entitys_drawn = self.entitys_drawn;
+        let entitys_drawn = format!("Entity's Drawn ({})", self.entitys_drawn);
+        debug.add_rendering_data(entitys_drawn);
         self.entitys_drawn = 0;
 
         

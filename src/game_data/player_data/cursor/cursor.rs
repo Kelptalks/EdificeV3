@@ -1,4 +1,4 @@
-use crate::game_data::{locations::world_area::WorldArea, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::{event_manager::{self, EventManager}, world_event_manager::{chunk_event::ChunkEvent, world_event_manager::WorldEvent}}, locations::world_area::WorldArea, types::BlockTexture};
 
 
 #[derive(Clone)]
@@ -47,8 +47,6 @@ impl Cursor {
         world_area
     }
 
-
-
     //=====================================
     // Mutation
     //=====================================
@@ -77,6 +75,32 @@ impl Cursor {
         self.ghost_block = block;
     }
 
+    //=====================================
+    // Tiking
+    //=====================================
+
+    pub fn tik(&mut self, event_manager: &mut EventManager) {
+        // Load a 3 by 3 block area around 
+        let view_distance = 2;
+        let chunk_cords = World::world_cords_to_chunk_cords(self.get_cords());
+        
+
+        for z in -view_distance..=view_distance {
+            for y in -view_distance..=view_distance {
+                for x in -view_distance..=view_distance {
+                    let cords: [i16; 3] = [
+                        chunk_cords[0] + x,
+                        chunk_cords[1] + y,
+                        chunk_cords[2] + z,  
+                    ];
+                    event_manager.add_world_event(WorldEvent::ChunkEvent(ChunkEvent::LoadChunk(cords)));
+
+
+
+                }
+            }
+        }
+    }
         
     
 }

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, World, locations::world_area::WorldArea, player_data::{self, game_object::GameObjectType, player_data::PlayerData}, screen::{iso_cord_tool, text, widget::world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod}, rendering_config, tile_map::{TileMap, TileMapId}, tile_map_manager::{self, TileMapManager}}}, texture_manager::{self, texture::Texture, texture_cashe::texture_cashe::CashedTextureID}};
+use crate::game_data::{TextureManager, World, game_event_manager::event_manager::{self, EventManager}, locations::world_area::WorldArea, player_data::{self, game_object::GameObjectType, player_data::PlayerData}, screen::{iso_cord_tool, text, widget::world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod}, rendering_config, tile_map::{TileMap, TileMapId}, tile_map_manager::{self, TileMapManager}}}, texture_manager::{self, texture::Texture, texture_cashe::texture_cashe::CashedTextureID}};
 
 const CHUNK_SIZE: usize = 16;
 const CHUNK_AREA: usize = CHUNK_SIZE * CHUNK_SIZE;
@@ -9,16 +9,18 @@ pub const CHUNK_VOLUME: usize = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE;
 pub const CHUNK_SIZE_I32: i32 = 16;
 
 pub struct WorldChunk {
+    pub loaded_this_tik: bool,
+
     // World Data
     cords : [i16; 3],
     block_data : Box<[u16; CHUNK_VOLUME]>,
 
     // Cashed rendering
-    
     pub depth: i16,
 
     pub terrain_generated: bool,
     pub dirty: bool,
+    
     pub tile_map_id: Option<TileMapId>,
 
 
@@ -31,6 +33,8 @@ impl WorldChunk {
     {
         let depth = chunk_cords[0] + chunk_cords[1] + chunk_cords[2];
         Self {
+            loaded_this_tik: true,
+
             cords : chunk_cords,
             block_data : Box::new([0; CHUNK_VOLUME]),
 
@@ -203,11 +207,11 @@ impl WorldChunk {
     // Remove game objects that are not contained within the chunk
     pub fn update_game_objects(&mut self, player_data: &PlayerData) {
         for game_object in &mut self.game_objects {
-            // let current_object = player_data.get_game_object();
-
+            
         }
     }
 
+    
 
 
 }
