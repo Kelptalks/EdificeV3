@@ -67,18 +67,9 @@ impl ScrollPanel {
         None
     }
 
-    pub fn set_prefered_scale(&mut self, scale: f32) {
-        self.widget_properties.prefered_scale[1] = scale;
+    pub fn set_prefered_scale(&mut self, scale: [f32; 2]) {
+        self.widget_properties.prefered_scale = scale;
 
-        let mut largest_widget_prefered_x_scale = 0.0;
-        for widget in &mut self.widgets {
-            widget.size();
-            let widget_prefered_size = widget.get_preffered_scale();
-            if largest_widget_prefered_x_scale < widget_prefered_size[0] {
-                largest_widget_prefered_x_scale = widget_prefered_size[0];
-            }
-        }
-        self.widget_properties.prefered_scale[0] = largest_widget_prefered_x_scale + 0.001;
     }
 
 }

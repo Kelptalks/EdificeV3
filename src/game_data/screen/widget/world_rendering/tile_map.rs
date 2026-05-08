@@ -109,11 +109,6 @@ impl TileMap {
         self.incert_tile_with_flattened_cords(flattened_iso_cords, tile);
     }
 
-    pub fn reset(&mut self, depth: i32) {
-        self.min_depth = depth;
-        self.map.clear();
-    }
-
     pub fn get_map(&self) -> &HashMap<[i32; 2], CastedTile> {
         return &self.map
     }

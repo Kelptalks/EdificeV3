@@ -48,7 +48,7 @@ fn get_action_selection_panel() -> WidgetType {
 
         scroll_panel.add_widget(row_sub_panel.wrap_into_widget());
 
-        scroll_panel.set_prefered_scale(0.5);
+
         panel.size();
     }
 
@@ -79,7 +79,7 @@ fn get_control_flow_selection_panel() -> WidgetType {
 
         scroll_panel.add_widget(var_slot.wrap_into_widget());
 
-        scroll_panel.set_prefered_scale(0.5);
+
         panel.size();
     }
 

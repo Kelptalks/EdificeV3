@@ -26,6 +26,7 @@ impl DebugWin {
             
             
             let scroll_panel = panel.add_scroll_panel();
+            scroll_panel.set_prefered_scale([0.5; 2]);
             debug_data.debug_data_widget_ids.push(scroll_panel.get_id());
             
             let tab_button = tab_panel.add_panel(panel.wrap_into_widget());

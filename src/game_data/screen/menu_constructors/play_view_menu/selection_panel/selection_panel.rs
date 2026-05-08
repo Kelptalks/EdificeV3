@@ -46,7 +46,6 @@ fn get_block_selection_panel() -> WidgetType {
             scroll_panel.add_widget(block_selection_panel);
         }
 
-        scroll_panel.set_prefered_scale(0.5);
         panel.size();
     }
 
@@ -85,7 +84,6 @@ fn get_item_selection_panel() -> WidgetType {
             scroll_panel.add_widget(item_selection_panel);
         }
 
-        scroll_panel.set_prefered_scale(0.5);
         panel.size();
     }
 

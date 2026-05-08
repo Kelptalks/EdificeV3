@@ -342,16 +342,17 @@ impl PlayWorldViewRender {
 
         texture_manager.update_expander_cache(self.ndc_block_scale);
         if (cursor.get_zoom() * 2) < 32 {
-            self.tile_map.reset(0);
             self.tile_map.set_world_area(world_area);
             self.tile_map.clean(&world, texture_manager);
             self.tile_map.render_tiles(texture_manager, self.ndc_block_scale, draw_cords);
 
         }
+        world.render_world(texture_manager, &mut self.tile_map_manager);
+        
 
 
         
-        world.render_world(texture_manager, &mut self.tile_map_manager);
+        
         
     }
 

@@ -172,37 +172,38 @@ impl TileMapManager {
         texture_manager.render_texture(texture, draw_pos);
 
         let sprite_depth = iso_cord_tool::get_depth_from_world_cords(iso_cord_tool::world_pos_to_world_cords(world_pos));
-        let flattened_cords = iso_cord_tool::world_pos_to_tile_cords(offset_world_cords);
+        let flattened_cords = iso_cord_tool::world_pos_to_tile_cords(world_pos);
 
-        for x in -3..3 {
-            for y in -3..3 {
+        for x in -3..=3 {
+            for y in -3..=3 {
                 let cords = [
                     flattened_cords[0] + x,
                     flattened_cords[1] + y,
                 ];
                 let tile = self.get_tile_with_flattened_cords(&cords);
-                
+
                 if let Some(tile) = tile {
                     let left_tile_world_cords = tile.get_left_triangle().get_solid_block_struck_cords();
                     let left_tile_depth = iso_cord_tool::get_depth_from_world_cords(left_tile_world_cords);
-                    let re_render_left = left_tile_depth < sprite_depth;
+                    let re_render_left = left_tile_depth > sprite_depth;
+
 
                     let right_tile_world_cords = tile.get_right_triangle().get_solid_block_struck_cords();
                     let right_tile_depth = iso_cord_tool::get_depth_from_world_cords(right_tile_world_cords);
-                    let re_render_right = right_tile_depth < sprite_depth;
+                    let re_render_right = right_tile_depth > sprite_depth;
 
 
                     if re_render_left {
                         tile.render_left_triangle(
-                            texture_manager, 
-                            self.draw_block_scale, 
+                            texture_manager,
+                            self.draw_block_scale,
                             self.draw_offset
                         );
                     }
                     if re_render_right {
                         tile.render_right_triangle(
                             texture_manager,
-                            self.draw_block_scale, 
+                            self.draw_block_scale,
                             self.draw_offset
                         );
                     }
