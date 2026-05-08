@@ -148,7 +148,6 @@ impl TileMap {
         if self.ray_casting_dirty {
             self.ray_cast_world_area(world);
         }
-
         if self.cashed_texture_dirty {
             if let Some(world_area) = self.world_area {
                 let center_world = world_area.get_center_world_cords();

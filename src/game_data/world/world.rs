@@ -3,11 +3,10 @@ use std::fmt::format;
 
 use mlua::Chunk;
 
-use crate::game_data::game_event_manager::event_manager::{self, EventManager};
-use crate::game_data::game_event_manager::game_event_manager::GameEventManager;
+use crate::game_data::game_event_manager::event_manager::{self, Event, EventManager};
 use crate::game_data::player_data::player_data::PlayerData;
 use crate::game_data::world_gen::WorldGenManager;
-use crate::game_data::{TextureManager, player_data, texture_manager, world_chunk};
+use crate::game_data::{TextureManager};
 use crate::game_data::screen::widget::world_rendering::tile_map_manager::TileMapManager;
 use crate::game_data::{types::BlockTexture, world_chunk::WorldChunk};
 use crate::game_data::world::world_chunk::CHUNK_VOLUME;
@@ -145,7 +144,7 @@ impl World {
         let world_chunk = self.force_get_chunk_at_world_cords_mut(cords);
         let internal_chunk_cords = Self::world_cords_to_internal_chunk_cords(cords);
 
-        world_chunk.set_chunk_value(value, internal_chunk_cords);  
+        world_chunk.set_chunk_value(value, internal_chunk_cords)
     }
 
     pub fn get_world_value (&self, cords : [i32 ; 3]) -> u16
@@ -174,8 +173,7 @@ impl World {
     // Tik
     //=====================================
 
-    pub fn tik(&mut self, player_data: &PlayerData, event_manager: &mut EventManager) {
-        
+    pub fn tik(&mut self, player_data: &PlayerData, event_manager: &mut EventManager) {   
         // Collect Debug Data
         let debug_data = event_manager.get_mut_debug_data();
         debug_data.clear_world_data();
@@ -244,13 +242,6 @@ impl World {
     ) {
         let key = Self::chunk_cords_to_key(*cords);
         self.chunks_to_load.push(key);
-    }
-
-    pub fn dirty_chunk(
-        &mut self,
-        cords : &[i16 ; 3]
-    ) {
-        
     }
 
     //=====================================

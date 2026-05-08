@@ -86,6 +86,10 @@ impl WidgetWindow {
         self.minimized
     }
 
+    pub fn focus(&mut self) {
+        self.minimized = false;
+    }
+
     pub fn close(&self) -> bool {
         self.close
     }

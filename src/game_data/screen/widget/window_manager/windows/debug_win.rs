@@ -17,6 +17,7 @@ impl DebugWin {
         let current_current_panel_index_ref = Rc::new(RefCell::new(0));
         let mut tab_panel = TabPanel::new(&current_current_panel_index_ref);
 
+        debug_data.debug_data_widget_ids.clear();
         for tab in &debug_data.debug_data_tabs_names {
             let mut panel = Panel::new_blank();
 

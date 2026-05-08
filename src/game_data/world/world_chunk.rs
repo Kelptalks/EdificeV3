@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, World, game_event_manager::{event_manager::{self, Event, EventManager}, game_event_manager::GameEventManager, render_event_manager::tile_map_event::TileMapEvent, widget_event_manager::prim_events::bool_events, world_event_manager::world_event_manager::WorldEvent}, locations::world_area::WorldArea, player_data::{self, game_object::GameObjectType, player_data::PlayerData}, screen::{iso_cord_tool, text, widget::world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod}, rendering_config, tile_map::{TileMap, TileMapId}, tile_map_manager::{self, TileMapManager}}}, texture_manager::{self, texture::Texture, texture_cashe::texture_cashe::CashedTextureID}};
+use crate::game_data::{TextureManager, World, game_event_manager::{event_manager::{self, Event, EventManager}, game_event_manager::GameEventManager, render_event_manager::tile_map_event::TileMapEvent, widget_event_manager::prim_events::bool_events, world_event_manager::{chunk_event::WorldChunkEvent, world_event_manager::WorldEvent}}, locations::world_area::WorldArea, player_data::{self, game_object::GameObjectType, player_data::PlayerData}, screen::{iso_cord_tool, text, widget::world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod}, rendering_config, tile_map::{TileMap, TileMapId}, tile_map_manager::{self, TileMapManager}}}, texture_manager::{self, texture::Texture, texture_cashe::texture_cashe::CashedTextureID}};
 
 const CHUNK_SIZE: usize = 16;
 const CHUNK_AREA: usize = CHUNK_SIZE * CHUNK_SIZE;
@@ -17,10 +17,9 @@ pub struct WorldChunk {
 
     // Cashed rendering
     pub depth: i16,
-
     pub terrain_generated: bool,
-    pub dirty: bool,
     
+    pub dirty: bool,
     pub tile_map_id: Option<TileMapId>,
 
     // Game objects
@@ -126,8 +125,7 @@ impl WorldChunk {
     }
 
     // Set the value of at a cord in a chunk
-    pub fn set_chunk_value(&mut self, value : u16, cords :[usize; 3])
-    {
+    pub fn set_chunk_value(&mut self, value : u16, cords :[usize; 3]) {
         let cord_index = Self::cords_to_index(cords);
         self.block_data[cord_index] = value;
         self.dirty = true;
@@ -150,23 +148,14 @@ impl WorldChunk {
     // Rendering
     //=====================================
 
-    pub fn clean(&mut self, texture_manager: &mut TextureManager, tile_map_manager: &mut TileMapManager) {
+    pub fn clean(&mut self, tile_map_manager: &mut TileMapManager) {
         if let Some(id) = self.tile_map_id {
             if let Some(tile_map) = tile_map_manager.get_mut_tile_map(id) {
-                let mut temp_world = World::new();
-
-                temp_world.set_chunk_block_data(self.cords, self.block_data.clone());
-                
                 let world_area = self.get_world_area();
                 tile_map.set_world_area(world_area);
-
-                if tile_map.clean(
-                    &temp_world,
-                    texture_manager, 
-                ) {
-                    self.dirty = false;
-                }
             }
+            tile_map_manager.dirty_id(&id);
+            self.dirty = false;
         }
         else {
             self.tile_map_id = Some(tile_map_manager.new_tile_map());
@@ -174,13 +163,17 @@ impl WorldChunk {
         
     }    
 
-    pub fn render(&mut self, texture_manager: &mut TextureManager, tile_map_manager: &mut TileMapManager) {
+    pub fn render(
+        &mut self, 
+        texture_manager: &mut TextureManager, 
+        tile_map_manager: &mut TileMapManager
+    ) {
         let block_scale = tile_map_manager.get_block_scale();
         let draw_offset = tile_map_manager.get_draw_offset();
         
         
         if self.dirty && self.terrain_generated {
-            self.clean(texture_manager, tile_map_manager);
+            self.clean(tile_map_manager);
         }
         else if let Some(id) = self.tile_map_id {
             if let Some(tile_map) = tile_map_manager.get_mut_tile_map(id) {

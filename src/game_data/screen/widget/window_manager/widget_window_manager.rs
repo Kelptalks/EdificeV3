@@ -6,7 +6,7 @@ use mlua::Debug;
 use crate::game_data::{game_event_manager::debug_data::window_debug_data::WindowDebugData, player_data, screen::{ScreenData, menu_constructors::play_view_menu::new_play_view::PlayViewConstructionManager, screen_data, widget::{panel::panel::Panel, prelude::PlayWorldViewRender, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties, window_manager::{widget_window_manager, window::WidgetWindow, windows::{debug_win::DebugWin, drone_spectate_win::DroneSpectateWindow, window_type::{Window, WindowType}}}, world_rendering::{tile_map_manager::TileMapManager, view_mode::ViewMode}}}, types::UITextures};
 
 
-#[derive(Hash, PartialEq, Eq)]
+#[derive(Hash, Clone, Copy, PartialEq, Eq)]
 pub struct WidgetWindowId {
     id: u32,
 }
@@ -30,6 +30,7 @@ pub struct WidgetWindowManager {
     minimized_windows: Vec<WidgetWindowId>,
 
     windows: HashMap<WidgetWindowId, WidgetWindow>,
+    debug: Option<WidgetWindowId>,
 
 
     next_window_id: u32, 
@@ -58,6 +59,7 @@ impl WidgetWindowManager {
             minimized_windows: Vec::new(),
             
             windows: HashMap::new(),
+            debug: None,
 
             next_window_id: 0,
             play_view: play_view,
@@ -77,7 +79,7 @@ impl WidgetWindowManager {
 
 
 
-    fn new_window(&mut self, mut window: WindowType, name: &str) {
+    fn new_window(&mut self, mut window: WindowType, name: &str) -> WidgetWindowId {
         let id = self.get_next_window_id();
         
         window.set_parent_pos(self.widget_props.pos);
@@ -86,6 +88,8 @@ impl WidgetWindowManager {
 
         let window = WidgetWindow::new(window, &self.widget_props, name);
         self.windows.insert(id, window);
+
+        id
     }
 }
 
@@ -153,10 +157,24 @@ impl Widget for WidgetWindowManager {
 
         // Menu 
         if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::F3){
-            let debug = game_event_manager.get_mut_debug_data();
+            
+            if let Some(debug) = self.debug {
+                if let Some(window) = self.windows.get_mut(&debug) {
+                    window.focus()
+                }
+                else {
+                    let debug = game_event_manager.get_mut_debug_data();
+                    let window = DebugWin::new(debug).wrap_into_window_type();
+                    self.debug = Some(self.new_window(window, "Debug"));
+                }
+            }
+            else {
+                let debug = game_event_manager.get_mut_debug_data();
+                let window = DebugWin::new(debug).wrap_into_window_type();
+                self.debug = Some(self.new_window(window, "Debug"));
+            }
 
-            let window = DebugWin::new(debug).wrap_into_window_type();
-            self.new_window(window, "Debug");
+
         }
         else if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::F2) {
            

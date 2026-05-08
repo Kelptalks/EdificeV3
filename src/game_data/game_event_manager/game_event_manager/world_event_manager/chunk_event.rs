@@ -13,12 +13,13 @@ impl WorldChunkEvent {
 
     pub fn execute_chunk_event(&self, world: &mut World, event_data: &mut GameEventManager) {
 
+
         match self {
             WorldChunkEvent::LoadChunk(cords) => {
                 world.load_chunk(cords);
             },
             WorldChunkEvent::DirtyChunk(cords) => {
-                world.dirty_chunk(cords);
+                
             },
         }
     }

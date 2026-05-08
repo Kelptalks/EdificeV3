@@ -4,7 +4,7 @@ use std::{cell::RefCell, collections::HashMap, ops::Index, rc::Rc, time::{Instan
 use crate::game_data::{
     TextureManager, World, game_event_manager::{self, player_data_event_manager::var_event_manager::var_events::VarEvents}, locations::world_area::WorldArea, player_data::{self, cursor::{self, cursor::Cursor, cursor_event_scheduler::{self, CursorEventScheduler}}, drone_script::var::{game_vars::{dynamic_var::{self, DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}, drones::{drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, prim_actions::drone_world_actions::DroneWorldAction}, drone_event_scheduler}, player_data::PlayerData}, screen::{
         ScreenData, input_data, iso_cord_tool, screen_data, widget::{button::button::Button, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot, play_world_view_config::PlayViewRenderingConfig}, widget::{Widget, WidgetType}, widget_calculations, widget_properties::{self, WidgetProperties}, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::{lair_block::LairBlockMod, lair_block_manager::LairBlockManager}, ray_caster::{casted_tile::CastedTile, casted_triangle::CastedTriangle, ray_casting_config::{self, RayCastingConfig}}}, rendering_config, tile_map::{TileMap, TileMapId}, tile_map_manager::TileMapManager, view_mode::ViewMode}}
-    }, texture_manager::texture::Texture, tools::cords_tool
+    }, texture_manager::texture::Texture, tools::cords_tool, types::BlockTexture
 };
 
 use crate::game_data::game_event_manager::prelude::*;
@@ -159,7 +159,10 @@ impl PlayWorldViewRender {
         player_data: &PlayerData
     ) {
         
+
+
         let cursor = player_data.get_cursor();
+
         let mut cursor_scheduler = player_data.get_cursor_event_scheduler();
 
         // Key panning
@@ -256,7 +259,7 @@ impl PlayWorldViewRender {
         if let Some(mouse_tile) = mouses_tile {
             
             let triangle;
-            if tile_ndc_cords[0] > (self.ndc_block_scale) {
+            if tile_ndc_cords[0] > self.ndc_block_scale {
                 let triangle = mouse_tile.get_right_triangle().clone();
                 return Some(triangle);
             } 
@@ -274,67 +277,6 @@ impl PlayWorldViewRender {
     }
 
 
-    fn render_enitity_at_world_pos(
-        &mut self, 
-        texture_manager: &mut TextureManager, 
-        player_data: &PlayerData, 
-        world_pos: [f32; 3], 
-        texture: Texture
-    ) {
-        // render the entity texture
-        let cursor_cords = player_data.get_cursor().get_cords();
-        let offset_world_cords = [
-            world_pos[0] - cursor_cords[0] as f32 - 0.25, // add the 0.5 to center on the block
-            world_pos[1] - cursor_cords[1] as f32, // ^
-            world_pos[2] - cursor_cords[2] as f32,
-        ];
-
-        let mut draw_cords = iso_cord_tool::world_pos_to_ndc_cords(self.ndc_block_scale, offset_world_cords);
-
-
-        // Scale to size of block
-        let draw_pos = [
-            draw_cords[0] - self.ndc_block_scale, 
-            draw_cords[1] - self.ndc_block_scale,
-            draw_cords[0] + self.ndc_block_scale, 
-            draw_cords[1] + self.ndc_block_scale,
-        ];
-        
-        texture_manager.render_texture(texture, draw_pos);
-
-        let sprite_depth = iso_cord_tool::get_depth_from_world_cords(iso_cord_tool::world_pos_to_world_cords(world_pos));
-        let flattened_cords = iso_cord_tool::world_pos_to_tile_cords(offset_world_cords);
-
-        for x in -3..3 {
-            for y in -3..3 {
-                let cords = [
-                    flattened_cords[0] + x,
-                    flattened_cords[1] + y,
-                ];
-                let tile = self.tile_map_manager.get_tile_with_flattened_cords(&cords);
-                
-                if let Some(tile) = tile {
-                    let left_tile_world_cords = tile.get_left_triangle().get_first_solid_block_cords_struck();
-                    let left_tile_depth = iso_cord_tool::get_depth_from_world_cords(left_tile_world_cords);
-                    let re_render_left = left_tile_depth > sprite_depth;
-
-                    let right_tile_world_cords = tile.get_right_triangle().get_first_solid_block_cords_struck();
-                    let right_tile_depth = iso_cord_tool::get_depth_from_world_cords(right_tile_world_cords);
-                    let re_render_right = right_tile_depth > sprite_depth;
-
-                    
-                    if re_render_left {
-                        // self.render_left_triangle(texture_manager, &cords, &tile);
-                    }
-                    if re_render_right {
-                        // self.render_right_triangle(texture_manager, &cords, &tile);
-                    }
-                }
-            }
-        }
-
-        self.entitys_drawn += 1;
-    }
 
     pub fn size_play_view(&mut self, cursor: &Cursor) {
         self.widget_properties.scale_based_off_parent();
@@ -393,9 +335,10 @@ impl PlayWorldViewRender {
         draw_cords[0] -= self.camera_ndc_offset[0];
         draw_cords[1] -= self.camera_ndc_offset[1];
 
+        
         self.tile_map_manager.update_rendering_data(self.ndc_block_scale, draw_cords);
-
-
+        self.tile_map_manager.clean(texture_manager, &world);
+        self.tile_map_manager.flatten();
 
         texture_manager.update_expander_cache(self.ndc_block_scale);
         if (cursor.get_zoom() * 2) < 32 {
@@ -496,6 +439,16 @@ impl Widget for PlayWorldViewRender {
                         cursor_event_scheduler.spawn_drone();
                         cursor_event_scheduler.schedul_events(event_manager);
                     }
+                    else {
+                        let cursor = player_data.get_cursor();
+
+                        self.tile_map_manager.render_enitity_at_world_pos(
+                            texture_manager, 
+                            player_data, 
+                            cursor.get_pos(),
+                            Texture::BlockTexture(BlockTexture::Selector)
+                        );
+                    }
                 }
                 ViewMode::Drone(drone_id) => {
                     // Handle Visuals
@@ -517,14 +470,14 @@ impl Widget for PlayWorldViewRender {
                         let mut cursor_event_scheduler = player_data.get_cursor_event_scheduler();
                             
                         let drone = drone_event_scheduler.get_drone();
-                        self.render_enitity_at_world_pos(texture_manager, player_data, drone.get_world_pos(), drone.get_texture());
+                        self.tile_map_manager.render_enitity_at_world_pos(texture_manager, player_data, drone.get_world_pos(), drone.get_texture());
 
                         cursor_event_scheduler.set_cords(drone.get_cords());
 
                         let mouse_triangle = self.get_mouse_triangle(screen_data, event_manager, player_data);
                         
                         if let Some(mouse_triangle) = mouse_triangle {
-                            let mut cords = mouse_triangle.get_first_solid_block_cords_struck();
+                            let mut cords = mouse_triangle.get_solid_block_struck_cords();
                             cords[2] += 1;
 
                             if screen_data.was_right_pressed() {
@@ -558,16 +511,49 @@ impl Widget for PlayWorldViewRender {
         }
         
 
+        
 
+        let mut mouse_data = Vec::new();
+        if let Some(triangle) = self.get_mouse_triangle(screen_data, event_manager, player_data) {
+            let mouse_cords = triangle.get_solid_block_struck_cords();
+
+            mouse_data.push(format!(
+                "mouse_world_cords ({:?})", 
+                mouse_cords,
+            ));
+
+
+            mouse_data.push("Triangle Textures".to_string());
+            for texture in triangle.get_textures() {
+                if let Texture::BlockTriangle(block, triangle) = texture {
+                    mouse_data.push(format!(" - {}", block.get_name()));
+                }
+            }
+
+            mouse_data.push(format!("Block Depth({})", triangle.get_solid_block_depth()));
+
+            
+
+
+        }
+        
         let debug = event_manager.get_mut_debug_data();
         debug.clear_rendering_data();
+
+        for data in mouse_data {
+            debug.add_rendering_data(data);
+        }
 
         let frame_time = format!("Frame Time ({})ms", start.elapsed().as_secs_f32() * 1000.0);
         debug.add_rendering_data(frame_time);
 
+        let total_free_textures = format!("Free Cashed Textures({})", texture_manager.get_texture_cashe().total_free_textures());
+        debug.add_rendering_data(total_free_textures);
+
         let entitys_drawn = format!("Entity's Drawn ({})", self.entitys_drawn);
         debug.add_rendering_data(entitys_drawn);
         self.entitys_drawn = 0;
+
 
         
     }

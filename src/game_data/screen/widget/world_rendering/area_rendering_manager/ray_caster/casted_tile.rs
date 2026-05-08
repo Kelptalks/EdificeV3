@@ -195,6 +195,46 @@ impl CastedTile {
         }
     }
 
+    pub fn render_left_triangle(&self, texture_manager: &mut TextureManager, draw_block_scale: f32, draw_offset: [f32; 2]) {
+        let flattened_cords = iso_cord_tool::flatten_world_cords(self.get_world_cords());
+        let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(draw_block_scale, flattened_cords);
+        
+        draw_cords[0] += draw_offset[0];
+        draw_cords[1] += draw_offset[1];
+
+
+        let left_textures = self.get_left_triangle().get_textures().clone();
+        let left_pos = [
+            draw_cords[0],
+            draw_cords[1],
+            draw_cords[0] + draw_block_scale,
+            draw_cords[1] + draw_block_scale,
+        ];
+        for texture in left_textures {
+            texture_manager.render_expanded_texture(texture, left_pos);
+        }
+    }
+
+    pub fn render_right_triangle(&self, texture_manager: &mut TextureManager, draw_block_scale: f32, draw_offset: [f32; 2]) {
+        let flattened_cords = iso_cord_tool::flatten_world_cords(self.get_world_cords());
+        let mut draw_cords = iso_cord_tool::casted_to_ndc_cords(draw_block_scale, flattened_cords);
+        
+        draw_cords[0] += draw_offset[0];
+        draw_cords[1] += draw_offset[1];
+
+
+        let right_textures = self.get_right_triangle().get_textures().clone();
+        let right_pos = [
+            draw_cords[0] + draw_block_scale,
+            draw_cords[1],
+            draw_cords[0] + (draw_block_scale * 2.0),
+            draw_cords[1] + draw_block_scale,
+        ];
+        for texture in right_textures {
+            texture_manager.render_expanded_texture(texture, right_pos);
+        }
+    }
+
     pub fn render_to_cashed_texture(
         &self, 
         texture_manager: &mut TextureManager, 

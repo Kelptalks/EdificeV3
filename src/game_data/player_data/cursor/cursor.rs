@@ -23,6 +23,14 @@ impl Cursor {
     // Getters
     //=====================================
 
+    pub fn get_pos(&self) -> [f32; 3] {
+        [
+            self.world_cords[0] as f32,
+            self.world_cords[1] as f32,
+            self.world_cords[2] as f32,
+        ]
+    }
+
     pub fn get_cords(&self) -> [i32; 3] {
         self.world_cords
     }
