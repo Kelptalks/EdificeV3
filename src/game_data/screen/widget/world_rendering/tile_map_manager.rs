@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, World, screen::{iso_cord_tool, widget::world_rendering::{area_rendering_manager::ray_caster::casted_tile::CastedTile, tile_map::{self, TileMap, TileMapId}}}, texture_manager};
+use crate::game_data::{TextureManager, World, game_event_manager::{self, event_manager::{self, Event, EventManager}}, screen::{iso_cord_tool, widget::world_rendering::{area_rendering_manager::ray_caster::casted_tile::CastedTile, tile_map::{self, TileMap, TileMapId}}}, texture_manager};
 
 
 pub struct TileMapManager {
@@ -109,6 +109,15 @@ impl TileMapManager {
 
         for (id, lair) in &mut self.map_lairs {
             lair.render(texture_manager, self.block_ncd_scale, self.draw_offset);
+        }
+    }
+
+    pub fn free_id(&mut self, id: &TileMapId) -> Vec<Event> {
+        if let Some(mut map) = self.map_lairs.remove(id) {
+            map.free()
+        }
+        else {
+            Vec::new()
         }
     }
 

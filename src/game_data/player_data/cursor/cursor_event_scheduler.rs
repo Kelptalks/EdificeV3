@@ -14,8 +14,6 @@ impl CursorEvent {
     }
 
     pub fn execute_cursor_event(&self, player_data: &mut PlayerData) {
-        
-        
         match self {
             CursorEvent::ModCords(cords) => {
                 let cursor = player_data.get_mut_cursor();

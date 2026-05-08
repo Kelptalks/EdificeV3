@@ -216,6 +216,10 @@ impl TextureManager {
         self.texture_cashe.get_free_cashed_texture()
     }
 
+    pub fn free_cashed_texture(&mut self, id: CashedTextureID) {
+        self.texture_cashe.free_cashed_texture(id);
+    }
+
     pub fn render_texture_to_batch(&mut self, batch: &mut RenderBatch, texture: Texture, pos : [f32; 4]) {
         let uv = self.get_texture_uv(texture);
         batch.add_quad(pos, uv);

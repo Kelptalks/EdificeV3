@@ -5,7 +5,6 @@ use crate::game_data::{game_event_manager::debug_data::debug_data::DebugData, sc
 pub struct DebugWin {
     panel: Panel,
 
-    cashed_texture: [Option<CashedTextureID>; 64],
 
 }
 
@@ -40,7 +39,6 @@ impl DebugWin {
         DebugWin {
             panel: panel,
 
-            cashed_texture: [None; 64],
         }
     }
 }

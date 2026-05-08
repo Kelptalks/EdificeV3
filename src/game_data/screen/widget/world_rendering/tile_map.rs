@@ -1,6 +1,6 @@
 use std::{cmp::max, collections::{HashMap, hash_map}};
 
-use crate::game_data::{TextureManager, World, locations::world_area::{self, WorldArea}, player_data::{self, player_data::PlayerData}, screen::{iso_cord_tool, renderer::casted_block_manager::casted_tile, text, widget::{prelude::play_world_view_config::PlayViewRenderingConfig, world_rendering::{area_rendering_manager::{self, area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::{self, LairBlockMod}, ray_caster::casted_tile::CastedTile}, rendering_config, tile_map_manager}}}, texture_manager::{texture::Texture, texture_cashe::texture_cashe::CashedTextureID}, types::BlockTexture, world_chunk::{self, WorldChunk}};
+use crate::game_data::{TextureManager, World, game_event_manager::{event_manager::{self, Event, EventManager}, render_event_manager::{render_event_manager::RenderEvent, texture_manager_event::TextureManagerEvent}}, locations::world_area::{self, WorldArea}, player_data::{self, player_data::PlayerData}, screen::{iso_cord_tool, renderer::casted_block_manager::casted_tile, text, widget::{prelude::play_world_view_config::PlayViewRenderingConfig, world_rendering::{area_rendering_manager::{self, area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::{self, LairBlockMod}, ray_caster::casted_tile::CastedTile}, rendering_config, tile_map_manager}}}, texture_manager::{texture::Texture, texture_cashe::texture_cashe::CashedTextureID}, types::BlockTexture, world_chunk::{self, WorldChunk}};
 
 
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -31,8 +31,8 @@ pub struct TileMap {
     min_key: [i32; 2],
     max_key: [i32; 2],
 
-    ray_casting_dirty: bool,
-    cashed_texture_dirty: bool,
+    pub ray_casting_dirty: bool,
+    pub cashed_texture_dirty: bool,
 
     world_area: Option<WorldArea>,
     cashed_texture_id: Option<CashedTextureID>,
@@ -231,6 +231,14 @@ impl TileMap {
     // 
     //=====================================
 
+    pub fn free(self) -> Vec<Event> {
+        if let Some(id) = self.cashed_texture_id {
+            vec![TextureManagerEvent::FreeCashedTexture(id).wrap_into_event()]
+        }
+        else {
+            Vec::new()
+        }
+    }
     
 
 }

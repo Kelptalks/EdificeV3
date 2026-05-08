@@ -1,7 +1,7 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}}, player_data::player_data::PlayerData, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::widget::WidgetType}};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}, render_event_manager::{texture_manager_event::TextureManagerEvent, tile_map_event::{self, TileMapEvent}}}, player_data::player_data::PlayerData, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::{widget::WidgetType, world_rendering::tile_map_manager}}, texture_manager};
 
 /*
 ##################
@@ -12,6 +12,9 @@ Events relating to rendering of menus / game camera
 */
 #[derive(Clone, PartialEq)]
 pub enum RenderEvent {
+    TileMapEvent(TileMapEvent),
+    TextureManagerEvent(TextureManagerEvent),
+
     // Window
     QuitGame,
     
@@ -33,6 +36,10 @@ impl RenderEvent {
 
     pub fn wrap_into_event(self) -> Event {
         return Event::GameEvent(GameEvent::RenderEvent(self));
+    }
+
+    pub fn wrap_into_game_event(self) -> GameEvent {
+        GameEvent::RenderEvent(self)
     }
 
     pub fn construct_menu(
@@ -82,13 +89,23 @@ impl RenderEvent {
     pub fn execute_render_event(
         &self, 
         event_tools: &mut GameEventManager, 
-        screen_mananager: &mut ScreenManager, 
+        texture_manager: &mut TextureManager,
+        screen_mananager: &mut ScreenManager,
         player_data: &PlayerData
-    ) {
+    ) -> Vec<Event> {
         let camera = screen_mananager.get_mut_camera();
         let camera_data = &camera.get_camera_data().clone();
         let world = player_data.get_world_ref();
         match self {
+            RenderEvent::TileMapEvent(tile_map_event) => {
+                if let Some(tile_map_manager) = screen_mananager.get_mut_tile_map_manager() {
+                    return tile_map_event.execute_event(tile_map_manager)
+                }    
+            }
+            RenderEvent::TextureManagerEvent(texture_manager_event) => {
+                texture_manager_event.execute_event(texture_manager);
+            },
+
             RenderEvent::QuitGame => {
                 screen_mananager.get_mut_screen_data().quit();
             }
@@ -117,6 +134,8 @@ impl RenderEvent {
             RenderEvent::TestEvent => {
                 println!("Test Render Event");
             }
+            
         }
+        Vec::new()
     }
 }

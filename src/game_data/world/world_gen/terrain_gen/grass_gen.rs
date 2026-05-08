@@ -1,4 +1,4 @@
-use crate::game_data::{types::BlockTexture, World};
+use crate::game_data::{World, game_event_manager::{self, event_manager, game_event_manager::GameEventManager}, types::BlockTexture};
 use rand::{rngs::ThreadRng, Rng};
 
 struct GroundItem {

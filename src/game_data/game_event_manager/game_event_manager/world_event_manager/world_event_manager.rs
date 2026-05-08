@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 
-use crate::game_data::{World, game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, prelude::{Event, GameEvent}, world_event_manager::chunk_event::ChunkEvent}, player_data::locations::location::WorldLocation, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, prelude::{Event, GameEvent}, world_event_manager::chunk_event::WorldChunkEvent}, player_data::locations::location::WorldLocation, types::BlockTexture};
 
 /*
 #################
@@ -16,10 +16,9 @@ pub enum WorldEvent {
     // Direct
     Clear,                              // No Data                      // Params: () | Clear the world
     _GenWorld(),              // World Config                            // Params: () | Generate the world
-    ChunkEvent(ChunkEvent),
+    ChunkEvent(WorldChunkEvent),
 
     // Modifcation
-    GenLevel(u32),                                                      // Params: (Level Id) | Generate a level with id
     PlaceBlock([i32; 3], BlockTexture),                                 // Params: (Block Cords, Block Type) | Modifys a block and also attempts to create entitys if block is of a cirtain type
     ModBlock([i32; 3], BlockTexture),                                   // Params: (Block Cords, Block Type) | Modify a block in the world
     FillLocation(Rc<RefCell<WorldLocation>>, Rc<RefCell<BlockTexture>>) // Params: (Block Cords, Block Type) | Fill a location with PlaceBlock Events
@@ -38,7 +37,7 @@ impl WorldEvent {
     //=====================================
     // Execution
     //=====================================
-    pub fn execute_world_event(&self, world: &mut World, event_data: &mut GameEventManager) {
+    pub fn execute_world_event(&self, world: &mut World, event_manager: &mut GameEventManager) {
         match self {
             WorldEvent::Clear => {
                 world.clear();
@@ -51,28 +50,25 @@ impl WorldEvent {
             },
 
             WorldEvent::ChunkEvent(chunk_event) => {
-                chunk_event.execute_chunk_event(world, event_data);
+                chunk_event.execute_chunk_event(world, event_manager);
             }
-            WorldEvent::GenLevel(level) => {
-                event_data.get_level_manager().get_level_at_index(level.clone() as usize).gen_level(world);
-            },
             WorldEvent::PlaceBlock(cords, block_type) => {
-                world.set_world_value(block_type.id_as_u16(), *cords);
+                world.set_world_value( block_type.id_as_u16(), *cords);
 
                 // If block is an entity add it to the world
                 if block_type.is_block_entity() {
                     let entity_type = block_type.to_block_entity_type();
-                    event_data.add_game_event(entity_type.to_creation_event(*cords));
+                    event_manager.add_game_event(entity_type.to_creation_event(*cords));
                 }
 
-                event_data.add_render_event(RenderEvent::ReRenderBlock(*cords));
+                event_manager.add_render_event(RenderEvent::ReRenderBlock(*cords));
             }
             WorldEvent::ModBlock(cords, block_type) => {
-                world.set_world_value(block_type.id_as_u16(), *cords);
-                event_data.add_render_event(RenderEvent::ReRenderBlock(*cords));
+                world.set_world_value( block_type.id_as_u16(), *cords);
+                event_manager.add_render_event(RenderEvent::ReRenderBlock(*cords));
             }
             WorldEvent::FillLocation(world_location, block_texture) => {
-                event_data.add_world_events(world_location.borrow().get_area().get_fill_area_events(*block_texture.borrow()));
+                event_manager.add_world_events(world_location.borrow().get_area().get_fill_area_events(*block_texture.borrow()));
             },
         }
     }

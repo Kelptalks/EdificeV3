@@ -1,7 +1,7 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{World, game_event_manager::{debug_data::debug_data::DebugData, dispatch_event_manager::dispatch_event_manager::DispatchEvent, game_event_manager::{game_event_manager::{GameEvent, GameEventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::render_event_manager::RenderEvent, widget_event_manager::widget_event_manager::WidgetEvent, world_event_manager::world_event_manager::WorldEvent}, input_event_manager::input_event_manager::InputEvent}, player_data::player_data::PlayerData, screen::screen_mananager::ScreenManager};
+use crate::game_data::{TextureManager, World, game_event_manager::{debug_data::debug_data::DebugData, dispatch_event_manager::dispatch_event_manager::DispatchEvent, game_event_manager::{game_event_manager::{GameEvent, GameEventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::render_event_manager::RenderEvent, widget_event_manager::widget_event_manager::WidgetEvent, world_event_manager::world_event_manager::WorldEvent}, input_event_manager::input_event_manager::InputEvent}, player_data::player_data::PlayerData, screen::screen_mananager::ScreenManager, texture_manager};
 
 /*
 ###################
@@ -153,10 +153,24 @@ impl EventManager {
         }
     }
 
-    pub fn execute_render_events(&mut self, screen_mananager: &mut ScreenManager, player_data: &PlayerData) {
+    pub fn execute_render_events(
+        &mut self, 
+        texture_manager: &mut TextureManager,
+        screen_mananager: &mut ScreenManager, 
+        player_data: &PlayerData
+    ) {
+        let mut collected_events = Vec::new();
         while let Some(render_event) = self.game_event_manager.render_events.pop() {
-            render_event.execute_render_event(&mut self.game_event_manager, screen_mananager, player_data);
+            collected_events.append(
+                &mut render_event.execute_render_event(
+                    &mut self.game_event_manager, 
+                    texture_manager,
+                    screen_mananager, 
+                    player_data
+                )
+            );
         }
+        self.add_events(&collected_events);
     }
 
     pub fn execute_player_data_events(&mut self, player_data: &mut PlayerData) {

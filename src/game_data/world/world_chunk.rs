@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, World, game_event_manager::event_manager::{self, EventManager}, locations::world_area::WorldArea, player_data::{self, game_object::GameObjectType, player_data::PlayerData}, screen::{iso_cord_tool, text, widget::world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod}, rendering_config, tile_map::{TileMap, TileMapId}, tile_map_manager::{self, TileMapManager}}}, texture_manager::{self, texture::Texture, texture_cashe::texture_cashe::CashedTextureID}};
+use crate::game_data::{TextureManager, World, game_event_manager::{event_manager::{self, Event, EventManager}, game_event_manager::GameEventManager, render_event_manager::tile_map_event::TileMapEvent, widget_event_manager::prim_events::bool_events, world_event_manager::world_event_manager::WorldEvent}, locations::world_area::WorldArea, player_data::{self, game_object::GameObjectType, player_data::PlayerData}, screen::{iso_cord_tool, text, widget::world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod}, rendering_config, tile_map::{TileMap, TileMapId}, tile_map_manager::{self, TileMapManager}}}, texture_manager::{self, texture::Texture, texture_cashe::texture_cashe::CashedTextureID}};
 
 const CHUNK_SIZE: usize = 16;
 const CHUNK_AREA: usize = CHUNK_SIZE * CHUNK_SIZE;
@@ -22,7 +22,6 @@ pub struct WorldChunk {
     pub dirty: bool,
     
     pub tile_map_id: Option<TileMapId>,
-
 
     // Game objects
     game_objects: Vec<GameObjectType>,
@@ -131,6 +130,7 @@ impl WorldChunk {
     {
         let cord_index = Self::cords_to_index(cords);
         self.block_data[cord_index] = value;
+        self.dirty = true;
     }
 
     // Set the value of a cord in a chunk
@@ -142,16 +142,13 @@ impl WorldChunk {
 
     pub fn set_block_data(&mut self, block_data: Box<[u16; CHUNK_VOLUME]>) {
         self.block_data = block_data;
+        self.dirty = true;
     }
 
 
     //=====================================
     // Rendering
     //=====================================
-
-    pub fn is_dirty(&self) -> bool {
-        self.dirty
-    }
 
     pub fn clean(&mut self, texture_manager: &mut TextureManager, tile_map_manager: &mut TileMapManager) {
         if let Some(id) = self.tile_map_id {
@@ -211,6 +208,14 @@ impl WorldChunk {
         }
     }
 
+    pub fn free(self) -> Vec<Event> {
+        if let Some(id) = self.tile_map_id {
+            vec![TileMapEvent::FreeTileMap(id).wrap_into_event()]
+        }
+        else {
+            Vec::new()
+        }
+    }
     
 
 

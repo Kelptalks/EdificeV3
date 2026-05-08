@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::{event_manager::{self, EventManager}, world_event_manager::{chunk_event::ChunkEvent, world_event_manager::WorldEvent}}, locations::world_area::WorldArea, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::{event_manager::{self, EventManager}, world_event_manager::{chunk_event::WorldChunkEvent, world_event_manager::WorldEvent}}, locations::world_area::WorldArea, types::BlockTexture};
 
 
 #[derive(Clone)]
@@ -93,7 +93,7 @@ impl Cursor {
                         chunk_cords[1] + y,
                         chunk_cords[2] + z,  
                     ];
-                    event_manager.add_world_event(WorldEvent::ChunkEvent(ChunkEvent::LoadChunk(cords)));
+                    event_manager.add_world_event(WorldEvent::ChunkEvent(WorldChunkEvent::LoadChunk(cords)));
 
 
 

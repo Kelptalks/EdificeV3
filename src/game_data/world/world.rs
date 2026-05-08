@@ -4,6 +4,7 @@ use std::fmt::format;
 use mlua::Chunk;
 
 use crate::game_data::game_event_manager::event_manager::{self, EventManager};
+use crate::game_data::game_event_manager::game_event_manager::GameEventManager;
 use crate::game_data::player_data::player_data::PlayerData;
 use crate::game_data::world_gen::WorldGenManager;
 use crate::game_data::{TextureManager, player_data, texture_manager, world_chunk};
@@ -21,8 +22,6 @@ pub struct World {
     chunks_to_generate: Vec<u64>,
 
     total_chunks : u32,
-
-
 
     world_gen_manager: WorldGenManager,
 }
@@ -177,29 +176,33 @@ impl World {
 
     pub fn tik(&mut self, player_data: &PlayerData, event_manager: &mut EventManager) {
         
+        // Collect Debug Data
         let debug_data = event_manager.get_mut_debug_data();
         debug_data.clear_world_data();
-        
         let chunks_loaded = format!("Chunks Loaded({})", self.loaded_chunks.len());
         debug_data.add_world_data(chunks_loaded);
-
         let chunks_to_gen = format!("Chunks to gen({})", self.chunks_to_generate.len());
         debug_data.add_world_data(chunks_to_gen);
-        
         let chunks_to_load = format!("chunks to load({})", self.chunks_to_load.len());
         debug_data.add_world_data(chunks_to_load);
 
-        // Generate chunks terrain
+
+        // Generate Terrain
+        let mut terrain_gen_per_tik = 1;
         while let Some(key) = self.chunks_to_generate.pop() {
             if let Some(chunk) = &mut self.loaded_chunks.get_mut(&key) {
                 let area_to_gen = chunk.get_world_area();
                 chunk.terrain_generated = true;
                 player_data.world_gen.generate_area(self, area_to_gen);
                 
+                terrain_gen_per_tik-=1;
+                if terrain_gen_per_tik <= 0{
+                    break;
+                }
             }
         }
 
-        // Gen chunks to load
+        // Create ch
         while let Some(key) = self.chunks_to_load.pop() {
             if let Some(chunk) = &mut self.loaded_chunks.get_mut(&key) {
                 chunk.loaded_this_tik = true;
@@ -219,16 +222,20 @@ impl World {
             }
         }
 
+        // More Debug Data
         let chunks_to_unload_debug = format!("Chunks to unload ({})", chunks_to_unload.len());
         debug_data.add_world_data(chunks_to_unload_debug);
 
         for k in chunks_to_unload {
-            self.loaded_chunks.remove(&k);
+            let chunk = self.loaded_chunks.remove(&k);
+            if let Some(chunk) = chunk {
+                event_manager.add_events(&chunk.free());
+            }
         }
     }
 
     //=====================================
-    // Single Block
+    // Event
     //=====================================
 
     pub fn load_chunk(
@@ -238,6 +245,17 @@ impl World {
         let key = Self::chunk_cords_to_key(*cords);
         self.chunks_to_load.push(key);
     }
+
+    pub fn dirty_chunk(
+        &mut self,
+        cords : &[i16 ; 3]
+    ) {
+        
+    }
+
+    //=====================================
+    // Rendering
+    //=====================================
 
     pub fn render_world(
         &mut self, 

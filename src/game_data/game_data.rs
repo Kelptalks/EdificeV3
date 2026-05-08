@@ -209,7 +209,11 @@ impl GameData {
         
         drop(world_guard);
 
-        self.event_manager.execute_render_events(screen_mananager, &self.player_data);
+        self.event_manager.execute_render_events(
+            &mut self.texture_manager,
+            screen_mananager, 
+            &self.player_data
+        );
         self.event_manager.execute_widget_events();
         
         

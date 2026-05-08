@@ -1,4 +1,4 @@
-use crate::game_data::{game_event_manager::game_event_manager::{player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::render_event_manager::RenderEvent, widget_event_manager::{mouse_action_manager::MouseWidgetData, widget_event_manager::WidgetEvent}, world_event_manager::world_event_manager::WorldEvent}, level_manager::level_manager::LevelManager, world_gen::WorldGenManager};
+use crate::game_data::{game_event_manager::game_event_manager::{player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::render_event_manager::RenderEvent, widget_event_manager::{mouse_action_manager::MouseWidgetData, widget_event_manager::WidgetEvent}, world_event_manager::world_event_manager::WorldEvent}, world_gen::WorldGenManager};
 
 #[derive(Clone)]
 pub enum GameEvent  {
@@ -19,7 +19,6 @@ pub struct GameEventManager {
 
     // Tools
     world_gen_manager: WorldGenManager,
-    level_manager: LevelManager,
     mouse_widget_data: MouseWidgetData,
 }
 
@@ -34,7 +33,6 @@ impl GameEventManager {
 
             // Tools
             world_gen_manager: WorldGenManager::new(),
-            level_manager: LevelManager::new(),
             mouse_widget_data: MouseWidgetData::new(),
         }
     }
@@ -51,13 +49,6 @@ impl GameEventManager {
         return &self.world_gen_manager;
     }
 
-    // Level Gen
-    pub fn get_mut_level_manager(&mut self) -> &mut LevelManager {
-        return &mut self.level_manager;
-    }
-    pub fn get_level_manager(&self) -> &LevelManager {
-        return &self.level_manager;
-    }
 
     // mouse action
     pub fn get_mut_mouse_widget_data(&mut self) -> &mut MouseWidgetData {

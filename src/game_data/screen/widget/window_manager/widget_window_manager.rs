@@ -86,7 +86,6 @@ impl WidgetWindowManager {
 
         let window = WidgetWindow::new(window, &self.widget_props, name);
         self.windows.insert(id, window);
-        println!("New window opened");
     }
 }
 
