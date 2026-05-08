@@ -36,7 +36,7 @@ impl EventHandler for GameStage {
     }
 
     fn draw(&mut self) {
-        self.ctx.clear(Some((1.0, 1.0, 1.0, 1.0)), None, None);
+        self.ctx.clear(Some((0.0, 0.0, 0.1, 1.0)), None, None);
         self.game_data.render_camera(&mut self.ctx);
     }
 

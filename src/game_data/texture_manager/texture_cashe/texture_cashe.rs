@@ -50,8 +50,8 @@ pub struct TextureCashe {
 
 impl TextureCashe {
     pub fn new() -> TextureCashe {
-        let atlas_count = 64;
-        let scale = 4;
+        let atlas_count = 256;
+        let scale = 8;
         
 
         

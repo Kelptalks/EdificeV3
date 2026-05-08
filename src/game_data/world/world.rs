@@ -75,14 +75,12 @@ impl World {
         let chunk_key = Self::chunk_cords_to_key(cords);
 
         // If world chunk does not exist create it
-        if !self.loaded_chunks.contains_key(&chunk_key) 
-        {
+        if !self.loaded_chunks.contains_key(&chunk_key) {
             let new_chunk = WorldChunk::new(cords);
-
             self.loaded_chunks.insert(chunk_key, new_chunk);
         }
-        return self.loaded_chunks.get_mut(&chunk_key).unwrap();
 
+        return self.loaded_chunks.get_mut(&chunk_key).unwrap();
     }
 
     // Gets the chunk if it exists 
