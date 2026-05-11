@@ -76,10 +76,7 @@ impl WidgetWindowManager {
         self.play_view.get_tile_map_manager()
     }
 
-
-
-
-    fn new_window(&mut self, mut window: WindowType, name: &str) -> WidgetWindowId {
+    pub fn new_window(&mut self, mut window: WindowType, name: &str) -> WidgetWindowId {
         let id = self.get_next_window_id();
         
         window.set_parent_pos(self.widget_props.pos);

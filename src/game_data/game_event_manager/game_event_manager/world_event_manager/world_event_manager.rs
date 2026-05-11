@@ -52,7 +52,7 @@ impl WorldEvent {
             }
             WorldEvent::AddGameObjcet(world_cords, game_object_id) => {
                 if let Some(chunk) = world.get_mut_chunk_at_world_cords(world_cords) {
-                    chunk.game_objects.push(game_object_id);
+                    chunk.game_objects.insert(world_cords, game_object_id);
                 }
             },
 

@@ -6,6 +6,8 @@ static ID_GEN: IdGen = IdGen::new();
 
 #[derive(Clone)]
 pub struct BlockEntityFlour {
+    pub id: u64,
+
     trait_block: BlockTrait,
 }
 
@@ -15,15 +17,18 @@ impl BlockEntityFlour {
     }
     
     pub fn new(cords: [i32; 3], event_manager: &mut EventManager) -> BlockEntityFlour {
-        let id = BlockEntityId::FlourID(ID_GEN.new_id()).wrap_into_game_object_id();
+        let id = ID_GEN.new_id();
+        let game_objcet_id = BlockEntityId::FlourID(id).wrap_into_game_object_id();
         
         // Block
         let mut block_trait = 
             BlockTrait::new(BlockTexture::flungle, cords);
-        block_trait.init(id, event_manager);
+        block_trait.init(game_objcet_id, event_manager);
 
 
         BlockEntityFlour {
+            id,
+
             trait_block: block_trait,
         }
     }

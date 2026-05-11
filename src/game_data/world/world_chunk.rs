@@ -23,7 +23,7 @@ pub struct WorldChunk {
     pub tile_map_id: Option<TileMapId>,
 
     // Game objects
-    pub game_objects: Vec<GameObjectId>,
+    pub game_objects: HashMap<[i32; 3], GameObjectId>,
 }
 
 impl WorldChunk {
@@ -41,7 +41,7 @@ impl WorldChunk {
             tile_map_id: None,
             depth,
 
-            game_objects: Vec::new(),
+            game_objects: HashMap::new(),
         }
     }
 

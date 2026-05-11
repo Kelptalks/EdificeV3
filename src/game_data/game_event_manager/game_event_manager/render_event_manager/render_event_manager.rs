@@ -1,7 +1,7 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}, render_event_manager::{texture_manager_event::TextureManagerEvent, tile_map_event::{self, TileMapEvent}}}, player_data::player_data::PlayerData, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::{widget::WidgetType, world_rendering::tile_map_manager}}, texture_manager};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}, render_event_manager::{texture_manager_event::TextureManagerEvent, tile_map_event::{self, TileMapEvent}, window_manager_event::WindowManagerEvent}}, player_data::player_data::PlayerData, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::{widget::WidgetType, world_rendering::tile_map_manager}}, texture_manager};
 
 /*
 ##################
@@ -10,16 +10,18 @@ use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::
 Events relating to rendering of menus / game camera
 
 */
-#[derive(Clone, PartialEq)]
+#[derive(Clone)]
 pub enum RenderEvent {
+    WindowMangerEvent(WindowManagerEvent),
     TileMapEvent(TileMapEvent),
     TextureManagerEvent(TextureManagerEvent),
+
 
     // Window
     QuitGame,
     
     // Camera
-    InitWorldRender(),               // Range 
+    _InitWorldRender(),               // Range 
     ReRenderBlock([i32; 3]),    // Cords of block modified
 
     // Menu
@@ -87,7 +89,7 @@ impl RenderEvent {
     // Execution
     //=====================================
     pub fn execute_render_event(
-        &self, 
+        self, 
         event_tools: &mut GameEventManager, 
         texture_manager: &mut TextureManager,
         screen_mananager: &mut ScreenManager,
@@ -97,9 +99,15 @@ impl RenderEvent {
         let camera_data = &camera.get_camera_data().clone();
         let world = player_data.get_world_ref();
         match self {
+            RenderEvent::WindowMangerEvent(window_manager_event) => {
+                if let Some(window_manager) = screen_mananager.get_mut_window_manager() {
+                    window_manager_event.execute_event(window_manager);
+                }
+            },
             RenderEvent::TileMapEvent(tile_map_event) => {
-                if let Some(tile_map_manager) = screen_mananager.get_mut_tile_map_manager() {
-                    return tile_map_event.execute_event(tile_map_manager)
+                if let Some(window_manager) = screen_mananager.get_mut_window_manager() {
+                    return tile_map_event.execute_event(window_manager.get_tile_map_manager())
+                    
                 }    
             }
             RenderEvent::TextureManagerEvent(texture_manager_event) => {
@@ -109,7 +117,7 @@ impl RenderEvent {
             RenderEvent::QuitGame => {
                 screen_mananager.get_mut_screen_data().quit();
             }
-            RenderEvent::InitWorldRender() => {
+            RenderEvent::_InitWorldRender() => {
                 /*
                 let range = event_tools.get_world_gen_manager().get_world_config().get_chunk_rendering_range();
                 camera.dirty_chunks_in_area(
@@ -120,13 +128,13 @@ impl RenderEvent {
                  */
             },
             RenderEvent::ReRenderBlock(cords) => {
-                let casted_tile_cords = camera_data.world_to_casted_tile_cords(*cords);
+                let casted_tile_cords = camera_data.world_to_casted_tile_cords(cords);
                 camera.dirty_tiles_in_area(casted_tile_cords, 2);
             }
             RenderEvent::ChangeMenu(current_menu) => {
-                let menu_panel: WidgetType = Self::construct_menu(*current_menu, screen_mananager, event_tools, player_data);
+                let menu_panel: WidgetType = Self::construct_menu(current_menu, screen_mananager, event_tools, player_data);
                 screen_mananager.set_menu_panel(menu_panel);
-                screen_mananager.get_mut_screen_data().set_current_menu(*current_menu);
+                screen_mananager.get_mut_screen_data().set_current_menu(current_menu);
             }
             RenderEvent::Clear => {
                 
@@ -134,7 +142,6 @@ impl RenderEvent {
             RenderEvent::TestEvent => {
                 println!("Test Render Event");
             }
-            
         }
         Vec::new()
     }

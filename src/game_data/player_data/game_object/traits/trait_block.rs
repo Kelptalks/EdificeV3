@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::{event_manager::{self, Event, EventManager}, world_event_manager::world_event_manager::WorldEvent}, player_data::game_object::game_object_manager::GameObjectId, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::{event_manager::{self, Event, EventManager}, world_event_manager::world_event_manager::WorldEvent}, player_data::game_object::{game_object_manager::GameObjectId, traits::game_object_trait_manager::GameObjectTrait}, types::BlockTexture};
 
 #[derive(Clone)]
 pub struct BlockTrait {
@@ -7,6 +7,10 @@ pub struct BlockTrait {
 }
 
 impl BlockTrait {
+    pub fn wrap_into_trait(self) -> GameObjectTrait {
+        GameObjectTrait::BlockTrait(self)
+    }
+
     pub fn new(block_type: BlockTexture, cords: [i32; 3]) -> BlockTrait {
         BlockTrait {
             block_type: block_type,

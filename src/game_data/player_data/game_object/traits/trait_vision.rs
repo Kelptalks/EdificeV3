@@ -1,11 +1,16 @@
-use crate::game_data::{World, game_event_manager::{event_manager::EventManager, world_event_manager::chunk_event::WorldChunkEvent}};
+use crate::game_data::{World, game_event_manager::{event_manager::EventManager, world_event_manager::chunk_event::WorldChunkEvent}, player_data::game_object::traits::game_object_trait_manager::GameObjectTrait};
 
 #[derive(Clone)]
 pub struct VisionTrait {
-    chunks_in_view: Vec<[i16; 3]>
+    pub chunks_in_view: Vec<[i16; 3]>
 }
 
 impl VisionTrait {
+
+    pub fn wrap_into_trait(self) -> GameObjectTrait {
+        GameObjectTrait::Vision(self)
+    }
+
     pub fn new() -> VisionTrait {
         VisionTrait {
             chunks_in_view: Vec::new(),

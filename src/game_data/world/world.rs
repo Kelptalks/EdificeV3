@@ -4,6 +4,7 @@ use std::fmt::format;
 use mlua::Chunk;
 
 use crate::game_data::game_event_manager::event_manager::{self, Event, EventManager};
+use crate::game_data::player_data::game_object::game_object_manager::{GameObject, GameObjectId};
 use crate::game_data::player_data::player_data::PlayerData;
 use crate::game_data::world_gen::WorldGenManager;
 use crate::game_data::{TextureManager};
@@ -173,6 +174,15 @@ impl World {
 
     pub fn clear(&mut self) {
         self.chunks_to_load.clear();
+    }
+
+    pub fn get_game_object(&self, cords : [i32; 3]) -> Option<GameObjectId> {
+        if let Some(chunk) = self.get_chunk_at_world_cords(cords) {
+            chunk.game_objects.get(&cords).cloned()
+        }
+        else {
+            None
+        }
     }
 
     //=====================================

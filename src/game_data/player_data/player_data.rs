@@ -25,7 +25,7 @@ pub struct PlayerData {
     location_manager: LocationManager,
 
 
-    game_object_manager: GameObjectManager,
+    pub game_object_manager: GameObjectManager,
     progress_manager: ProgressManager,
 
     // Settings

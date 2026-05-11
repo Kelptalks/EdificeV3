@@ -4,7 +4,7 @@ use std::{cell::RefCell, collections::HashMap, ops::Index, rc::Rc, time::{Instan
 use crate::game_data::{
     TextureManager, World, game_event_manager::{self, player_data_event_manager::var_event_manager::var_events::VarEvents}, locations::world_area::WorldArea, player_data::{self, cursor::{self, cursor::Cursor, cursor_event_scheduler::{self, CursorEventScheduler}}, drone_script::var::{game_vars::{dynamic_var::{self, DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}, drones::{drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, prim_actions::drone_world_actions::DroneWorldAction}, drone_event_scheduler}, game_object::block_entity_manager::{natural::flour::BlockEntityFlour, player_created::radar::BlockEntityRadar}, player_data::PlayerData}, screen::{
         ScreenData, input_data, iso_cord_tool, screen_data, widget::{button::button::Button, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot, play_world_view_config::PlayViewRenderingConfig}, widget::{Widget, WidgetType}, widget_calculations, widget_properties::{self, WidgetProperties}, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::{lair_block::LairBlockMod, lair_block_manager::LairBlockManager}, ray_caster::{casted_tile::CastedTile, casted_triangle::CastedTriangle, ray_casting_config::{self, RayCastingConfig}}}, rendering_config, tile_map::{TileMap, TileMapId}, tile_map_manager::TileMapManager, view_mode::ViewMode}}
-    }, texture_manager::texture::Texture, tools::cords_tool, types::BlockTexture
+    }, texture_manager::texture::Texture, tools::cords_tool, types::BlockTexture, world
 };
 
 use crate::game_data::game_event_manager::prelude::*;
@@ -451,19 +451,36 @@ impl Widget for PlayWorldViewRender {
                     panel.add_text_display("right click to place".to_string())
                         .set_text_scale(widget_calculations::TextSize::Medium);
 
-                    panel.size();
-
-                    self.overlay_panel = panel;
+                    
 
                     // Handle Controls
                     self.handle_camera_panning(screen_data, event_manager, player_data);
                     self.handle_camera_zooming(screen_data, event_manager, player_data);
-                    self.get_mouse_triangle(screen_data, event_manager, player_data);
+            
+                    if let Some(mouse_triangle) = self.get_mouse_triangle(screen_data, event_manager, player_data) {
+                        let object_cords = mouse_triangle.get_first_block_cords_struck();
+
+                        let world_ref = player_data.current_world.try_read();
+                        let mut objcet = None;
+                        match world_ref {
+                            Ok(world) => {
+                                objcet = world.get_game_object(object_cords);
+                            },
+                            Err(_) => todo!(),
+                        }
+
+                        if let Some(object) = objcet {
+                            if screen_data.was_left_released() {
+                                player_data.game_object_manager.open_object_window(event_manager, object)
+                            }
+                        }
+                    }
+
 
                     if screen_data.was_right_released() {
                         let cursor = player_data.get_cursor();
                         let radar = BlockEntityRadar::new(cursor.get_cords(), event_manager);
-                        event_manager.add_event(PlayerDataEvent::NewGameObject(radar.wrap_into_game_objcet()).wrap_into_event());
+                        event_manager.add_event(PlayerDataEvent::NewGameObject(radar.wrap_into_game_object()).wrap_into_event());
                     }
                     else {
                         let cursor = player_data.get_cursor();
@@ -474,6 +491,10 @@ impl Widget for PlayWorldViewRender {
                             Texture::BlockTexture(BlockTexture::Selector)
                         );
                     }
+
+                    panel.size();
+
+                    self.overlay_panel = panel;
                 }
                 ViewMode::Drone(drone_id) => {
                     // Handle Visuals

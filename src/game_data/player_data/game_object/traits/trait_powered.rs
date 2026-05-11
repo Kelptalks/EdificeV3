@@ -1,14 +1,20 @@
+use crate::game_data::player_data::game_object::traits::game_object_trait_manager::GameObjectTrait;
+
 
 #[derive(Clone)]
-pub struct TraitPowered {
+pub struct PoweredTrait {
     pub stored_power: u32,
     pub power_consumed: u32,
 
 }
 
-impl TraitPowered {
-    pub fn new() -> TraitPowered {
-        TraitPowered {
+impl PoweredTrait {
+    pub fn wrap_into_trait(self) -> GameObjectTrait {
+        GameObjectTrait::Powered(self)
+    }
+    
+    pub fn new() -> PoweredTrait {
+        PoweredTrait {
             stored_power: 0,
             power_consumed: 0,
         }

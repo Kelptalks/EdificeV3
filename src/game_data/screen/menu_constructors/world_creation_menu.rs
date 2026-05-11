@@ -28,7 +28,7 @@ pub fn get_menu(screen_data: &ScreenData) -> WidgetType {
 
             // Create world button
             let button = config_panel.add_bar_button("Create World".to_string());
-            button.add_event(GameEvent::RenderEvent(RenderEvent::InitWorldRender()));
+            button.add_event(GameEvent::RenderEvent(RenderEvent::_InitWorldRender()));
             button.add_event(GameEvent::RenderEvent(RenderEvent::ChangeMenu(CurrentMenu::PlayView)));
             button.set_text_scale(TextSize::Large);
 
