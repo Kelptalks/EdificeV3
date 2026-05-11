@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_object::{block_entity_manager::{natural::flour::BlockEntityFlour, player_created::radar::BlockEntityRadar}, game_object_manager::{GameObject, GameObjectId}}};
+use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_object::{block_entity_manager::{natural::flour::BlockEntityFlour, player_created::radar::BlockEntityRadar}, game_object_manager::{GameObject, GameObjectId}}, tik_manager::game_time::GameTime};
 
 #[derive(Clone)]
 pub enum BlockEntity {
@@ -31,7 +31,7 @@ impl BlockEntity {
 
     
 
-    pub fn tik(&mut self, time: u64, world: &World, event_manager: &mut EventManager) {
+    pub fn tik(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
         match self {
             BlockEntity::Radar(block_entity_radar) => {
                 block_entity_radar.tik(time, world, event_manager);
@@ -58,7 +58,7 @@ impl BlockEntityManager {
         self.block_entitys.push(new_block_entity);
     }
 
-    pub fn tik(&mut self, time: u64, world: &World, event_manager: &mut EventManager) {
+    pub fn tik(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
         for entity in &mut self.block_entitys {
             entity.tik(time, world, event_manager);
         }

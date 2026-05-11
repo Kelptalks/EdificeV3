@@ -1,7 +1,7 @@
 
 use std::{sync::{Arc, RwLock}, time::{SystemTime, UNIX_EPOCH}, u128};
 
-use crate::game_data::{self, World, game_event_manager::prelude::EventManager, player_data::player_data::PlayerData, screen::screen_task_manager::rendering_task_manager::RenderingTaskManager, tik_manager::{block_updates::block_update_manager::BlockUpdateManager, drones::{drone_manager::DroneManager, lua_manager::LuaManager}}, world, world_task_manager::world_task_manager::WorldTaskManager};
+use crate::game_data::{self, World, game_event_manager::prelude::EventManager, player_data::player_data::PlayerData, screen::screen_task_manager::rendering_task_manager::RenderingTaskManager, tik_manager::{block_updates::block_update_manager::BlockUpdateManager, drones::{drone_manager::DroneManager, lua_manager::LuaManager}, game_time::GameTime}, world, world_task_manager::world_task_manager::WorldTaskManager};
 
 /*
 #################
@@ -132,7 +132,17 @@ impl TikManager {
             let world = current_world.try_read();
             match world {
                 Ok(world) => {
-                    player_data.tik_game_objects(self.current_tik, &world, event_manager);       
+                    let game_time = GameTime::new(self.current_tik);
+
+                    let debug = event_manager.get_mut_debug_data();
+                    debug.clear_tik_data();
+                    debug.add_to_tik_data(format!("Tik Time: {}", game_time.tik));
+                    debug.add_to_tik_data(format!("Second Time: {}", game_time.second));
+                    debug.add_to_tik_data(format!("Minute Time: {}", game_time.minute));
+                    debug.add_to_tik_data(format!("Hour Time: {}", game_time.hour));
+                    debug.add_to_tik_data(format!("Day Time: {}", game_time.day));
+
+                    player_data.tik_game_objects(&game_time, &world, event_manager);       
                 },
                 Err(_) => todo!(),
             }
@@ -151,74 +161,12 @@ impl TikManager {
             total_tiks_to_execute-=1;
         }
 
+
         // End tik execution time
         let system_time_end = SystemTime::now();
         let tik_duration = system_time_end.duration_since(tik_start_time).unwrap();
         self.tik_window_exectuion_time = tik_duration.as_millis() as u32;
 
     }
-
-    // Called every frame to update the tik
-    pub fn update_tik_manager(&mut self, world_task_manager: &mut WorldTaskManager, screen_task_manager: &mut RenderingTaskManager) {
-        if self.paused {
-            return
-        }
-        
-        let current_millis = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_micros();
-
-        // Execute a tik
-        let mut total_tiks_to_execute = (current_millis - self.last_tik_micros) / self.tik_rate;
-        // Cap total_tiks_to_execute
-        if total_tiks_to_execute > 50 {
-            total_tiks_to_execute = 50;
-        }
-        
-        self.tiks_this_window = total_tiks_to_execute as u32;
-        
-        // Execute the number of tiks required this frame
-        let tik_start_time = SystemTime::now(); // Start tik execution timer
-        while total_tiks_to_execute > 0 {
-            // Update tik time
-            self.current_tik += 1;
-            self.last_tik_micros = current_millis;
-
-            let world_gaurd = self.world.read().unwrap(); // get world lock for lua execution
-
-            // Tik Blocks
-            if self.current_tik % 100 == 0 {
-                self.block_update_manager.tik_blocks(&world_gaurd, world_task_manager);
-            }
-
-            // Tik drones
-            self.drone_manager.tik_drones(self.world.clone(), world_task_manager);
-
-            // Run lua tik function
-            self.lua_manager.tik_script(&world_gaurd, &mut self.drone_manager, world_task_manager);
-            
-            // Block updates: Add all modified blocks and tik
-            self.block_update_manager.update_blocks(&world_gaurd, world_task_manager);
-            
-            drop(world_gaurd); // Drop gaurd after done running script
-            
-            // Execute the tasks to update the events that happend this tik
-            world_task_manager.execute_tasks(self.world.clone(), screen_task_manager);
-
-
-
-            // Decrement tiks left to execute
-            total_tiks_to_execute-=1;
-        }
-
-        // End tik execution time
-        let system_time_end = SystemTime::now();
-        let tik_duration = system_time_end.duration_since(tik_start_time).unwrap();
-        self.tik_window_exectuion_time = tik_duration.as_millis() as u32;
-        
-
-    }
-
 
 }

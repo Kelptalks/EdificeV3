@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_object::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId}, game_object_manager::GameObject, id_gen::IdGen, traits::{trait_block::{self, BlockTrait}, trait_vision::VisionTrait}}, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_object::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId}, game_object_manager::GameObject, id_gen::IdGen, traits::{trait_block::{self, BlockTrait}, trait_powered::{self, TraitPowered}, trait_vision::VisionTrait}}, tik_manager::game_time::GameTime, types::BlockTexture};
 
 static ID_GEN: IdGen = IdGen::new();
 
@@ -6,6 +6,7 @@ static ID_GEN: IdGen = IdGen::new();
 pub struct BlockEntityRadar {
     trait_vision: VisionTrait,
     trait_block: BlockTrait,
+    trait_powered: TraitPowered,
 }
 
 impl BlockEntityRadar {
@@ -23,11 +24,10 @@ impl BlockEntityRadar {
         block_trait.init(id, event_manager);
         
 
-
         // Vission
         let mut trait_vision = VisionTrait::new();
         let chunk_cords = World::world_cords_to_chunk_cords(cords);
-        let range = 3;
+        let range = 1;
         for x in -range..range {
             for y in -range..range {
                 for z in -range..range {
@@ -41,17 +41,30 @@ impl BlockEntityRadar {
             }
         }
 
-        
+        // Powered
+        let mut trait_powered = TraitPowered::new();
+        trait_powered.stored_power = 10000;
 
         BlockEntityRadar {
             trait_vision: trait_vision,
             trait_block: block_trait,
+            trait_powered: trait_powered
         }
     }
 
 
-    pub fn tik(&mut self, time: u64, world: &World, event_manager: &mut EventManager) {
-        self.trait_vision.tik(event_manager);
+    pub fn tik(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
+        let power_required = self.trait_vision.chunks_loaded() as u32;
+        
+        // Tike vision
+        if self.trait_powered.tik(power_required) {
+            self.trait_vision.tik(event_manager);
+        }
+
+        // Only Consume power every 256 tiks
+        if time.is_minute {
+            self.trait_powered.consume_power(power_required);
+        }
     }
 }
 

@@ -3,7 +3,7 @@ use crate::game_data::player_data::{drones::drone_manager::DroneId, locations::l
 
 #[derive(Clone, Copy)]
 pub enum ViewMode {
-    Start(),
+    God(),
 
     Drone(DroneId),
     Location(LocationId),

@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, world_event_manager::world_event_manager::WorldEvent}, player_data::game_object::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId}, game_object_manager::{GameObject, GameObjectId}, id_gen::IdGen, traits::trait_block::BlockTrait}, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, world_event_manager::world_event_manager::WorldEvent}, player_data::game_object::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId}, game_object_manager::{GameObject, GameObjectId}, id_gen::IdGen, traits::trait_block::BlockTrait}, tik_manager::game_time::GameTime, types::BlockTexture};
 
 
 static ID_GEN: IdGen = IdGen::new();
@@ -28,12 +28,12 @@ impl BlockEntityFlour {
         }
     }
 
-    pub fn tik(&mut self, time: u64, world: &World, event_manager: &mut EventManager) {
+    pub fn tik(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
         let self_world_cords = self.trait_block.world_cords;
 
         let range = 3;
 
-        if time % 256 == 0 {
+        if time.is_hour {
             // Scan around
             for x in -range..range {
                 for y in -range..range {

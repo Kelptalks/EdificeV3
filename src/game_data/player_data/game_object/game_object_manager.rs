@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::{drones::drone_manager::DroneId, game_object::block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId, BlockEntityManager}, nature_manager::nature_manager::NatureObject, player_data::PlayerData}};
+use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::{drones::drone_manager::DroneId, game_object::block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId, BlockEntityManager}, nature_manager::nature_manager::NatureObject, player_data::PlayerData}, tik_manager::game_time::GameTime};
 
 
 #[derive(Clone)]
@@ -32,7 +32,7 @@ impl GameObjectManager {
         }
     }
 
-    pub fn tik_game_objects(&mut self, time: u64, world: &World, event_manager: &mut EventManager) {
+    pub fn tik_game_objects(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
         self.block_entity_manager.tik(time, world, event_manager);
     }
 

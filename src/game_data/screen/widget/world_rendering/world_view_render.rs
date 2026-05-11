@@ -373,7 +373,7 @@ impl PlayWorldViewRender {
         debug.add_world_data("~~~~~~~~~~~~~~~~~~~".to_string());
         debug.add_world_data("~~ CURSORS CHUNK ~~".to_string());
         debug.add_world_data("~~~~~~~~~~~~~~~~~~~".to_string());
-        
+
         for data in chunk_debug_data {
             debug.add_world_data(data);
         }
@@ -438,7 +438,7 @@ impl Widget for PlayWorldViewRender {
 
         if let Some(view_mode) = player_data.get_view_mode() {
             match view_mode {
-                ViewMode::Start() => {
+                ViewMode::God() => {
                     // Handle Visuals
                     let mut panel = Panel::new_blank();
                     panel.set_parent_pos(screen_data.get_viewport_uv());
@@ -536,36 +536,28 @@ impl Widget for PlayWorldViewRender {
         }
         
 
-        
+
+        // Debuging
+        if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::O) {
+            println!("clearing world");
+            event_manager.add_event(WorldEvent::Clear.wrap_into_event());
+        }
+
 
         let mut mouse_data = Vec::new();
         if let Some(triangle) = self.get_mouse_triangle(screen_data, event_manager, player_data) {
             let mouse_cords = triangle.get_solid_block_struck_cords();
-
             mouse_data.push(format!(
                 "mouse_world_cords ({:?})", 
                 mouse_cords,
             ));
-
-
             mouse_data.push("Triangle Textures".to_string());
             for texture in triangle.get_textures() {
                 if let Texture::BlockTriangle(block, triangle) = texture {
                     mouse_data.push(format!(" - {}", block.get_name()));
                 }
             }
-
             mouse_data.push(format!("Block Depth({})", triangle.get_solid_block_depth()));
-
-            
-
-
-        }
-
-        if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::O) {
-            println!("clearing world");
-            event_manager.add_event(WorldEvent::Clear.wrap_into_event());
-            
         }
         
 

@@ -10,7 +10,6 @@ macro_rules! debug_fields {
 
 
 pub struct DebugData {
-
     pub debug_data_tabs_names: Vec<String>,
     pub debug_data: Vec<Vec<String>>,
     pub debug_data_widget_ids: Vec<WidgetId>,
@@ -29,6 +28,9 @@ impl DebugData {
         debug_data.push(Vec::new());
         
         debug_data_tabs_names.push("world_debug_data".to_string());
+        debug_data.push(Vec::new());
+
+        debug_data_tabs_names.push("tik_debug_data".to_string());
         debug_data.push(Vec::new());
 
         DebugData {
@@ -68,6 +70,13 @@ impl DebugData {
     }
     pub fn add_world_data(&mut self, string: String) {
         self.debug_data[2].push(string);
+    }
+
+    pub fn clear_tik_data(&mut self) {
+        self.debug_data[3].clear();
+    }
+    pub fn add_to_tik_data(&mut self, string: String) {
+        self.debug_data[3].push(string);
     }
 
 }

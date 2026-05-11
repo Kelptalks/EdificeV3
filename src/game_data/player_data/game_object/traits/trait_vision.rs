@@ -16,6 +16,10 @@ impl VisionTrait {
         self.chunks_in_view.push(chunk_cords);
     }
 
+    pub fn chunks_loaded(&self) -> usize {
+        self.chunks_in_view.len()
+    }
+
     pub fn tik(&mut self, event_manager: &mut EventManager) {
         for chunk_cords in &self.chunks_in_view {
             event_manager.add_event(
