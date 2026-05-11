@@ -72,7 +72,7 @@ impl TileMap {
     // Getters / Setters
     //=====================================
 
-    pub fn get_tile_with_flattened_cords(&self, iso_cords: &[i32; 2]) -> Option<&CastedTile> {
+    pub fn get_tile_with_tile_key(&self, iso_cords: &[i32; 2]) -> Option<&CastedTile> {
         self.map.get(iso_cords)
     }
     pub fn get_mut_tile_with_flattened_cords(&mut self, iso_cords: &[i32; 2]) -> Option<&mut CastedTile> {
@@ -103,7 +103,7 @@ impl TileMap {
 
     pub fn get_tile_at_area_cords(&self, world_cords: &[i32; 3]) -> Option<&CastedTile> {
         let flattened_iso_cords = iso_cord_tool::flatten_world_cords(*world_cords);
-        self.get_tile_with_flattened_cords(&flattened_iso_cords)
+        self.get_tile_with_tile_key(&flattened_iso_cords)
     }
 
     pub fn incert_tile_with_area_cords(&mut self, world_cords: [i32; 3], tile: CastedTile) {

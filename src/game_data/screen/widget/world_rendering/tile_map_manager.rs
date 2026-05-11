@@ -12,7 +12,7 @@ pub struct TileMapManager {
     dirty_maps: Vec<TileMapId>,
     lairs_to_flatten: Vec<TileMapId>,
     
-    flattened_lair: TileMap,
+    flattened_lair: HashMap<[i32; 2], Vec<TileMapId>>,
 
 }
 
@@ -27,7 +27,7 @@ impl TileMapManager {
             dirty_maps: Vec::new(),
 
             lairs_to_flatten: Vec::new(),
-            flattened_lair: TileMap::new(),
+            flattened_lair: HashMap::new(),
         }
     }
 
@@ -66,8 +66,58 @@ impl TileMapManager {
         id
     }
     
-    pub fn get_tile_with_flattened_cords(&self, tile_key: &[i32; 2]) -> Option<&CastedTile> {
-        self.flattened_lair.get_tile_with_flattened_cords(tile_key)
+    pub fn get_tile_with_flattened_cords(&mut self, tile_key: &[i32; 2]) -> Option<CastedTile> {
+
+        
+
+        if let Some(lairs_at_cords) = &mut self.flattened_lair.get_mut(tile_key).cloned() {
+            // Remove dead lairs in-place, no extra Vec needed
+            lairs_at_cords.retain(|id| self.map_lairs.contains_key(id));
+            
+            let mut option_current_tile: Option<CastedTile> = None;
+
+            for lair_id in lairs_at_cords {
+                if let Some(tile_map) = self.get_tile_map(*lair_id) {
+                    if let Some(lair_tile) = tile_map.get_tile_with_tile_key(tile_key) {
+                        if let Some(current_tile) = &mut option_current_tile {
+                            let lair_left_triangle = lair_tile.get_left_triangle(); 
+                            let lair_right_triangle = lair_tile.get_right_triangle();
+
+                            let current_left_triangle = current_tile.get_left_triangle().clone();
+                            let current_right_triangle = current_tile.get_right_triangle().clone();
+
+                            
+                            if lair_left_triangle.has_struck_solid {
+                                if !current_left_triangle.has_struck_solid {
+                                    current_tile.set_left_triangle(lair_left_triangle.clone());
+                                }
+                                else if current_left_triangle.get_struck_depth() < lair_left_triangle.get_struck_depth() {                                
+                                    current_tile.set_left_triangle(lair_left_triangle.clone());
+                                }
+                            }
+
+                            if lair_right_triangle.has_struck_solid {   
+                                if !current_right_triangle.has_struck_solid {
+                                    current_tile.set_right_triangle(lair_right_triangle.clone());
+                                }
+                                else if current_right_triangle.get_struck_depth() < lair_right_triangle.get_struck_depth() {
+                                    current_tile.set_right_triangle(lair_right_triangle.clone());
+                                }
+                            }
+                        }
+                        else {
+                            option_current_tile = Some(lair_tile.clone());
+                        }
+                    } 
+                }
+                else {
+                    println!("Dead Lair")
+                }
+            }
+            return option_current_tile;
+        }
+        None   
+        
     }
 
     //=====================================
@@ -100,44 +150,16 @@ impl TileMapManager {
     // Compair all the lairs and set each tile to the one with the lowest depth
     pub fn flatten(&mut self) {
         while let Some(id) = self.lairs_to_flatten.pop() {
-            
-            
-            
-            if let Some(lair) = self.map_lairs.get_mut(&id) {
-                for (cords, lair_tile) in &mut lair.map {
-                    let current_tile = self.flattened_lair.get_mut_tile_with_flattened_cords(&cords);
-                    if let Some(current_tile) = current_tile {
-                            
-                        let lair_left_triangle = lair_tile.get_left_triangle(); 
-                        let lair_right_triangle = lair_tile.get_right_triangle();
+            // Collect keys first, dropping the borrow on self
+            let keys: Vec<_> = self.get_tile_map(id)
+                .map(|tm| tm.map.keys().copied().collect())
+                .unwrap_or_default();
 
-                        let current_left_triangle = current_tile.get_left_triangle().clone();
-                        let current_right_triangle = current_tile.get_right_triangle().clone();
-
-
-                        
-                        if lair_left_triangle.has_struck_solid {
-                            if !current_left_triangle.has_struck_solid {
-                                current_tile.set_left_triangle(lair_left_triangle.clone());
-                            }
-                            else if current_left_triangle.get_struck_depth() < lair_left_triangle.get_struck_depth() {                                
-                                current_tile.set_left_triangle(lair_left_triangle.clone());
-                            }
-                        }
-
-                        if lair_right_triangle.has_struck_solid {   
-                            if !current_right_triangle.has_struck_solid {
-                                current_tile.set_right_triangle(lair_right_triangle.clone());
-                            }
-                            else if current_right_triangle.get_struck_depth() < lair_right_triangle.get_struck_depth() {
-                                current_tile.set_right_triangle(lair_right_triangle.clone());
-                            }
-                        }
-                    }
-                    else {
-                        self.flattened_lair.incert_tile_with_flattened_cords(*cords, lair_tile.clone());
-                    }
-                }
+            for key in keys {
+                self.flattened_lair
+                    .entry(key)
+                    .or_insert_with(Vec::new)
+                    .push(id);
             }
         }
     }
