@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::HashMap, ops::Index, rc::Rc, time::{Instan
 
 
 use crate::game_data::{
-    TextureManager, World, game_event_manager::{self, player_data_event_manager::var_event_manager::var_events::VarEvents}, locations::world_area::WorldArea, player_data::{self, cursor::{self, cursor::Cursor, cursor_event_scheduler::{self, CursorEventScheduler}}, drone_script::var::{game_vars::{dynamic_var::{self, DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}, drones::{drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, prim_actions::drone_world_actions::DroneWorldAction}, drone_event_scheduler}, player_data::PlayerData}, screen::{
+    TextureManager, World, game_event_manager::{self, player_data_event_manager::var_event_manager::var_events::VarEvents}, locations::world_area::WorldArea, player_data::{self, cursor::{self, cursor::Cursor, cursor_event_scheduler::{self, CursorEventScheduler}}, drone_script::var::{game_vars::{dynamic_var::{self, DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}, drones::{drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, prim_actions::drone_world_actions::DroneWorldAction}, drone_event_scheduler}, game_object::block_entity_manager::player_created::radar::BlockEntityRadar, player_data::PlayerData}, screen::{
         ScreenData, input_data, iso_cord_tool, screen_data, widget::{button::button::Button, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot, play_world_view_config::PlayViewRenderingConfig}, widget::{Widget, WidgetType}, widget_calculations, widget_properties::{self, WidgetProperties}, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::{lair_block::LairBlockMod, lair_block_manager::LairBlockManager}, ray_caster::{casted_tile::CastedTile, casted_triangle::CastedTriangle, ray_casting_config::{self, RayCastingConfig}}}, rendering_config, tile_map::{TileMap, TileMapId}, tile_map_manager::TileMapManager, view_mode::ViewMode}}
     }, texture_manager::texture::Texture, tools::cords_tool, types::BlockTexture
 };
@@ -434,6 +434,11 @@ impl Widget for PlayWorldViewRender {
                     self.handle_camera_zooming(screen_data, event_manager, player_data);
                     self.get_mouse_triangle(screen_data, event_manager, player_data);
 
+                    if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::T) {
+                        let cursor = player_data.get_cursor();
+                        let radar = BlockEntityRadar::new(cursor.get_cords(), event_manager);
+                        event_manager.add_event(PlayerDataEvent::NewGameObject(radar.wrap_into_game_objcet()).wrap_into_event());
+                    }
                     if screen_data.was_right_released() {
                         // Spawn drone at cursor cords
                         let mut cursor_event_scheduler = player_data.get_cursor_event_scheduler();
@@ -537,7 +542,15 @@ impl Widget for PlayWorldViewRender {
 
 
         }
+
+        if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::O) {
+            println!("clearing world");
+            event_manager.add_event(WorldEvent::Clear.wrap_into_event());
+            
+        }
         
+
+
         let debug = event_manager.get_mut_debug_data();
         debug.clear_rendering_data();
 
@@ -554,7 +567,6 @@ impl Widget for PlayWorldViewRender {
         let entitys_drawn = format!("Entity's Drawn ({})", self.entitys_drawn);
         debug.add_rendering_data(entitys_drawn);
         self.entitys_drawn = 0;
-
 
         
     }

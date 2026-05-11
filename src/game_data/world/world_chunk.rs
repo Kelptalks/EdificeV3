@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, World, game_event_manager::{event_manager::{self, Event, EventManager}, game_event_manager::GameEventManager, render_event_manager::tile_map_event::TileMapEvent, widget_event_manager::prim_events::bool_events, world_event_manager::{chunk_event::WorldChunkEvent, world_event_manager::WorldEvent}}, locations::world_area::WorldArea, player_data::{self, game_object::GameObjectType, player_data::PlayerData}, screen::{iso_cord_tool, text, widget::world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod}, rendering_config, tile_map::{TileMap, TileMapId}, tile_map_manager::{self, TileMapManager}}}, texture_manager::{self, texture::Texture, texture_cashe::texture_cashe::CashedTextureID}};
+use crate::game_data::{TextureManager, World, game_event_manager::{event_manager::{self, Event, EventManager}, game_event_manager::GameEventManager, render_event_manager::tile_map_event::TileMapEvent, widget_event_manager::prim_events::bool_events, world_event_manager::{chunk_event::WorldChunkEvent, world_event_manager::WorldEvent}}, locations::world_area::WorldArea, player_data::{self, game_object::game_object_manager::GameObjectId, player_data::PlayerData}, screen::{iso_cord_tool, text, widget::world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod}, rendering_config, tile_map::{TileMap, TileMapId}, tile_map_manager::{self, TileMapManager}}}, texture_manager::{self, texture::Texture, texture_cashe::texture_cashe::CashedTextureID}};
 
 const CHUNK_SIZE: usize = 16;
 const CHUNK_AREA: usize = CHUNK_SIZE * CHUNK_SIZE;
@@ -23,7 +23,7 @@ pub struct WorldChunk {
     pub tile_map_id: Option<TileMapId>,
 
     // Game objects
-    game_objects: Vec<GameObjectType>,
+    game_objects: Vec<GameObjectId>,
 }
 
 impl WorldChunk {

@@ -165,8 +165,7 @@ impl World {
     }
 
     pub fn clear(&mut self) {
-        println!("Clearing World");
-        self.loaded_chunks.clear();
+        self.chunks_to_load.clear();
     }
 
     //=====================================

@@ -2,17 +2,17 @@ use std::fmt::format;
 
 use miniquad::StencilOp;
 
-use crate::game_data::{player_data::{drone_script::var::{game_vars::game_var_type::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}, var::Var, var_type::VarKind}, game_object::GameObjectType}, screen::widget::{drone_programming::var_slot::var_slot::VarSlot, panel::panel::Panel, widget::Widget, widget_properties::WidgetProperties}};
+use crate::game_data::{player_data::{drone_script::var::{game_vars::game_var_type::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}, var::Var, var_type::VarKind}, game_object::game_object_manager::GameObjectId}, screen::widget::{drone_programming::var_slot::var_slot::VarSlot, panel::panel::Panel, widget::Widget, widget_properties::WidgetProperties}};
 
 pub struct InvintoryDisplayWidget {
     panel: Panel,
 
-    game_object: GameObjectType
+    game_object: GameObjectId
 
 }
 
 impl InvintoryDisplayWidget {
-    pub fn new(parents_props: &WidgetProperties, object_id: GameObjectType) -> InvintoryDisplayWidget {
+    pub fn new(parents_props: &WidgetProperties, object_id: GameObjectId) -> InvintoryDisplayWidget {
         let mut panel = Panel::new_with_parent_props(parents_props);
         
         InvintoryDisplayWidget {
@@ -51,7 +51,7 @@ impl Widget for InvintoryDisplayWidget {
         // Extract the invintory from the game object
         let mut inventory = None;
         match self.game_object {
-            GameObjectType::Drone(drone_id) => {
+            GameObjectId::Drone(drone_id) => {
                 let drone = player_data.get_drone_manager().clone_drone_with_id(drone_id);
                 if let Some(drone) = drone {
                     inventory = Some(drone.get_inventory().clone());

@@ -1,22 +1,20 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, player_data_event_manager::location_event::LocationEvent}, player_data_event_manager::{drone_event::DroneEvent, var_event_manager::var_events::VarEvents}, prelude::{Event, GameEvent}}, player_data::{cursor::cursor_event_scheduler::CursorEvent, drone_script::var::{game_vars::dynamic_var::DynamicVarType, var_type::VarType}, drones::{drone::Drone, drone_event_scheduler::NewDroneEvent, drone_manager::DroneId}, locations::{location::WorldLocation, location_config::WorldLocationConfig}, player_data::PlayerData}, screen::widget::world_rendering::view_mode::ViewMode};
+use crate::game_data::{game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, player_data_event_manager::location_event::LocationEvent}, player_data_event_manager::{drone_event::DroneEvent, var_event_manager::var_events::VarEvents}, prelude::{Event, GameEvent}}, player_data::{cursor::cursor_event_scheduler::CursorEvent, drone_script::var::{game_vars::dynamic_var::DynamicVarType, var_type::VarType}, drones::{drone::Drone, drone_event_scheduler::NewDroneEvent, drone_manager::DroneId}, game_object::game_object_manager::GameObject, locations::{location::WorldLocation, location_config::WorldLocationConfig}, player_data::PlayerData}, screen::widget::world_rendering::view_mode::ViewMode};
 
 #[derive(Clone)]
 pub enum PlayerDataEvent {
     
     // New
     SetViewMode(Option<ViewMode>),
-    
-    CursorEvent(CursorEvent),
-    
-    DroneEventNew(DroneId, NewDroneEvent),
+    NewGameObject(GameObject),
 
+    CursorEvent(CursorEvent),
+    DroneEventNew(DroneId, NewDroneEvent),
     
-    
-    
+
     // Old
-    CreateDrone([i32; 3]),
+
     DroneEvent(Rc<RefCell<Drone>>, DroneEvent),
 
 
@@ -37,25 +35,26 @@ impl PlayerDataEvent {
         return Event::GameEvent(GameEvent::PlayerDataEvent(self));
     }
 
-    pub fn execute_player_data_events(&self, event_tools: &mut GameEventManager, player_data: &mut PlayerData) {
+    pub fn execute_player_data_events(self, event_tools: &mut GameEventManager, player_data: &mut PlayerData) {
         match self {
+            PlayerDataEvent::NewGameObject(object) => {
+                player_data.new_game_object(object);
+            }
+
             PlayerDataEvent::SetViewMode(mode) => {
-                player_data.set_view_mode(mode);
+                player_data.set_view_mode(&mode);
             },
             PlayerDataEvent::CursorEvent(cursor_event) => {
                 cursor_event.execute_cursor_event(player_data);
             },
             PlayerDataEvent::DroneEventNew(drone_id, drone_event) => {
-                drone_event.execute(drone_id, player_data);
+                drone_event.execute(&drone_id, player_data);
             }
             
 
-            // Old
-            PlayerDataEvent::CreateDrone(cords) => {
-                player_data.get_mut_drone_manager().create_drone_at_cords(*cords);
-            }
+  
             PlayerDataEvent::DroneEvent(drone, drone_event) => {
-                drone_event.execute(event_tools, drone);
+                drone_event.execute(event_tools, &drone);
             }
             PlayerDataEvent::LocationEvent(location_ref, location_event) => {
                 location_event.execute(event_tools, location_ref.clone());

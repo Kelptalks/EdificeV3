@@ -13,7 +13,7 @@ pub struct TikManager {
     paused: bool,
 
     // Tik Data
-    current_tik: u32,
+    current_tik: u64,
     tik_rate: u128,
     last_tik_micros: u128,
 
@@ -128,7 +128,17 @@ impl TikManager {
             self.last_tik_micros = current_millis;
 
             let current_world = player_data.get_world_ref();
-            player_data.tik_game_objects(event_manager);
+            
+            let world = current_world.try_read();
+            match world {
+                Ok(world) => {
+                    player_data.tik_game_objects(self.current_tik, &world, event_manager);       
+                },
+                Err(_) => todo!(),
+            }
+
+
+
             player_data.get_mut_drone_manager().tik_drones(current_world.clone(), event_manager);
 
 

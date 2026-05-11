@@ -98,7 +98,7 @@ impl WorldGenManager {
         let start_cords = area.get_point_1_cords();
         let end_cords = area.get_point_2_cords();
 
-        let terrain_height = 100.0;
+        let terrain_height = 120.0;
         let terrain_noise = TerrainNoise::new(152452, 4, 500.0);
         let mut grass_gen_manager = GrassGenManager::new();
 
@@ -115,7 +115,7 @@ impl WorldGenManager {
                     if let Some(block_type) = self.layer_manager.get_block_at_layer_z(layer_z) {
                         if block_type == BlockTexture::Grass {
                             if below_water {
-                                world.set_world_value(BlockTexture::Sand.id_as_u16(), [x, y, z]);
+                                world.set_world_value(BlockTexture::BlueGrass.id_as_u16(), [x, y, z]);
                             } else {
                                 grass_gen_manager.gen_grass([x, y, z], world);
                             }

@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, game_event_manager::{self, event_manager::{self, EventManager}, game_event_manager::GameEventManager}, log_init, player_data::{cursor::{cursor::Cursor, cursor_event_scheduler::CursorEventScheduler}, drones::{drone_event_scheduler::DroneEventScheduler, drone_manager::{DroneId, DroneManager}}, locations::location_manager::{LocationId, LocationManager}, nature_manager::nature_manager::NatureManager, progress_manager::progress_manager::ProgressManager, settings::settings_manager::SettingsManager}, screen::{menu_constructors::play_view_menu::new_play_view::PlayViewMode, widget::world_rendering::view_mode::ViewMode}, types::BlockTexture, world_gen::WorldGenManager};
+use crate::game_data::{World, game_event_manager::{self, event_manager::{self, EventManager}, game_event_manager::GameEventManager}, log_init, player_data::{cursor::{cursor::Cursor, cursor_event_scheduler::CursorEventScheduler}, drones::{drone_event_scheduler::DroneEventScheduler, drone_manager::{DroneId, DroneManager}}, game_object::game_object_manager::{GameObject, GameObjectManager}, locations::location_manager::{LocationId, LocationManager}, nature_manager::nature_manager::NatureManager, progress_manager::progress_manager::ProgressManager, settings::settings_manager::SettingsManager}, screen::{menu_constructors::play_view_menu::new_play_view::PlayViewMode, widget::world_rendering::view_mode::ViewMode}, types::BlockTexture, world_gen::WorldGenManager};
 
 
 /*
@@ -22,11 +22,10 @@ pub struct PlayerData {
     // Game Object Managment
     cursor: Cursor,
     drone_manager: DroneManager,
-    nature_manager: NatureManager,
     location_manager: LocationManager,
 
 
-
+    game_object_manager: GameObjectManager,
     progress_manager: ProgressManager,
 
     // Settings
@@ -45,9 +44,9 @@ impl PlayerData {
             // Game object managment
             cursor: Cursor::new(),
             drone_manager: DroneManager::new(),
-            nature_manager: NatureManager::new(),
             location_manager: LocationManager::new(),
             
+            game_object_manager: GameObjectManager::new(),
             progress_manager: ProgressManager::new(),
 
             settings: SettingsManager::new(),
@@ -111,10 +110,6 @@ impl PlayerData {
     // Game Object Scedulers
     //=================================================
 
-    pub fn tik_game_objects(&mut self, event_manager: &mut EventManager) {
-        self.cursor.tik(event_manager);
-    }
-
     pub fn get_cursor_event_scheduler(&self) -> CursorEventScheduler {
         return CursorEventScheduler::new(self.cursor.clone());
     }
@@ -134,6 +129,15 @@ impl PlayerData {
 
     pub fn get_view_mode(&self) -> Option<ViewMode> {
         return self.view_mode.clone();
+    }
+
+    pub fn new_game_object(&mut self, game_objcet: GameObject) {
+        self.game_object_manager.new_game_oject(game_objcet);
+    }
+
+    pub fn tik_game_objects(&mut self, time: u64, world: &World, event_manager: &mut EventManager) {
+        self.game_object_manager.tik_game_objects(time, world, event_manager);
+        self.cursor.tik(event_manager);
     }
 
 }

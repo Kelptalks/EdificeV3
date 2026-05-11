@@ -19,7 +19,6 @@ pub enum WorldEvent {
     ChunkEvent(WorldChunkEvent),
 
     // Modifcation
-    PlaceBlock([i32; 3], BlockTexture),                                 // Params: (Block Cords, Block Type) | Modifys a block and also attempts to create entitys if block is of a cirtain type
     ModBlock([i32; 3], BlockTexture),                                   // Params: (Block Cords, Block Type) | Modify a block in the world
     FillLocation(Rc<RefCell<WorldLocation>>, Rc<RefCell<BlockTexture>>) // Params: (Block Cords, Block Type) | Fill a location with PlaceBlock Events
 }
@@ -51,17 +50,6 @@ impl WorldEvent {
 
             WorldEvent::ChunkEvent(chunk_event) => {
                 chunk_event.execute_chunk_event(world, event_manager);
-            }
-            WorldEvent::PlaceBlock(cords, block_type) => {
-                world.set_world_value( block_type.id_as_u16(), *cords);
-
-                // If block is an entity add it to the world
-                if block_type.is_block_entity() {
-                    let entity_type = block_type.to_block_entity_type();
-                    event_manager.add_game_event(entity_type.to_creation_event(*cords));
-                }
-
-                event_manager.add_render_event(RenderEvent::ReRenderBlock(*cords));
             }
             WorldEvent::ModBlock(cords, block_type) => {
                 world.set_world_value( block_type.id_as_u16(), *cords);
