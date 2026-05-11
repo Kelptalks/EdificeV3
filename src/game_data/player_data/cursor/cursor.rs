@@ -89,7 +89,7 @@ impl Cursor {
 
     pub fn tik(&mut self, event_manager: &mut EventManager) {
         // Load a 3 by 3 block area around 
-        let view_distance = [3, 3, 3];
+        let view_distance = [1, 1, 1];
         let chunk_cords = World::world_cords_to_chunk_cords(self.get_cords());
         
 

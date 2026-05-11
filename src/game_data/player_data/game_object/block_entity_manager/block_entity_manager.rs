@@ -1,8 +1,12 @@
-use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_object::{block_entity_manager::player_created::radar::BlockEntityRadar, game_object_manager::GameObject}};
+use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_object::{block_entity_manager::{natural::flour::BlockEntityFlour, player_created::radar::BlockEntityRadar}, game_object_manager::GameObject}};
 
 #[derive(Clone)]
 pub enum BlockEntity {
+    // player
     Radar(BlockEntityRadar),
+
+    // natural
+    Flour(BlockEntityFlour)
 }
 
 impl BlockEntity {
@@ -15,18 +19,18 @@ impl BlockEntity {
             BlockEntity::Radar(block_entity_radar) => {
                 block_entity_radar.tik(time, world, event_manager);
             },
+            BlockEntity::Flour(block_entity_flour) => {
+                block_entity_flour.tik(time, world, event_manager)
+            },
         }
     } 
 }
-
 
 pub struct BlockEntityManager {
     block_entitys: Vec<BlockEntity>,
 }
 
 impl BlockEntityManager {
-    
-
     pub fn new() -> BlockEntityManager {
         BlockEntityManager {
             block_entitys: Vec::new(),
