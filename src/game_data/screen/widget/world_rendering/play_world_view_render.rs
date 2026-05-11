@@ -66,8 +66,10 @@ pub struct PlayWorldViewRender {
 
     area_rendering_manager: AreaRenderingManager,
     lair_block_mods: Vec<LairBlockMod>,
+    
+    
     tile_map_manager: TileMapManager,
-    tile_map: TileMap,
+    tile_map_id: TileMapId,
 
 
     // Camera Motion
@@ -92,8 +94,13 @@ impl PlayWorldViewRender {
         wp.internal_buffers = [0.012; 4];
 
 
-        let tile_map_manager = TileMapManager::new();
-        let tile_map = TileMap::new();
+        let mut tile_map_manager = TileMapManager::new();
+        let tile_map_id = tile_map_manager.new_tile_map();
+
+        if let Some(tile_map) = tile_map_manager.get_mut_tile_map(tile_map_id) {
+            tile_map.cashe_texture = false;
+        }
+        
 
         PlayWorldViewRender {
             widget_properties: wp,
@@ -106,7 +113,7 @@ impl PlayWorldViewRender {
             area_rendering_manager: AreaRenderingManager::new(),
             lair_block_mods: Vec::new(),
             tile_map_manager: tile_map_manager, // Just set blank as they are reset every frame in render_view
-            tile_map,
+            tile_map_id,
 
             camera_ndc_offset: [0.0, 0.0],
 
@@ -315,7 +322,6 @@ impl PlayWorldViewRender {
         let world_arc = player_data.get_world_ref();
         let mut world = world_arc.write().unwrap();
     
-        
 
         let cursor = player_data.get_cursor();
 
@@ -323,9 +329,7 @@ impl PlayWorldViewRender {
             self.ndc_block_scale, 
             iso_cord_tool::world_cords_to_world_pos(cursor.get_cords())
         );
-
-        let world_area = cursor.get_rendering_area();
-        self.area_rendering_manager.set_world_area(world_area);
+        
 
 
         let mut draw_cords = [0.0; 2];
@@ -340,14 +344,25 @@ impl PlayWorldViewRender {
         self.tile_map_manager.clean(texture_manager, &world);
         self.tile_map_manager.flatten();
 
-        texture_manager.update_expander_cache(self.ndc_block_scale);
-        if (cursor.get_zoom() * 2) < 32 {
-            self.tile_map.set_world_area(world_area);
-            self.tile_map.clean(&world, texture_manager);
-            self.tile_map.render_tiles(texture_manager, self.ndc_block_scale, draw_cords);
 
+        texture_manager.update_expander_cache(self.ndc_block_scale);
+        
+        // Use personal tile map
+        if (cursor.get_zoom() * 2) < 32 {
+            if let Some(tile_map) =  self.tile_map_manager.get_mut_tile_map(self.tile_map_id) {
+                
+                let world_area = cursor.get_rendering_area();
+                tile_map.set_world_area(world_area);
+                tile_map.clean(&world, texture_manager);
+
+
+            }
+            self.tile_map_manager.render_tile_map(self.tile_map_id, texture_manager);
         }
-        world.render_world(texture_manager, &mut self.tile_map_manager);
+        else {
+            world.render_world(texture_manager, &mut self.tile_map_manager);
+        }
+        
         
 
 

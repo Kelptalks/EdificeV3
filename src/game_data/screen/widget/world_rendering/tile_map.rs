@@ -33,6 +33,7 @@ pub struct TileMap {
 
     pub ray_casting_dirty: bool,
     pub cashed_texture_dirty: bool,
+    pub cashe_texture: bool,
 
     world_area: Option<WorldArea>,
     cashed_texture_id: Option<CashedTextureID>,
@@ -54,6 +55,7 @@ impl TileMap {
 
             ray_casting_dirty: true,
             cashed_texture_dirty: true,
+            cashe_texture: true,
 
             world_area: None,
             cashed_texture_id: None,
@@ -120,7 +122,9 @@ impl TileMap {
 
 
     pub fn ray_cast_world_area(&mut self, world: &World) {
+        self.map.clear();
         if let Some(world_area) = self.world_area {
+            
             let mut area_rendering_manager = AreaRenderingManager::new();
             area_rendering_manager.set_world_area(world_area);
 
@@ -143,7 +147,7 @@ impl TileMap {
         if self.ray_casting_dirty {
             self.ray_cast_world_area(world);
         }
-        if self.cashed_texture_dirty {
+        if self.cashed_texture_dirty && self.cashe_texture {
             if let Some(world_area) = self.world_area {
                 let center_world = world_area.get_center_world_cords();
                 let iso_center = iso_cord_tool::flatten_world_cords(center_world);
@@ -173,7 +177,7 @@ impl TileMap {
         if self.ray_casting_dirty {
             false
         }
-        else if self.cashed_texture_dirty {
+        else if self.cashed_texture_dirty && self.cashe_texture {
             false
         }
         else {
@@ -212,6 +216,9 @@ impl TileMap {
 
                 texture_manager.render_texture(texture, pos);
             }
+        }
+        else {
+            self.render_tiles(texture_manager, draw_block_scale, draw_offset);
         }
     }
 

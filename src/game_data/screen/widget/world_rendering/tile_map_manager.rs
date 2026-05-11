@@ -100,6 +100,9 @@ impl TileMapManager {
     // Compair all the lairs and set each tile to the one with the lowest depth
     pub fn flatten(&mut self) {
         while let Some(id) = self.lairs_to_flatten.pop() {
+            
+            
+            
             if let Some(lair) = self.map_lairs.get_mut(&id) {
                 for (cords, lair_tile) in &mut lair.map {
                     let current_tile = self.flattened_lair.get_mut_tile_with_flattened_cords(&cords);
@@ -213,6 +216,13 @@ impl TileMapManager {
     }
 
 
+    pub fn render_tile_map(&mut self, tile_map_id: TileMapId, texture_manager: &mut TextureManager) {
+        let draw_block_scale: f32 =  self.draw_block_scale;
+        let draw_offset = self.draw_offset;
+        if let Some(tile_map) = self.get_mut_tile_map(tile_map_id) {
+            tile_map.render(texture_manager, draw_block_scale, draw_offset);
+        }
+    }
 
     pub fn free_id(&mut self, id: &TileMapId) -> Vec<Event> {
         if let Some(mut map) = self.map_lairs.remove(id) {
