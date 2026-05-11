@@ -23,7 +23,7 @@ pub struct WorldChunk {
     pub tile_map_id: Option<TileMapId>,
 
     // Game objects
-    game_objects: Vec<GameObjectId>,
+    pub game_objects: Vec<GameObjectId>,
 }
 
 impl WorldChunk {

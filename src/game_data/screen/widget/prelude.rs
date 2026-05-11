@@ -8,7 +8,7 @@ pub use super::tab_panel::tab_panel::TabPanel;
 // Text
 
 // World Rendering
-pub use super::world_rendering::play_world_view_render::PlayWorldViewRender;
+pub use super::world_rendering::world_view_render::PlayWorldViewRender;
 
 pub use super::world_rendering::rendering_config::{play_world_view_config};
 

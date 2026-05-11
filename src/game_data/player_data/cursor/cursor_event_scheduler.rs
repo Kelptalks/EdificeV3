@@ -5,7 +5,6 @@ pub enum CursorEvent {
     ModCords([i32; 3]),
     SetCords([i32; 3]),
     ModZoom(i32),
-    SpawnDrone(),
 }
 
 impl CursorEvent {
@@ -27,12 +26,7 @@ impl CursorEvent {
                 let cursor = player_data.get_mut_cursor();
                 cursor.mod_zoom(amount)
             },
-            CursorEvent::SpawnDrone() => {
-                let cords = player_data.get_cursor().get_cords();
-                let id = player_data.get_mut_drone_manager().create_drone_at_cords(cords);
 
-                player_data.set_view_mode(&Some(ViewMode::Drone(id)));
-            }
         }
     }
 }
@@ -60,28 +54,19 @@ impl CursorEventScheduler {
     //=====================================
 
     pub fn mod_cords(&mut self, cord_mod: [i32; 3]) {
-        self.cursor_clone.mod_cords(&cord_mod);
         self.events.push(CursorEvent::ModCords(cord_mod));
     }
 
     pub fn set_cords(&mut self, new_cord: [i32; 3]) {
-        self.cursor_clone.set_cords(&new_cord);
-
         self.events.push(CursorEvent::SetCords(new_cord));
     }
 
     pub fn zoom_in(&mut self) {
-        self.cursor_clone.mod_zoom(&-1);
         self.events.push(CursorEvent::ModZoom(-1));
     }
 
     pub fn zoom_out(&mut self) {
-        self.cursor_clone.mod_zoom(&1);
         self.events.push(CursorEvent::ModZoom(1));
-    }
-
-    pub fn spawn_drone(&mut self) {
-        self.events.push(CursorEvent::SpawnDrone());
     }
 
     //=====================================

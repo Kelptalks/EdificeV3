@@ -80,27 +80,34 @@ impl World {
 
     // Get a chunk at chunk cords
     pub fn force_get_chunk_at_cords_mut(&mut self, cords : [i16 ; 3] ) -> &mut WorldChunk {
-        
         let chunk_key = Self::chunk_cords_to_key(cords);
-
         // If world chunk does not exist create it
         if !self.loaded_chunks.contains_key(&chunk_key) {
             let new_chunk = WorldChunk::new(cords);
             self.loaded_chunks.insert(chunk_key, new_chunk);
         }
-
         return self.loaded_chunks.get_mut(&chunk_key).unwrap();
+    }
+    pub fn force_get_chunk_at_world_cords_mut(&mut self, cords : [i32 ; 3]) -> &mut WorldChunk {
+        let chunk_cords = Self::world_cords_to_chunk_cords(cords);
+        return self.force_get_chunk_at_cords_mut(chunk_cords);
+    }
+
+
+    pub fn get_mut_chunk_at_chunk_cords(&mut self, cords : [i16 ; 3]) -> Option<&mut WorldChunk> {
+        let chunk_key = Self::chunk_cords_to_key(cords);
+        return self.loaded_chunks.get_mut(&chunk_key);
+    }
+
+    pub fn get_mut_chunk_at_world_cords(&mut self, cords : [i32 ; 3]) -> Option<&mut WorldChunk> {
+        let chunk_cords = Self::world_cords_to_chunk_cords(cords);
+        return self.get_mut_chunk_at_chunk_cords(chunk_cords);
     }
 
     // Gets the chunk if it exists 
     pub fn get_chunk_at_chunk_cords(&self, cords : [i16 ; 3] ) -> Option<&WorldChunk> {
         let chunk_key = Self::chunk_cords_to_key(cords);
         return self.loaded_chunks.get(&chunk_key);
-    }
-
-    pub fn force_get_chunk_at_world_cords_mut(&mut self, cords : [i32 ; 3]) -> &mut WorldChunk {
-        let chunk_cords = Self::world_cords_to_chunk_cords(cords);
-        return self.force_get_chunk_at_cords_mut(chunk_cords);
     }
     pub fn get_chunk_at_world_cords(&self, cords : [i32 ; 3]) -> Option<&WorldChunk> {
         let chunk_cords = Self::world_cords_to_chunk_cords(cords);
@@ -259,6 +266,22 @@ impl World {
             chunk.render(texture_manager, tile_map_manager);
         }
     }
+
+    pub fn get_chunk_debug_data(&self, world_cords: [i32; 3]) -> Vec<String> {
+        let mut data = Vec::new();
+
+        if let Some(chunk) = self.get_chunk_at_world_cords(world_cords) {
+            data.push(format!("Chunk Dirty: {}", chunk.dirty         ));
+            data.push(format!("Game Objcets: {}", chunk.game_objects.len()));
+        }
+        else {
+            data.push(format!("NO CHUNK FOUND AT ({:?})", world_cords));
+        }
+
+
+        data
+    }
+
 }
 
 

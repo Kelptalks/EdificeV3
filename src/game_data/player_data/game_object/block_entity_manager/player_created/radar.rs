@@ -1,4 +1,6 @@
-use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_object::{block_entity_manager::block_entity_manager::BlockEntity, game_object_manager::GameObject, traits::{trait_block::{self, BlockTrait}, trait_vision::VisionTrait}}, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_object::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId}, game_object_manager::GameObject, id_gen::IdGen, traits::{trait_block::{self, BlockTrait}, trait_vision::VisionTrait}}, types::BlockTexture};
+
+static ID_GEN: IdGen = IdGen::new();
 
 #[derive(Clone)]
 pub struct BlockEntityRadar {
@@ -13,10 +15,12 @@ impl BlockEntityRadar {
     }
 
     pub fn new(cords: [i32; 3], event_manager: &mut EventManager) -> BlockEntityRadar {
+        let id: crate::game_data::player_data::game_object::game_object_manager::GameObjectId = BlockEntityId::RadarID(ID_GEN.new_id()).wrap_into_game_object_id();
+        
         // Block
         let mut block_trait = 
             BlockTrait::new(BlockTexture::LBM, cords);
-        block_trait.init(event_manager);
+        block_trait.init(id, event_manager);
         
 
 

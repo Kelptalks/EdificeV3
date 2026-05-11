@@ -364,8 +364,19 @@ impl PlayWorldViewRender {
         }
         
         
+        let chunk_debug_data = world.get_chunk_debug_data(cursor.get_cords());
 
+        let debug = event_manager.get_mut_debug_data();
+        debug.clear_rendering_data();
+    
 
+        debug.add_world_data("~~~~~~~~~~~~~~~~~~~".to_string());
+        debug.add_world_data("~~ CURSORS CHUNK ~~".to_string());
+        debug.add_world_data("~~~~~~~~~~~~~~~~~~~".to_string());
+        
+        for data in chunk_debug_data {
+            debug.add_world_data(data);
+        }
         
         
         
@@ -435,7 +446,7 @@ impl Widget for PlayWorldViewRender {
                     panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
                     
                     // Add instructions
-                    panel.add_text_display("Spawn your drone".to_string())
+                    panel.add_text_display("Choose Your Starting Location".to_string())
                         .set_text_scale(widget_calculations::TextSize::Large);
                     panel.add_text_display("right click to place".to_string())
                         .set_text_scale(widget_calculations::TextSize::Medium);
@@ -449,20 +460,13 @@ impl Widget for PlayWorldViewRender {
                     self.handle_camera_zooming(screen_data, event_manager, player_data);
                     self.get_mouse_triangle(screen_data, event_manager, player_data);
 
-                    if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::T) {
-                        let cursor = player_data.get_cursor();
-                        let radar = BlockEntityFlour::new(cursor.get_cords(), event_manager);
-                        event_manager.add_event(PlayerDataEvent::NewGameObject(radar.wrap_into_game_objcet()).wrap_into_event());
-                    }
                     if screen_data.was_right_released() {
-                        // Spawn drone at cursor cords
-                        let mut cursor_event_scheduler = player_data.get_cursor_event_scheduler();
-                        cursor_event_scheduler.spawn_drone();
-                        cursor_event_scheduler.schedul_events(event_manager);
+                        let cursor = player_data.get_cursor();
+                        let radar = BlockEntityRadar::new(cursor.get_cords(), event_manager);
+                        event_manager.add_event(PlayerDataEvent::NewGameObject(radar.wrap_into_game_objcet()).wrap_into_event());
                     }
                     else {
                         let cursor = player_data.get_cursor();
-
                         self.tile_map_manager.render_enitity_at_world_pos(
                             texture_manager, 
                             player_data, 
@@ -582,6 +586,9 @@ impl Widget for PlayWorldViewRender {
         let entitys_drawn = format!("Entity's Drawn ({})", self.entitys_drawn);
         debug.add_rendering_data(entitys_drawn);
         self.entitys_drawn = 0;
+
+
+        
 
         
     }

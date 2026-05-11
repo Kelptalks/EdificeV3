@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_object::{block_entity_manager::{natural::flour::BlockEntityFlour, player_created::radar::BlockEntityRadar}, game_object_manager::GameObject}};
+use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_object::{block_entity_manager::{natural::flour::BlockEntityFlour, player_created::radar::BlockEntityRadar}, game_object_manager::{GameObject, GameObjectId}}};
 
 #[derive(Clone)]
 pub enum BlockEntity {
@@ -9,10 +9,27 @@ pub enum BlockEntity {
     Flour(BlockEntityFlour)
 }
 
+#[derive(Clone)]
+pub enum BlockEntityId {
+    // Player
+    RadarID(u64),
+
+    // Natural
+    FlourID(u64),
+}
+
+impl BlockEntityId {
+    pub fn wrap_into_game_object_id(self) -> GameObjectId {
+        GameObjectId::BlockEntity(self)
+    }
+}
+
 impl BlockEntity {
     pub fn wrap_into_game_object(self) -> GameObject {
         GameObject::BlockEntity(self)
     }
+
+    
 
     pub fn tik(&mut self, time: u64, world: &World, event_manager: &mut EventManager) {
         match self {

@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::{event_manager::{self, Event, EventManager}, world_event_manager::world_event_manager::WorldEvent}, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::{event_manager::{self, Event, EventManager}, world_event_manager::world_event_manager::WorldEvent}, player_data::game_object::game_object_manager::GameObjectId, types::BlockTexture};
 
 #[derive(Clone)]
 pub struct BlockTrait {
@@ -19,9 +19,12 @@ impl BlockTrait {
 
     }
 
-    pub fn init(&mut self, event_manager: &mut EventManager) {
+    pub fn init(&mut self, id: GameObjectId, event_manager: &mut EventManager) {
         event_manager.add_world_event(
             WorldEvent::ModBlock(self.world_cords, self.block_type)
+        );
+        event_manager.add_world_event(
+            WorldEvent::AddGameObjcet(self.world_cords, id)
         );
     }
 
