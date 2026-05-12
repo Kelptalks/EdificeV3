@@ -33,7 +33,7 @@ impl BlockEntityRadar {
         
         // Powered
         let mut trait_powered = PoweredTrait::new();
-        trait_powered.stored_power = 10000;
+        trait_powered.power_stored = 10000;
 
         BlockEntityRadar {
             id,
@@ -51,7 +51,7 @@ impl BlockEntityRadar {
 
     pub fn tik(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
         // Tik vision
-        if self.trait_powered.tik(time) {
+        if self.trait_powered.tik(time, event_manager) {
             self.trait_vision.tik(event_manager);
         }
     }
@@ -110,7 +110,7 @@ impl BlockEntityRadar {
         power_panel.add_text_display(
             format!(
                 "Stored Power: {} / {}", 
-                self.trait_powered.stored_power, 
+                self.trait_powered.power_stored, 
                 self.trait_powered.max_power
             )
         );

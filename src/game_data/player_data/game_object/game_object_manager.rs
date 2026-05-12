@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::window_manager_event::WindowManagerEvent}, player_data::{drones::drone_manager::DroneId, game_object::{block_entity_manager::{self, block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId, BlockEntityManager}}, game_object_manager, traits::game_object_trait_manager::GameObjectTrait}, nature_manager::nature_manager::NatureObject, player_data::PlayerData}, screen::widget::widget::WidgetType, tik_manager::game_time::GameTime};
+use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::window_manager_event::WindowManagerEvent}, player_data::{drones::drone_manager::DroneId, game_object::{block_entity_manager::{self, block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId, BlockEntityManager}}, game_object_manager, traits::game_object_trait_manager::{GameObjectTrait, TraitEvent}}, nature_manager::nature_manager::NatureObject, player_data::PlayerData}, screen::widget::widget::WidgetType, tik_manager::game_time::GameTime};
 
 
 #[derive(Clone, Copy)]
@@ -51,7 +51,7 @@ impl GameObjectManager {
     pub fn clone_game_object(&self, object_id: GameObjectId) -> Option<GameObject> {
         match object_id {
             GameObjectId::BlockEntity(block_entity_id) => {
-                if let Some(block_entity) = self.block_entity_manager.get_block_entity(block_entity_id) {
+                if let Some(block_entity) = self.block_entity_manager.clone_block_entity(block_entity_id) {
                     Some(block_entity.wrap_into_game_object())
                 }
                 else {
@@ -77,6 +77,7 @@ impl GameObjectManager {
 
 #[derive(Clone)]
 pub enum GameObjectEvent {
+    TraitEvent(GameObjectId, TraitEvent),
     BlockEntityEvent(BlockEntityEvent)
 }
 
@@ -87,9 +88,13 @@ impl GameObjectEvent {
 
     pub fn execute(self, game_object_manager: &mut GameObjectManager) {
         match self {
-            GameObjectEvent::BlockEntityEvent(block_entity_event) => {
-                block_entity_event.executre(&mut game_object_manager.block_entity_manager);
+            GameObjectEvent::TraitEvent(object_id, trait_event) => {
+                todo!();
             },
+            GameObjectEvent::BlockEntityEvent(block_entity_event) => {
+                block_entity_event.execute(&mut game_object_manager.block_entity_manager);
+            },
+            
         }
     }
 }

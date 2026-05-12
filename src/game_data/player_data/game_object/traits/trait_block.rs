@@ -1,8 +1,12 @@
-use crate::game_data::{World, game_event_manager::{event_manager::{self, Event, EventManager}, world_event_manager::world_event_manager::WorldEvent}, player_data::game_object::{game_object_manager::GameObjectId, traits::game_object_trait_manager::GameObjectTrait}, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::{event_manager::{self, Event, EventManager}, world_event_manager::world_event_manager::WorldEvent}, player_data::game_object::{game_object_manager::GameObjectId, traits::game_object_trait_manager::GameObjectTrait}, tik_manager::game_time::GameTime, types::BlockTexture};
 
 #[derive(Clone)]
 pub struct BlockTrait {
     pub block_type: BlockTexture,
+    
+    animation_frame: usize,
+    animation: Option<Vec<BlockTexture>>,
+    
     pub world_cords: [i32; 3],       
 }
 
@@ -14,13 +18,35 @@ impl BlockTrait {
     pub fn new(block_type: BlockTexture, cords: [i32; 3]) -> BlockTrait {
         BlockTrait {
             block_type: block_type,
+
+            animation_frame: 0,
+            animation: None,
+
             world_cords: cords
         }
     }
 
 
-    pub fn tik(&mut self, time: u64, world: &World, event_manager: &mut EventManager) {
+    pub fn give_animation(&mut self, animation: Vec<BlockTexture>) {
+        self.animation_frame = 0;
+        self.animation = Some(animation);
+    }
 
+
+    pub fn tik(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
+        if time.is_second {
+            if let Some(frames) = &self.animation {
+                if self.animation_frame >= frames.len() {
+                    self.animation_frame = 0;
+                }
+
+                event_manager.add_world_event(
+                    WorldEvent::ModBlock(self.world_cords, frames[self.animation_frame])
+                );
+
+                self.animation_frame += 1;
+            }
+        }
     }
 
     pub fn init(&mut self, id: GameObjectId, event_manager: &mut EventManager) {

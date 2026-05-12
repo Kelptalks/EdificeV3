@@ -84,7 +84,7 @@ pub struct BlockEntityManager {
     radars: HashMap<u64, BlockEntityRadar>,
     batterys: HashMap<u64, BlockEntityBattery>,
 
-    flour_entitys: HashMap<u64, BlockEntityFlungle>,
+    flungles: HashMap<u64, BlockEntityFlungle>,
 
 
 }
@@ -95,7 +95,7 @@ impl BlockEntityManager {
             radars: HashMap::new(),
             batterys: HashMap::new(),
 
-            flour_entitys: HashMap::new(),
+            flungles: HashMap::new(),
         }
     }
 
@@ -109,12 +109,12 @@ impl BlockEntityManager {
             }
 
             BlockEntity::Flour(block_entity_flour) => {
-                self.flour_entitys.insert(block_entity_flour.id, block_entity_flour);
+                self.flungles.insert(block_entity_flour.id, block_entity_flour);
             },
         }
     }
 
-    pub fn get_block_entity(&self, block_entity_id: BlockEntityId) -> Option<BlockEntity> {
+    pub fn clone_block_entity(&self, block_entity_id: BlockEntityId) -> Option<BlockEntity> {
         match block_entity_id {
             BlockEntityId::RadarID(id) => {
                 if let Some(radar_entity) = self.radars.get(&id).cloned() {
@@ -133,7 +133,7 @@ impl BlockEntityManager {
                 }
             },
             BlockEntityId::FlourID(id) => {
-                if let Some(flour_entity) = self.flour_entitys.get(&id).cloned() {
+                if let Some(flour_entity) = self.flungles.get(&id).cloned() {
                     Some(BlockEntity::Flour(flour_entity))
                 }
                 else {
@@ -143,15 +143,21 @@ impl BlockEntityManager {
         }
     }
 
+
     pub fn tik(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
-        for (key, entity) in &mut self.radars {
+        for (_, entity) in &mut self.radars {
+            entity.tik(time, world, event_manager);
+        }
+        
+        for (_, entity) in &mut self.batterys {
+            entity.tik(time, world, event_manager);
+        }
+
+        for (_, entity) in &mut self.flungles {
             entity.tik(time, world, event_manager);
         }
 
 
-        for (key, entity) in &mut self.flour_entitys {
-            entity.tik(time, world, event_manager);
-        }
     }
 }
 
@@ -166,7 +172,7 @@ impl BlockEntityEvent {
         GameObjectEvent::BlockEntityEvent(self).wrap_into_event()
     }
 
-    pub fn executre(self, block_entity_manager: &mut BlockEntityManager) {
+    pub fn execute(self, block_entity_manager: &mut BlockEntityManager) {
         match self {
             BlockEntityEvent::RadarEvent(id, radar_event) => {
                 if let Some(radar) = block_entity_manager.radars.get_mut(&id) {
