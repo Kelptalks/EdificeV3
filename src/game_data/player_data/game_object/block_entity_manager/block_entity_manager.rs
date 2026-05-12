@@ -1,14 +1,15 @@
 use std::collections::HashMap;
 
-use crate::game_data::{World, game_event_manager::{event_manager::EventManager, render_event_manager::{render_event_manager::RenderEvent, window_manager_event::WindowManagerEvent}}, player_data::game_object::{block_entity_manager::{natural::flour::BlockEntityFlour, player_created::radar::BlockEntityRadar}, game_object_manager::{GameObject, GameObjectId}, traits::game_object_trait_manager::GameObjectTrait}, screen::widget::{self, panel::panel::Panel, widget::{Widget, WidgetType}, window_manager::{window::WidgetWindow, windows::window_type::{Window, WindowType}}}, tik_manager::game_time::GameTime};
+use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, render_event_manager::{render_event_manager::RenderEvent, window_manager_event::WindowManagerEvent}}, player_data::game_object::{block_entity_manager::{self, natural::flungle::BlockEntityFlungle, player_created::{battery::BlockEntityBattery, radar::{BlockEntityRadar, RadarEvent}}}, game_object_manager::{GameObject, GameObjectEvent, GameObjectId}, traits::game_object_trait_manager::GameObjectTrait}, screen::widget::{self, panel::panel::Panel, widget::{Widget, WidgetType}, window_manager::{window::WidgetWindow, windows::window_type::{Window, WindowType}}}, tik_manager::game_time::GameTime};
 
 #[derive(Clone)]
 pub enum BlockEntity {
     // player
     Radar(BlockEntityRadar),
+    Battery(BlockEntityBattery),
 
     // natural
-    Flour(BlockEntityFlour)
+    Flour(BlockEntityFlungle)
 }
 
 impl BlockEntity {
@@ -17,7 +18,24 @@ impl BlockEntity {
             BlockEntity::Radar(block_entity_radar) => {
                 block_entity_radar.get_traits()
             },
-            BlockEntity::Flour(block_entity_flour) => todo!(),
+            BlockEntity::Battery(block_entity_batery) => {
+                block_entity_batery.get_traits()
+            }
+            
+            BlockEntity::Flour(block_entity_flungle) => {
+                block_entity_flungle.get_traits()
+            },
+        }
+    }
+
+    pub fn get_window(self) -> Option<WidgetType> {
+        match self {
+            BlockEntity::Radar(block_entity_radar) => {
+                Some(block_entity_radar.get_window())
+            },
+            _ => {
+                None
+            }
         }
     }
 }
@@ -27,6 +45,7 @@ impl BlockEntity {
 pub enum BlockEntityId {
     // Player
     RadarID(u64),
+    Battery(u64),
 
     // Natural
     FlourID(u64),
@@ -50,6 +69,10 @@ impl BlockEntity {
             BlockEntity::Radar(block_entity_radar) => {
                 block_entity_radar.tik(time, world, event_manager);
             },
+            BlockEntity::Battery(block_entity_battery) => {
+
+            },
+
             BlockEntity::Flour(block_entity_flour) => {
                 block_entity_flour.tik(time, world, event_manager)
             },
@@ -58,14 +81,20 @@ impl BlockEntity {
 }
 
 pub struct BlockEntityManager {
-    radar_entitys: HashMap<u64, BlockEntityRadar>,
-    flour_entitys: HashMap<u64, BlockEntityFlour>,
+    radars: HashMap<u64, BlockEntityRadar>,
+    batterys: HashMap<u64, BlockEntityBattery>,
+
+    flour_entitys: HashMap<u64, BlockEntityFlungle>,
+
+
 }
 
 impl BlockEntityManager {
     pub fn new() -> BlockEntityManager {
         BlockEntityManager {
-            radar_entitys: HashMap::new(),
+            radars: HashMap::new(),
+            batterys: HashMap::new(),
+
             flour_entitys: HashMap::new(),
         }
     }
@@ -73,8 +102,12 @@ impl BlockEntityManager {
     pub fn add_object(&mut self, new_block_entity: BlockEntity) {
         match new_block_entity {
             BlockEntity::Radar(block_entity_radar) => {
-                self.radar_entitys.insert(block_entity_radar.id, block_entity_radar);
+                self.radars.insert(block_entity_radar.id, block_entity_radar);
             },
+            BlockEntity::Battery(block_entity_battery) => {
+                self.batterys.insert(block_entity_battery.id, block_entity_battery);
+            }
+
             BlockEntity::Flour(block_entity_flour) => {
                 self.flour_entitys.insert(block_entity_flour.id, block_entity_flour);
             },
@@ -84,13 +117,20 @@ impl BlockEntityManager {
     pub fn get_block_entity(&self, block_entity_id: BlockEntityId) -> Option<BlockEntity> {
         match block_entity_id {
             BlockEntityId::RadarID(id) => {
-                if let Some(radar_entity) = self.radar_entitys.get(&id).cloned() {
+                if let Some(radar_entity) = self.radars.get(&id).cloned() {
                     Some(BlockEntity::Radar(radar_entity))
                 }
                 else {
                     None
                 }
-                
+            },
+            BlockEntityId::Battery(id) => {
+                if let Some(radar_entity) = self.batterys.get(&id).cloned() {
+                    Some(BlockEntity::Battery(radar_entity))
+                }
+                else {
+                    None
+                }
             },
             BlockEntityId::FlourID(id) => {
                 if let Some(flour_entity) = self.flour_entitys.get(&id).cloned() {
@@ -104,7 +144,7 @@ impl BlockEntityManager {
     }
 
     pub fn tik(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
-        for (key, entity) in &mut self.radar_entitys {
+        for (key, entity) in &mut self.radars {
             entity.tik(time, world, event_manager);
         }
 
@@ -112,5 +152,32 @@ impl BlockEntityManager {
         for (key, entity) in &mut self.flour_entitys {
             entity.tik(time, world, event_manager);
         }
+    }
+}
+
+
+#[derive(Clone)]
+pub enum BlockEntityEvent {
+    RadarEvent(u64, RadarEvent), // Id, Event
+}
+
+impl BlockEntityEvent {
+    pub fn wrap_into_event(self) -> Event {
+        GameObjectEvent::BlockEntityEvent(self).wrap_into_event()
+    }
+
+    pub fn executre(self, block_entity_manager: &mut BlockEntityManager) {
+        match self {
+            BlockEntityEvent::RadarEvent(id, radar_event) => {
+                if let Some(radar) = block_entity_manager.radars.get_mut(&id) {
+                    radar_event.execute(radar)
+                }
+                else {
+                    eprintln!("Error radar entity id({}) does not exist", id);
+                }
+            },
+        }
+        
+
     }
 }

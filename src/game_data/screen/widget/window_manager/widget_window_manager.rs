@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use miniquad::window;
 use mlua::Debug;
 
-use crate::game_data::{game_event_manager::debug_data::window_debug_data::WindowDebugData, player_data, screen::{ScreenData, menu_constructors::play_view_menu::new_play_view::PlayViewConstructionManager, screen_data, widget::{panel::panel::Panel, prelude::PlayWorldViewRender, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties, window_manager::{widget_window_manager, window::WidgetWindow, windows::{debug_win::DebugWin, drone_spectate_win::DroneSpectateWindow, window_type::{Window, WindowType}}}, world_rendering::{tile_map_manager::TileMapManager, view_mode::ViewMode}}}, types::UITextures};
+use crate::game_data::{game_event_manager::debug_data::window_debug_data::WindowDebugData, player_data, screen::{ScreenData, menu_constructors::play_view_menu::new_play_view::PlayViewConstructionManager, screen_data, widget::{panel::panel::Panel, prelude::PlayWorldViewRender, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties, window_manager::{widget_window_manager, window::WidgetWindow, windows::{cheat_window::CheatWindow, debug_win::DebugWin, drone_spectate_win::DroneSpectateWindow, window_type::{Window, WindowType}}}, world_rendering::{tile_map_manager::TileMapManager, view_mode::ViewMode}}}, types::UITextures};
 
 
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
@@ -171,25 +171,12 @@ impl Widget for WidgetWindowManager {
                 self.debug = Some(self.new_window(window, "Debug"));
             }
 
-
         }
         else if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::F2) {
-           
-           
-           
-            match player_data.get_view_mode() {
-                Some(ViewMode::Drone(id)) => {
-                    let window = DroneSpectateWindow::new(id).wrap_into_window_type();
-                    self.new_window(window, "Drone");
-                    println!("Opening Drone window");
-                }
-                _ => {
-
-                }
-            }
-            
-            
+            let window = CheatWindow::new().wrap_into_window_type();
+            self.new_window(window, "Cheat Window");
         }
+
 
 
         let debug_data = game_event_manager.get_mut_debug_data();

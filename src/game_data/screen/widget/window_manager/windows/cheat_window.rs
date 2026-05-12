@@ -1,0 +1,76 @@
+use crate::game_data::{game_event_manager::player_data_event_manager::player_event_manager::PlayerDataEvent, player_data::game_object::{block_entity_manager::{block_entity_manager::BlockEntity, natural::flungle::BlockEntityFlungle, player_created::radar::BlockEntityRadar}, game_object_manager::GameObject}, screen::{Button, widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetId, window_manager::windows::window_type::{Window, WindowType}}}, types::BlockTexture};
+
+pub struct CheatWindow {
+    panel: Panel,
+
+    spawn_radar_button_id: WidgetId,
+    spawn_flungle_button_id: WidgetId
+}
+
+impl CheatWindow {
+    pub fn new() -> CheatWindow {
+        let mut panel = Panel::new_blank();
+
+        let spawn_radar_button = panel.add_button();
+        spawn_radar_button.add_texture(BlockTexture::LBM.wrap_into_texture());
+        let spawn_radar_button_id = spawn_radar_button.get_id();
+
+
+        let spawn_fungle_button = panel.add_button();
+        spawn_fungle_button.add_texture(BlockTexture::Flungle.wrap_into_texture());
+        let spawn_flungle_button_id = spawn_fungle_button.get_id();
+
+        CheatWindow {
+            panel,
+
+            spawn_radar_button_id,
+            spawn_flungle_button_id
+        }
+    }
+}
+
+impl Window for CheatWindow {
+    fn wrap_into_window_type(self) -> WindowType {
+        WindowType::CheatWindow(self)
+    }
+
+    fn render(
+        &mut self,
+        texture_manager: &mut crate::game_data::TextureManager,
+        screen_data: &crate::game_data::screen::ScreenData,
+        event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
+        player_data: &crate::game_data::player_data::player_data::PlayerData,
+    ) {
+        self.panel.render(texture_manager, screen_data, event_manager, player_data);
+
+
+        if screen_data.was_left_pressed() {
+            if let Some(WidgetType::Button(button)) = self.panel.find_widget_with_id(self.spawn_radar_button_id) {
+                if button.mouse_on(screen_data) {
+                    let cords = player_data.get_cursor().get_cords();
+                    let radar = BlockEntityRadar::new(cords, event_manager);
+                    event_manager.add_player_data_event(PlayerDataEvent::NewGameObject(radar.wrap_into_game_object()));
+                }
+            }
+
+            if let Some(WidgetType::Button(button)) = self.panel.find_widget_with_id(self.spawn_flungle_button_id) {
+                if button.mouse_on(screen_data) {
+                    let cords = player_data.get_cursor().get_cords();
+                    let flungle = BlockEntityFlungle::new(cords, event_manager);
+                    event_manager.add_player_data_event(PlayerDataEvent::NewGameObject(flungle.wrap_into_game_object()));
+                }
+            }
+        }
+        
+
+
+    }
+
+    fn get_mut_panel(&mut self) -> &mut crate::game_data::screen::widget::panel::panel::Panel {
+        &mut self.panel
+    }
+
+    fn get_panel(&self) -> &crate::game_data::screen::widget::panel::panel::Panel {
+        &self.panel
+    }
+}

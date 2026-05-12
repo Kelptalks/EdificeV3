@@ -1,4 +1,4 @@
-use crate::game_data::{tik_manager::drones::drone_inventory::InventorySlot, types::{drone_item::DroneItem}};
+use crate::game_data::{texture_manager::texture::Texture, tik_manager::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
 
 pub static TOTAL_BLOCKS: u32 = 400;
 
@@ -68,7 +68,7 @@ pub enum BlockTexture {
     yellow_flowers = 60,
     white_flowers = 61,
     mushroom = 62,
-    flungle = 63,
+    Flungle = 63,
     blulbo = 64,
     rock = 65,
     log = 66,
@@ -582,6 +582,10 @@ static BLOCK_PROPERTIES: [BlockProperties; 400] = [
 ];
 
 impl BlockTexture {
+    pub fn wrap_into_texture(self) -> Texture {
+        Texture::BlockTexture(self)
+    }
+    
     pub fn id(&self) -> u32 {
         *self as u32
     }

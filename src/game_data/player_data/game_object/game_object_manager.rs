@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::{event_manager::EventManager, render_event_manager::window_manager_event::WindowManagerEvent}, player_data::{drones::drone_manager::DroneId, game_object::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId, BlockEntityManager}, traits::game_object_trait_manager::GameObjectTrait}, nature_manager::nature_manager::NatureObject, player_data::PlayerData}, screen::widget::widget::WidgetType, tik_manager::game_time::GameTime};
+use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::window_manager_event::WindowManagerEvent}, player_data::{drones::drone_manager::DroneId, game_object::{block_entity_manager::{self, block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId, BlockEntityManager}}, game_object_manager, traits::game_object_trait_manager::GameObjectTrait}, nature_manager::nature_manager::NatureObject, player_data::PlayerData}, screen::widget::widget::WidgetType, tik_manager::game_time::GameTime};
 
 
 #[derive(Clone, Copy)]
@@ -16,6 +16,14 @@ impl GameObject {
     pub fn get_traits(self) -> Vec<GameObjectTrait> {
         match self {
             GameObject::BlockEntity(block_entity) => block_entity.get_traits(),
+        }
+    }
+
+    pub fn get_window(self) -> Option<WidgetType> {
+        match self {
+            GameObject::BlockEntity(block_entity) => {
+                block_entity.get_window()
+            },
         }
     }
 }
@@ -60,10 +68,28 @@ impl GameObjectManager {
         self.block_entity_manager.tik(time, world, event_manager);
     }
 
-
     pub fn open_object_window(&self, event_manager: &mut EventManager, id: GameObjectId) {
         event_manager.add_event(WindowManagerEvent::OpenObjectWindow(id).wrap_into_event());
         println!("opening window")
     }
+}
 
+
+#[derive(Clone)]
+pub enum GameObjectEvent {
+    BlockEntityEvent(BlockEntityEvent)
+}
+
+impl GameObjectEvent {
+    pub fn wrap_into_event(self) -> Event {
+        PlayerDataEvent::GameObjectEvent(self).wrap_into_event()
+    }
+
+    pub fn execute(self, game_object_manager: &mut GameObjectManager) {
+        match self {
+            GameObjectEvent::BlockEntityEvent(block_entity_event) => {
+                block_entity_event.executre(&mut game_object_manager.block_entity_manager);
+            },
+        }
+    }
 }

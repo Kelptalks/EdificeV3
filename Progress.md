@@ -354,7 +354,7 @@ in
 ---------------------------------------------------------------
 ## Week 18
 
-**Hours: 6.5**
+**Hours: 31.5**
     5/3/26: 6.5
     5/4/26: 2.0
     5/5/26: 3.5
@@ -378,6 +378,32 @@ in
 
 - TileMapMangement system
     - Flatting of of a collection of tile maps
+
+
+
+
+---------------------------------------------------------------
+## Week 18
+
+**Hours: **
+    5/11/26: 6,
+    
+
+**Lines**
+    5/11/26: 26006
+
+**Notes:**
+
+- Game Object System
+    - Block Entitys
+        - Flour
+        - Radar
+
+    - Traits
+        - Powered
+        - Vission
+        - Block
+    
 
     
     

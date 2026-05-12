@@ -1,4 +1,4 @@
-use crate::game_data::{World, screen::{iso_cord_tool, widget::world_rendering::area_rendering_manager::ray_caster::ray_casting_config::RayCastingConfig}, texture_manager::texture::Texture, types::{BlockTexture, BlockTriangle}};
+use crate::game_data::{World, screen::{iso_cord_tool, widget::world_rendering::area_rendering_manager::ray_caster::ray_casting_config::RayCastingConfig}, texture_manager::texture::Texture, types::{BlockShader, BlockTexture, BlockTriangle, ShaderTriangle}};
 
 
 
@@ -6,7 +6,7 @@ use crate::game_data::{World, screen::{iso_cord_tool, widget::world_rendering::a
 pub struct CastedTriangle {
     pub has_first_struck: bool,
     pub has_struck_solid: bool,
-    
+
 
     first_block_struck_cords: [i32; 3],
     first_block_struck_type: BlockTexture,
@@ -15,6 +15,9 @@ pub struct CastedTriangle {
     solid_block_cords_struck: [i32; 3],
     solid_block_type_struck: BlockTexture,
     solid_block_triangle_struck: BlockTriangle,
+
+    shader_triangle: ShaderTriangle,
+    shader_type: BlockShader,
 
     // rendering
     draw_pos: [f32; 4],
@@ -26,7 +29,7 @@ impl CastedTriangle {
         CastedTriangle {
             // Ray Data
             has_first_struck: false,
-            has_struck_solid: false, 
+            has_struck_solid: false,
 
             first_block_struck_cords: [0; 3],
             first_block_struck_type: BlockTexture::Air,
@@ -37,6 +40,9 @@ impl CastedTriangle {
             solid_block_cords_struck: [0; 3],
             solid_block_type_struck: BlockTexture::Air,
             solid_block_triangle_struck: BlockTriangle::LeftBot,
+
+            shader_triangle: ShaderTriangle::TopLeft,
+            shader_type: BlockShader::None,
 
             draw_pos: [0.0; 4],
             textures: Vec::new(),
@@ -132,6 +138,27 @@ impl CastedTriangle {
 
     pub fn get_solid_block_depth(&self) -> i32 {
         iso_cord_tool::get_depth_from_world_cords(self.solid_block_cords_struck)
+    }
+
+    pub fn get_last_texture(&self) -> BlockTriangle {
+        self.solid_block_triangle_struck
+    }
+
+    pub fn set_shader(&mut self, shader_triangle: ShaderTriangle, shader_type: BlockShader) {
+        self.shader_triangle = shader_triangle;
+        self.shader_type = shader_type;
+    }
+
+    pub fn get_shader_triangle(&self) -> ShaderTriangle {
+        self.shader_triangle
+    }
+
+    pub fn get_shader_type(&self) -> BlockShader {
+        self.shader_type
+    }
+
+    pub fn has_shader(&self) -> bool {
+        self.shader_type.id() != 0
     }
 
 }

@@ -1,32 +1,32 @@
-use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, world_event_manager::world_event_manager::WorldEvent}, player_data::game_object::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId}, game_object_manager::{GameObject, GameObjectId}, id_gen::IdGen, traits::trait_block::BlockTrait}, tik_manager::game_time::GameTime, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, world_event_manager::world_event_manager::WorldEvent}, player_data::game_object::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId}, game_object_manager::{GameObject, GameObjectId}, id_gen::IdGen, traits::{game_object_trait_manager::GameObjectTrait, trait_block::BlockTrait}}, tik_manager::game_time::GameTime, types::BlockTexture};
 
 
 static ID_GEN: IdGen = IdGen::new();
 
 
 #[derive(Clone)]
-pub struct BlockEntityFlour {
+pub struct BlockEntityFlungle {
     pub id: u64,
 
     trait_block: BlockTrait,
 }
 
-impl BlockEntityFlour {
-    pub fn wrap_into_game_objcet(self) -> GameObject {
+impl BlockEntityFlungle {
+    pub fn wrap_into_game_object(self) -> GameObject {
         BlockEntity::Flour(self).wrap_into_game_object()
     }
     
-    pub fn new(cords: [i32; 3], event_manager: &mut EventManager) -> BlockEntityFlour {
+    pub fn new(cords: [i32; 3], event_manager: &mut EventManager) -> BlockEntityFlungle {
         let id = ID_GEN.new_id();
         let game_objcet_id = BlockEntityId::FlourID(id).wrap_into_game_object_id();
         
         // Block
         let mut block_trait = 
-            BlockTrait::new(BlockTexture::flungle, cords);
+            BlockTrait::new(BlockTexture::Flungle, cords);
         block_trait.init(game_objcet_id, event_manager);
 
 
-        BlockEntityFlour {
+        BlockEntityFlungle {
             id,
 
             trait_block: block_trait,
@@ -68,5 +68,11 @@ impl BlockEntityFlour {
             }
 
         }
+    }
+
+    pub fn get_traits(self) -> Vec<GameObjectTrait> {
+        let mut traits = Vec::new();
+        traits.push(self.trait_block.wrap_into_trait());
+        traits
     }
 }

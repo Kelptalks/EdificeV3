@@ -231,7 +231,7 @@ impl GrassGenManager {
         let ground_items:Vec<GroundItem> = vec![
             GroundItem {block_type: BlockTexture::white_flowers, weight: 20},
             GroundItem {block_type: BlockTexture::yellow_flowers, weight: 20},
-            GroundItem {block_type: BlockTexture::flungle, weight: 1},
+            GroundItem {block_type: BlockTexture::Flungle, weight: 1},
             GroundItem {block_type: BlockTexture::mushroom, weight: 3},
             GroundItem {block_type: BlockTexture::log, weight: 2},
             GroundItem {block_type: BlockTexture::rock, weight: 3},

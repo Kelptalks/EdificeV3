@@ -1,9 +1,10 @@
-use crate::game_data::screen::widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, window_manager::windows::{debug_win::DebugWin, drone_spectate_win::DroneSpectateWindow, game_object_win::GameObjectWindow}};
+use crate::game_data::screen::widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, window_manager::windows::{cheat_window::CheatWindow, debug_win::DebugWin, drone_spectate_win::DroneSpectateWindow, game_object_win::GameObjectWindow}};
 
 
 pub enum WindowType {
     Custom(Panel),
     
+    CheatWindow(CheatWindow),
     GameObjectWindow(GameObjectWindow),
     Debug(DebugWin),
     DroneSpectate(DroneSpectateWindow),
@@ -22,6 +23,7 @@ impl WindowType {
             WindowType::Debug(debug_win) => debug_win.get_panel(),
             WindowType::DroneSpectate(drone_spectate_window) => drone_spectate_window.get_panel(),
             WindowType::GameObjectWindow(game_object_window) => game_object_window.get_panel(),
+            WindowType::CheatWindow(cheat_window) => cheat_window.get_panel(),
         }  
     } 
 
@@ -33,6 +35,7 @@ impl WindowType {
             WindowType::Debug(debug_win) => debug_win.get_mut_panel(),
             WindowType::DroneSpectate(drone_spectate_window) => drone_spectate_window.get_mut_panel(),
             WindowType::GameObjectWindow(game_object_window) => game_object_window.get_mut_panel(),
+            WindowType::CheatWindow(cheat_window) => cheat_window.get_mut_panel(),
         }
     } 
 }
@@ -73,6 +76,9 @@ impl Widget for WindowType {
             WindowType::GameObjectWindow(game_object_window) => {
                 game_object_window.render(texture_manager, screen_data, game_event_manager, player_data);
             },
+            WindowType::CheatWindow(cheat_window) => {
+                cheat_window.render(texture_manager, screen_data, game_event_manager, player_data);
+            },
         }
     }
 }
@@ -90,5 +96,6 @@ pub trait Window {
     );
 
     fn get_mut_panel(&mut self) -> &mut Panel;
+
     fn get_panel(&self) -> &Panel;
 }

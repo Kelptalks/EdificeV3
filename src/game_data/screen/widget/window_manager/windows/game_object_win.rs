@@ -43,9 +43,16 @@ impl Window for GameObjectWindow {
             if let Some(game_object) = player_data.game_object_manager.clone_game_object(self.object_id) {
                 scroll_panel.clear_widgets();
                 
-                let traits = game_object.get_traits();
-                for t in traits {
-                    scroll_panel.add_widget(t.into_widget());
+                // Try and get custom object window
+                if let Some(widget) = game_object.clone().get_window() {
+                    scroll_panel.add_widget(widget);
+                }
+                // Construct prim window
+                else {
+                    let traits = game_object.get_traits();
+                    for t in traits {
+                        scroll_panel.add_widget(t.into_widget());
+                    }
                 }
             }
         }

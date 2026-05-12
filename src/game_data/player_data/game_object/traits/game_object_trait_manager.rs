@@ -18,11 +18,9 @@ impl GameObjectTrait {
         match self {
             GameObjectTrait::Vision(vision_trait) => {
                 panel.add_text_display("Vision".to_string()).set_text_scale(TextSize::Small);
-                panel.add_text_display(format!("Chunk's Loaded: ({})", vision_trait.chunks_loaded())).set_text_scale(TextSize::ExtraSmall);
-
+                panel.add_text_display(format!("Chunk's Loaded: ({})", vision_trait.chunks_in_view())).set_text_scale(TextSize::ExtraSmall);
             },
             GameObjectTrait::BlockTrait(block_trait) => {
-
                 panel.add_text_display("Block".to_string()).set_text_scale(TextSize::Small);
                 panel.add_text_display(format!("Cords: ({:?})", block_trait.world_cords)).set_text_scale(TextSize::ExtraSmall);
                 panel.add_text_display(format!("Block_type: ({})", block_trait.block_type.get_name())).set_text_scale(TextSize::ExtraSmall);

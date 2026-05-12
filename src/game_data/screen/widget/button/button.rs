@@ -102,8 +102,13 @@ impl Button {
     }
 
     pub fn add_texture(&mut self, texture: Texture) {
-        if let Texture::UITexture(ui_texture) = texture {
-            self.set_icon(ui_texture);
+        
+        match texture {
+            Texture::BlockTexture(block_texture) => self.set_block(block_texture),
+            Texture::UITexture(uitextures) => self.set_icon(uitextures),
+            _ => {
+
+            }
         }
     }
 

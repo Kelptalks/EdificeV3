@@ -87,6 +87,7 @@ impl AreaRenderingManager {
                         chunk.iter().map(|(world_cords, local_cords)| {
                             let mut tile_ray = CastedTile::new(*world_cords, *local_cords);
                             tile_ray.cast(world, &ray_casting_config);
+                            tile_ray.cast_shadows(world, &ray_casting_config);
                             tile_ray
                         }).collect::<Vec<_>>()
                     })

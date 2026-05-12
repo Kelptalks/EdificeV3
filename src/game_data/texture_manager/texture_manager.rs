@@ -315,6 +315,24 @@ impl TextureManager {
     //=====================================
     // Shader Rendering
     //=====================================
+    pub fn render_shader_triangle_to_cashed_texture(
+        &mut self,
+        cashed_texture: CashedTextureID,
+        shader: BlockShader,
+        triangle: ShaderTriangle,
+        draw_location: [f32; 2],
+        scale: f32,
+    ) {
+        let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_shader_triangle_uv(triangle, shader);
+        let pos = [
+            -(draw_location[0] - self.cached_expander),
+            -(draw_location[1] - self.cached_expander),
+            -(draw_location[0] + scale + self.cached_expander),
+            -(draw_location[1] + scale + self.cached_expander),
+        ];
+        self.texture_cashe.render_to_cashed_texture(cashed_texture, uv, pos);
+    }
+
     pub fn render_shader_triangle(&mut self, shader : BlockShader, triangle : ShaderTriangle, draw_location : [f32; 2], scale : f32) {
         let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_shader_triangle_uv(triangle, shader);
 
