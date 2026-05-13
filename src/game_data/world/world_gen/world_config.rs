@@ -1,7 +1,5 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{screen::renderer::casted_block_manager::casted_block_manager::CastedChunkManager};
-
 #[derive(Clone)]
 pub struct WorldConfig {
     scale: i32,
@@ -47,7 +45,7 @@ impl WorldConfig {
         self.scale
     }
     pub fn get_chunk_rendering_range(&self) -> u32 {
-        return (self.get_scale() as u32 / CastedChunkManager::get_chunk_tile_scale() / 2) + 4;
+        return (self.get_scale() as u32 / 16 / 2) + 4;
     }
 
     pub fn get_height_variation(&self) -> u32 {

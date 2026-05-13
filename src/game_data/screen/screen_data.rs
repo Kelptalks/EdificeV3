@@ -1,6 +1,6 @@
 use miniquad::{GlContext, MouseButton, RenderingBackend};
 
-use crate::game_data::screen::{camera_data::CameraData, input_data::{Input, InputManager}, iso_cord_tool};
+use crate::game_data::screen::input_data::{Input, InputManager};
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum CurrentMenu {
@@ -27,11 +27,8 @@ pub struct ScreenData {
     // Mouse Cords
     mouse_pixel_cords: [i32; 2],
     mouse_ndc_cords: [f32; 2],
-    mouse_renderer_pixel_cords: [i32; 2],
-    mouse_renderer_ndc_cords: [f32; 2],
-    mouse_iso_world_cords: [i32; 2],
 
-    // Last mouse cords 
+    // Last mouse cords
     last_mouse_ndc_cords: [f32; 2],
 
     // Button held states
@@ -70,11 +67,8 @@ impl ScreenData {
             // Mouse Cords
             mouse_pixel_cords: [0, 0],
             mouse_ndc_cords: [0.0, 0.0],
-            mouse_renderer_pixel_cords: [0, 0],
-            mouse_renderer_ndc_cords: [0.0, 0.0],
-            mouse_iso_world_cords: [0, 0],
 
-            // Last mouse cords 
+            // Last mouse cords
             last_mouse_ndc_cords: [0.0, 0.0],
 
             // Mouse
@@ -256,64 +250,20 @@ impl ScreenData {
     // Mouse Cords
     //=====================================
 
-    pub fn re_calculate_mouse_cords(&mut self, camera_data: &CameraData) {
-        let x_cor = self.mouse_pixel_cords[0] as f32;
-        let y_cor = self.mouse_pixel_cords[1] as f32;
-
-        // MOUSE SCREEN NDC CORDS
-        let y_pixel_offset = (self.viewport_rez[1] - self.screen_rez[1]) / 2.0; // Offset due to viewport centering
-        let mouse_ndc_cords = [
-            (x_cor / self.viewport_rez[0]) * 2.0 - 1.0,
-            ((y_cor + y_pixel_offset) / self.viewport_rez[1]) * 2.0 - 1.0,
-        ];
-
-        // RERENDERER NDC CORDS
-        let draw_offset = camera_data.get_ndc_draw_offset();
-        let mouse_renderer_ndc_cords = [
-            (mouse_ndc_cords[0] - draw_offset[0]),
-            (mouse_ndc_cords[1] - draw_offset[1]),
-        ];
-
-        // RENDERE PIXEL CORDS
-        let mouse_renderer_pixel_cords = [
-            mouse_renderer_ndc_cords[0] * (self.viewport_rez[0] / 2.0),
-            mouse_renderer_ndc_cords[1] * (self.viewport_rez[1] / 2.0),
-        ];
-
-        // ISO CORDS
-        // offset mouse cords slightly to get accurate iso cords
-        let offset_mouse_ndc_cords = [
-            mouse_renderer_ndc_cords[0] - camera_data.get_tile_ndc_scale(),
-            mouse_renderer_ndc_cords[1],
-        ];
-        let iso_world_cords = iso_cord_tool::ndi_screen_cords_to_iso_cords(camera_data.get_tile_ndc_scale(), offset_mouse_ndc_cords);
-
-        // Set last values
-        self.last_mouse_ndc_cords = self.mouse_ndc_cords;
-
-        // Set all values
-        self.mouse_pixel_cords = [x_cor as i32, y_cor as i32];
-        self.mouse_ndc_cords = mouse_ndc_cords;
-        self.mouse_renderer_ndc_cords = mouse_renderer_ndc_cords;
-        self.mouse_renderer_pixel_cords = [mouse_renderer_pixel_cords[0] as i32, mouse_renderer_pixel_cords[1] as i32];
-        self.mouse_iso_world_cords = [iso_world_cords[0] as i32, iso_world_cords[1] as i32];
-
-    }
-
     pub fn get_mouse_pixel_cords(&self) -> [i32; 2] {
         return self.mouse_pixel_cords;
     }
-    
+
     pub fn set_mouse_pixel_cords(&mut self, cords: [i32; 2]) {
         self.mouse_pixel_cords = cords;
-    }
-
-    pub fn get_mouse_iso_world_cords(&self) -> [i32; 2] {
-        return self.mouse_iso_world_cords;
-    }
-
-    pub fn get_renderer_mouse_ndc_cords(&self) -> [f32; 2] {
-        return self.mouse_renderer_ndc_cords;
+        self.last_mouse_ndc_cords = self.mouse_ndc_cords;
+        let x = cords[0] as f32;
+        let y = cords[1] as f32;
+        let y_offset = (self.viewport_rez[1] - self.screen_rez[1]) / 2.0;
+        self.mouse_ndc_cords = [
+            (x / self.viewport_rez[0]) * 2.0 - 1.0,
+            ((y + y_offset) / self.viewport_rez[1]) * 2.0 - 1.0,
+        ];
     }
 
     pub fn get_mouse_ndc(&self) -> [f32; 2] {

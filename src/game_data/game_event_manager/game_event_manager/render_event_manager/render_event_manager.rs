@@ -95,9 +95,6 @@ impl RenderEvent {
         screen_mananager: &mut ScreenManager,
         player_data: &PlayerData
     ) -> Vec<Event> {
-        let camera = screen_mananager.get_mut_camera();
-        let camera_data = &camera.get_camera_data().clone();
-        let world = player_data.get_world_ref();
         match self {
             RenderEvent::WindowMangerEvent(window_manager_event) => {
                 if let Some(window_manager) = screen_mananager.get_mut_window_manager() {
@@ -127,10 +124,7 @@ impl RenderEvent {
                 camera.ray_cast_dirty_chunks(camera_data.clone().get_arc_ref(), &world);
                  */
             },
-            RenderEvent::ReRenderBlock(cords) => {
-                let casted_tile_cords = camera_data.world_to_casted_tile_cords(cords);
-                camera.dirty_tiles_in_area(casted_tile_cords, 2);
-            }
+            RenderEvent::ReRenderBlock(_cords) => {}
             RenderEvent::ChangeMenu(current_menu) => {
                 let menu_panel: WidgetType = Self::construct_menu(current_menu, screen_mananager, event_tools, player_data);
                 screen_mananager.set_menu_panel(menu_panel);

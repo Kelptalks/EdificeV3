@@ -1,5 +1,13 @@
 
-use crate::game_data::{locations::world_area::WorldArea, screen::{renderer::camera_data::Direction, widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block_manager::LairBlockManager}};
+use crate::game_data::{locations::world_area::WorldArea, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block_manager::LairBlockManager};
+
+#[derive(PartialEq, Clone)]
+pub enum Direction {
+    North,
+    East,
+    South,
+    West,
+}
 
 pub struct RayCastingConfig {
     pub lair_manager: LairBlockManager,
