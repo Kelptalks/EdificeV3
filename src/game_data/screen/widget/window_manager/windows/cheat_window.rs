@@ -1,4 +1,4 @@
-use crate::game_data::{game_event_manager::player_data_event_manager::player_event_manager::PlayerDataEvent, player_data::game_object::{block_entity_manager::{block_entity_manager::BlockEntity, natural::flungle::BlockEntityFlungle, player_created::{battery::BlockEntityBattery, radar::BlockEntityRadar}}, game_object_manager::GameObject}, screen::{Button, widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetId, window_manager::windows::window_type::{Window, WindowType}}}, types::BlockTexture};
+use crate::game_data::{game_event_manager::player_data_event_manager::player_event_manager::PlayerDataEvent, player_data::game_entity::{block_entity_manager::{block_entity_manager::BlockEntity, natural::flungle::BlockEntityFlungle, player_created::{battery::BlockEntityBattery, radar::BlockEntityRadar}}, game_entity_manager::GameEntity}, screen::{Button, widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetId, window_manager::windows::window_type::{Window, WindowType}}}, types::BlockTexture};
 
 pub struct CheatWindow {
     panel: Panel,
@@ -58,7 +58,7 @@ impl Window for CheatWindow {
                 if button.mouse_on(screen_data) {
                     let cords = player_data.get_cursor().get_cords();
                     let radar = BlockEntityRadar::new(cords, event_manager);
-                    event_manager.add_player_data_event(PlayerDataEvent::NewGameObject(radar.wrap_into_game_object()));
+                    event_manager.add_player_data_event(PlayerDataEvent::NewGameEntity(radar.wrap_into_game_entity()));
                 }
             }
 
@@ -66,7 +66,7 @@ impl Window for CheatWindow {
                 if button.mouse_on(screen_data) {
                     let cords = player_data.get_cursor().get_cords();
                     let battery = BlockEntityBattery::new(cords, event_manager);
-                    event_manager.add_player_data_event(PlayerDataEvent::NewGameObject(battery.wrap_into_game_object()));
+                    event_manager.add_player_data_event(PlayerDataEvent::NewGameEntity(battery.wrap_into_game_entity()));
                 }
             }
 
@@ -74,7 +74,7 @@ impl Window for CheatWindow {
                 if button.mouse_on(screen_data) {
                     let cords = player_data.get_cursor().get_cords();
                     let flungle = BlockEntityFlungle::new(cords, event_manager);
-                    event_manager.add_player_data_event(PlayerDataEvent::NewGameObject(flungle.wrap_into_game_object()));
+                    event_manager.add_player_data_event(PlayerDataEvent::NewGameEntity(flungle.wrap_into_game_entity()));
                 }
             }
         }

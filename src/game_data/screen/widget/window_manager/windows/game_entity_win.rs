@@ -1,33 +1,31 @@
-use crate::game_data::{player_data::game_object::game_object_manager::GameObjectId, screen::{ui_elements::panel, widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetId, window_manager::windows::window_type::{Window, WindowType}}}};
+use crate::game_data::{player_data::game_entity::game_entity_manager::GameEntityId, screen::{ui_elements::panel, widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetId, window_manager::windows::window_type::{Window, WindowType}}}};
 
-pub struct GameObjectWindow {
-    object_id: GameObjectId,
+pub struct GameEntityWindow {
+    entity_id: GameEntityId,
 
     scroll_panel_id: WidgetId,
     panel: Panel,
 }
 
-impl GameObjectWindow {
-    pub fn new(id: GameObjectId) -> GameObjectWindow {
+impl GameEntityWindow {
+    pub fn new(id: GameEntityId) -> GameEntityWindow {
         let mut panel = Panel::new_blank();
 
         let scroll_panel = panel.add_scroll_panel();
         scroll_panel.set_prefered_scale([0.5; 2]);
         let scroll_panel_id = scroll_panel.get_id();
 
-
-        GameObjectWindow {
-            object_id: id,
-
+        GameEntityWindow {
+            entity_id: id,
             scroll_panel_id,
-            panel: panel
+            panel,
         }
     }
 }
 
-impl Window for GameObjectWindow {
+impl Window for GameEntityWindow {
     fn wrap_into_window_type(self) -> super::window_type::WindowType {
-        WindowType::GameObjectWindow(self)
+        WindowType::GameEntityWindow(self)
     }
 
     fn render(
@@ -40,24 +38,20 @@ impl Window for GameObjectWindow {
         self.panel.render(texture_manager, screen_data, game_event_manager, player_data);
 
         if let Some(WidgetType::ScrollPanel(scroll_panel)) = self.panel.find_widget_with_id(self.scroll_panel_id) {
-            if let Some(game_object) = player_data.game_object_manager.clone_game_object(self.object_id) {
+            if let Some(game_entity) = player_data.game_entity_manager.clone_game_entity(self.entity_id) {
                 scroll_panel.clear_widgets();
-                
-                // Try and get custom object window
-                if let Some(widget) = game_object.clone().get_window() {
+
+                if let Some(widget) = game_entity.clone().get_window() {
                     scroll_panel.add_widget(widget);
                 }
-                // Construct prim window
                 else {
-                    let traits = game_object.get_traits();
-                    for t in traits {
-                        scroll_panel.add_widget(t.into_widget());
+                    let components = game_entity.get_components();
+                    for c in components {
+                        scroll_panel.add_widget(c.into_widget());
                     }
                 }
             }
         }
-
-        
     }
 
     fn get_mut_panel(&mut self) -> &mut Panel {

@@ -4,7 +4,7 @@ use std::fmt::format;
 use mlua::Chunk;
 
 use crate::game_data::game_event_manager::event_manager::{self, Event, EventManager};
-use crate::game_data::player_data::game_object::game_object_manager::{GameObject, GameObjectId};
+use crate::game_data::player_data::game_entity::game_entity_manager::{GameEntity, GameEntityId};
 use crate::game_data::player_data::player_data::PlayerData;
 use crate::game_data::world_gen::WorldGenManager;
 use crate::game_data::{TextureManager};
@@ -176,9 +176,9 @@ impl World {
         self.chunks_to_load.clear();
     }
 
-    pub fn get_game_object(&self, cords : [i32; 3]) -> Option<GameObjectId> {
+    pub fn get_game_entity(&self, cords : [i32; 3]) -> Option<GameEntityId> {
         if let Some(chunk) = self.get_chunk_at_world_cords(cords) {
-            chunk.game_objects.get(&cords).cloned()
+            chunk.game_entities.get(&cords).cloned()
         }
         else {
             None
@@ -282,7 +282,7 @@ impl World {
 
         if let Some(chunk) = self.get_chunk_at_world_cords(world_cords) {
             data.push(format!("Chunk Dirty: {}", chunk.dirty         ));
-            data.push(format!("Game Objcets: {}", chunk.game_objects.len()));
+            data.push(format!("Game Objcets: {}", chunk.game_entities.len()));
         }
         else {
             data.push(format!("NO CHUNK FOUND AT ({:?})", world_cords));

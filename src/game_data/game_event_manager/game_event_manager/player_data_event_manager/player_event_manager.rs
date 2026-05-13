@@ -1,15 +1,15 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, player_data_event_manager::location_event::LocationEvent}, player_data_event_manager::{drone_event::DroneEvent, var_event_manager::var_events::VarEvents}, prelude::{Event, GameEvent}}, player_data::{cursor::cursor_event_scheduler::CursorEvent, drone_script::var::{game_vars::dynamic_var::DynamicVarType, var_type::VarType}, drones::{drone::Drone, drone_event_scheduler::NewDroneEvent, drone_manager::DroneId}, game_object::game_object_manager::{self, GameObject, GameObjectEvent}, locations::{location::WorldLocation, location_config::WorldLocationConfig}, player_data::PlayerData}, screen::widget::world_rendering::view_mode::ViewMode};
+use crate::game_data::{game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, player_data_event_manager::location_event::LocationEvent}, player_data_event_manager::{drone_event::DroneEvent, var_event_manager::var_events::VarEvents}, prelude::{Event, GameEvent}}, player_data::{cursor::cursor_event_scheduler::CursorEvent, drone_script::var::{game_vars::dynamic_var::DynamicVarType, var_type::VarType}, drones::{drone::Drone, drone_event_scheduler::NewDroneEvent, drone_manager::DroneId}, game_entity::game_entity_manager::{self, GameEntity, GameEntityEvent}, locations::{location::WorldLocation, location_config::WorldLocationConfig}, player_data::PlayerData}, screen::widget::world_rendering::view_mode::ViewMode};
 
 #[derive(Clone)]
 pub enum PlayerDataEvent {
     
     // New
     SetViewMode(Option<ViewMode>),
-    NewGameObject(GameObject),
+    NewGameEntity(GameEntity),
 
-    GameObjectEvent(GameObjectEvent),
+    GameEntityEvent(GameEntityEvent),
 
 
     CursorEvent(CursorEvent),
@@ -40,12 +40,12 @@ impl PlayerDataEvent {
 
     pub fn execute_player_data_events(self, event_tools: &mut GameEventManager, player_data: &mut PlayerData) {
         match self {
-            PlayerDataEvent::NewGameObject(object) => {
-                player_data.new_game_object(object);
+            PlayerDataEvent::NewGameEntity(entity) => {
+                player_data.new_game_entity(entity);
             }
-            PlayerDataEvent::GameObjectEvent(game_object_event) => {
-                let game_object_manager = &mut player_data.game_object_manager;
-                game_object_event.execute(game_object_manager);
+            PlayerDataEvent::GameEntityEvent(game_entity_event) => {
+                let game_entity_manager = &mut player_data.game_entity_manager;
+                game_entity_event.execute(game_entity_manager);
             },
 
             PlayerDataEvent::SetViewMode(mode) => {

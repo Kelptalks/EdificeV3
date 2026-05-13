@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 
-use crate::game_data::{World, game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, prelude::{Event, GameEvent}, world_event_manager::chunk_event::WorldChunkEvent}, player_data::{game_object::game_object_manager::GameObjectId, locations::location::WorldLocation}, types::BlockTexture, world_chunk::WorldChunk};
+use crate::game_data::{World, game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, render_event_manager::render_event_manager::RenderEvent}, prelude::{Event, GameEvent}, world_event_manager::chunk_event::WorldChunkEvent}, player_data::{game_entity::game_entity_manager::GameEntityId, locations::location::WorldLocation}, types::BlockTexture, world_chunk::WorldChunk};
 
 /*
 #################
@@ -19,7 +19,7 @@ pub enum WorldEvent {
 
     // Modifcation
     ModBlock([i32; 3], BlockTexture),                                   // Params: (Block Cords, Block Type) | Modify a block in the world
-    AddGameObjcet([i32; 3], GameObjectId),
+    AddGameEntity([i32; 3], GameEntityId),
     
     FillLocation(Rc<RefCell<WorldLocation>>, Rc<RefCell<BlockTexture>>) // Params: (Block Cords, Block Type) | Fill a location with PlaceBlock Events
 }
@@ -50,9 +50,9 @@ impl WorldEvent {
                 world.set_world_value( block_type.id_as_u16(), cords);
                 event_manager.add_render_event(RenderEvent::ReRenderBlock(cords));
             }
-            WorldEvent::AddGameObjcet(world_cords, game_object_id) => {
+            WorldEvent::AddGameEntity(world_cords, game_entity_id) => {
                 if let Some(chunk) = world.get_mut_chunk_at_world_cords(world_cords) {
-                    chunk.game_objects.insert(world_cords, game_object_id);
+                    chunk.game_entities.insert(world_cords, game_entity_id);
                 }
             },
 

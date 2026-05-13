@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, world_event_manager::world_event_manager::WorldEvent}, player_data::game_object::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId}, game_object_manager::{GameObject, GameObjectId}, id_gen::IdGen, traits::{game_object_trait_manager::GameObjectTrait, trait_block::BlockTrait}}, tik_manager::game_time::GameTime, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, world_event_manager::world_event_manager::WorldEvent}, player_data::game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId}, game_entity_manager::{GameEntity, GameEntityId}, id_gen::IdGen, components::{entity_components::EntityComponent, block_component::BlockComponent}}, tik_manager::game_time::GameTime, types::BlockTexture};
 
 
 static ID_GEN: IdGen = IdGen::new();
@@ -8,38 +8,33 @@ static ID_GEN: IdGen = IdGen::new();
 pub struct BlockEntityFlungle {
     pub id: u64,
 
-    trait_block: BlockTrait,
+    block: BlockComponent,
 }
 
 impl BlockEntityFlungle {
-    pub fn wrap_into_game_object(self) -> GameObject {
-        BlockEntity::Flour(self).wrap_into_game_object()
+    pub fn wrap_into_game_entity(self) -> GameEntity {
+        BlockEntity::Flour(self).wrap_into_game_entity()
     }
-    
+
     pub fn new(cords: [i32; 3], event_manager: &mut EventManager) -> BlockEntityFlungle {
         let id = ID_GEN.new_id();
-        let game_objcet_id = BlockEntityId::FlungleID(id).wrap_into_game_object_id();
-        
-        // Block
-        let mut block_trait = 
-            BlockTrait::new(BlockTexture::Flungle, cords);
-        block_trait.init(game_objcet_id, event_manager);
+        let game_entity_id = BlockEntityId::FlungleID(id).wrap_into_game_entity_id();
 
+        let mut block = BlockComponent::new(BlockTexture::Flungle, cords);
+        block.init(game_entity_id, event_manager);
 
         BlockEntityFlungle {
             id,
-
-            trait_block: block_trait,
+            block,
         }
     }
 
     pub fn tik(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
-        let self_world_cords = self.trait_block.world_cords;
+        let self_world_cords = self.block.world_cords;
 
         let range = 3;
 
         if time.is_hour {
-            // Scan around
             for x in -range..range {
                 for y in -range..range {
                     for z in -1..1 {
@@ -63,16 +58,14 @@ impl BlockEntityFlungle {
                             }
                         }
                     }
-                    
                 }
             }
-
         }
     }
 
-    pub fn get_traits(self) -> Vec<GameObjectTrait> {
-        let mut traits = Vec::new();
-        traits.push(self.trait_block.wrap_into_trait());
-        traits
+    pub fn get_components(self) -> Vec<EntityComponent> {
+        let mut components = Vec::new();
+        components.push(self.block.wrap_into_component());
+        components
     }
 }

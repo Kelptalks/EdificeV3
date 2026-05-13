@@ -1,6 +1,6 @@
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, game_event_manager::{self, event_manager::{self, EventManager}, game_event_manager::GameEventManager}, log_init, player_data::{cursor::{cursor::Cursor, cursor_event_scheduler::CursorEventScheduler}, drones::{drone_event_scheduler::DroneEventScheduler, drone_manager::{DroneId, DroneManager}}, game_object::game_object_manager::{GameObject, GameObjectManager}, locations::location_manager::{LocationId, LocationManager}, nature_manager::nature_manager::NatureManager, progress_manager::progress_manager::ProgressManager, settings::settings_manager::SettingsManager}, screen::{menu_constructors::play_view_menu::new_play_view::PlayViewMode, widget::world_rendering::view_mode::ViewMode}, tik_manager::game_time::GameTime, types::BlockTexture, world_gen::WorldGenManager};
+use crate::game_data::{World, game_event_manager::{self, event_manager::{self, EventManager}, game_event_manager::GameEventManager}, log_init, player_data::{cursor::{cursor::Cursor, cursor_event_scheduler::CursorEventScheduler}, drones::{drone_event_scheduler::DroneEventScheduler, drone_manager::{DroneId, DroneManager}}, game_entity::game_entity_manager::{GameEntity, GameEntityManager}, locations::location_manager::{LocationId, LocationManager}, nature_manager::nature_manager::NatureManager, progress_manager::progress_manager::ProgressManager, settings::settings_manager::SettingsManager}, screen::{menu_constructors::play_view_menu::new_play_view::PlayViewMode, widget::world_rendering::view_mode::ViewMode}, tik_manager::game_time::GameTime, types::BlockTexture, world_gen::WorldGenManager};
 
 
 /*
@@ -25,7 +25,7 @@ pub struct PlayerData {
     location_manager: LocationManager,
 
 
-    pub game_object_manager: GameObjectManager,
+    pub game_entity_manager: GameEntityManager,
     progress_manager: ProgressManager,
 
     // Settings
@@ -46,7 +46,7 @@ impl PlayerData {
             drone_manager: DroneManager::new(),
             location_manager: LocationManager::new(),
             
-            game_object_manager: GameObjectManager::new(),
+            game_entity_manager: GameEntityManager::new(),
             progress_manager: ProgressManager::new(),
 
             settings: SettingsManager::new(),
@@ -131,12 +131,12 @@ impl PlayerData {
         return self.view_mode.clone();
     }
 
-    pub fn new_game_object(&mut self, game_objcet: GameObject) {
-        self.game_object_manager.new_game_oject(game_objcet);
+    pub fn new_game_entity(&mut self, entity: GameEntity) {
+        self.game_entity_manager.new_game_entity(entity);
     }
 
-    pub fn tik_game_objects(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
-        self.game_object_manager.tik_game_objects(time, world, event_manager);
+    pub fn tik_game_entities(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
+        self.game_entity_manager.tik_game_entities(time, world, event_manager);
         self.cursor.tik(event_manager);
     }
 

@@ -1,6 +1,6 @@
 use std::fmt::format;
 
-use crate::game_data::{player_data::{drones::{drone, drone_manager::DroneId}, game_object::game_object_manager::GameObjectId}, screen::widget::{drone_programming::var_slot::var_prop_widgets::{invintory_display_prop_widget::InvintoryDisplayPropWidget, text_display_prop_widget}, game_object_prop_displays::invintory_display::InvintoryDisplayWidget, panel::panel::Panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_properties::{WidgetId, WidgetProperties}, window_manager::windows::window_type::Window}};
+use crate::game_data::{player_data::{drones::{drone, drone_manager::DroneId}, game_entity::game_entity_manager::GameEntityId}, screen::widget::{drone_programming::var_slot::var_prop_widgets::{invintory_display_prop_widget::InvintoryDisplayPropWidget, text_display_prop_widget}, game_object_prop_displays::invintory_display::InvintoryDisplayWidget, panel::panel::Panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_properties::{WidgetId, WidgetProperties}, window_manager::windows::window_type::Window}};
 
 pub struct DroneSpectateWindow {
     drone_id: DroneId,
@@ -20,7 +20,7 @@ impl DroneSpectateWindow {
         
         let cords = TextDisplay::new("cords".to_string());
         let cords_widget_id = cords.get_id();
-        let invintory_widget = InvintoryDisplayWidget::new(panel.get_widget_properties(),GameObjectId::Drone(id));
+        let invintory_widget = InvintoryDisplayWidget::new(panel.get_widget_properties(),GameEntityId::Drone(id));
         panel.add_widget(WidgetType::InvintoryDisplayWidget(invintory_widget));
 
         panel.add_widget(cords.wrap_into_widget());

@@ -142,7 +142,7 @@ impl TikManager {
                     debug.add_to_tik_data(format!("Hour Time: {}", game_time.hour));
                     debug.add_to_tik_data(format!("Day Time: {}", game_time.day));
 
-                    player_data.tik_game_objects(&game_time, &world, event_manager);       
+                    player_data.tik_game_entities(&game_time, &world, event_manager);       
                 },
                 Err(_) => todo!(),
             }

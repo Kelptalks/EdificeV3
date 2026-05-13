@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::HashMap, ops::Index, rc::Rc, time::{Instan
 
 
 use crate::game_data::{
-    TextureManager, World, game_event_manager::{self, player_data_event_manager::var_event_manager::var_events::VarEvents}, locations::world_area::WorldArea, player_data::{self, cursor::{self, cursor::Cursor, cursor_event_scheduler::{self, CursorEventScheduler}}, drone_script::var::{game_vars::{dynamic_var::{self, DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}, drones::{drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, prim_actions::drone_world_actions::DroneWorldAction}, drone_event_scheduler}, game_object::block_entity_manager::{natural::flungle::BlockEntityFlungle, player_created::radar::BlockEntityRadar}, player_data::PlayerData}, screen::{
+    TextureManager, World, game_event_manager::{self, player_data_event_manager::var_event_manager::var_events::VarEvents}, locations::world_area::WorldArea, player_data::{self, cursor::{self, cursor::Cursor, cursor_event_scheduler::{self, CursorEventScheduler}}, drone_script::var::{game_vars::{dynamic_var::{self, DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}, drones::{drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, prim_actions::drone_world_actions::DroneWorldAction}, drone_event_scheduler}, game_entity::block_entity_manager::{natural::flungle::BlockEntityFlungle, player_created::radar::BlockEntityRadar}, player_data::PlayerData}, screen::{
         ScreenData, input_data, iso_cord_tool, screen_data, widget::{button::button::Button, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot, play_world_view_config::PlayViewRenderingConfig}, widget::{Widget, WidgetType}, widget_calculations, widget_properties::{self, WidgetProperties}, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::{lair_block::LairBlockMod, lair_block_manager::LairBlockManager}, ray_caster::{casted_tile::CastedTile, casted_triangle::CastedTriangle, ray_casting_config::{self, RayCastingConfig}}}, rendering_config, tile_map::{TileMap, TileMapId}, tile_map_manager::TileMapManager, view_mode::ViewMode}}
     }, texture_manager::texture::Texture, tools::cords_tool, types::BlockTexture, world
 };
@@ -457,14 +457,14 @@ impl Widget for PlayWorldViewRender {
                         let mut object = None;
                         match world_ref {
                             Ok(world) => {
-                                object = world.get_game_object(object_cords);
+                                object = world.get_game_entity(object_cords);
                             },
                             Err(_) => todo!(),
                         }
 
                         if let Some(object) = object {
                             if screen_data.was_left_released() {
-                                player_data.game_object_manager.open_object_window(event_manager, object)
+                                player_data.game_entity_manager.open_entity_window(event_manager, object)
                             }
                         }
                     }

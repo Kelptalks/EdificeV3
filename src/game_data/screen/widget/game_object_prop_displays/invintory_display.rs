@@ -2,23 +2,23 @@ use std::fmt::format;
 
 use miniquad::StencilOp;
 
-use crate::game_data::{player_data::{drone_script::var::{game_vars::game_var_type::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}, var::Var, var_type::VarKind}, game_object::game_object_manager::GameObjectId}, screen::widget::{drone_programming::var_slot::var_slot::VarSlot, panel::panel::Panel, widget::Widget, widget_properties::WidgetProperties}};
+use crate::game_data::{player_data::{drone_script::var::{game_vars::game_var_type::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}, var::Var, var_type::VarKind}, game_entity::game_entity_manager::GameEntityId}, screen::widget::{drone_programming::var_slot::var_slot::VarSlot, panel::panel::Panel, widget::Widget, widget_properties::WidgetProperties}};
 
 pub struct InvintoryDisplayWidget {
     panel: Panel,
 
-    game_object: GameObjectId
+    game_entity: GameEntityId
 
 }
 
 impl InvintoryDisplayWidget {
-    pub fn new(parents_props: &WidgetProperties, object_id: GameObjectId) -> InvintoryDisplayWidget {
+    pub fn new(parents_props: &WidgetProperties, entity_id: GameEntityId) -> InvintoryDisplayWidget {
         let mut panel = Panel::new_with_parent_props(parents_props);
-        
+
         InvintoryDisplayWidget {
             panel,
 
-            game_object: object_id
+            game_entity: entity_id
         }
     }
 }
@@ -50,8 +50,8 @@ impl Widget for InvintoryDisplayWidget {
 
         // Extract the invintory from the game object
         let mut inventory = None;
-        match self.game_object {
-            GameObjectId::Drone(drone_id) => {
+        match self.game_entity {
+            GameEntityId::Drone(drone_id) => {
                 let drone = player_data.get_drone_manager().clone_drone_with_id(drone_id);
                 if let Some(drone) = drone {
                     inventory = Some(drone.get_inventory().clone());
