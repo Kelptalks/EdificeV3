@@ -129,18 +129,16 @@ impl TileMapManager {
     }
 
     pub fn clean(&mut self, texture_manager: &mut TextureManager, world: &World) {
-        let mut still_dirty: Vec<_> = Vec::new();
-        for id in &self.dirty_maps {
-            if let Some(tile_map) = self.map_lairs.get_mut(id) {
+        if let Some(id) = self.dirty_maps.pop() {
+            if let Some(tile_map) = self.map_lairs.get_mut(&id) {
                 if !tile_map.clean(world, texture_manager) {
-                    still_dirty.push(*id);
+                    self.dirty_maps.push(id);
                 }
                 else {
-                    self.lairs_to_flatten.push(*id);
+                    self.lairs_to_flatten.push(id);
                 }
             }
         }
-        self.dirty_maps = still_dirty;
     }
 
     //=====================================

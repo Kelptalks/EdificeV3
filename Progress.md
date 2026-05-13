@@ -392,6 +392,7 @@ in
 
 **Lines**
     5/11/26: 26006
+    5/13/26: 23957
     
 
 **Notes:**
@@ -402,10 +403,14 @@ in
         - Radar
 
     - Traits
-        - Powered
-        - Vission
-        - Block
-    
+        - Trait Events
+        - trait Types
+            - Powered
+                - Power transfer events
+            - Vission
+            - Block
+
+- Remove old camera rendering pipeline
 
     
     

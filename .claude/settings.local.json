@@ -25,7 +25,8 @@
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Spencer\\\\EdificeV3\\\\src\\\\game_data\\\\game_event_manager\" -Recurse -File)",
       "Bash(Select-Object FullName)",
       "Bash(Get-ChildItem -Recurse -Path \"C:\\\\Users\\\\Spencer\\\\EdificeV3\\\\src\" -Directory)",
-      "Bash(Remove-Item *)"
+      "Bash(Remove-Item *)",
+      "Bash(Get-ChildItem *)"
     ]
   }
 }
