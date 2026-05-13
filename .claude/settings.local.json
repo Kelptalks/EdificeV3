@@ -26,7 +26,8 @@
       "Bash(Select-Object FullName)",
       "Bash(Get-ChildItem -Recurse -Path \"C:\\\\Users\\\\Spencer\\\\EdificeV3\\\\src\" -Directory)",
       "Bash(Remove-Item *)",
-      "Bash(Get-ChildItem *)"
+      "Bash(Get-ChildItem *)",
+      "Bash(git rm *)"
     ]
   }
 }

@@ -1,7 +1,7 @@
 use core::num;
 use std::{cell::RefCell, clone, rc::Rc};
 
-use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_script::var::{self, game_vars::{game_var_type::{GameVarKind, GameVarType}, primitive_game_var::PrimitiveGameVarType}, prim_vars::prim_var_type::{PrimitiveVarKind, PrimitiveVarType}, programming_vars::programming_var::ProgrammingVar, var::Var, var_properties::{PropKey, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, drones::drone::Drone, locations::location::WorldLocation}, screen::{ui_elements::panel, widget::{self, drone_programming::{function_slot::FunctionSlot, scripting_elements::scripting_panel::{self, ScriptingPanel}}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType}}, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{locations::world_area::WorldArea, player_data::{drone_script::var::{self, game_vars::{game_var_type::{GameVarKind, GameVarType}, primitive_game_var::PrimitiveGameVarType}, prim_vars::prim_var_type::{PrimitiveVarKind, PrimitiveVarType}, programming_vars::programming_var::ProgrammingVar, var::Var, var_properties::{PropKey, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, drones::drone::Drone, locations::location::WorldLocation}, screen::{widget::{self, drone_programming::{function_slot::FunctionSlot, scripting_elements::scripting_panel::{self, ScriptingPanel}}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType}}, texture_manager::texture::Texture, types::BlockTexture};
 
 
 #[derive(Clone)]

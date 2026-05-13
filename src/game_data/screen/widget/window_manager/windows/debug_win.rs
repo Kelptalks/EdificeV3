@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::debug_data::debug_data::DebugData, screen::{ui_elements::panel, widget::{panel::{image_display_panel::{self, ImageDisplayPanel}, panel::{Panel, PanelAlignment, PanelOrientation}}, prelude::TabPanel, tab_panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_properties::WidgetId, window_manager::windows::window_type::Window}}, texture_manager::{texture::Texture, texture_cashe::texture_cashe::CashedTextureID}, types::BlockTexture};
+use crate::game_data::{game_event_manager::debug_data::debug_data::DebugData, screen::{widget::{panel::{image_display_panel::{self, ImageDisplayPanel}, panel::{Panel, PanelAlignment, PanelOrientation}}, prelude::TabPanel, tab_panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_properties::WidgetId, window_manager::windows::window_type::Window}}, texture_manager::{texture::Texture, texture_cashe::texture_cashe::CashedTextureID}, types::BlockTexture};
 
 pub struct DebugWin {
     panel: Panel,

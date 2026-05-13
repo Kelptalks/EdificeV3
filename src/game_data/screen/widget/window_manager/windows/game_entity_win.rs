@@ -1,4 +1,4 @@
-use crate::game_data::{player_data::game_entity::game_entity_manager::GameEntityId, screen::{ui_elements::panel, widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetId, window_manager::windows::window_type::{Window, WindowType}}}};
+use crate::game_data::{player_data::game_entity::game_entity_manager::GameEntityId, screen::{widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetId, window_manager::windows::window_type::{Window, WindowType}}}};
 
 pub struct GameEntityWindow {
     entity_id: GameEntityId,

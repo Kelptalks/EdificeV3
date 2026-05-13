@@ -1,4 +1,4 @@
-use crate::game_data::{player_data::{drone_script::control_flow::condition::Condition, player_data::PlayerData}, screen::{self, ScreenData, screen_data, ui_elements::panel, widget::{drone_programming::scripting_widget_type::ScriptingElementWidget, panel::panel::Panel, prelude::PanelColor, widget::Widget}}};
+use crate::game_data::{player_data::{drone_script::control_flow::condition::Condition, player_data::PlayerData}, screen::{self, ScreenData, screen_data, widget::{drone_programming::scripting_widget_type::ScriptingElementWidget, panel::panel::Panel, prelude::PanelColor, widget::Widget}}};
 
 pub struct ConditionSlot {
     panel: Panel

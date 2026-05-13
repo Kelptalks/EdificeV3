@@ -85,6 +85,7 @@ impl WidgetWindowManager {
 
         let window = WidgetWindow::new(window, &self.widget_props, name);
         self.windows.insert(id, window);
+        self.open_windows.push(id);
 
         id
     }
@@ -143,13 +144,30 @@ impl Widget for WidgetWindowManager {
         self.play_view.render(texture_manager, screen_data, game_event_manager, player_data);
 
 
-        // render the windows
+        // Remove closed windows
         self.windows.retain(|_, window| !window.close());
+        self.open_windows.retain(|id| self.windows.contains_key(id));
 
-        for window in self.windows.values_mut() {
-            if !window.minimized() {
-                window.render(texture_manager, screen_data, game_event_manager, player_data);
+        // Render in z-order: last entry is on top
+        let ids: Vec<WidgetWindowId> = self.open_windows.clone();
+        let mut newly_focused: Option<WidgetWindowId> = None;
+
+        for id in &ids {
+            if let Some(window) = self.windows.get_mut(id) {
+                if !window.minimized() {
+                    window.render(texture_manager, screen_data, game_event_manager, player_data);
+                    if window.was_clicked() {
+                        newly_focused = Some(*id);
+                    }
+                }
             }
+        }
+
+        // Move the topmost clicked window to the front of the z-order
+        if let Some(id) = newly_focused {
+            self.open_windows.retain(|w| *w != id);
+            self.open_windows.push(id);
+            self.focused_window = Some(id);
         }
 
         // Menu 

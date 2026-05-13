@@ -1,5 +1,6 @@
 use crate::game_data::screen::{ScreenData, screen_data};
 
+
 pub fn pos_to_scale(pos: [f32; 4]) -> [f32; 2]{
     return [
         pos[2] - pos[0],
@@ -68,22 +69,25 @@ pub fn is_mouse_on_top_half(pos: [f32; 4], screen_data: &ScreenData) -> bool {
     }
 }
 
+
+const UI_SIZE: f32 = 0.5; 
+
 //=====================================
 // Button values
 //=====================================
 pub fn get_button_scale() -> f32 {
-    return 0.06;
+    return 0.06 * UI_SIZE;
 }
 
 pub fn get_panel_spacing_scale() -> f32 {
-    return 0.005;
+    return 0.005 * UI_SIZE;
 }
 
 //=====================================
 // Panle Values
 //=====================================
 pub fn get_panel_tile_scale() -> f32 {
-    return 0.01;
+    return 0.02 * UI_SIZE;
 }
 
 //=====================================
@@ -102,12 +106,12 @@ pub enum TextSize {
 impl TextSize {
     pub fn get_scale(&self) -> f32 {
         match self {
-            TextSize::ExtraExtraSmall => 0.01,
-            TextSize::ExtraSmall => 0.015,
-            TextSize::Small      => 0.022,
-            TextSize::Medium     => 0.03,
-            TextSize::Large      => 0.05,
-            TextSize::ExtraLarge => 0.1,
+            TextSize::ExtraExtraSmall => 0.01 * UI_SIZE,
+            TextSize::ExtraSmall => 0.015 * UI_SIZE,
+            TextSize::Small      => 0.022 * UI_SIZE,
+            TextSize::Medium     => 0.03 * UI_SIZE,
+            TextSize::Large      => 0.05 * UI_SIZE,
+            TextSize::ExtraLarge => 0.1 * UI_SIZE,
         }
     }
 }

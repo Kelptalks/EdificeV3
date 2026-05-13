@@ -13,9 +13,13 @@ pub struct WidgetWindow {
 
     held: bool,
     offset: [f32; 2],
+    drag_start_mouse: [f32; 2],
+    drag_start_offset: [f32; 2],
 
     minimized: bool,
     close: bool,
+
+    clicked_this_frame: bool,
 }
 
 
@@ -69,9 +73,13 @@ impl WidgetWindow {
 
             held: false,
             offset: [0.0; 2],
+            drag_start_mouse: [0.0; 2],
+            drag_start_offset: [0.0; 2],
 
             minimized: false,
             close: false,
+
+            clicked_this_frame: false,
         };
         widget_window.size();
 
@@ -92,6 +100,10 @@ impl WidgetWindow {
 
     pub fn close(&self) -> bool {
         self.close
+    }
+
+    pub fn was_clicked(&self) -> bool {
+        self.clicked_this_frame
     }
 }
 
@@ -115,6 +127,8 @@ impl Widget for WidgetWindow {
         game_event_manager: &mut crate::game_data::game_event_manager::prelude::EventManager,
         player_data: &crate::game_data::player_data::player_data::PlayerData,
     ) {
+        self.clicked_this_frame = screen_data.was_left_pressed() && self.mouse_on(screen_data);
+
         if screen_data.was_left_pressed() {
             if let Some(min_button) = self.panel.find_widget_with_id(self.minimize_button_id) {
                 if min_button.mouse_on(screen_data) {
@@ -130,20 +144,21 @@ impl Widget for WidgetWindow {
         }
 
         if let Some(top_bar) = self.panel.find_widget_with_id(self.top_bar_id) {
-            if top_bar.mouse_on(screen_data) {
-                if screen_data.get_input_manager().get_mouse_input_data().was_left_clicked() {
-                    self.held = true;
-                }
-                else if !screen_data.is_left_mouse_held() {
-                    self.held = false;
-                }
-
-                if self.held {
-                    let mouse_change = screen_data.get_change_in_mouse_ndc();
-                    self.offset[0] -= mouse_change[0];
-                    self.offset[1] -= mouse_change[1];
-                }
+            if top_bar.mouse_on(screen_data) && screen_data.get_input_manager().get_mouse_input_data().was_left_clicked() {
+                self.held = true;
+                self.drag_start_mouse = screen_data.get_mouse_ndc();
+                self.drag_start_offset = self.offset;
             }
+        }
+
+        if !screen_data.is_left_mouse_held() {
+            self.held = false;
+        }
+
+        if self.held {
+            let mouse = screen_data.get_mouse_ndc();
+            self.offset[0] = self.drag_start_offset[0] - (mouse[0] - self.drag_start_mouse[0]);
+            self.offset[1] = self.drag_start_offset[1] - (mouse[1] - self.drag_start_mouse[1]);
         }
 
 
