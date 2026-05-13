@@ -1,6 +1,6 @@
 use std::fmt::format;
 
-use crate::game_data::{World, game_event_manager::event_manager::{Event, EventManager}, player_data::game_object::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId}, game_object_manager::{GameObject, GameObjectEvent}, id_gen::IdGen, traits::{game_object_trait_manager::GameObjectTrait, trait_block::{self, BlockTrait}, trait_powered::{self, PoweredTrait}, trait_vision::VisionTrait}}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType, widget_calculations::TextSize}, tik_manager::game_time::GameTime, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::event_manager::{Event, EventManager}, player_data::game_object::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId}, game_object_manager::{GameObject, GameObjectEvent}, id_gen::IdGen, traits::{game_object_trait_manager::GameObjectTrait, trait_block::{self, BlockTrait}, trait_powered::{self, PoweredTrait, PoweredTraitEvent}, trait_vision::VisionTrait}}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType, widget_calculations::TextSize}, tik_manager::game_time::GameTime, types::BlockTexture};
 
 static ID_GEN: IdGen = IdGen::new();
 
@@ -32,12 +32,11 @@ impl BlockEntityRadar {
         let trait_vision = VisionTrait::new(cords);
         
         // Powered
-        let mut trait_powered = PoweredTrait::new();
+        let mut trait_powered = PoweredTrait::new(game_objcet_id, cords);
         trait_powered.power_stored = 10000;
 
         BlockEntityRadar {
             id,
-
             trait_vision: trait_vision,
             trait_block: block_trait,
             trait_powered: trait_powered
@@ -51,7 +50,7 @@ impl BlockEntityRadar {
 
     pub fn tik(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
         // Tik vision
-        if self.trait_powered.tik(time, event_manager) {
+        if self.trait_powered.tik(time, world, event_manager) {
             self.trait_vision.tik(event_manager);
         }
     }
@@ -146,6 +145,7 @@ impl BlockEntityRadar {
 #[derive(Clone)]
 pub enum RadarEvent {
     ModRange([i16; 3]),
+    PoweredTraitEvent(PoweredTraitEvent),
 }
 
 impl RadarEvent {
@@ -160,6 +160,9 @@ impl RadarEvent {
 
                 let power_needed = radar.trait_vision.chunks_in_view() as u32;
                 radar.trait_powered.power_consume_per_interval = power_needed;
+            },
+            RadarEvent::PoweredTraitEvent(powered_trait_event) => {
+                powered_trait_event.execute(&mut radar.trait_powered);
             },
         }
     }

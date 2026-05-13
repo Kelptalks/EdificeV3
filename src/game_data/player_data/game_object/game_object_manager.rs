@@ -1,11 +1,48 @@
-use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::window_manager_event::WindowManagerEvent}, player_data::{drones::drone_manager::DroneId, game_object::{block_entity_manager::{self, block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId, BlockEntityManager}}, game_object_manager, traits::game_object_trait_manager::{GameObjectTrait, TraitEvent}}, nature_manager::nature_manager::NatureObject, player_data::PlayerData}, screen::widget::widget::WidgetType, tik_manager::game_time::GameTime};
+use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::window_manager_event::WindowManagerEvent}, player_data::{drones::drone_manager::DroneId, game_object::{block_entity_manager::{self, block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId, BlockEntityManager}}, game_object_manager, traits::{game_object_trait_manager::GameObjectTrait, trait_powered::PoweredTraitEvent}}, nature_manager::nature_manager::NatureObject, player_data::PlayerData}, screen::widget::widget::WidgetType, tik_manager::game_time::GameTime};
 
+
+/*
+####################
+## Game Object ID ##
+####################
+*/
 
 #[derive(Clone, Copy)]
 pub enum GameObjectId {
     Drone(DroneId),
     BlockEntity(BlockEntityId)
 }
+
+impl GameObjectId {
+    pub fn add_trait_event(&self, event_manager: &mut EventManager, trait_event: PoweredTraitEvent) {
+        match self {
+            GameObjectId::BlockEntity(block_entity_id) => {
+                block_entity_id.add_trait_event(event_manager, trait_event);
+            },
+
+            _ => {
+
+            }
+        }
+    }
+
+    pub fn to_str(&self) -> &str {
+        match self {
+            GameObjectId::BlockEntity(block_entity_id) => {
+                block_entity_id.to_str()
+            },
+            _ => {
+                "NO STRING FOR OBJECT"
+            }
+        }
+    }
+}
+
+/*
+#################
+## Game Object ##
+#################
+*/
 
 #[derive(Clone)]
 pub enum GameObject {
@@ -77,7 +114,6 @@ impl GameObjectManager {
 
 #[derive(Clone)]
 pub enum GameObjectEvent {
-    TraitEvent(GameObjectId, TraitEvent),
     BlockEntityEvent(BlockEntityEvent)
 }
 
@@ -88,9 +124,6 @@ impl GameObjectEvent {
 
     pub fn execute(self, game_object_manager: &mut GameObjectManager) {
         match self {
-            GameObjectEvent::TraitEvent(object_id, trait_event) => {
-                todo!();
-            },
             GameObjectEvent::BlockEntityEvent(block_entity_event) => {
                 block_entity_event.execute(&mut game_object_manager.block_entity_manager);
             },

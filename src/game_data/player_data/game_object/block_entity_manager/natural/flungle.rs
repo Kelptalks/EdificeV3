@@ -18,7 +18,7 @@ impl BlockEntityFlungle {
     
     pub fn new(cords: [i32; 3], event_manager: &mut EventManager) -> BlockEntityFlungle {
         let id = ID_GEN.new_id();
-        let game_objcet_id = BlockEntityId::FlourID(id).wrap_into_game_object_id();
+        let game_objcet_id = BlockEntityId::FlungleID(id).wrap_into_game_object_id();
         
         // Block
         let mut block_trait = 

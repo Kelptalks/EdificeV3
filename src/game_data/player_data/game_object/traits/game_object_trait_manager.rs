@@ -1,4 +1,4 @@
-use crate::game_data::{game_event_manager::event_manager::Event, player_data::game_object::{game_object_manager::{GameObject, GameObjectEvent, GameObjectId}, traits::{trait_block::BlockTrait, trait_powered::{PoweredTrait, PoweredTraitEvent}, trait_vision::VisionTrait}}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType, widget_calculations::TextSize}};
+use crate::game_data::{game_event_manager::event_manager::Event, player_data::game_object::{self, game_object_manager::{GameObject, GameObjectEvent, GameObjectId}, traits::{trait_block::BlockTrait, trait_powered::{PoweredTrait, PoweredTraitEvent}, trait_vision::VisionTrait}}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType, widget_calculations::TextSize}};
 
 pub enum GameObjectTrait {
     Vision(VisionTrait),
@@ -27,28 +27,10 @@ impl GameObjectTrait {
 
             },
             GameObjectTrait::Powered(powered_trait) => {
-                panel.add_text_display("Powered".to_string()).set_text_scale(TextSize::Small);
-                panel.add_text_display(format!("Power Stored: ({})", powered_trait.power_stored)).set_text_scale(TextSize::ExtraSmall);
+                return powered_trait.get_widget()
             },
         }
 
         panel.wrap_into_widget()
-    }
-}
-
-
-#[derive(Clone)]
-pub enum TraitEvent {
-    PoweredEvent(PoweredTraitEvent),
-}
-
-impl TraitEvent {
-
-    pub fn wrap_into_event(self, id: GameObjectId) -> Event {
-        GameObjectEvent::TraitEvent(id, self).wrap_into_event()
-    }
-
-    pub fn execute(self, object: &mut GameObject) {
-        
     }
 }

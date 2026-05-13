@@ -1,16 +1,7 @@
-use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_object::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId}, game_object_manager::GameObject, id_gen::IdGen, traits::{game_object_trait_manager::GameObjectTrait, trait_block::BlockTrait, trait_powered::{self, PoweredTrait}}}, tik_manager::game_time::GameTime, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::event_manager::{Event, EventManager}, player_data::game_object::{block_entity_manager::{block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId}, player_created::radar::RadarEvent}, game_object_manager::GameObject, id_gen::IdGen, traits::{game_object_trait_manager::GameObjectTrait, trait_block::BlockTrait, trait_powered::{self, PoweredTrait, PoweredTraitEvent}}}, tik_manager::game_time::GameTime, types::BlockTexture};
 
 static ID_GEN: IdGen = IdGen::new();
 
-
-const POWER_LINK_CHECKS: [[i32; 3]; 6] = [
-    [1, 0, 0],
-    [-1, 0, 0],
-    [0, 1, 0],
-    [0, -1, 0],
-    [0, 0, 1],
-    [0, 0, -1],
-];
 
 #[derive(Clone)]
 pub struct BlockEntityBattery {
@@ -37,7 +28,7 @@ impl BlockEntityBattery {
         trait_block.init(game_objcet_id, event_manager);
         
         // Powered
-        let mut trait_powered = PoweredTrait::new();
+        let mut trait_powered = PoweredTrait::new(game_objcet_id, cords);
         trait_powered.power_stored = 50000;
 
 
@@ -50,22 +41,11 @@ impl BlockEntityBattery {
     }
     
     
-    pub fn tik(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
+    pub fn tik(&mut self, game_time: &GameTime, world: &World, event_manager: &mut EventManager) {
         // self.trait_block.tik(time, world, event_manager);
         
         // Alert to has power
-        let cords = self.trait_block.world_cords;
-        for relative_power_link_cords in POWER_LINK_CHECKS {
-            let relative_cords = [
-                cords[0] + relative_power_link_cords[0],
-                cords[1] + relative_power_link_cords[1],
-                cords[2] + relative_power_link_cords[2],
-            ];
-            if let Some(game_object_id) = world.get_game_object(relative_cords) {
-                
-            }
-        }
-
+        self.trait_powered.tik(game_time, world, event_manager);
     }
     
     pub fn get_traits(self) -> Vec<GameObjectTrait> {
@@ -77,6 +57,32 @@ impl BlockEntityBattery {
         traits
     }
 
+}
 
 
+/*
+###################
+## Battery Event ##
+###################
+Comments
+*/
+
+#[derive(Clone)]
+pub enum BatteryEvent {
+    PoweredTraitEvent(PoweredTraitEvent),
+}
+
+impl BatteryEvent {
+    pub fn wrap_into_event(self, id: u64) -> Event {
+        BlockEntityEvent::BatteryEvent(id, self).wrap_into_event()
+    }
+
+    pub fn execute(self, radar: &mut BlockEntityBattery) {
+        match self {
+
+            BatteryEvent::PoweredTraitEvent(powered_trait_event) => {
+                powered_trait_event.execute(&mut radar.trait_powered);
+            },
+        }
+    }
 }

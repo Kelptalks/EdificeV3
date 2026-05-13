@@ -1,6 +1,70 @@
 use std::collections::HashMap;
 
-use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, render_event_manager::{render_event_manager::RenderEvent, window_manager_event::WindowManagerEvent}}, player_data::game_object::{block_entity_manager::{self, natural::flungle::BlockEntityFlungle, player_created::{battery::BlockEntityBattery, radar::{BlockEntityRadar, RadarEvent}}}, game_object_manager::{GameObject, GameObjectEvent, GameObjectId}, traits::game_object_trait_manager::GameObjectTrait}, screen::widget::{self, panel::panel::Panel, widget::{Widget, WidgetType}, window_manager::{window::WidgetWindow, windows::window_type::{Window, WindowType}}}, tik_manager::game_time::GameTime};
+use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, render_event_manager::{render_event_manager::RenderEvent, window_manager_event::WindowManagerEvent}}, player_data::game_object::{block_entity_manager::{self, natural::flungle::BlockEntityFlungle, player_created::{battery::{BatteryEvent, BlockEntityBattery}, radar::{BlockEntityRadar, RadarEvent}}}, game_object_manager::{GameObject, GameObjectEvent, GameObjectId}, traits::{game_object_trait_manager::GameObjectTrait, trait_powered::PoweredTraitEvent}}, screen::widget::{self, panel::panel::Panel, widget::{Widget, WidgetType}, window_manager::{window::WidgetWindow, windows::window_type::{Window, WindowType}}}, tik_manager::game_time::GameTime};
+
+/*
+#####################
+## Block Entity Id ##
+#####################
+Comments
+*/
+#[derive(Clone, Copy)]
+pub enum BlockEntityId {
+    // Player
+    RadarID(u64),
+    Battery(u64),
+
+    // Natural
+    FlungleID(u64),
+}
+
+impl BlockEntityId {
+    pub fn wrap_into_game_object_id(self) -> GameObjectId {
+        GameObjectId::BlockEntity(self)
+    }
+    
+    pub fn add_trait_event(&self, event_manager: &mut EventManager, trait_event: PoweredTraitEvent) {
+        match self {
+            BlockEntityId::RadarID(id) => {
+                event_manager.add_event(
+                    RadarEvent::PoweredTraitEvent(trait_event).wrap_into_event(*id)
+                );
+            },
+            BlockEntityId::Battery(id) => {
+                event_manager.add_event(
+                    BatteryEvent::PoweredTraitEvent(trait_event).wrap_into_event(*id)
+                );
+            },
+            BlockEntityId::FlungleID(id) => {
+                eprintln!("Flour does not support power trait events");
+            },
+        }
+    }
+
+    
+
+    pub fn to_str(&self) -> &str {
+        match self {
+            BlockEntityId::RadarID(id) => {
+                "Radar"
+            },
+            BlockEntityId::Battery(id) => {
+                "Battery"
+            },
+            BlockEntityId::FlungleID(id) => {
+                "Flungle"
+            },
+        }
+    }
+}
+
+
+/*
+##################
+## Block Entity ##
+##################
+*/
+
 
 #[derive(Clone)]
 pub enum BlockEntity {
@@ -40,22 +104,11 @@ impl BlockEntity {
     }
 }
 
-
-#[derive(Clone, Copy)]
-pub enum BlockEntityId {
-    // Player
-    RadarID(u64),
-    Battery(u64),
-
-    // Natural
-    FlourID(u64),
-}
-
-impl BlockEntityId {
-    pub fn wrap_into_game_object_id(self) -> GameObjectId {
-        GameObjectId::BlockEntity(self)
-    }
-}
+/*
+######################
+## BlockEntityEvent ##
+######################
+*/
 
 impl BlockEntity {
     pub fn wrap_into_game_object(self) -> GameObject {
@@ -99,6 +152,27 @@ impl BlockEntityManager {
         }
     }
 
+    //=====================================
+    // Direct Object Getters
+    //=====================================
+
+    pub fn get_radar(&mut self, id: u64) -> Option<&mut BlockEntityRadar> {
+        self.radars.get_mut(&id)
+    }
+
+    pub fn get_battery(&mut self, id: u64) -> Option<&mut BlockEntityBattery> {
+        self.batterys.get_mut(&id)
+    }
+
+    pub fn get_flungle(&mut self, id: u64) -> Option<&mut BlockEntityFlungle> {
+        self.flungles.get_mut(&id)
+    }
+
+
+    //=====================================
+    // Game Object Managment
+    //=====================================
+
     pub fn add_object(&mut self, new_block_entity: BlockEntity) {
         match new_block_entity {
             BlockEntity::Radar(block_entity_radar) => {
@@ -132,7 +206,7 @@ impl BlockEntityManager {
                     None
                 }
             },
-            BlockEntityId::FlourID(id) => {
+            BlockEntityId::FlungleID(id) => {
                 if let Some(flour_entity) = self.flungles.get(&id).cloned() {
                     Some(BlockEntity::Flour(flour_entity))
                 }
@@ -143,6 +217,9 @@ impl BlockEntityManager {
         }
     }
 
+    //=====================================
+    // Tik Managment
+    //=====================================
 
     pub fn tik(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
         for (_, entity) in &mut self.radars {
@@ -161,10 +238,16 @@ impl BlockEntityManager {
     }
 }
 
+/*
+######################
+## BlockEntityEvent ##
+######################
+*/
 
 #[derive(Clone)]
 pub enum BlockEntityEvent {
-    RadarEvent(u64, RadarEvent), // Id, Event
+    RadarEvent(u64, RadarEvent),        // Id, Event
+    BatteryEvent(u64, BatteryEvent)     // Id, Event
 }
 
 impl BlockEntityEvent {
@@ -182,8 +265,14 @@ impl BlockEntityEvent {
                     eprintln!("Error radar entity id({}) does not exist", id);
                 }
             },
+            BlockEntityEvent::BatteryEvent(id, battery_event) => {
+                if let Some(battery) = block_entity_manager.batterys.get_mut(&id) {
+                    battery_event.execute(battery);
+                }
+                else {
+                    eprintln!("Error battery entity id({}) does not exist", id);
+                }
+            },
         }
-        
-
     }
 }
