@@ -102,26 +102,7 @@ impl BlockEntityRadar {
         
 
         // Power
-        panel.add_text_display("Vision Range".to_string());
-        let power_panel = panel.add_sub_panel();
-        power_panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-
-        power_panel.add_text_display(
-            format!(
-                "Stored Power: {} / {}", 
-                self.trait_powered.power_stored, 
-                self.trait_powered.max_power
-            )
-        );
-
-        power_panel.add_text_display(
-            format!(
-                "Power Consumption {} / {}", 
-                self.trait_powered.power_consume_per_interval, 
-                self.trait_powered.power_consume_interval.to_string()
-            )
-        );
-
+        panel.add_widget(self.trait_powered.get_widget());
         return panel.wrap_into_widget();
     }
 

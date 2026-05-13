@@ -1,6 +1,7 @@
+use core::fmt;
 use std::collections::HashMap;
 
-use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, render_event_manager::{render_event_manager::RenderEvent, window_manager_event::WindowManagerEvent}}, player_data::game_object::{block_entity_manager::{self, natural::flungle::BlockEntityFlungle, player_created::{battery::{BatteryEvent, BlockEntityBattery}, radar::{BlockEntityRadar, RadarEvent}}}, game_object_manager::{GameObject, GameObjectEvent, GameObjectId}, traits::{game_object_trait_manager::GameObjectTrait, trait_powered::PoweredTraitEvent}}, screen::widget::{self, panel::panel::Panel, widget::{Widget, WidgetType}, window_manager::{window::WidgetWindow, windows::window_type::{Window, WindowType}}}, tik_manager::game_time::GameTime};
+use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, game_event_manager::GameEvent, render_event_manager::{render_event_manager::RenderEvent, window_manager_event::WindowManagerEvent}}, player_data::game_object::{block_entity_manager::{self, natural::flungle::BlockEntityFlungle, player_created::{battery::{BatteryEvent, BlockEntityBattery}, radar::{BlockEntityRadar, RadarEvent}}}, game_object_manager::{GameObject, GameObjectEvent, GameObjectId}, traits::{game_object_trait_manager::GameObjectTrait, trait_powered::PoweredTraitEvent}}, screen::widget::{self, panel::panel::Panel, widget::{Widget, WidgetType}, window_manager::{window::WidgetWindow, windows::window_type::{Window, WindowType}}}, tik_manager::game_time::GameTime};
 
 /*
 #####################
@@ -23,37 +24,27 @@ impl BlockEntityId {
         GameObjectId::BlockEntity(self)
     }
     
-    pub fn add_trait_event(&self, event_manager: &mut EventManager, trait_event: PoweredTraitEvent) {
+    pub fn get_trait_event(&self, trait_event: PoweredTraitEvent) -> Option<Event> {
         match self {
             BlockEntityId::RadarID(id) => {
-                event_manager.add_event(
-                    RadarEvent::PoweredTraitEvent(trait_event).wrap_into_event(*id)
-                );
+                Some(RadarEvent::PoweredTraitEvent(trait_event).wrap_into_event(*id))
             },
             BlockEntityId::Battery(id) => {
-                event_manager.add_event(
-                    BatteryEvent::PoweredTraitEvent(trait_event).wrap_into_event(*id)
-                );
+                Some(BatteryEvent::PoweredTraitEvent(trait_event).wrap_into_event(*id))
             },
             BlockEntityId::FlungleID(id) => {
-                eprintln!("Flour does not support power trait events");
+                None
             },
         }
     }
+}
 
-    
-
-    pub fn to_str(&self) -> &str {
+impl fmt::Display for BlockEntityId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            BlockEntityId::RadarID(id) => {
-                "Radar"
-            },
-            BlockEntityId::Battery(id) => {
-                "Battery"
-            },
-            BlockEntityId::FlungleID(id) => {
-                "Flungle"
-            },
+            BlockEntityId::RadarID(id) => write!(f, "Radar_{}", id),
+            BlockEntityId::Battery(id) => write!(f, "Battery_{}", id),
+            BlockEntityId::FlungleID(id) => write!(f, "Flungle_{}", id),
         }
     }
 }

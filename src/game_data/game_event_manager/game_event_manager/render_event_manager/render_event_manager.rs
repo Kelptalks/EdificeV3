@@ -29,7 +29,7 @@ pub enum RenderEvent {
     Clear,                    // None
 
     // Testing
-    TestEvent,
+    DebugEvent,
 }
 
 
@@ -139,7 +139,7 @@ impl RenderEvent {
             RenderEvent::Clear => {
                 
             }
-            RenderEvent::TestEvent => {
+            RenderEvent::DebugEvent => {
                 println!("Test Render Event");
             }
         }

@@ -71,7 +71,7 @@ impl LayerManager {
     }
 }
 
-const WATER_LEVEL: i32 = -50;
+const WATER_LEVEL: i32 = -40;
 
 pub struct WorldGenManager {
     layer_manager: LayerManager,
@@ -82,7 +82,7 @@ impl WorldGenManager {
         // Set up world layers
         let mut layer_manager = LayerManager::new();
         layer_manager.add_lair(BlockTexture::Grass, 0, 0);
-        layer_manager.add_lair(BlockTexture::Dirt, -3, -1);
+        layer_manager.add_lair(BlockTexture::Dirt, -3, 0);
         layer_manager.add_lair(BlockTexture::Stone, -200, -4);
 
         Self {
@@ -98,7 +98,7 @@ impl WorldGenManager {
         let start_cords = area.get_point_1_cords();
         let end_cords = area.get_point_2_cords();
 
-        let terrain_height = 120.0;
+        let terrain_height = 50.0;
         let terrain_noise = TerrainNoise::new(152452, 4, 500.0);
         let mut grass_gen_manager = GrassGenManager::new();
 

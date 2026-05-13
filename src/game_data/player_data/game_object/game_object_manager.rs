@@ -1,3 +1,5 @@
+use core::fmt;
+
 use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::window_manager_event::WindowManagerEvent}, player_data::{drones::drone_manager::DroneId, game_object::{block_entity_manager::{self, block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId, BlockEntityManager}}, game_object_manager, traits::{game_object_trait_manager::GameObjectTrait, trait_powered::PoweredTraitEvent}}, nature_manager::nature_manager::NatureObject, player_data::PlayerData}, screen::widget::widget::WidgetType, tik_manager::game_time::GameTime};
 
 
@@ -14,26 +16,25 @@ pub enum GameObjectId {
 }
 
 impl GameObjectId {
-    pub fn add_trait_event(&self, event_manager: &mut EventManager, trait_event: PoweredTraitEvent) {
+    pub fn get_trait_event(&self, trait_event: PoweredTraitEvent) -> Option<Event> {
         match self {
             GameObjectId::BlockEntity(block_entity_id) => {
-                block_entity_id.add_trait_event(event_manager, trait_event);
+                block_entity_id.get_trait_event(trait_event)
             },
-
             _ => {
-
+                None
             }
         }
     }
 
-    pub fn to_str(&self) -> &str {
+
+}
+
+impl fmt::Display for GameObjectId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            GameObjectId::BlockEntity(block_entity_id) => {
-                block_entity_id.to_str()
-            },
-            _ => {
-                "NO STRING FOR OBJECT"
-            }
+            GameObjectId::Drone(drone_id) => write!(f, "Drone"),
+            GameObjectId::BlockEntity(block_entity_id) => write!(f, "{}", block_entity_id),
         }
     }
 }

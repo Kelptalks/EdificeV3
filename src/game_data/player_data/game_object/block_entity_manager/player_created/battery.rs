@@ -29,8 +29,10 @@ impl BlockEntityBattery {
         
         // Powered
         let mut trait_powered = PoweredTrait::new(game_objcet_id, cords);
-        trait_powered.power_stored = 50000;
-
+        
+        trait_powered.power_stored = 100000;
+        trait_powered.max_power = 100000;
+        trait_powered.power_demand = 100;
 
         BlockEntityBattery {
             id,
