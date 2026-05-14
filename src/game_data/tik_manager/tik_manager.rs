@@ -127,12 +127,15 @@ impl TikManager {
             self.current_tik += 1;
             self.last_tik_micros = current_millis;
 
+            let game_time = GameTime::new(self.current_tik);
+
             let current_world = player_data.get_world_ref();
             
+
+
             let world = current_world.try_read();
             match world {
                 Ok(world) => {
-                    let game_time = GameTime::new(self.current_tik);
 
                     let debug = event_manager.get_mut_debug_data();
                     debug.clear_tik_data();
@@ -153,7 +156,7 @@ impl TikManager {
 
 
             let mut world_gaurd = current_world.write().unwrap();
-            world_gaurd.tik(player_data, event_manager);
+            world_gaurd.tik(&game_time, player_data, event_manager);
 
             event_manager.execute_world_events(&mut world_gaurd);
 
