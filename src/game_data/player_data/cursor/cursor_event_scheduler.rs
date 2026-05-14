@@ -4,7 +4,7 @@ use crate::game_data::{game_event_manager::prelude::{Event, EventManager, Player
 pub enum CursorEvent {
     ModCords([i32; 3]),
     SetCords([i32; 3]),
-    ModZoom(i32),
+    ModZoom(f32),
 }
 
 impl CursorEvent {
@@ -62,11 +62,11 @@ impl CursorEventScheduler {
     }
 
     pub fn zoom_in(&mut self) {
-        self.events.push(CursorEvent::ModZoom(-1));
+        self.events.push(CursorEvent::ModZoom(0.95));
     }
 
     pub fn zoom_out(&mut self) {
-        self.events.push(CursorEvent::ModZoom(1));
+        self.events.push(CursorEvent::ModZoom(1.05));
     }
 
     //=====================================
