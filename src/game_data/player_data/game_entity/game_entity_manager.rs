@@ -1,6 +1,6 @@
 use core::fmt;
 
-use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::window_manager_event::WindowManagerEvent}, player_data::{drones::drone_manager::DroneId, game_entity::{block_entity_manager::{self, block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId, BlockEntityManager}}, components::{entity_components::EntityComponent, powered_component::PoweredComponentEvent}}, player_data::PlayerData}, screen::widget::widget::WidgetType, tik_manager::game_time::GameTime};
+use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::window_manager_event::WindowManagerEvent}, player_data::{drones::drone_manager::DroneId, game_entity::{block_entity_manager::{self, block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId, BlockEntityManager}}, components::{entity_components::EntityComponent, powered_component::PoweredComponentEvent}, dynamic_entity_manager::{self, dynamic_entity_manager::{DynamicEntity, DynamicEntityId, DynamicEntityManager}}}, player_data::PlayerData}, screen::widget::widget::WidgetType, tik_manager::game_time::GameTime};
 
 
 /*
@@ -12,7 +12,8 @@ use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventM
 #[derive(Clone, Copy)]
 pub enum GameEntityId {
     Drone(DroneId),
-    BlockEntity(BlockEntityId)
+    BlockEntity(BlockEntityId),
+    DynamicEntity(DynamicEntityId),
 }
 
 impl GameEntityId {
@@ -33,6 +34,7 @@ impl fmt::Display for GameEntityId {
         match self {
             GameEntityId::Drone(_drone_id) => write!(f, "Drone"),
             GameEntityId::BlockEntity(block_entity_id) => write!(f, "{}", block_entity_id),
+            GameEntityId::DynamicEntity(dynamic_entity_id) => write!(f, "{}", dynamic_entity_id),
         }
     }
 }
@@ -46,12 +48,14 @@ impl fmt::Display for GameEntityId {
 #[derive(Clone)]
 pub enum GameEntity {
     BlockEntity(BlockEntity),
+    DynamicEntity(DynamicEntity),
 }
 
 impl GameEntity {
     pub fn get_components(self) -> Vec<EntityComponent> {
         match self {
             GameEntity::BlockEntity(block_entity) => block_entity.get_components(),
+            GameEntity::DynamicEntity(dynamic_entity) => dynamic_entity.get_components(),
         }
     }
 
@@ -60,26 +64,34 @@ impl GameEntity {
             GameEntity::BlockEntity(block_entity) => {
                 block_entity.get_window()
             },
+            GameEntity::DynamicEntity(dynamic_entity) => {
+                dynamic_entity.get_window()
+            },
         }
     }
 }
 
 pub struct GameEntityManager {
     block_entity_manager: BlockEntityManager,
+    dynamic_entity_manager: DynamicEntityManager,
 }
 
 impl GameEntityManager {
     pub fn new() -> GameEntityManager {
         GameEntityManager {
             block_entity_manager: BlockEntityManager::new(),
+            dynamic_entity_manager: DynamicEntityManager::new(),
         }
     }
 
     pub fn new_game_entity(&mut self, new_entity: GameEntity) {
         match new_entity {
             GameEntity::BlockEntity(block_entity) => {
-                self.block_entity_manager.add_object(block_entity);
+                self.block_entity_manager.add_entity(block_entity);
             },
+            GameEntity::DynamicEntity(dynamic_entity) => {
+                self.dynamic_entity_manager.add_entity(dynamic_entity)
+            }
         }
     }
 

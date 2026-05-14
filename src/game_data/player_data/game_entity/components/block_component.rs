@@ -1,7 +1,7 @@
 use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_entity::{components::entity_components::EntityComponent, game_entity_manager::GameEntityId}, tik_manager::game_time::GameTime, types::BlockTexture, world::world::WorldEvent};
 
 #[derive(Clone)]
-pub struct BlockComponent {
+pub struct WorldBlockComponent {
     pub block_type: BlockTexture,
 
     animation_frame: usize,
@@ -10,13 +10,13 @@ pub struct BlockComponent {
     pub world_cords: [i32; 3],
 }
 
-impl BlockComponent {
+impl WorldBlockComponent {
     pub fn wrap_into_component(self) -> EntityComponent {
         EntityComponent::Block(self)
     }
 
-    pub fn new(block_type: BlockTexture, cords: [i32; 3]) -> BlockComponent {
-        BlockComponent {
+    pub fn new(block_type: BlockTexture, cords: [i32; 3]) -> WorldBlockComponent {
+        WorldBlockComponent {
             block_type,
 
             animation_frame: 0,

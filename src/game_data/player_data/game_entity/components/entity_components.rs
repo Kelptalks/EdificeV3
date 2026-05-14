@@ -1,9 +1,10 @@
-use crate::game_data::{player_data::game_entity::components::{block_component::BlockComponent, powered_component::PoweredComponent, vision_component::VisionComponent}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType, widget_calculations::TextSize}};
+use crate::game_data::{player_data::game_entity::components::{block_component::WorldBlockComponent, locomotion_component::LocomotionComponent, powered_component::PoweredComponent, vision_component::VisionComponent}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType, widget_calculations::TextSize}};
 
 pub enum EntityComponent {
     Vision(VisionComponent),
-    Block(BlockComponent),
+    Block(WorldBlockComponent),
     Powered(PoweredComponent),
+    Locomotion(LocomotionComponent),
 }
 
 impl EntityComponent {
@@ -26,6 +27,9 @@ impl EntityComponent {
             },
             EntityComponent::Powered(powered) => {
                 return powered.get_widget()
+            },
+            EntityComponent::Locomotion(locomotion_component) => {
+                
             },
         }
 

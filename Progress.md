@@ -388,12 +388,13 @@ in
 **Hours: **
     5/11/26: 6,
     5/12/26: 4,
-    5/12/26: 2,
+    5/13/26: 2,
+    5/14/26: 4.5,
 
 **Lines**
     5/11/26: 26006
     5/13/26: 23957
-    
+    5/14/26: 23028
 
 **Notes:**
 
@@ -410,8 +411,11 @@ in
             - Vission
             - Block
 
+- Improved Chunk Managment and event orginization
+
 - Remove old camera rendering pipeline
 
+- Remove old UI
     
     
 

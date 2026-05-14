@@ -13,7 +13,6 @@ pub struct TileMapManager {
     lairs_to_flatten: Vec<TileMapId>,
     
     flattened_lair: HashMap<[i32; 2], Vec<TileMapId>>,
-
 }
 
 impl TileMapManager {

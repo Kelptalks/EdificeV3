@@ -11,11 +11,11 @@ use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventM
 #[derive(Clone, Copy)]
 pub enum BlockEntityId {
     // Player
-    RadarID(u64),
+    Radar(u64),
     Battery(u64),
 
     // Natural
-    FlungleID(u64),
+    Flungle(u64),
 }
 
 impl BlockEntityId {
@@ -25,13 +25,13 @@ impl BlockEntityId {
 
     pub fn get_component_event(&self, component_event: PoweredComponentEvent) -> Option<Event> {
         match self {
-            BlockEntityId::RadarID(id) => {
+            BlockEntityId::Radar(id) => {
                 Some(RadarEvent::PoweredComponentEvent(component_event).wrap_into_event(*id))
             },
             BlockEntityId::Battery(id) => {
                 Some(BatteryEvent::PoweredComponentEvent(component_event).wrap_into_event(*id))
             },
-            BlockEntityId::FlungleID(_id) => {
+            BlockEntityId::Flungle(_id) => {
                 None
             },
         }
@@ -41,9 +41,9 @@ impl BlockEntityId {
 impl fmt::Display for BlockEntityId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            BlockEntityId::RadarID(id) => write!(f, "Radar_{}", id),
+            BlockEntityId::Radar(id) => write!(f, "Radar_{}", id),
             BlockEntityId::Battery(id) => write!(f, "Battery_{}", id),
-            BlockEntityId::FlungleID(id) => write!(f, "Flungle_{}", id),
+            BlockEntityId::Flungle(id) => write!(f, "Flungle_{}", id),
         }
     }
 }
@@ -135,7 +135,7 @@ impl BlockEntityManager {
     // Entity Management
     //=====================================
 
-    pub fn add_object(&mut self, new_block_entity: BlockEntity) {
+    pub fn add_entity(&mut self, new_block_entity: BlockEntity) {
         match new_block_entity {
             BlockEntity::Radar(radar) => {
                 self.radars.insert(radar.id, radar);
@@ -151,13 +151,13 @@ impl BlockEntityManager {
 
     pub fn clone_block_entity(&self, block_entity_id: BlockEntityId) -> Option<BlockEntity> {
         match block_entity_id {
-            BlockEntityId::RadarID(id) => {
+            BlockEntityId::Radar(id) => {
                 self.radars.get(&id).cloned().map(BlockEntity::Radar)
             },
             BlockEntityId::Battery(id) => {
                 self.batterys.get(&id).cloned().map(BlockEntity::Battery)
             },
-            BlockEntityId::FlungleID(id) => {
+            BlockEntityId::Flungle(id) => {
                 self.flungles.get(&id).cloned().map(BlockEntity::Flour)
             },
         }

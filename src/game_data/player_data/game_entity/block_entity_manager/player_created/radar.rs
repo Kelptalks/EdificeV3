@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::event_manager::{Event, EventManager}, player_data::game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId}, components::{block_component::BlockComponent, entity_components::EntityComponent, powered_component::{PoweredComponent, PoweredComponentEvent}, vision_component::VisionComponent}, game_entity_manager::GameEntity}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType, widget_calculations::TextSize}, tik_manager::game_time::GameTime, tools::id_gen::IdGen, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::event_manager::{Event, EventManager}, player_data::game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId}, components::{block_component::WorldBlockComponent, entity_components::EntityComponent, powered_component::{PoweredComponent, PoweredComponentEvent}, vision_component::VisionComponent}, game_entity_manager::GameEntity}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType, widget_calculations::TextSize}, tik_manager::game_time::GameTime, tools::id_gen::IdGen, types::BlockTexture};
 
 static ID_GEN: IdGen = IdGen::new();
 
@@ -7,7 +7,7 @@ pub struct BlockEntityRadar {
     pub id: u64,
 
     pub vision: VisionComponent,
-    pub block: BlockComponent,
+    pub block: WorldBlockComponent,
     pub powered: PoweredComponent,
 }
 
@@ -18,9 +18,9 @@ impl BlockEntityRadar {
 
     pub fn new(cords: [i32; 3], event_manager: &mut EventManager) -> BlockEntityRadar {
         let id = ID_GEN.new_id();
-        let game_entity_id = BlockEntityId::RadarID(id).wrap_into_game_entity_id();
+        let game_entity_id = BlockEntityId::Radar(id).wrap_into_game_entity_id();
 
-        let mut block = BlockComponent::new(BlockTexture::LBM, cords);
+        let mut block = WorldBlockComponent::new(BlockTexture::LBM, cords);
         block.init(game_entity_id, event_manager);
 
         let vision = VisionComponent::new(cords);

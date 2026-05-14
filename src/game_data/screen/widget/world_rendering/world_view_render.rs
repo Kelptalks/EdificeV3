@@ -350,29 +350,28 @@ impl PlayWorldViewRender {
         // Use personal tile map
         if ((cursor.get_zoom() as usize) * 2) < 32 {
             if let Some(tile_map) =  self.tile_map_manager.get_mut_tile_map(self.tile_map_id) {
-                
                 let world_area = cursor.get_rendering_area();
                 tile_map.set_world_area(world_area);
                 tile_map.clean(&world, texture_manager);
-
-
             }
             self.tile_map_manager.render_tile_map(self.tile_map_id, texture_manager);
         }
         else {
             world.render_world(texture_manager, &mut self.tile_map_manager);
+            
         }
         
         
-        let chunk_debug_data = world.get_chunk_debug_data(cursor.get_cords());
 
+
+        // Debug Data
+        let chunk_debug_data = world.get_chunk_debug_data(cursor.get_cords());
         let debug = event_manager.get_mut_debug_data();
         debug.clear_rendering_data();
     
-
-        debug.add_world_data("~~~~~~~~~~~~~~~~~~~".to_string());
-        debug.add_world_data("~~ CURSORS CHUNK ~~".to_string());
-        debug.add_world_data("~~~~~~~~~~~~~~~~~~~".to_string());
+        debug.add_world_data("###################".to_string());
+        debug.add_world_data("## CURSORS CHUNK ##".to_string());
+        debug.add_world_data("###################".to_string());
 
         for data in chunk_debug_data {
             debug.add_world_data(data);

@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::event_manager::{Event, EventManager}, player_data::game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId}, components::{block_component::BlockComponent, entity_components::EntityComponent, powered_component::{PoweredComponent, PoweredComponentEvent}}, game_entity_manager::GameEntity}, tik_manager::game_time::GameTime, tools::id_gen::IdGen, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::event_manager::{Event, EventManager}, player_data::game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId}, components::{block_component::WorldBlockComponent, entity_components::EntityComponent, powered_component::{PoweredComponent, PoweredComponentEvent}}, game_entity_manager::GameEntity}, tik_manager::game_time::GameTime, tools::id_gen::IdGen, types::BlockTexture};
 
 static ID_GEN: IdGen = IdGen::new();
 
@@ -7,7 +7,7 @@ static ID_GEN: IdGen = IdGen::new();
 pub struct BlockEntityBattery {
     pub id: u64,
 
-    pub block: BlockComponent,
+    pub block: WorldBlockComponent,
     pub powered: PoweredComponent,
 }
 
@@ -20,7 +20,7 @@ impl BlockEntityBattery {
         let id = ID_GEN.new_id();
         let game_entity_id = BlockEntityId::Battery(id).wrap_into_game_entity_id();
 
-        let mut block = BlockComponent::new(BlockTexture::Battery1, cords);
+        let mut block = WorldBlockComponent::new(BlockTexture::Battery1, cords);
         block.give_animation(
             vec![BlockTexture::Battery1, BlockTexture::Battery2, BlockTexture::Battery3, BlockTexture::Battery4]
         );
