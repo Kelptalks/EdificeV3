@@ -2,7 +2,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use crate::game_data::game_event_manager::prelude::{EventManager, WorldEvent};
+use crate::game_data::game_event_manager::prelude::{EventManager};
 use crate::game_data::locations::world_area::WorldArea;
 use crate::game_data::player_data::drone_script::action;
 use crate::game_data::player_data::drone_script::function::function::Function;

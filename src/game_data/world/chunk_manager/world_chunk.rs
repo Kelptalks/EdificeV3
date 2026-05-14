@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, World, game_event_manager::{event_manager::{self, Event, EventManager}, game_event_manager::GameEventManager, render_event_manager::tile_map_event::TileMapEvent, widget_event_manager::prim_events::bool_events, world_event_manager::{chunk_event::WorldChunkEvent, world_event_manager::WorldEvent}}, locations::world_area::WorldArea, player_data::{self, game_entity::game_entity_manager::GameEntityId, player_data::PlayerData}, screen::{iso_cord_tool, text, widget::world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod}, rendering_config, tile_map::{TileMap, TileMapId}, tile_map_manager::{self, TileMapManager}}}, texture_manager::{self, texture::Texture, texture_cashe::texture_cashe::CashedTextureID}};
+use crate::game_data::{TextureManager, World, chunk_manager::chunk_manager::WorldChunkType, game_event_manager::{event_manager::Event, game_event_manager::GameEventManager}, locations::world_area::WorldArea, player_data::{game_entity::game_entity_manager::GameEntityId, player_data::PlayerData}, screen::{iso_cord_tool, widget::world_rendering::{tile_map::TileMapId, tile_map_manager::{TileMapEvent, TileMapManager}}}, world::world::WorldEvent};
 
 const CHUNK_SIZE: usize = 16;
 const CHUNK_AREA: usize = CHUNK_SIZE * CHUNK_SIZE;
@@ -8,8 +8,8 @@ pub const CHUNK_VOLUME: usize = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE;
 
 pub const CHUNK_SIZE_I32: i32 = 16;
 
-pub struct WorldChunk {
-    pub loaded_this_tik: bool,
+pub struct LoadedWorldChunk {
+    pub time_till_unload: u64,
 
     // World Data
     cords : [i16; 3],
@@ -26,12 +26,16 @@ pub struct WorldChunk {
     pub game_entities: HashMap<[i32; 3], GameEntityId>,
 }
 
-impl WorldChunk {
+impl LoadedWorldChunk {
+    pub fn wrap_into_chunk_type(self) -> WorldChunkType {
+        WorldChunkType::Loaded(self)
+    }
+    
     pub fn new(chunk_cords :[i16; 3]) -> Self
     {
         let depth = chunk_cords[0] + chunk_cords[1] + chunk_cords[2];
         Self {
-            loaded_this_tik: true,
+            time_till_unload: 50,
 
             cords : chunk_cords,
             block_data : Box::new([0; CHUNK_VOLUME]),
@@ -74,7 +78,7 @@ impl WorldChunk {
     }
 
     pub fn get_world_area(&self) -> WorldArea {
-        let chunk_size = WorldChunk::get_chunk_size_i32();
+        let chunk_size = LoadedWorldChunk::get_chunk_size_i32();
 
         let min_x = self.cords[0] as i32 * chunk_size;
         let min_y = self.cords[1] as i32 * chunk_size;
@@ -91,7 +95,7 @@ impl WorldChunk {
     }
 
     pub fn get_depth(&self) -> i32 {
-        let chunk_size = WorldChunk::get_chunk_size_i32();
+        let chunk_size = LoadedWorldChunk::get_chunk_size_i32();
 
         let min_x = self.cords[0] as i32 * chunk_size;
         let min_y = self.cords[1] as i32 * chunk_size;
@@ -118,6 +122,10 @@ impl WorldChunk {
 
     pub fn get_cords(&self) -> [i16; 3] {
         return self.cords
+    }
+
+    pub fn get_key(&self) -> u64 {
+        World::chunk_cords_to_key(self.cords)
     }
 
     pub fn fill(&mut self, value : u16) {
@@ -209,7 +217,23 @@ impl WorldChunk {
             Vec::new()
         }
     }
-    
+}
 
 
+
+#[derive(Clone)]
+pub enum WorldChunkEvent {
+
+}
+
+impl WorldChunkEvent {
+    pub fn wrap_into_event(self, cords: [i16; 3]) -> Event {
+        WorldEvent::LoadedChunkEvent(cords, self).wrap_into_event()
+    }
+
+    pub fn execute_chunk_event(&self, loaded_chunk: &mut LoadedWorldChunk, event_data: &mut GameEventManager) {
+
+
+
+    }
 }

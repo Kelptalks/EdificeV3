@@ -3,7 +3,6 @@ pub use super::event_manager::{EventManager, Event};
 pub use super::game_event_manager::{GameEvent, GameEventManager};
 
 // Game Events
-pub use super::world_event_manager::world_event_manager::WorldEvent;
 pub use super::widget_event_manager::{
     widget_event_manager::WidgetEvent,
     prim_events::{

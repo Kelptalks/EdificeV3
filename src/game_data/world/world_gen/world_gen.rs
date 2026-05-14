@@ -1,4 +1,4 @@
-use crate::game_data::{World, locations::world_area::WorldArea, types::BlockTexture, world_gen::{terrain_gen::{grass_gen::GrassGenManager, perlin_noise::TerrainNoise}, world_config::WorldConfig}};
+use crate::game_data::{locations::world_area::WorldArea, types::BlockTexture, world::world::WorldEvent, world_gen::terrain_gen::{grass_gen::GrassGenManager, perlin_noise::TerrainNoise}};
 
 struct LayerRule {
     main_block_type: BlockTexture,
@@ -66,12 +66,12 @@ impl LayerManager {
                     println!("Block Type at Level({}) is ({})",l , layer.get_block_type().id());
                 }
             }
-        }   
+        }
 
     }
 }
 
-const WATER_LEVEL: i32 = -40;
+const WATER_LEVEL: i32 = -50;
 
 pub struct WorldGenManager {
     layer_manager: LayerManager,
@@ -82,8 +82,8 @@ impl WorldGenManager {
         // Set up world layers
         let mut layer_manager = LayerManager::new();
         layer_manager.add_lair(BlockTexture::Grass, 0, 0);
-        layer_manager.add_lair(BlockTexture::Dirt, -3, 0);
-        layer_manager.add_lair(BlockTexture::Stone, -200, -4);
+        layer_manager.add_lair(BlockTexture::Dirt, -3, -1);
+        layer_manager.add_lair(BlockTexture::Stone, -20, -4);
 
         Self {
             layer_manager: layer_manager,
@@ -94,7 +94,9 @@ impl WorldGenManager {
     // Terrain Generation
     //=====================================
 
-    pub fn generate_area(&self, world: &mut World, area: WorldArea) {
+    pub fn generate_area(&self, area: WorldArea) -> Vec<WorldEvent> {
+        let mut events = Vec::new();
+
         let start_cords = area.get_point_1_cords();
         let end_cords = area.get_point_2_cords();
 
@@ -115,12 +117,12 @@ impl WorldGenManager {
                     if let Some(block_type) = self.layer_manager.get_block_at_layer_z(layer_z) {
                         if block_type == BlockTexture::Grass {
                             if below_water {
-                                world.set_world_value(BlockTexture::Sand.id_as_u16(), [x, y, z]);
+                                events.push(WorldEvent::ModBlock([x, y, z], BlockTexture::Sand));
                             } else {
-                                grass_gen_manager.gen_grass([x, y, z], world);
+                                events.extend(grass_gen_manager.gen_grass([x, y, z]));
                             }
                         } else {
-                            world.set_world_value(block_type.id_as_u16(), [x, y, z]);
+                            events.push(WorldEvent::ModBlock([x, y, z], block_type));
                         }
                     }
                 }
@@ -131,14 +133,14 @@ impl WorldGenManager {
                     let water_end = WATER_LEVEL.min(end_cords[2]);
                     if water_start <= water_end {
                         for wz in water_start..=water_end {
-                            if world.get_world_value([x, y, wz]) == 0 {
-                                world.set_world_value(BlockTexture::Water.id_as_u16(), [x, y, wz]);
-                            }
+                            events.push(WorldEvent::ModBlock([x, y, wz], BlockTexture::Water));
                         }
                     }
                 }
             }
         }
+
+        events
     }
 
     pub fn test(&self) {

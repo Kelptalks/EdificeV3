@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::{event_manager::EventManager, world_event_manager::world_event_manager::WorldEvent}, player_data::game_entity::{components::entity_components::EntityComponent, game_entity_manager::GameEntityId}, tik_manager::game_time::GameTime, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_entity::{components::entity_components::EntityComponent, game_entity_manager::GameEntityId}, tik_manager::game_time::GameTime, types::BlockTexture, world::world::WorldEvent};
 
 #[derive(Clone)]
 pub struct BlockComponent {

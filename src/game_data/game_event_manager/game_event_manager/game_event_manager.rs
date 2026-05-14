@@ -1,4 +1,4 @@
-use crate::game_data::{game_event_manager::game_event_manager::{player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::render_event_manager::RenderEvent, widget_event_manager::{mouse_action_manager::MouseWidgetData, widget_event_manager::WidgetEvent}, world_event_manager::world_event_manager::WorldEvent}, world_gen::WorldGenManager};
+use crate::game_data::{game_event_manager::game_event_manager::{player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::render_event_manager::RenderEvent, widget_event_manager::{mouse_action_manager::MouseWidgetData, widget_event_manager::WidgetEvent}}, world::world::WorldEvent, world_gen::WorldGenManager};
 
 #[derive(Clone)]
 pub enum GameEvent  {

@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::{event_manager::EventManager, world_event_manager::chunk_event::WorldChunkEvent}, player_data::game_entity::components::entity_components::EntityComponent};
+use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_entity::components::entity_components::EntityComponent, world::world::WorldEvent};
 
 #[derive(Clone)]
 pub struct VisionComponent {
@@ -75,7 +75,7 @@ impl VisionComponent {
     pub fn tik(&mut self, event_manager: &mut EventManager) {
         for chunk_cords in &self.chunks_in_view {
             event_manager.add_event(
-                WorldChunkEvent::LoadChunk(*chunk_cords).wrap_into_event()
+                WorldEvent::LoadChunk(*chunk_cords).wrap_into_event()
             )
         }
     }

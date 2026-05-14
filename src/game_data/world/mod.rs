@@ -1,6 +1,8 @@
-mod world;
+pub mod world;
 pub use world::World;
-pub mod world_chunk;
+pub mod chunk_manager;
+
+
 
 pub mod world_task_manager;
 pub mod world_gen;

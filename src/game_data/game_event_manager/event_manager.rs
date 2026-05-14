@@ -1,7 +1,7 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{TextureManager, World, game_event_manager::{debug_data::debug_data::DebugData, dispatch_event_manager::dispatch_event_manager::DispatchEvent, game_event_manager::{game_event_manager::{GameEvent, GameEventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::render_event_manager::RenderEvent, widget_event_manager::widget_event_manager::WidgetEvent, world_event_manager::world_event_manager::WorldEvent}, input_event_manager::input_event_manager::InputEvent}, player_data::player_data::PlayerData, screen::screen_mananager::ScreenManager, texture_manager};
+use crate::game_data::{TextureManager, World, game_event_manager::{debug_data::debug_data::DebugData, dispatch_event_manager::dispatch_event_manager::DispatchEvent, event_manager, game_event_manager::{game_event_manager::{GameEvent, GameEventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::render_event_manager::RenderEvent, widget_event_manager::widget_event_manager::WidgetEvent}, input_event_manager::input_event_manager::InputEvent}, player_data::player_data::PlayerData, screen::screen_mananager::ScreenManager, texture_manager, world::world::WorldEvent};
 
 /*
 ###################
@@ -85,6 +85,12 @@ impl EventManager {
     pub fn add_world_event(&mut self, world_event: WorldEvent) {
         self.game_event_manager.add_world_event(world_event);
     }
+
+    pub fn add_world_events(&mut self, mut world_events: Vec<WorldEvent>) {
+        while let Some(event) = world_events.pop() {
+            self.add_world_event(event);
+        }
+    } 
 
     pub fn add_render_event(&mut self, render_event: RenderEvent) {
         self.game_event_manager.add_render_event(render_event);

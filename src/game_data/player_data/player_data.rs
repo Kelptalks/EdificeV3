@@ -137,7 +137,7 @@ impl PlayerData {
 
     pub fn tik_game_entities(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
         self.game_entity_manager.tik_game_entities(time, world, event_manager);
-        self.cursor.tik(event_manager);
+        self.cursor.tik(world, event_manager);
     }
 
 }

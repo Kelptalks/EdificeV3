@@ -70,7 +70,7 @@ pub fn is_mouse_on_top_half(pos: [f32; 4], screen_data: &ScreenData) -> bool {
 }
 
 
-const UI_SIZE: f32 = 0.5; 
+const UI_SIZE: f32 = 0.8; 
 
 //=====================================
 // Button values

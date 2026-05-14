@@ -157,8 +157,8 @@ impl Widget for WidgetWindow {
 
         if self.held {
             let mouse = screen_data.get_mouse_ndc();
-            self.offset[0] = self.drag_start_offset[0] - (mouse[0] - self.drag_start_mouse[0]);
-            self.offset[1] = self.drag_start_offset[1] - (mouse[1] - self.drag_start_mouse[1]);
+            self.offset[0] = self.drag_start_offset[0] + (mouse[0] - self.drag_start_mouse[0]);
+            self.offset[1] = self.drag_start_offset[1] + (mouse[1] - self.drag_start_mouse[1]);
         }
 
 

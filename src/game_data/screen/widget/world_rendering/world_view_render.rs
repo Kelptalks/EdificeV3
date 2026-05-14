@@ -2,9 +2,9 @@ use std::{cell::RefCell, collections::HashMap, ops::Index, rc::Rc, time::{Instan
 
 
 use crate::game_data::{
-    TextureManager, World, game_event_manager::{self, player_data_event_manager::var_event_manager::var_events::VarEvents}, locations::world_area::WorldArea, player_data::{self, cursor::{self, cursor::Cursor, cursor_event_scheduler::{self, CursorEventScheduler}}, drone_script::var::{game_vars::{dynamic_var::{self, DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}, drones::{drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, prim_actions::drone_world_actions::DroneWorldAction}, drone_event_scheduler}, game_entity::block_entity_manager::{natural::flungle::BlockEntityFlungle, player_created::radar::BlockEntityRadar}, player_data::PlayerData}, screen::{
-        ScreenData, input_data, iso_cord_tool, screen_data, widget::{button::button::Button, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot, play_world_view_config::PlayViewRenderingConfig}, widget::{Widget, WidgetType}, widget_calculations, widget_properties::{self, WidgetProperties}, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::{lair_block::LairBlockMod, lair_block_manager::LairBlockManager}, ray_caster::{casted_tile::CastedTile, casted_triangle::CastedTriangle, ray_casting_config::{self, RayCastingConfig}}}, rendering_config, tile_map::{TileMap, TileMapId}, tile_map_manager::TileMapManager, view_mode::ViewMode}}
-    }, texture_manager::texture::Texture, tools::cords_tool, types::BlockTexture, world
+    TextureManager, player_data::{cursor::cursor::Cursor, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction}, player_data::PlayerData}, screen::{
+        ScreenData, iso_cord_tool, widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_triangle::CastedTriangle}, tile_map::TileMapId, tile_map_manager::{TileMapEvent, TileMapManager}, view_mode::ViewMode}}
+    }, texture_manager::texture::Texture, types::BlockTexture, world::world::WorldEvent
 };
 
 use crate::game_data::game_event_manager::prelude::*;
@@ -292,7 +292,7 @@ impl PlayWorldViewRender {
 
         
         let largest_side_of_location = 1;
-        let block_diementions = largest_side_of_location + cursor.get_zoom() * 2 + 1;
+        let block_diementions = largest_side_of_location + (cursor.get_zoom() as usize) * 2 + 1;
 
         self.ndc_block_scale = (scale[0] / block_diementions as f32) / 2.0;
         self.ndc_tile_scale = self.ndc_block_scale / 2.0;
@@ -348,7 +348,7 @@ impl PlayWorldViewRender {
         texture_manager.update_expander_cache(self.ndc_block_scale);
         
         // Use personal tile map
-        if (cursor.get_zoom() * 2) < 32 {
+        if ((cursor.get_zoom() as usize) * 2) < 32 {
             if let Some(tile_map) =  self.tile_map_manager.get_mut_tile_map(self.tile_map_id) {
                 
                 let world_area = cursor.get_rendering_area();
@@ -592,5 +592,15 @@ impl Widget for PlayWorldViewRender {
     }
 
 
+    
+}
+
+
+pub enum WorldRendererEvent {
+    TileMapManagerEvent(TileMapEvent)
+}
+
+
+impl WorldRendererEvent {
     
 }
