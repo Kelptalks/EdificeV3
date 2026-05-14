@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::{self, event_manager, game_event_manager::GameEventManager}, types::BlockTexture};
+use crate::game_data::{types::BlockTexture, world::world::WorldEvent};
 use rand::{rngs::ThreadRng, Rng};
 
 struct GroundItem {
@@ -14,27 +14,30 @@ enum PlantType {
 }
 
 impl PlantType {
-    fn generate(&self, rng: &mut ThreadRng, world: &mut World, cords: [i32; 3]) {
+    fn generate(&self, rng: &mut ThreadRng, cords: [i32; 3]) -> Vec<WorldEvent> {
         match self {
-            PlantType::Tree => Self::generate_tree(rng, world, cords),
-            PlantType::Mushroom => Self::generate_mushroom(rng, world, cords),
-            PlantType::Dandelion => Self::generate_dandelion(rng, world, cords),
+            PlantType::Tree => Self::generate_tree(rng, cords),
+            PlantType::Mushroom => Self::generate_mushroom(rng, cords),
+            PlantType::Dandelion => Self::generate_dandelion(rng, cords),
         }
     }
 
     /*#####################
       ## Tree Generation ##
       #####################*/
-    fn generate_leaves(world: &mut World, cords: [i32; 3]) {
-        world.set_world_value(BlockTexture::Leaves.id_as_u16(), [cords[0] - 1, cords[1], cords[2]]);
-        world.set_world_value(BlockTexture::Leaves.id_as_u16(), [cords[0] + 1, cords[1], cords[2]]);
-        world.set_world_value(BlockTexture::Leaves.id_as_u16(), [cords[0], cords[1] - 1, cords[2]]);
-        world.set_world_value(BlockTexture::Leaves.id_as_u16(), [cords[0], cords[1] + 1, cords[2]]);
-        world.set_world_value(BlockTexture::Leaves.id_as_u16(), [cords[0], cords[1], cords[2] + 1]);
+    fn generate_leaves(cords: [i32; 3]) -> Vec<WorldEvent> {
+        vec![
+            WorldEvent::ModBlock([cords[0] - 1, cords[1], cords[2]], BlockTexture::Leaves),
+            WorldEvent::ModBlock([cords[0] + 1, cords[1], cords[2]], BlockTexture::Leaves),
+            WorldEvent::ModBlock([cords[0], cords[1] - 1, cords[2]], BlockTexture::Leaves),
+            WorldEvent::ModBlock([cords[0], cords[1] + 1, cords[2]], BlockTexture::Leaves),
+            WorldEvent::ModBlock([cords[0], cords[1], cords[2] + 1], BlockTexture::Leaves),
+        ]
     }
 
-    fn generate_branch(world: &mut World, rng: &mut ThreadRng, cords: [i32; 3]){
-        
+    fn generate_branch(rng: &mut ThreadRng, cords: [i32; 3]) -> Vec<WorldEvent> {
+        let mut events = Vec::new();
+
         // randomize branch direction
         let mut x_branch_direction_mod = 0;
         let mut y_branch_direction_mod = 0;
@@ -51,7 +54,7 @@ impl PlantType {
             else if branch_direction == 4{
                 y_branch_direction_mod = -1;
             }
-        
+
         //Generate branch
         let branch_length = 3;
         for i in 1..=branch_length {
@@ -60,22 +63,26 @@ impl PlantType {
                 cords[0] + (x_branch_direction_mod * i),
                 cords[1] + (y_branch_direction_mod * i),
                 cords[2]
-            ]; 
-            world.set_world_value(BlockTexture::Leaves.id_as_u16(), current_cords);
+            ];
+            events.push(WorldEvent::ModBlock(current_cords, BlockTexture::Leaves));
             if i == branch_length {
-                Self::generate_leaves(world, current_cords);
+                events.extend(Self::generate_leaves(current_cords));
             }
         }
+
+        events
     }
 
-    fn generate_tree(rng: &mut ThreadRng, world: &mut World, cords: [i32; 3]) {
+    fn generate_tree(rng: &mut ThreadRng, cords: [i32; 3]) -> Vec<WorldEvent> {
+        let mut events = Vec::new();
+
         // Decide if tree is purple
         let purple_tree_likleyhood = 0.05;
-        let mut block_type = BlockTexture::BrownTrunk.id_as_u16();
+        let mut block_type = BlockTexture::BrownTrunk;
         if rng.random_bool(purple_tree_likleyhood) {
-            block_type = BlockTexture::PurpleTrunk.id_as_u16();
+            block_type = BlockTexture::PurpleTrunk;
         }
-        
+
         // Tree generation propertys
         let min_tree_height = 5;
         let max_tree_height = 15;
@@ -86,27 +93,29 @@ impl PlantType {
             let mut trunk_cor = cords;
             trunk_cor[2] += z;
 
-            world.set_world_value(block_type, trunk_cor);
+            events.push(WorldEvent::ModBlock(trunk_cor, block_type));
             if z == tree_height {
                 trunk_cor[2] += 1;
-                Self::generate_leaves(world, trunk_cor);
+                events.extend(Self::generate_leaves(trunk_cor));
             }
         }
-
 
         // Branch generation proppertys.
         let min_branch_height = 7;
         let max_branch_height = 10;
 
-        // Generate branch if tree is tall enough 
+        // Generate branch if tree is tall enough
         if tree_height - 3 >= min_branch_height {
             let branch_height = rng.random_range(min_branch_height..max_branch_height);
-            Self::generate_branch(world, rng, [cords[0], cords[1], cords[2] + branch_height]);
+            events.extend(Self::generate_branch(rng, [cords[0], cords[1], cords[2] + branch_height]));
         }
 
+        events
     }
 
-    fn generate_mushroom(rng: &mut ThreadRng, world: &mut World, cords: [i32; 3]) {
+    fn generate_mushroom(rng: &mut ThreadRng, cords: [i32; 3]) -> Vec<WorldEvent> {
+        let mut events = Vec::new();
+
         let height = rng.gen_range(10..40);
         let stem_radius = (height / (rng.gen_range(5..25))) + 3;
 
@@ -116,10 +125,10 @@ impl PlantType {
                 for y in -stem_radius..stem_radius {
                     let distance = ((x * x + y * y) as f64).sqrt();
                     if distance < stem_radius as f64 {
-                        world.set_world_value(
-                            BlockTexture::MushroomStem.id_as_u16(),
-                            [cords[0] + x, cords[1] + y, cords[2] + z]
-                        );
+                        events.push(WorldEvent::ModBlock(
+                            [cords[0] + x, cords[1] + y, cords[2] + z],
+                            BlockTexture::MushroomStem,
+                        ));
                     }
                 }
             }
@@ -127,9 +136,9 @@ impl PlantType {
 
         // Choose block type (blue or pink mushroom)
         let block_type = if rng.gen_range(0..2) == 0 {
-            BlockTexture::BlueMushroom.id_as_u16()
+            BlockTexture::BlueMushroom
         } else {
-            BlockTexture::PinkMushroomBlock.id_as_u16()
+            BlockTexture::PinkMushroomBlock
         };
 
         let mut top_radius = stem_radius + 8 + rng.gen_range(0..5);
@@ -141,19 +150,23 @@ impl PlantType {
                 for y in -top_radius..top_radius {
                     let distance = ((x * x + y * y) as f64).sqrt();
                     if distance < top_radius as f64 {
-                        world.set_world_value(
+                        events.push(WorldEvent::ModBlock(
+                            [cords[0] + x, cords[1] + y, cords[2] + z_mod + height],
                             block_type,
-                            [cords[0] + x, cords[1] + y, cords[2] + z_mod + height]
-                        );
+                        ));
                     }
                 }
             }
             z_mod += 1;
             top_radius -= rng.gen_range(0..2);
         }
+
+        events
     }
 
-    fn generate_dandelion(rng: &mut ThreadRng, world: &mut World, cords: [i32; 3]) {
+    fn generate_dandelion(rng: &mut ThreadRng, cords: [i32; 3]) -> Vec<WorldEvent> {
+        let mut events = Vec::new();
+
         let height = rng.gen_range(12..37);
         let stem_radius = height / 15;
 
@@ -163,10 +176,10 @@ impl PlantType {
                 for y in -stem_radius..stem_radius {
                     let distance = ((x * x + y * y) as f64).sqrt();
                     if distance < stem_radius as f64 {
-                        world.set_world_value(
-                            BlockTexture::DandiStem.id_as_u16(),
-                            [cords[0] + x, cords[1] + y, cords[2] + z]
-                        );
+                        events.push(WorldEvent::ModBlock(
+                            [cords[0] + x, cords[1] + y, cords[2] + z],
+                            BlockTexture::DandiStem,
+                        ));
                     }
                 }
             }
@@ -189,15 +202,17 @@ impl PlantType {
                     if distance_sq <= puff_radius * puff_radius {
                         // 80% chance to place a block (creating a fluffy appearance)
                         if rng.gen_range(0..5) != 0 {
-                            world.set_world_value(
-                                BlockTexture::PinkCloud.id_as_u16(),
-                                [cords[0] + x, cords[1] + y, cords[2] + z + puff_top]
-                            );
+                            events.push(WorldEvent::ModBlock(
+                                [cords[0] + x, cords[1] + y, cords[2] + z + puff_top],
+                                BlockTexture::PinkCloud,
+                            ));
                         }
                     }
                 }
             }
         }
+
+        events
     }
 
 }
@@ -210,7 +225,7 @@ struct Plant {
 pub struct GrassGenManager {
     rng: ThreadRng,
 
-    nothing_weight: u32, 
+    nothing_weight: u32,
 
     // Ground item probs
     ground_item_weight: u32,
@@ -253,10 +268,10 @@ impl GrassGenManager {
         for i in 0..plants.len() {
             total_plant_weight += plants[i].weight;
         }
-        
+
         Self {
             rng: rand::rng(),
-            nothing_weight: 150, 
+            nothing_weight: 150,
 
             // Ground items
             ground_item_weight: 50,
@@ -272,13 +287,14 @@ impl GrassGenManager {
 
 
 
-    pub fn gen_grass(&mut self, cords: [i32; 3], world : &mut World) {
-        world.set_world_value(BlockTexture::Grass.id_as_u16(), cords);
+    pub fn gen_grass(&mut self, cords: [i32; 3]) -> Vec<WorldEvent> {
+        let mut events = Vec::new();
+        events.push(WorldEvent::ModBlock(cords, BlockTexture::Grass));
 
         // Get cords to generate item
         let mut above_grass = cords;
         above_grass[2] += 1;
-        
+
 
         let total_weight = self.nothing_weight + self.plant_weight + self.ground_item_weight;
         let roll = self.rng.random_range(0..total_weight);
@@ -288,47 +304,50 @@ impl GrassGenManager {
 
         threshold += self.nothing_weight;
         if roll < threshold  {
-            return;
+            return events;
         }
 
         threshold += self.ground_item_weight;
         if roll < threshold{
-            self.gen_ground_item(world, above_grass);
-            return;
+            events.extend(self.gen_ground_item(above_grass));
+            return events;
         }
 
         threshold += self.plant_weight;
         if roll < threshold {
-            self.spawn_plant(world, above_grass);
-            return;
+            events.extend(self.spawn_plant(above_grass));
+            return events;
         }
 
+        events
     }
 
-    pub fn gen_ground_item(&mut self, world : &mut World, cords: [i32; 3]){
+    fn gen_ground_item(&mut self, cords: [i32; 3]) -> Vec<WorldEvent> {
+        let mut events = Vec::new();
         let mut roll = self.rng.random_range(0..self.ground_item_total_weight);
-    
+
         for item in &self.ground_items {
             if roll < item.weight {
-                if world.get_world_value(cords) == BlockTexture::Air.id_as_u16() {
-                    world.set_world_value(item.block_type.id() as u16, cords);
-                }
-                return;
+                events.push(WorldEvent::ModBlock(cords, item.block_type));
+                return events;
             }
             roll -= item.weight;
         }
+
+        events
     }
 
-    fn spawn_plant(&mut self, world: &mut World, cords: [i32; 3]) {
+    fn spawn_plant(&mut self, cords: [i32; 3]) -> Vec<WorldEvent> {
         let mut roll = self.rng.gen_range(0..self.plant_total_weight);
-        
+
         for plant in &self.plants {
             if roll < plant.weight {
-                plant.plant_type.generate(&mut self.rng, world, cords);
-                return;
+                return plant.plant_type.generate(&mut self.rng, cords);
             }
             roll -= plant.weight;
         }
+
+        Vec::new()
     }
 
 

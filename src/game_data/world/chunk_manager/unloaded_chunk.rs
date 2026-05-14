@@ -1,10 +1,12 @@
-use crate::game_data::{World, chunk_manager::chunk_manager::WorldChunkType};
+use crate::game_data::{World, chunk_manager::chunk_manager::WorldChunkType, world::world::WorldEvent};
 
 
 
 pub struct UnloadedWorldChunk {
     pub load: bool,
     cords: [i16; 3],
+
+    pub terrain_gen_events: Vec<(WorldEvent)>,
 }
 
 impl UnloadedWorldChunk {
@@ -16,6 +18,8 @@ impl UnloadedWorldChunk {
         UnloadedWorldChunk {
             load: false,
             cords,
+
+            terrain_gen_events: Vec::new(),
         }
     }
 

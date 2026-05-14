@@ -1,7 +1,7 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}, render_event_manager::{texture_manager_event::TextureManagerEvent, tile_map_event::{self, TileMapEvent}, window_manager_event::WindowManagerEvent}}, player_data::player_data::PlayerData, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::{widget::WidgetType, world_rendering::tile_map_manager}}, texture_manager};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}, render_event_manager::{texture_manager_event::TextureManagerEvent, window_manager_event::WindowManagerEvent}}, player_data::player_data::PlayerData, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::{widget::WidgetType, world_rendering::tile_map_manager::{self, TileMapEvent}}}, texture_manager};
 
 /*
 ##################
@@ -13,7 +13,9 @@ Events relating to rendering of menus / game camera
 #[derive(Clone)]
 pub enum RenderEvent {
     WindowMangerEvent(WindowManagerEvent),
+    
     TileMapEvent(TileMapEvent),
+    
     TextureManagerEvent(TextureManagerEvent),
 
 

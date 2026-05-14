@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, World, game_event_manager::{self, event_manager::{self, Event, EventManager}}, player_data::player_data::PlayerData, screen::{iso_cord_tool, widget::world_rendering::{area_rendering_manager::ray_caster::casted_tile::CastedTile, tile_map::{self, TileMap, TileMapId}}}, texture_manager::{self, texture::Texture}};
+use crate::game_data::{TextureManager, World, game_event_manager::{self, event_manager::{self, Event, EventManager}, game_event_manager::GameEvent, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{iso_cord_tool, widget::world_rendering::{area_rendering_manager::ray_caster::casted_tile::CastedTile, tile_map::{self, TileMap, TileMapId}}}, texture_manager::{self, texture::Texture}};
 
 
 pub struct TileMapManager {
@@ -256,3 +256,38 @@ impl TileMapManager {
 }
 
 
+
+
+#[derive(Clone, PartialEq)]
+pub enum TileMapEvent {
+    FreeTileMap(TileMapId),
+    DirtyTileMap(TileMapId)
+}
+
+impl TileMapEvent {
+    pub fn wrap_into_event(self) -> Event {
+        RenderEvent::TileMapEvent(self).wrap_into_event()
+    }
+
+    pub fn wrap_into_game_event(self) -> GameEvent {
+        RenderEvent::TileMapEvent(self).wrap_into_game_event()
+    }
+    
+    pub fn execute_event(
+        &self, 
+        tile_map_manager: &mut TileMapManager,
+    ) -> Vec<Event> {
+        match self {
+            TileMapEvent::FreeTileMap(tile_map_id) => {
+                return tile_map_manager.free_id(tile_map_id)
+            },
+            TileMapEvent::DirtyTileMap(tile_map_id) => {
+                if let Some(tile_map) = tile_map_manager.get_mut_tile_map(*tile_map_id) {
+                    tile_map.ray_casting_dirty = true;
+                    tile_map.cashed_texture_dirty = true;
+                }
+            },
+        }
+        Vec::new()
+    }
+}
