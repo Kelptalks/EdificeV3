@@ -27,11 +27,11 @@ impl PlantType {
       #####################*/
     fn generate_leaves(cords: [i32; 3]) -> Vec<WorldEvent> {
         vec![
-            WorldEvent::ModBlock([cords[0] - 1, cords[1], cords[2]], BlockTexture::Leaves),
-            WorldEvent::ModBlock([cords[0] + 1, cords[1], cords[2]], BlockTexture::Leaves),
-            WorldEvent::ModBlock([cords[0], cords[1] - 1, cords[2]], BlockTexture::Leaves),
-            WorldEvent::ModBlock([cords[0], cords[1] + 1, cords[2]], BlockTexture::Leaves),
-            WorldEvent::ModBlock([cords[0], cords[1], cords[2] + 1], BlockTexture::Leaves),
+            WorldEvent::ReplaceBlock([cords[0] - 1, cords[1], cords[2]], BlockTexture::Leaves),
+            WorldEvent::ReplaceBlock([cords[0] + 1, cords[1], cords[2]], BlockTexture::Leaves),
+            WorldEvent::ReplaceBlock([cords[0], cords[1] - 1, cords[2]], BlockTexture::Leaves),
+            WorldEvent::ReplaceBlock([cords[0], cords[1] + 1, cords[2]], BlockTexture::Leaves),
+            WorldEvent::ReplaceBlock([cords[0], cords[1], cords[2] + 1], BlockTexture::Leaves),
         ]
     }
 
@@ -64,7 +64,7 @@ impl PlantType {
                 cords[1] + (y_branch_direction_mod * i),
                 cords[2]
             ];
-            events.push(WorldEvent::ModBlock(current_cords, BlockTexture::Leaves));
+            events.push(WorldEvent::ReplaceBlock(current_cords, BlockTexture::Leaves));
             if i == branch_length {
                 events.extend(Self::generate_leaves(current_cords));
             }
@@ -93,7 +93,7 @@ impl PlantType {
             let mut trunk_cor = cords;
             trunk_cor[2] += z;
 
-            events.push(WorldEvent::ModBlock(trunk_cor, block_type));
+            events.push(WorldEvent::ReplaceBlock(trunk_cor, block_type));
             if z == tree_height {
                 trunk_cor[2] += 1;
                 events.extend(Self::generate_leaves(trunk_cor));
@@ -125,7 +125,7 @@ impl PlantType {
                 for y in -stem_radius..stem_radius {
                     let distance = ((x * x + y * y) as f64).sqrt();
                     if distance < stem_radius as f64 {
-                        events.push(WorldEvent::ModBlock(
+                        events.push(WorldEvent::ReplaceBlock(
                             [cords[0] + x, cords[1] + y, cords[2] + z],
                             BlockTexture::MushroomStem,
                         ));
@@ -150,7 +150,7 @@ impl PlantType {
                 for y in -top_radius..top_radius {
                     let distance = ((x * x + y * y) as f64).sqrt();
                     if distance < top_radius as f64 {
-                        events.push(WorldEvent::ModBlock(
+                        events.push(WorldEvent::ReplaceBlock(
                             [cords[0] + x, cords[1] + y, cords[2] + z_mod + height],
                             block_type,
                         ));
@@ -176,7 +176,7 @@ impl PlantType {
                 for y in -stem_radius..stem_radius {
                     let distance = ((x * x + y * y) as f64).sqrt();
                     if distance < stem_radius as f64 {
-                        events.push(WorldEvent::ModBlock(
+                        events.push(WorldEvent::ReplaceBlock(
                             [cords[0] + x, cords[1] + y, cords[2] + z],
                             BlockTexture::DandiStem,
                         ));
@@ -202,7 +202,7 @@ impl PlantType {
                     if distance_sq <= puff_radius * puff_radius {
                         // 80% chance to place a block (creating a fluffy appearance)
                         if rng.gen_range(0..5) != 0 {
-                            events.push(WorldEvent::ModBlock(
+                            events.push(WorldEvent::ReplaceBlock(
                                 [cords[0] + x, cords[1] + y, cords[2] + z + puff_top],
                                 BlockTexture::PinkCloud,
                             ));
@@ -328,7 +328,7 @@ impl GrassGenManager {
 
         for item in &self.ground_items {
             if roll < item.weight {
-                events.push(WorldEvent::ModBlock(cords, item.block_type));
+                events.push(WorldEvent::ReplaceBlock(cords, item.block_type));
                 return events;
             }
             roll -= item.weight;

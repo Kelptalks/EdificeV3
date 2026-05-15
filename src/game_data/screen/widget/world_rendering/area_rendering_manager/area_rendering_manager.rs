@@ -35,7 +35,7 @@ impl AreaRenderingManager {
         self.area_to_render = world_area;
     }
 
-    pub fn get_casted_tile_rays(&mut self, world: &World, lair_block_mods: &Vec<LairBlockMod>) -> Vec<CastedTile> {
+    pub fn get_casted_tile_rays(&mut self, world: World, lair_block_mods: &Vec<LairBlockMod>) -> Vec<CastedTile> {
   
                   
         // Create an expanded world area for calculating ray start cords
@@ -86,8 +86,8 @@ impl AreaRenderingManager {
                     s.spawn(|| {
                         chunk.iter().map(|(world_cords, local_cords)| {
                             let mut tile_ray = CastedTile::new(*world_cords, *local_cords);
-                            tile_ray.cast(world, &ray_casting_config);
-                            tile_ray.cast_shadows(world, &ray_casting_config);
+                            tile_ray.cast(&world, &ray_casting_config);
+                            tile_ray.cast_shadows(&world, &ray_casting_config);
                             tile_ray
                         }).collect::<Vec<_>>()
                     })

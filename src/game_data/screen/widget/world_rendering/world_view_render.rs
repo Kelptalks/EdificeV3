@@ -3,7 +3,7 @@ use std::{cell::RefCell, collections::HashMap, ops::Index, rc::Rc, time::{Instan
 
 use crate::game_data::{
     TextureManager, player_data::{cursor::cursor::Cursor, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction}, player_data::PlayerData}, screen::{
-        ScreenData, iso_cord_tool, widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_triangle::CastedTriangle}, tile_map::TileMapId, tile_map_manager::{TileMapEvent, TileMapManager}, view_mode::ViewMode}}
+        ScreenData, iso_cord_tool, widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_triangle::CastedTriangle}, tile_map::TileMapId, tile_map_manager::{self, TileMapEvent, TileMapManager}, view_mode::ViewMode}}
     }, texture_manager::texture::Texture, types::BlockTexture, world::world::WorldEvent
 };
 
@@ -347,22 +347,16 @@ impl PlayWorldViewRender {
 
         texture_manager.update_expander_cache(self.ndc_block_scale);
         
-        // Use personal tile map
-        if ((cursor.get_zoom() as usize) * 2) < 32 {
-            if let Some(tile_map) =  self.tile_map_manager.get_mut_tile_map(self.tile_map_id) {
-                let world_area = cursor.get_rendering_area();
-                tile_map.set_world_area(world_area);
-                tile_map.clean(&world, texture_manager);
-            }
-            self.tile_map_manager.render_tile_map(self.tile_map_id, texture_manager);
-        }
-        else {
-            world.render_world(texture_manager, &mut self.tile_map_manager);
-            
-        }
         
+        
+        world.render_world(texture_manager, &mut self.tile_map_manager);
         
 
+        // Use personal tile map
+        if ((cursor.get_zoom() as usize) * 2) < 32 {
+            self.tile_map_manager.render_area(texture_manager, cursor.get_cords(), 10);
+        }
+        
 
         // Debug Data
         let chunk_debug_data = world.get_chunk_debug_data(cursor.get_cords());

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, World, game_event_manager::{self, event_manager::{self, Event, EventManager}, game_event_manager::GameEvent, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{iso_cord_tool, widget::world_rendering::{area_rendering_manager::ray_caster::casted_tile::CastedTile, tile_map::{self, TileMap, TileMapId}}}, texture_manager::{self, texture::Texture}};
+use crate::game_data::{TextureManager, World, game_event_manager::{self, event_manager::{self, Event, EventManager}, game_event_manager::GameEvent, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{iso_cord_tool, widget::world_rendering::{area_rendering_manager::{ray_caster::casted_tile::CastedTile, raycast_thread_pool::RayCastingThreadPool}, tile_map::{self, TileMap, TileMapId}}}, texture_manager::{self, texture::Texture}};
 
 
 pub struct TileMapManager {
@@ -13,6 +13,8 @@ pub struct TileMapManager {
     lairs_to_flatten: Vec<TileMapId>,
     
     flattened_lair: HashMap<[i32; 2], Vec<TileMapId>>,
+
+    ray_casting_thread_pool: RayCastingThreadPool,
 }
 
 impl TileMapManager {
@@ -27,6 +29,8 @@ impl TileMapManager {
 
             lairs_to_flatten: Vec::new(),
             flattened_lair: HashMap::new(),
+
+            ray_casting_thread_pool: RayCastingThreadPool::new(),
         }
     }
 
@@ -60,15 +64,28 @@ impl TileMapManager {
         let new_map = TileMap::new();
         let id = new_map.id;
 
+        self.dirty_maps.push(id);
         self.map_lairs.insert(new_map.id, new_map);
 
         id
     }
     
-    pub fn get_tile_with_flattened_cords(&mut self, tile_key: &[i32; 2]) -> Option<CastedTile> {
-
+    pub fn get_first_flattened_tile(&mut self, tile_key: &[i32; 2]) -> Option<&CastedTile> {
+        if let Some(lairs_at_cords) = &mut self.flattened_lair.get_mut(tile_key).cloned() {
+            for lair_id in lairs_at_cords {
+                if let Some(tile_map) = self.get_tile_map(*lair_id) {
+                    if let Some(lair_tile) = tile_map.get_tile_with_tile_key(tile_key) {
+                        
+                    }
+                }
+            }
+        }
         
+        None
+        
+    }
 
+    pub fn get_tile_with_flattened_cords(&mut self, tile_key: &[i32; 2]) -> Option<CastedTile> {
         if let Some(lairs_at_cords) = &mut self.flattened_lair.get_mut(tile_key).cloned() {
             // Remove dead lairs in-place, no extra Vec needed
             lairs_at_cords.retain(|id| self.map_lairs.contains_key(id));
@@ -116,7 +133,6 @@ impl TileMapManager {
             return option_current_tile;
         }
         None   
-        
     }
 
     //=====================================
@@ -124,13 +140,17 @@ impl TileMapManager {
     //=====================================
 
     pub fn dirty_id(&mut self, id: &TileMapId) {
-        self.dirty_maps.push(*id);
+        if let Some(map) = self.get_tile_map(*id) {
+            if map.is_clean() {
+                self.dirty_maps.push(*id);
+            }
+        }
     }
 
     pub fn clean(&mut self, texture_manager: &mut TextureManager, world: &World) {
         if let Some(id) = self.dirty_maps.pop() {
             if let Some(tile_map) = self.map_lairs.get_mut(&id) {
-                if !tile_map.clean(world, texture_manager) {
+                if !tile_map.clean(world, texture_manager, &mut self.ray_casting_thread_pool) {
                     self.dirty_maps.push(id);
                 }
                 else {
@@ -164,6 +184,26 @@ impl TileMapManager {
     //=====================================
     // Entity
     //=====================================
+
+    pub fn render_area(&mut self, texture_manager: &mut TextureManager, world_cords: [i32; 3], range: i32) {
+        let flattened_cords = iso_cord_tool::world_cords_to_tile_cords(world_cords);
+
+        let draw_scale = self.draw_block_scale;
+        let draw_offset = self.draw_offset;
+
+        for x in -range..range {
+            for y in -range..range {
+                let cords = [
+                    flattened_cords[0] + x,
+                    flattened_cords[1] + y
+                ];
+
+                if let Some(tile) = self.get_tile_with_flattened_cords(&cords) {
+                    tile.render(texture_manager, draw_scale, draw_offset);
+                }
+            }
+        }
+    }
 
     pub fn render_enitity_at_world_pos(
         &mut self, 
@@ -244,8 +284,8 @@ impl TileMapManager {
     }
 
     pub fn free_id(&mut self, id: &TileMapId) -> Vec<Event> {
-        if let Some(mut map) = self.map_lairs.remove(id) {
-            map.free()
+        if let Some(map) = self.map_lairs.remove(id) {
+            map.free(&mut self.ray_casting_thread_pool)
         }
         else {
             Vec::new()
@@ -281,6 +321,12 @@ impl TileMapEvent {
                 return tile_map_manager.free_id(tile_map_id)
             },
             TileMapEvent::DirtyTileMap(tile_map_id) => {
+                let stale_task = tile_map_manager.map_lairs
+                    .get_mut(tile_map_id)
+                    .and_then(|tm| tm.ray_casting_task_id.take());
+                if let Some(task_id) = stale_task {
+                    tile_map_manager.ray_casting_thread_pool.cancel_task(task_id);
+                }
                 if let Some(tile_map) = tile_map_manager.get_mut_tile_map(*tile_map_id) {
                     tile_map.ray_casting_dirty = true;
                     tile_map.cashed_texture_dirty = true;

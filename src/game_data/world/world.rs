@@ -5,6 +5,7 @@ use mlua::Chunk;
 
 use crate::game_data::chunk_manager::chunk_manager::{WorldChunkManager, WorldChunkType};
 use crate::game_data::chunk_manager::world_chunk::{LoadedWorldChunk, WorldChunkEvent};
+use crate::game_data::locations::world_area::WorldArea;
 use crate::game_data::game_event_manager::event_manager::{self, Event, EventManager};
 use crate::game_data::game_event_manager::game_event_manager::{GameEvent, GameEventManager};
 use crate::game_data::game_event_manager::render_event_manager::render_event_manager::RenderEvent;
@@ -149,6 +150,20 @@ impl World {
         BlockTexture::from_id(self.get_world_value(cords))
     }
 
+    pub fn world_snapshot(&self, world_area: WorldArea) -> World {
+        let mut snapshot = World::new();
+        for chunk_type in self.world_chunk_manager.chunks.values() {
+            if let WorldChunkType::Loaded(chunk) = chunk_type {
+                if chunk.overlaps_world_area(&world_area) {
+                    let mut new_chunk = LoadedWorldChunk::new(chunk.get_cords());
+                    new_chunk.set_block_data(chunk.clone_block_data());
+                    snapshot.world_chunk_manager.add_chunk(new_chunk.wrap_into_chunk_type());
+                }
+            }
+        }
+        snapshot
+    }
+
 
     pub fn get_game_entity(&self, cords : [i32; 3]) -> Option<GameEntityId> {
         let chunk_cords = Self::world_cords_to_chunk_cords(cords);
@@ -255,6 +270,8 @@ pub enum WorldEvent {
 
     // Modifcation
     ModBlock([i32; 3], BlockTexture),                                   // Params: (Block Cords, Block Type) | Modify a block in the world
+    ReplaceBlock([i32; 3], BlockTexture),                               // Only sets block if it is currently air (0)
+    FillChunk([i16; 3], BlockTexture),                                  // Fill entire chunk with one block type
     AddGameEntity([i32; 3], GameEntityId),
 }
 
@@ -284,7 +301,7 @@ impl WorldEvent {
                 }
             }
             WorldEvent::LoadChunk(cords) => {
-                world.world_chunk_manager.set_chunk_load_time(&cords, 100);
+                world.world_chunk_manager.set_chunk_load_time(&cords, 1);
             },
             WorldEvent::SetChunkLoadTime(cords, time) => {
                 
@@ -293,6 +310,18 @@ impl WorldEvent {
             WorldEvent::ModBlock(cords, block_type) => {
                 world.set_world_value( block_type.id_as_u16(), cords);
                 event_manager.add_render_event(RenderEvent::ReRenderBlock(cords));
+            }
+            WorldEvent::ReplaceBlock(cords, block_type) => {
+                if world.get_world_value(cords) == 0 {
+                    world.set_world_value(block_type.id_as_u16(), cords);
+                    event_manager.add_render_event(RenderEvent::ReRenderBlock(cords));
+                }
+            }
+            WorldEvent::FillChunk(chunk_cords, block_type) => {
+                if let Some(chunk) = world.world_chunk_manager.get_mut_loaded_chunk(chunk_cords) {
+                    chunk.fill(block_type.id_as_u16());
+                    chunk.dirty = true;
+                }
             }
             WorldEvent::AddGameEntity(world_cords, game_entity_id) => {
                 let chunk_cords = World::world_cords_to_chunk_cords(world_cords);

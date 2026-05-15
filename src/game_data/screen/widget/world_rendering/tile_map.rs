@@ -1,6 +1,6 @@
 use std::{cmp::max, collections::{HashMap, hash_map}};
 
-use crate::game_data::{TextureManager, World, game_event_manager::{event_manager::Event, render_event_manager::texture_manager_event::TextureManagerEvent}, locations::world_area::WorldArea, screen::{iso_cord_tool, widget::world_rendering::area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_tile::CastedTile}}, texture_manager::{texture::Texture, texture_cashe::texture_cashe::CashedTextureID}};
+use crate::game_data::{TextureManager, World, game_event_manager::{event_manager::Event, render_event_manager::texture_manager_event::TextureManagerEvent}, locations::world_area::WorldArea, screen::{iso_cord_tool, widget::world_rendering::area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_tile::CastedTile, raycast_thread_pool::{RayCastingTaskId, RayCastingThreadPool}}}, texture_manager::{texture::Texture, texture_cashe::texture_cashe::CashedTextureID}};
 
 
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -25,13 +25,14 @@ pub struct TileMap {
     pub id: TileMapId,
     pub map: HashMap<[i32; 2], CastedTile>,
 
-    min_depth: i32, // Used to convert world cords to map index
-    max_depth: i32,
+    pub depth: i32, // Used to convert world cords to map index
     
     min_key: [i32; 2],
     max_key: [i32; 2],
 
     pub ray_casting_dirty: bool,
+    pub ray_casting_task_id: Option<RayCastingTaskId>,
+
     pub cashed_texture_dirty: bool,
     pub cashe_texture: bool,
 
@@ -47,13 +48,14 @@ impl TileMap {
             id: TileMapId::get_next_id(),
             map: HashMap::new(),
 
-            min_depth: 0,
-            max_depth: 0,
+            depth: 0,
             
             min_key: [0; 2],
             max_key: [0; 2],
 
             ray_casting_dirty: true,
+            ray_casting_task_id: None,
+
             cashed_texture_dirty: true,
             cashe_texture: true,
 
@@ -64,8 +66,7 @@ impl TileMap {
     
     pub fn set_world_area(&mut self, world_area: WorldArea) {
         self.world_area = Some(world_area);
-        self.ray_casting_dirty = true;
-        self.cashed_texture_dirty = true;
+        self.depth = iso_cord_tool::get_depth_from_world_cords(world_area.get_center_world_cords());
     }
 
     //=====================================
@@ -85,10 +86,6 @@ impl TileMap {
             self.min_key = flattened_iso_cords;
             self.max_key = flattened_iso_cords;
             
-            if let Some(depth) = tile.get_triangles_depths().iter().max() {
-                self.min_depth = *depth;
-                self.max_depth = *depth;
-            }
         }
         else {
             self.max_key[0] = self.max_key[0].max(flattened_iso_cords[0]);
@@ -121,33 +118,43 @@ impl TileMap {
     //=====================================
 
 
-    pub fn ray_cast_world_area(&mut self, world: &World) {
-        self.map.clear();
+    pub fn start_ray_casting(&mut self, world: &World, thread_pool: &mut RayCastingThreadPool) {
         if let Some(world_area) = self.world_area {
-            
-            let mut area_rendering_manager = AreaRenderingManager::new();
-            area_rendering_manager.set_world_area(world_area);
-
-            // Implement when chunks record game objects contained within them
             let lair_block_mods: Vec<LairBlockMod> = Vec::new();
-
-            let tiles = area_rendering_manager.get_casted_tile_rays(world, &lair_block_mods);
-            for tile in tiles {
-                
-                
-                let world_cords = tile.get_world_cords();
-                self.incert_tile_with_area_cords(world_cords, tile);
-                
-            }
-            self.ray_casting_dirty = false;
+            let world_snapshot = world.world_snapshot(world_area);
+            self.ray_casting_task_id = Some(thread_pool.submit(world_area, lair_block_mods, world_snapshot));
         }
     }
 
-    pub fn clean(&mut self, world: &World, texture_manager: &mut TextureManager) -> bool {
+    pub fn is_clean(&self) -> bool {
         if self.ray_casting_dirty {
-            self.ray_cast_world_area(world);
+            false
         }
-        if self.cashed_texture_dirty && self.cashe_texture {
+        else if self.cashed_texture_dirty && self.cashe_texture {
+            false
+        }
+        else {
+            true
+        }
+    }
+
+    pub fn clean(&mut self, world: &World, texture_manager: &mut TextureManager, thread_pool: &mut RayCastingThreadPool) -> bool {
+        if self.ray_casting_dirty {
+            if let Some(task_id) = self.ray_casting_task_id {
+                if let Some(map) = thread_pool.get_task_map(task_id) {
+                    self.map = map;
+                    self.ray_casting_dirty = false;
+                    self.ray_casting_task_id = None;
+                }
+            }
+            else {
+                self.start_ray_casting(world, thread_pool);
+            }
+            
+
+
+        }
+        if !self.ray_casting_dirty && self.cashed_texture_dirty && self.cashe_texture {
             if let Some(world_area) = self.world_area {
                 let center_world = world_area.get_center_world_cords();
                 let iso_center = iso_cord_tool::flatten_world_cords(center_world);
@@ -232,7 +239,10 @@ impl TileMap {
     // 
     //=====================================
 
-    pub fn free(self) -> Vec<Event> {
+    pub fn free(self, thread_pool: &mut RayCastingThreadPool) -> Vec<Event> {
+        if let Some(task_id) = self.ray_casting_task_id {
+            thread_pool.cancel_task(task_id);
+        }
         if let Some(id) = self.cashed_texture_id {
             vec![TextureManagerEvent::FreeCashedTexture(id).wrap_into_event()]
         }

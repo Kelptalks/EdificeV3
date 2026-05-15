@@ -28,7 +28,8 @@
       "Bash(Remove-Item *)",
       "Bash(Get-ChildItem *)",
       "Bash(git rm *)",
-      "Bash(Select-String \"error\")"
+      "Bash(Select-String \"error\")",
+      "Bash(Select-Object Name)"
     ]
   }
 }

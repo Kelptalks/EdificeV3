@@ -1,5 +1,7 @@
 use crate::game_data::{locations::world_area::WorldArea, types::BlockTexture, world::world::WorldEvent, world_gen::terrain_gen::{grass_gen::GrassGenManager, perlin_noise::TerrainNoise}};
 
+const CHUNK_SIZE: i32 = 16;
+
 struct LayerRule {
     main_block_type: BlockTexture,
     start_z: i32,
@@ -94,6 +96,61 @@ impl WorldGenManager {
     // Terrain Generation
     //=====================================
 
+    // Returns Some(block) if every block in the area would be the same type (None = all air).
+    // Returns None if the area is non-uniform and needs per-block generation.
+    // Only checks min and max z per column — sufficient because layer ranges are contiguous.
+    fn try_uniform_block(&self, area: &WorldArea, terrain_noise: &TerrainNoise, terrain_height: f32) -> Option<Option<BlockTexture>> {
+        let start = area.get_point_1_cords();
+        let end = area.get_point_2_cords();
+
+        let mut uniform: Option<Option<BlockTexture>> = None;
+
+        for x in start[0]..=end[0] {
+            for y in start[1]..=end[1] {
+                let z_mod = terrain_noise.get_normalized(x as f32, y as f32) * terrain_height;
+                let surface_z = (-z_mod) as i32;
+
+                // Surface passes through chunk — terrain transition, not uniform
+                if surface_z >= start[2] && surface_z <= end[2] {
+                    return None;
+                }
+
+                // Water zone overlaps chunk — mixed content
+                if surface_z < WATER_LEVEL {
+                    let water_start = (surface_z + 1).max(start[2]);
+                    let water_end = WATER_LEVEL.min(end[2]);
+                    if water_start <= water_end {
+                        return None;
+                    }
+                }
+
+                let layer_z_min = (start[2] as f32 + z_mod).floor() as i32;
+                let layer_z_max = (end[2] as f32 + z_mod).floor() as i32;
+
+                let block_min = self.layer_manager.get_block_at_layer_z(layer_z_min);
+                let block_max = self.layer_manager.get_block_at_layer_z(layer_z_max);
+
+                // Column spans two different layers
+                if block_min != block_max {
+                    return None;
+                }
+
+                // Grass surface would be in this column — vegetation makes it non-uniform
+                if block_min == Some(BlockTexture::Grass) {
+                    return None;
+                }
+
+                match &uniform {
+                    None => uniform = Some(block_min),
+                    Some(prev) if *prev != block_min => return None,
+                    _ => {}
+                }
+            }
+        }
+
+        uniform
+    }
+
     pub fn generate_area(&self, area: WorldArea) -> Vec<WorldEvent> {
         let mut events = Vec::new();
 
@@ -102,6 +159,21 @@ impl WorldGenManager {
 
         let terrain_height = 100.0;
         let terrain_noise = TerrainNoise::new(152452, 4, 500.0);
+
+        // Fast path: entire chunk is one block type
+        match self.try_uniform_block(&area, &terrain_noise, terrain_height) {
+            Some(None) => return Vec::new(), // All air — chunk default is already 0
+            Some(Some(block)) => {
+                let chunk_cords = [
+                    start_cords[0].div_euclid(CHUNK_SIZE) as i16,
+                    start_cords[1].div_euclid(CHUNK_SIZE) as i16,
+                    start_cords[2].div_euclid(CHUNK_SIZE) as i16,
+                ];
+                return vec![WorldEvent::FillChunk(chunk_cords, block)];
+            }
+            None => {} // Non-uniform, fall through to per-block generation
+        }
+
         let mut grass_gen_manager = GrassGenManager::new();
 
         for x in start_cords[0]..=end_cords[0] {
@@ -112,7 +184,7 @@ impl WorldGenManager {
 
                 for z in start_cords[2]..=end_cords[2] {
                     // Convert world z to layer z to determine which block goes here
-                    let layer_z = (z as f32 + z_mod) as i32;
+                    let layer_z = (z as f32 + z_mod).floor() as i32;
 
                     if let Some(block_type) = self.layer_manager.get_block_at_layer_z(layer_z) {
                         if block_type == BlockTexture::Grass {

@@ -35,7 +35,7 @@ impl LoadedWorldChunk {
     {
         let depth = chunk_cords[0] + chunk_cords[1] + chunk_cords[2];
         Self {
-            time_till_unload: 50,
+            time_till_unload: 1,
 
             cords : chunk_cords,
             block_data : Box::new([0; CHUNK_VOLUME]),
@@ -108,6 +108,26 @@ impl LoadedWorldChunk {
     // Block Managment
     //=====================================
 
+    pub fn clone_block_data(&self) -> Box<[u16; CHUNK_VOLUME]> {
+        self.block_data.clone()
+    }
+
+    pub fn overlaps_world_area(&self, world_area: &WorldArea) -> bool {
+        let area_min = world_area.get_min_point().cords;
+        let area_max = world_area.get_max_point().cords;
+        let chunk_min = [
+            self.cords[0] as i32 * CHUNK_SIZE_I32,
+            self.cords[1] as i32 * CHUNK_SIZE_I32,
+            self.cords[2] as i32 * CHUNK_SIZE_I32,
+        ];
+        let chunk_max = [
+            chunk_min[0] + CHUNK_SIZE_I32 - 1,
+            chunk_min[1] + CHUNK_SIZE_I32 - 1,
+            chunk_min[2] + CHUNK_SIZE_I32 - 1,
+        ];
+        (0..3).all(|i| chunk_min[i] <= area_max[i] && chunk_max[i] >= area_min[i])
+    }
+
     // Convert the cords to index
     pub fn cords_to_index(cords :[usize; 3]) -> usize
     {
@@ -178,7 +198,6 @@ impl LoadedWorldChunk {
     ) {
         let block_scale = tile_map_manager.get_block_scale();
         let draw_offset = tile_map_manager.get_draw_offset();
-        
         
         if self.dirty && self.terrain_generated {
             self.clean(tile_map_manager);
