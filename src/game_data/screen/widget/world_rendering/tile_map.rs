@@ -165,6 +165,8 @@ impl TileMap {
                 let block_scale = 1.0 / iso_extent;
 
                 if let Some(cashed_texture_id) = self.cashed_texture_id {
+                    texture_manager.get_mut_texture_cashe().clear_cashed_texture(cashed_texture_id);
+                    
                     for (key, tile) in self.map.iter() {
                         let offset_iso_cords = [
                             key[0] as f32 - iso_center_f[0],
@@ -226,6 +228,72 @@ impl TileMap {
         }
         else {
             self.render_tiles(texture_manager, draw_block_scale, draw_offset);
+        }
+    }
+
+    pub fn render_enitity_at_world_pos(
+        &mut self, 
+        texture_manager: &mut TextureManager, 
+        world_pos: [f32; 3], 
+        texture: Texture,
+
+        draw_block_scale: f32,
+        draw_offset: [f32; 2]
+    ) {
+
+        let mut draw_cords = iso_cord_tool::world_pos_to_ndc_cords(draw_block_scale, world_pos);
+
+        draw_cords[0] += draw_offset[0];
+        draw_cords[1] += draw_offset[1];
+
+        // Scale to size of block
+        let draw_pos = [
+            draw_cords[0] - draw_block_scale, 
+            draw_cords[1] - draw_block_scale,
+            draw_cords[0] + draw_block_scale, 
+            draw_cords[1] + draw_block_scale,
+        ];
+        
+        texture_manager.render_texture(texture, draw_pos);
+
+        let sprite_depth = iso_cord_tool::get_depth_from_world_cords(iso_cord_tool::world_pos_to_world_cords(world_pos));
+        let flattened_cords = iso_cord_tool::world_pos_to_tile_cords(world_pos);
+
+        for x in -3..=3 {
+            for y in -3..=3 {
+                let cords = [
+                    flattened_cords[0] + x,
+                    flattened_cords[1] + y,
+                ];
+                let tile = self.get_tile_with_tile_key(&cords);
+
+                if let Some(tile) = tile {
+                    let left_tile_world_cords = tile.get_left_triangle().get_solid_block_struck_cords();
+                    let left_tile_depth = iso_cord_tool::get_depth_from_world_cords(left_tile_world_cords);
+                    let re_render_left = left_tile_depth > sprite_depth;
+
+
+                    let right_tile_world_cords = tile.get_right_triangle().get_solid_block_struck_cords();
+                    let right_tile_depth = iso_cord_tool::get_depth_from_world_cords(right_tile_world_cords);
+                    let re_render_right = right_tile_depth > sprite_depth;
+
+
+                    if re_render_left {
+                        tile.render_left_triangle(
+                            texture_manager,
+                            draw_block_scale,
+                            draw_offset
+                        );
+                    }
+                    if re_render_right {
+                        tile.render_right_triangle(
+                            texture_manager,
+                            draw_block_scale,
+                            draw_offset
+                        );
+                    }
+                }
+            }
         }
     }
 

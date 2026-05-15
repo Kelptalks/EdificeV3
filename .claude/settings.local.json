@@ -29,7 +29,8 @@
       "Bash(Get-ChildItem *)",
       "Bash(git rm *)",
       "Bash(Select-String \"error\")",
-      "Bash(Select-Object Name)"
+      "Bash(Select-Object Name)",
+      "Bash(Sort-Object FullName)"
     ]
   }
 }

@@ -9,7 +9,7 @@ use crate::game_data::locations::world_area::WorldArea;
 use crate::game_data::game_event_manager::event_manager::{self, Event, EventManager};
 use crate::game_data::game_event_manager::game_event_manager::{GameEvent, GameEventManager};
 use crate::game_data::game_event_manager::render_event_manager::render_event_manager::RenderEvent;
-use crate::game_data::player_data::game_entity::game_entity_manager::{GameEntity, GameEntityId};
+use crate::game_data::player_data::game_entity::{dynamic_entity_manager::dynamic_entity_manager::DynamicEntityId, game_entity_manager::{GameEntity, GameEntityId}};
 use crate::game_data::player_data::player_data::PlayerData;
 use crate::game_data::tik_manager::game_time::GameTime;
 use crate::game_data::types::BlockTexture;
@@ -165,12 +165,11 @@ impl World {
     }
 
 
-    pub fn get_game_entity(&self, cords : [i32; 3]) -> Option<GameEntityId> {
+    pub fn get_block_entity(&self, cords: [i32; 3]) -> Option<GameEntityId> {
         let chunk_cords = Self::world_cords_to_chunk_cords(cords);
         if let Some(chunk) = self.world_chunk_manager.get_loaded_chunk(chunk_cords) {
-            chunk.game_entities.get(&cords).cloned()
-        }
-        else {
+            chunk.block_entities.get(&cords).cloned()
+        } else {
             None
         }
     }
@@ -209,6 +208,7 @@ impl World {
 
     pub fn render_world(
         &mut self, 
+        player_data: &PlayerData,
         texture_manager: &mut TextureManager, 
         tile_map_manager: &mut TileMapManager, 
     ) {
@@ -222,7 +222,7 @@ impl World {
 
         for loaded_chunk_key in loaded_chunks {
             if let Some(WorldChunkType::Loaded(loaded_chunk)) = self.world_chunk_manager.chunks.get_mut(&loaded_chunk_key) {
-                loaded_chunk.render(texture_manager, tile_map_manager);
+                loaded_chunk.render(player_data, texture_manager, tile_map_manager);
             }
         }
     }
@@ -233,7 +233,8 @@ impl World {
         if let Some(chunk) = self.world_chunk_manager.get_loaded_chunk(chunk_cords) {
             data.push(format!("Chunk Cords: ({:?})", chunk.get_cords()));
             data.push(format!("Chunk Dirty: {}", chunk.dirty         ));
-            data.push(format!("Game Objcets: {}", chunk.game_entities.len()));
+            data.push(format!("Block Entities: {}", chunk.block_entities.len()));
+            data.push(format!("Dynamic Entities: {}", chunk.dynamic_entities.len()));
             data.push(format!("Time till unload: {}", chunk.time_till_unload));
             
         }
@@ -272,7 +273,15 @@ pub enum WorldEvent {
     ModBlock([i32; 3], BlockTexture),                                   // Params: (Block Cords, Block Type) | Modify a block in the world
     ReplaceBlock([i32; 3], BlockTexture),                               // Only sets block if it is currently air (0)
     FillChunk([i16; 3], BlockTexture),                                  // Fill entire chunk with one block type
+                                  
+    // Block entities (grid-anchored, one per cell)
     AddGameEntity([i32; 3], GameEntityId),
+    RemoveGameEntity([i32; 3]),
+
+    // Dynamic entities (free-floating, many per chunk)
+    AddDynamicEntity([i16; 3], DynamicEntityId),
+    RemoveDynamicEntity([i16; 3], DynamicEntityId),
+
 }
 
 impl WorldEvent {
@@ -306,7 +315,6 @@ impl WorldEvent {
             WorldEvent::SetChunkLoadTime(cords, time) => {
                 
             }
-
             WorldEvent::ModBlock(cords, block_type) => {
                 world.set_world_value( block_type.id_as_u16(), cords);
                 event_manager.add_render_event(RenderEvent::ReRenderBlock(cords));
@@ -326,10 +334,25 @@ impl WorldEvent {
             WorldEvent::AddGameEntity(world_cords, game_entity_id) => {
                 let chunk_cords = World::world_cords_to_chunk_cords(world_cords);
                 if let Some(chunk) = world.world_chunk_manager.get_mut_loaded_chunk(chunk_cords) {
-                    chunk.game_entities.insert(world_cords, game_entity_id);
+                    chunk.block_entities.insert(world_cords, game_entity_id);
                 }
             },
-            
+            WorldEvent::RemoveGameEntity(world_cords) => {
+                let chunk_cords = World::world_cords_to_chunk_cords(world_cords);
+                if let Some(chunk) = world.world_chunk_manager.get_mut_loaded_chunk(chunk_cords) {
+                    chunk.block_entities.remove(&world_cords);
+                }
+            },
+            WorldEvent::AddDynamicEntity(chunk_cords, entity_id) => {
+                if let Some(chunk) = world.world_chunk_manager.get_mut_loaded_chunk(chunk_cords) {
+                    chunk.dynamic_entities.insert(entity_id);
+                }
+            },
+            WorldEvent::RemoveDynamicEntity(chunk_cords, entity_id) => {
+                if let Some(chunk) = world.world_chunk_manager.get_mut_loaded_chunk(chunk_cords) {
+                    chunk.dynamic_entities.remove(&entity_id);
+                }
+            },
         }
     }
 }

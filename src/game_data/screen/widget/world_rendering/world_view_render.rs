@@ -349,13 +349,15 @@ impl PlayWorldViewRender {
         
         
         
-        world.render_world(texture_manager, &mut self.tile_map_manager);
+        world.render_world(player_data, texture_manager, &mut self.tile_map_manager);
         
 
         // Use personal tile map
+        /*
         if ((cursor.get_zoom() as usize) * 2) < 32 {
             self.tile_map_manager.render_area(texture_manager, cursor.get_cords(), 10);
         }
+         */
         
 
         // Debug Data
@@ -450,7 +452,7 @@ impl Widget for PlayWorldViewRender {
                         let mut object = None;
                         match world_ref {
                             Ok(world) => {
-                                object = world.get_game_entity(object_cords);
+                                object = world.get_block_entity(object_cords);
                             },
                             Err(_) => todo!(),
                         }
@@ -571,7 +573,7 @@ impl Widget for PlayWorldViewRender {
         let frame_time = format!("Frame Time ({})ms", start.elapsed().as_secs_f32() * 1000.0);
         debug.add_rendering_data(frame_time);
 
-        let total_free_textures = format!("Free Cashed Textures({})", texture_manager.get_texture_cashe().total_free_textures());
+        let total_free_textures = format!("Free Cashed Textures({})", texture_manager.get_mut_texture_cashe().total_free_textures());
         debug.add_rendering_data(total_free_textures);
 
         let entitys_drawn = format!("Entity's Drawn ({})", self.entitys_drawn);

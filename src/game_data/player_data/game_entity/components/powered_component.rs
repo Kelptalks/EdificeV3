@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_entity::{components::entity_components::EntityComponent, game_entity_manager::GameEntityId}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType, widget_calculations::TextSize}, tik_manager::game_time::{GameTime, GameTimeInterval}, types::UITextures};
+use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_entity::{components::entity_components::{EntityComponent, EntityComponentEvent}, game_entity_manager::GameEntityId}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType, widget_calculations::TextSize}, tik_manager::game_time::{GameTime, GameTimeInterval}, types::UITextures};
 
 const DIRECTIONS: [[i32; 3]; 6] = [
     [ 1,  0,  0],
@@ -73,9 +73,9 @@ impl PoweredComponent {
                 self.cords[2] + relative_cords[2],
             ];
 
-            if let Some(entity_id) = world.get_game_entity(cords_to_search) {
+            if let Some(entity_id) = world.get_block_entity(cords_to_search) {
                 if let Some(event) = entity_id.get_component_event(
-                    PoweredComponentEvent::PowerLinkRequest(self.entity_id)
+                    PoweredComponentEvent::PowerLinkRequest(self.entity_id).wrap_into_component_event()
                 ) {
                     event_manager.add_event(event);
                 }
@@ -87,7 +87,7 @@ impl PoweredComponent {
     pub fn handle_power_link_requests(&mut self, event_manager: &mut EventManager) {
         while let Some(power_link_id) = self.power_link_requests.pop() {
             if let Some(event) = power_link_id.get_component_event(
-                PoweredComponentEvent::PowerLinkAccept(self.entity_id)
+                PoweredComponentEvent::PowerLinkAccept(self.entity_id).wrap_into_component_event()
             ) {
                 event_manager.add_event(event);
             }
@@ -107,7 +107,7 @@ impl PoweredComponent {
         // Power Requests
         while let Some((entity_id, amount_requested)) = self.power_requests.pop() {
             if self.power_surplus() > amount_requested as i32 {
-                if let Some(event) = entity_id.get_component_event(PoweredComponentEvent::PowerReceived(amount_requested)) {
+                if let Some(event) = entity_id.get_component_event(PoweredComponentEvent::PowerReceived(amount_requested).wrap_into_component_event()) {
                     event_manager.add_event(event);
                     self.power_stored -= amount_requested;
                 }
@@ -119,7 +119,7 @@ impl PoweredComponent {
             if self.power_surplus() < 0 {
                 let power_to_request = self.power_surplus().abs() as u32;
                 if let Some(event) = power_link.get_component_event(
-                    PoweredComponentEvent::PowerRequest(self.entity_id, power_to_request.min(self.power_throughput))
+                    PoweredComponentEvent::PowerRequest(self.entity_id, power_to_request.min(self.power_throughput)).wrap_into_component_event()
                 ) {
                     event_manager.add_event(event);
                 }
@@ -177,10 +177,10 @@ impl PoweredComponent {
         let button = demand_sub_panel.add_button();
         button.add_texture(UITextures::ModIcon.wrap_into_texture());
         button.set_text("Demand".to_string());
-        if let Some(event) = self.entity_id.get_component_event(PoweredComponentEvent::ModPowerDemand(100)) {
+        if let Some(event) = self.entity_id.get_component_event(PoweredComponentEvent::ModPowerDemand(100).wrap_into_component_event()) {
             button.add_left_click_event(event);
         }
-        if let Some(event) = self.entity_id.get_component_event(PoweredComponentEvent::ModPowerDemand(-100)) {
+        if let Some(event) = self.entity_id.get_component_event(PoweredComponentEvent::ModPowerDemand(-100).wrap_into_component_event()) {
             button.add_right_click_event(event);
         }
 
@@ -202,6 +202,10 @@ pub enum PoweredComponentEvent {
 }
 
 impl PoweredComponentEvent {
+    pub fn wrap_into_component_event(self) -> EntityComponentEvent {
+        EntityComponentEvent::Powered(self)
+    }
+
     pub fn execute(self, powered: &mut PoweredComponent) {
         match self {
             PoweredComponentEvent::PowerLinkRequest(entity_id) => {

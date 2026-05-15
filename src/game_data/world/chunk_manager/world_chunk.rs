@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet, hash_map};
 
-use crate::game_data::{TextureManager, World, chunk_manager::chunk_manager::WorldChunkType, game_event_manager::{event_manager::Event, game_event_manager::GameEventManager}, locations::world_area::WorldArea, player_data::{game_entity::game_entity_manager::GameEntityId, player_data::PlayerData}, screen::{iso_cord_tool, widget::world_rendering::{tile_map::TileMapId, tile_map_manager::{TileMapEvent, TileMapManager}}}, world::world::WorldEvent};
+use crate::game_data::{TextureManager, World, chunk_manager::chunk_manager::WorldChunkType, game_event_manager::{event_manager::Event, game_event_manager::GameEventManager}, locations::world_area::WorldArea, player_data::{game_entity::{dynamic_entity_manager::dynamic_entity_manager::DynamicEntityId, game_entity_manager::{GameEntity, GameEntityId}}, player_data::PlayerData}, screen::{iso_cord_tool, widget::world_rendering::{tile_map::TileMapId, tile_map_manager::{TileMapEvent, TileMapManager}}}, world::world::WorldEvent};
 
 const CHUNK_SIZE: usize = 16;
 const CHUNK_AREA: usize = CHUNK_SIZE * CHUNK_SIZE;
@@ -23,7 +23,8 @@ pub struct LoadedWorldChunk {
     pub tile_map_id: Option<TileMapId>,
 
     // Game objects
-    pub game_entities: HashMap<[i32; 3], GameEntityId>,
+    pub block_entities: HashMap<[i32; 3], GameEntityId>,
+    pub dynamic_entities: HashSet<DynamicEntityId>,
 }
 
 impl LoadedWorldChunk {
@@ -45,7 +46,8 @@ impl LoadedWorldChunk {
             tile_map_id: None,
             depth,
 
-            game_entities: HashMap::new(),
+            block_entities: HashMap::new(),
+            dynamic_entities: HashSet::new(),
         }
     }
 
@@ -193,27 +195,47 @@ impl LoadedWorldChunk {
 
     pub fn render(
         &mut self, 
+        player_data: &PlayerData,
         texture_manager: &mut TextureManager, 
         tile_map_manager: &mut TileMapManager
     ) {
+
+        // Render cashed texture
         let block_scale = tile_map_manager.get_block_scale();
         let draw_offset = tile_map_manager.get_draw_offset();
-        
         if self.dirty && self.terrain_generated {
             self.clean(tile_map_manager);
         }
         else if let Some(id) = self.tile_map_id {
+            
+            
             if let Some(tile_map) = tile_map_manager.get_mut_tile_map(id) {
                 tile_map.render(
                     texture_manager, 
                     block_scale, 
                     draw_offset
                 );
+
+                
+                // Render dynamic entities
+                for entity_id in &self.dynamic_entities {
+                    if let Some(game_entity) = player_data.game_entity_manager.clone_game_entity(entity_id.wrap_into_game_entity_id()) {
+                        if let GameEntity::DynamicEntity(dynamic_entity) = game_entity {
+                            let texture = dynamic_entity.texture();
+                            let pos = dynamic_entity.world_pos();
+                            tile_map.render_enitity_at_world_pos(texture_manager, pos, texture, block_scale, draw_offset);
+                        }
+                    }
+                }
             }
+
+
         }
         else {
             self.tile_map_id = Some(tile_map_manager.new_tile_map());
         }
+        
+
         
     }
 
@@ -223,7 +245,7 @@ impl LoadedWorldChunk {
 
     // Remove game objects that are not contained within the chunk
     pub fn update_game_entities(&mut self, player_data: &PlayerData) {
-        for game_entity in &mut self.game_entities {
+        for _game_entity in &mut self.block_entities {
 
         }
     }

@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::event_manager::{Event, EventManager}, player_data::game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId}, components::{block_component::WorldBlockComponent, entity_components::EntityComponent, powered_component::{PoweredComponent, PoweredComponentEvent}, vision_component::VisionComponent}, game_entity_manager::GameEntity}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType, widget_calculations::TextSize}, tik_manager::game_time::GameTime, tools::id_gen::IdGen, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::event_manager::{Event, EventManager}, player_data::game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId}, components::{block_component::{BlockComponent, BlockComponentEvent}, entity_components::{EntityComponent, EntityComponentEvent}, powered_component::{PoweredComponent, PoweredComponentEvent}, vision_component::VisionComponent}, game_entity_manager::GameEntity}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType, widget_calculations::TextSize}, tik_manager::game_time::GameTime, tools::id_gen::IdGen, types::BlockTexture};
 
 static ID_GEN: IdGen = IdGen::new();
 
@@ -7,7 +7,7 @@ pub struct BlockEntityRadar {
     pub id: u64,
 
     pub vision: VisionComponent,
-    pub block: WorldBlockComponent,
+    pub block: BlockComponent,
     pub powered: PoweredComponent,
 }
 
@@ -20,7 +20,7 @@ impl BlockEntityRadar {
         let id = ID_GEN.new_id();
         let game_entity_id = BlockEntityId::Radar(id).wrap_into_game_entity_id();
 
-        let mut block = WorldBlockComponent::new(BlockTexture::LBM, cords);
+        let mut block = BlockComponent::new(BlockTexture::LBM, cords, game_entity_id);
         block.init(game_entity_id, event_manager);
 
         let vision = VisionComponent::new(cords);
@@ -102,7 +102,7 @@ impl BlockEntityRadar {
 #[derive(Clone)]
 pub enum RadarEvent {
     ModRange([i16; 3]),
-    PoweredComponentEvent(PoweredComponentEvent),
+    ComponentEvent(EntityComponentEvent),
 }
 
 impl RadarEvent {
@@ -117,8 +117,16 @@ impl RadarEvent {
                 let power_needed = radar.vision.chunks_in_view() as u32;
                 radar.powered.power_consume_per_interval = power_needed;
             },
-            RadarEvent::PoweredComponentEvent(powered_component_event) => {
-                powered_component_event.execute(&mut radar.powered);
+            RadarEvent::ComponentEvent(component_event) => {
+                match component_event {
+                    EntityComponentEvent::Powered(powered_component_event) => {
+                        powered_component_event.execute(&mut radar.powered);
+                    },
+                    EntityComponentEvent::Block(_) => {},
+                    EntityComponentEvent::Locomotion(_) => {},
+                    EntityComponentEvent::Pos(_) => {},
+                }
+
             },
         }
     }

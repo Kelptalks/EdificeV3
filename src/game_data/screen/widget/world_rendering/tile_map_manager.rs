@@ -140,10 +140,10 @@ impl TileMapManager {
     //=====================================
 
     pub fn dirty_id(&mut self, id: &TileMapId) {
-        if let Some(map) = self.get_tile_map(*id) {
-            if map.is_clean() {
-                self.dirty_maps.push(*id);
-            }
+        if let Some(map) = self.get_mut_tile_map(*id) {
+            map.cashed_texture_dirty = true;
+            map.ray_casting_dirty = true;
+            self.dirty_maps.push(*id);
         }
     }
 

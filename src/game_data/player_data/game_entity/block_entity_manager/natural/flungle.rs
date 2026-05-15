@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::event_manager::{Event, EventManager}, player_data::game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId}, components::{block_component::WorldBlockComponent, entity_components::EntityComponent}, game_entity_manager::{GameEntity, GameEntityId}}, tik_manager::game_time::GameTime, tools::id_gen::IdGen, types::BlockTexture, world::world::WorldEvent};
+use crate::game_data::{World, game_event_manager::event_manager::{Event, EventManager}, player_data::game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId}, components::{block_component::BlockComponent, entity_components::EntityComponent}, game_entity_manager::{GameEntity, GameEntityId}}, tik_manager::game_time::GameTime, tools::id_gen::IdGen, types::BlockTexture, world::world::WorldEvent};
 
 
 static ID_GEN: IdGen = IdGen::new();
@@ -8,7 +8,7 @@ static ID_GEN: IdGen = IdGen::new();
 pub struct BlockEntityFlungle {
     pub id: u64,
 
-    block: WorldBlockComponent,
+    block: BlockComponent,
 }
 
 impl BlockEntityFlungle {
@@ -20,7 +20,7 @@ impl BlockEntityFlungle {
         let id = ID_GEN.new_id();
         let game_entity_id = BlockEntityId::Flungle(id).wrap_into_game_entity_id();
 
-        let mut block = WorldBlockComponent::new(BlockTexture::Flungle, cords);
+        let mut block = BlockComponent::new(BlockTexture::Flungle, cords, game_entity_id);
         block.init(game_entity_id, event_manager);
 
         BlockEntityFlungle {

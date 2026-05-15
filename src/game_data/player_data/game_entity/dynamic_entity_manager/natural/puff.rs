@@ -1,5 +1,4 @@
-use crate::game_data::{player_data::game_entity::{components::entity_components::EntityComponent, dynamic_entity_manager::dynamic_entity_manager::DynamicEntity, game_entity_manager::GameEntity}, tools::id_gen::IdGen};
-
+use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_entity::{components::{entity_components::EntityComponent, locomotion_component::LocomotionComponent, pos_component::PosComponent}, dynamic_entity_manager::dynamic_entity_manager::{DynamicEntity, DynamicEntityId}, game_entity_manager::{GameEntity, GameEntityId}}, texture_manager::texture::Texture, tik_manager::game_time::GameTime, tools::{direction_tool::AxisDirection, id_gen::IdGen}, types::BlockTexture};
 
 static ID_GEN: IdGen = IdGen::new();
 
@@ -7,25 +6,87 @@ static ID_GEN: IdGen = IdGen::new();
 #[derive(Clone)]
 pub struct DynamicEntityPuff {
     pub id: u64,
+    pub game_id: GameEntityId,
+
+    pos: PosComponent,
+    locomotion: LocomotionComponent,
 }
 
 impl DynamicEntityPuff {
-    
+
     pub fn wrap_into_game_entity(self) -> GameEntity {
         DynamicEntity::Puff(self).wrap_into_game_entity()
     }
-    
-    pub fn new(cords: [i32; 3]) -> DynamicEntityPuff {
+
+    pub fn new(cords: [i32; 3], event_manager: &mut EventManager) -> DynamicEntityPuff {
         let id = ID_GEN.new_id();
-        
+        let game_entity_id = DynamicEntityId::Puff(id).wrap_into_game_entity_id();
+
+        let dynamic_id = DynamicEntityId::Puff(id);
+        let mut pos = PosComponent::new(
+            [cords[0] as f32, cords[1] as f32, cords[2] as f32],
+            BlockTexture::PuffEast,
+            dynamic_id,
+        );
+        pos.init(event_manager);
+
+        let locomotion = LocomotionComponent::new(0.0, 0.01);
 
         DynamicEntityPuff {
-            id
+            id,
+            game_id: game_entity_id,
+            pos,
+            locomotion,
         }
     }
 
+    pub fn cords(&self) -> [f32; 3] {
+        self.pos.pos
+    }
+
+    pub fn get_texture(&self) -> Texture {
+        self.pos.block_type.wrap_into_texture()
+    }
+
+    pub fn tik(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
+        
+        if time.is_second && time.second % 5 == 0 {
+            let impulse = [
+                (rand::random::<f32>() - 0.5) * 0.1,
+                (rand::random::<f32>() - 0.5) * 0.1,
+                (rand::random::<f32>() - 0.5) * 0.1,
+            ];
+            self.locomotion.apply_impulse(impulse);
+
+            let dir = AxisDirection::from_impulse(impulse);
+            println!("Puff moving: {}", dir.to_string());
+            match dir {
+                AxisDirection::Up | AxisDirection::Down => {},
+                dir => {
+                    self.pos.block_type = match dir {
+                        AxisDirection::North     => BlockTexture::PuffNorth,
+                        AxisDirection::NorthEast => BlockTexture::PuffNorthEast,
+                        AxisDirection::East      => BlockTexture::PuffEast,
+                        AxisDirection::SouthEast => BlockTexture::PuffSouthEast,
+                        AxisDirection::South     => BlockTexture::PuffSouth,
+                        AxisDirection::SouthWest => BlockTexture::PuffSouthWest,
+                        AxisDirection::West      => BlockTexture::PuffWest,
+                        AxisDirection::NorthWest => BlockTexture::PuffNorthWest,
+                        _ => unreachable!(),
+                    };
+                }
+            }
+        }
+
+        self.locomotion.tik(time, &mut self.pos, world);
+        self.pos.tik(time, world, event_manager);
+    }
 
     pub fn get_components(self) -> Vec<EntityComponent> {
-        Vec::new()
+        vec![
+            self.pos.wrap_into_component(),
+            self.locomotion.wrap_into_component(),
+        ]
     }
 }
+

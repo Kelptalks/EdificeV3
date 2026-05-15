@@ -160,20 +160,6 @@ impl WorldGenManager {
         let terrain_height = 100.0;
         let terrain_noise = TerrainNoise::new(152452, 4, 500.0);
 
-        // Fast path: entire chunk is one block type
-        match self.try_uniform_block(&area, &terrain_noise, terrain_height) {
-            Some(None) => return Vec::new(), // All air — chunk default is already 0
-            Some(Some(block)) => {
-                let chunk_cords = [
-                    start_cords[0].div_euclid(CHUNK_SIZE) as i16,
-                    start_cords[1].div_euclid(CHUNK_SIZE) as i16,
-                    start_cords[2].div_euclid(CHUNK_SIZE) as i16,
-                ];
-                return vec![WorldEvent::FillChunk(chunk_cords, block)];
-            }
-            None => {} // Non-uniform, fall through to per-block generation
-        }
-
         let mut grass_gen_manager = GrassGenManager::new();
 
         for x in start_cords[0]..=end_cords[0] {

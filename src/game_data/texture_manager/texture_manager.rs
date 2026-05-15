@@ -191,8 +191,8 @@ impl TextureManager {
         }
     }
 
-    pub fn get_texture_cashe(&self) -> &TextureCashe {
-        &self.texture_cashe
+    pub fn get_mut_texture_cashe(&mut self) -> &mut TextureCashe {
+        &mut self.texture_cashe
     }
 
     pub fn render_to_cashed_texture(

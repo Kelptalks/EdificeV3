@@ -1,4 +1,4 @@
-use crate::game_data::{game_event_manager::player_data_event_manager::player_event_manager::PlayerDataEvent, player_data::game_entity::{block_entity_manager::{block_entity_manager::BlockEntity, natural::flungle::BlockEntityFlungle, player_created::{battery::BlockEntityBattery, radar::BlockEntityRadar}}, dynamic_entity_manager::{dynamic_entity_manager::DynamicEntity, natural::puff::DynamicEntityPuff}, game_entity_manager::GameEntity}, screen::widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetId, window_manager::windows::window_type::{Window, WindowType}}, types::BlockTexture};
+use crate::game_data::{game_event_manager::player_data_event_manager::player_event_manager::PlayerDataEvent, player_data::game_entity::{block_entity_manager::{block_entity_manager::BlockEntity, natural::flungle::BlockEntityFlungle, player_created::{battery::BlockEntityBattery, drone::BlockEntityDrone, radar::BlockEntityRadar}}, dynamic_entity_manager::{dynamic_entity_manager::DynamicEntity, natural::puff::DynamicEntityPuff}, game_entity_manager::GameEntity}, screen::widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetId, window_manager::windows::window_type::{Window, WindowType}}, types::BlockTexture};
 
 pub struct CheatWindow {
     panel: Panel,
@@ -6,6 +6,7 @@ pub struct CheatWindow {
     spawn_radar_button_id: WidgetId,
     spawn_battery_button_id: WidgetId, 
     spawn_flungle_button_id: WidgetId,
+    spawn_drone_button_id: WidgetId,
 
     spawn_puff_button_id: WidgetId,
     
@@ -32,6 +33,12 @@ impl CheatWindow {
         spawn_puff_button.add_texture(BlockTexture::PinkCloud.wrap_into_texture());
         let spawn_puff_button_id = spawn_puff_button.get_id();
 
+
+        let spawn_drone_button = panel.add_button();
+        spawn_drone_button.add_texture(BlockTexture::DroneBotLeft.wrap_into_texture());
+        let spawn_drone_button_id = spawn_drone_button.get_id();
+
+
         CheatWindow {
             panel,
 
@@ -39,6 +46,7 @@ impl CheatWindow {
             spawn_battery_button_id,
             spawn_flungle_button_id,
             spawn_puff_button_id,
+            spawn_drone_button_id
         }
     }
 }
@@ -87,8 +95,17 @@ impl Window for CheatWindow {
             if let Some(WidgetType::Button(button)) = self.panel.find_widget_with_id(self.spawn_puff_button_id) {
                 if button.mouse_on(screen_data) {
                     let cords = player_data.get_cursor().get_cords();
-                    let puff = DynamicEntityPuff::new(cords);
+                    let puff = DynamicEntityPuff::new(cords, event_manager);
                     event_manager.add_player_data_event(PlayerDataEvent::NewGameEntity(puff.wrap_into_game_entity()));
+                }
+            }
+
+            if let Some(WidgetType::Button(button)) = self.panel.find_widget_with_id(self.spawn_drone_button_id) {
+                if button.mouse_on(screen_data) {
+                    let cords = player_data.get_cursor().get_cords();
+                    let drone = BlockEntityDrone::new(cords, event_manager);
+
+                    event_manager.add_player_data_event(PlayerDataEvent::NewGameEntity(drone.wrap_into_game_entity()));
                 }
             }
 

@@ -36,6 +36,7 @@ impl CashedTextureID {
 pub struct TextureCashe {
     free_id: Vec<CashedTextureID>,
     pending_clears: Vec<CashedTextureID>,
+    pending_frees: Vec<CashedTextureID>,
 
     textures_init: bool,
     atlas: Vec<TextureId>,
@@ -53,12 +54,13 @@ pub struct TextureCashe {
 impl TextureCashe {
     pub fn new() -> TextureCashe {
         let atlas_count = 16;
-        let scale = 8;
+        let scale = 4;
 
         
         TextureCashe {
             free_id: Vec::new(),
             pending_clears: Vec::new(),
+            pending_frees: Vec::new(),
 
             textures_init: false,
             atlas: Vec::new(),
@@ -218,6 +220,10 @@ impl TextureCashe {
     }
 
     pub fn free_cashed_texture(&mut self, id: CashedTextureID) {
+        self.pending_frees.push(id);
+    }
+
+    pub fn clear_cashed_texture(&mut self, id: CashedTextureID) {
         self.pending_clears.push(id);
     }
 
@@ -225,6 +231,19 @@ impl TextureCashe {
     pub fn get_cashing_batches(&mut self, ctx: &mut GlContext) -> Vec<RenderBatch> {
         if !self.textures_init {
             self.init(ctx);
+        }
+
+        let pending = std::mem::take(&mut self.pending_frees);
+        for id in pending {
+            if let Some(&atlas_texture) = self.atlas.get(id.src_texture_index) {
+                let x = (id.src_uv[0] * ATLAS_SIZE as f32).round() as i32;
+                let y = (id.src_uv[1] * ATLAS_SIZE as f32).round() as i32;
+                let w = ((id.src_uv[2] - id.src_uv[0]) * ATLAS_SIZE as f32).round() as i32;
+                let h = ((id.src_uv[3] - id.src_uv[1]) * ATLAS_SIZE as f32).round() as i32;
+                let zeros = vec![0u8; (w * h * 4) as usize];
+                ctx.texture_update_part(atlas_texture, x, y, w, h, &zeros);
+            }
+            self.free_id.push(id);
         }
 
         let pending = std::mem::take(&mut self.pending_clears);
@@ -237,8 +256,10 @@ impl TextureCashe {
                 let zeros = vec![0u8; (w * h * 4) as usize];
                 ctx.texture_update_part(atlas_texture, x, y, w, h, &zeros);
             }
-            self.free_id.push(id);
         }
+
+
+
 
         let batches = self.cashing_batches.clone();
 

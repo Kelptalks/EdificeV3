@@ -2,7 +2,8 @@ use crate::game_data::{TextureManager, game_event_manager::{event_manager::Event
 
 #[derive(Clone, PartialEq)]
 pub enum TextureManagerEvent {
-    FreeCashedTexture(CashedTextureID)
+    FreeCashedTexture(CashedTextureID),
+    ClearCashedTexture(CashedTextureID),
 }
 
 impl TextureManagerEvent{
@@ -18,6 +19,9 @@ impl TextureManagerEvent{
             TextureManagerEvent::FreeCashedTexture(cashed_texture_id) => {
                 texture_manager.free_cashed_texture(*cashed_texture_id)
             },
+            TextureManagerEvent::ClearCashedTexture(cashed_texture_id) => {
+                texture_manager.get_mut_texture_cashe().clear_cashed_texture(*cashed_texture_id);
+            }
         }
     }
 }

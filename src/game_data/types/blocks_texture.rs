@@ -97,8 +97,9 @@ pub enum BlockTexture {
 
     PathingHighlight = 85, 
     
-    Blank86 = 86, Blank87 = 87, Blank88 = 88, Blank89 = 89,
-    Blank90 = 90, Blank91 = 91, Blank92 = 92, Blank93 = 93, Blank94 = 94,
+    Blank86 = 86, PuffNorthEast = 87, PuffSouth = 88, PuffSouthEast = 89,
+    PuffEast = 90, PuffSouthWest = 91, PuffNorth = 92, PuffNorthWest = 93, PuffWest = 94,
+    
     Blank95 = 95, Blank96 = 96, Blank97 = 97, Blank98 = 98, Blank99 = 99,
     Blank100 = 100, Blank101 = 101, Blank102 = 102, Blank103 = 103, Blank104 = 104,
     Blank105 = 105, Blank106 = 106, Blank107 = 107, Blank108 = 108, Blank109 = 109,
@@ -265,15 +266,15 @@ static BLOCK_PROPERTIES: [BlockProperties; 400] = [
 
     
     // Blank reserved slots (85-399)
-    BlockProperties { name: "Blank", transparent: true, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank86
-    BlockProperties { name: "Blank", transparent: true, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank87
-    BlockProperties { name: "Blank", transparent: true, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank88
-    BlockProperties { name: "Blank", transparent: true, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank89
-    BlockProperties { name: "Blank", transparent: true, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank90
-    BlockProperties { name: "Blank", transparent: true, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank91
-    BlockProperties { name: "Blank", transparent: true, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank92
-    BlockProperties { name: "Blank", transparent: true, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank93
-    BlockProperties { name: "Blank", transparent: true, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank94
+    BlockProperties { name: "Blank",              transparent: false, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank86
+    BlockProperties { name: "PuffDown",           transparent: false, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank87
+    BlockProperties { name: "PuffLeftDown",       transparent: false, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank88
+    BlockProperties { name: "PuffLeft",           transparent: false, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank89
+    BlockProperties { name: "BuffUpLeft",         transparent: false, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank90
+    BlockProperties { name: "PuffUp",             transparent: false, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank91
+    BlockProperties { name: "PuffUpRight",        transparent: false, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank92
+    BlockProperties { name: "PuffRight",          transparent: false, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank93
+    BlockProperties { name: "PuffRightDown",      transparent: false, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank94
     BlockProperties { name: "Blank", transparent: true, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank95
     BlockProperties { name: "Blank", transparent: true, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank96
     BlockProperties { name: "Blank", transparent: true, translucent: true, solid: false, hardness: 0, friction: 0, item: DroneItem::Ash, item_quantity: 0 }, // Blank97

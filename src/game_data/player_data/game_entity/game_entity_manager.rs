@@ -1,6 +1,6 @@
 use core::fmt;
 
-use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::window_manager_event::WindowManagerEvent}, player_data::{drones::drone_manager::DroneId, game_entity::{block_entity_manager::{self, block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId, BlockEntityManager}}, components::{entity_components::EntityComponent, powered_component::PoweredComponentEvent}, dynamic_entity_manager::{self, dynamic_entity_manager::{DynamicEntity, DynamicEntityId, DynamicEntityManager}}}, player_data::PlayerData}, screen::widget::widget::WidgetType, tik_manager::game_time::GameTime};
+use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::window_manager_event::WindowManagerEvent}, player_data::{drones::drone_manager::DroneId, game_entity::{block_entity_manager::{self, block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId, BlockEntityManager}}, components::{block_component::BlockComponentEvent, entity_components::{EntityComponent, EntityComponentEvent}, powered_component::PoweredComponentEvent}, dynamic_entity_manager::{self, dynamic_entity_manager::{DynamicEntity, DynamicEntityId, DynamicEntityManager}}}, player_data::PlayerData}, screen::widget::widget::WidgetType, tik_manager::game_time::GameTime};
 
 
 /*
@@ -17,7 +17,7 @@ pub enum GameEntityId {
 }
 
 impl GameEntityId {
-    pub fn get_component_event(&self, component_event: PoweredComponentEvent) -> Option<Event> {
+    pub fn get_component_event(&self, component_event: EntityComponentEvent) -> Option<Event> {
         match self {
             GameEntityId::BlockEntity(block_entity_id) => {
                 block_entity_id.get_component_event(component_event)
@@ -98,21 +98,22 @@ impl GameEntityManager {
     pub fn clone_game_entity(&self, entity_id: GameEntityId) -> Option<GameEntity> {
         match entity_id {
             GameEntityId::BlockEntity(block_entity_id) => {
-                if let Some(block_entity) = self.block_entity_manager.clone_block_entity(block_entity_id) {
-                    Some(block_entity.wrap_into_game_entity())
-                }
-                else {
-                    None
-                }
+                self.block_entity_manager.clone_block_entity(block_entity_id).map(|e| e.wrap_into_game_entity())
             },
-            _ => {
-                None
-            }
+            GameEntityId::DynamicEntity(dynamic_entity_id) => {
+                self.dynamic_entity_manager.clone_entity(dynamic_entity_id).map(|e| e.wrap_into_game_entity())
+            },
+            _ => None,
         }
     }
 
     pub fn tik_game_entities(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
         self.block_entity_manager.tik(time, world, event_manager);
+        self.dynamic_entity_manager.tik(time, world, event_manager);
+    }
+
+    pub fn iter_dynamic_world_pos_and_texture(&self) -> impl Iterator<Item = ([f32; 3], crate::game_data::texture_manager::texture::Texture)> + '_ {
+        self.dynamic_entity_manager.iter_world_pos_and_texture()
     }
 
     pub fn open_entity_window(&self, event_manager: &mut EventManager, id: GameEntityId) {
