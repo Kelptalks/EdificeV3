@@ -1,5 +1,6 @@
 
-use std::{sync::{Arc, RwLock}, time::{SystemTime, UNIX_EPOCH}, u128};
+use std::{sync::{Arc, RwLock}, time::{Instant, SystemTime, UNIX_EPOCH}, u128};
+use crate::game_data::prof_record;
 
 use crate::game_data::{self, World, game_event_manager::prelude::EventManager, player_data::player_data::PlayerData, screen::screen_task_manager::rendering_task_manager::RenderingTaskManager, tik_manager::{block_updates::block_update_manager::BlockUpdateManager, drones::{drone_manager::DroneManager, lua_manager::LuaManager}, game_time::GameTime}, world, world_task_manager::world_task_manager::WorldTaskManager};
 
@@ -138,27 +139,33 @@ impl TikManager {
                 Ok(world) => {
 
                     let debug = event_manager.get_mut_debug_data();
-                    debug.clear_tik_data();
-                    debug.add_to_tik_data(format!("Tik Time: {}", game_time.tik));
-                    debug.add_to_tik_data(format!("Second Time: {}", game_time.second));
-                    debug.add_to_tik_data(format!("Minute Time: {}", game_time.minute));
-                    debug.add_to_tik_data(format!("Hour Time: {}", game_time.hour));
-                    debug.add_to_tik_data(format!("Day Time: {}", game_time.day));
+                    debug.clear("Tik");
+                    debug.record("Tik", format!("Tik Time: {}", game_time.tik));
+                    debug.record("Tik", format!("Second Time: {}", game_time.second));
+                    debug.record("Tik", format!("Minute Time: {}", game_time.minute));
+                    debug.record("Tik", format!("Hour Time: {}", game_time.hour));
+                    debug.record("Tik", format!("Day Time: {}", game_time.day));
 
-                    player_data.tik_game_entities(&game_time, &world, event_manager);       
+                    let t = Instant::now();
+                    player_data.tik_game_entities(&game_time, &world, event_manager);
+                    prof_record("  tik_game_entities", t.elapsed());
                 },
                 Err(_) => todo!(),
             }
 
-
-
+            let t = Instant::now();
             player_data.get_mut_drone_manager().tik_drones(current_world.clone(), event_manager);
-
+            prof_record("  tik_drones", t.elapsed());
 
             let mut world_gaurd = current_world.write().unwrap();
-            world_gaurd.tik(&game_time, player_data, event_manager);
 
+            let t = Instant::now();
+            world_gaurd.tik(&game_time, player_data, event_manager);
+            prof_record("  tik_world", t.elapsed());
+
+            let t = Instant::now();
             event_manager.execute_world_events(&mut world_gaurd);
+            prof_record("  tik_world_events", t.elapsed());
 
             // Decrement tiks left to execute
             total_tiks_to_execute-=1;

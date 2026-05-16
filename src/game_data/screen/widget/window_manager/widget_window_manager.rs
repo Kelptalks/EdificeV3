@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use miniquad::window;
 use mlua::Debug;
 
-use crate::game_data::{game_event_manager::debug_data::window_debug_data::WindowDebugData, player_data, screen::{ScreenData, menu_constructors::play_view_menu::new_play_view::PlayViewConstructionManager, screen_data, widget::{panel::panel::Panel, prelude::PlayWorldViewRender, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties, window_manager::{widget_window_manager, window::WidgetWindow, windows::{cheat_window::CheatWindow, debug_win::DebugWin, drone_spectate_win::DroneSpectateWindow, window_type::{Window, WindowType}}}, world_rendering::{tile_map_manager::TileMapManager, view_mode::ViewMode}}}, types::UITextures};
+use crate::game_data::{player_data, screen::{ScreenData, menu_constructors::play_view_menu::new_play_view::PlayViewConstructionManager, screen_data, widget::{panel::panel::Panel, prelude::PlayWorldViewRender, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties, window_manager::{widget_window_manager, window::WidgetWindow, windows::{cheat_window::CheatWindow, debug_win::DebugWin, drone_spectate_win::DroneSpectateWindow, window_type::{Window, WindowType}}}, world_rendering::{tile_map_manager::TileMapManager, view_mode::ViewMode}}}, types::UITextures};
 
 
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
@@ -178,14 +178,12 @@ impl Widget for WidgetWindowManager {
                     window.focus()
                 }
                 else {
-                    let debug = game_event_manager.get_mut_debug_data();
-                    let window = DebugWin::new(debug).wrap_into_window_type();
+                    let window = DebugWin::new().wrap_into_window_type();
                     self.debug = Some(self.new_window(window, "Debug"));
                 }
             }
             else {
-                let debug = game_event_manager.get_mut_debug_data();
-                let window = DebugWin::new(debug).wrap_into_window_type();
+                let window = DebugWin::new().wrap_into_window_type();
                 self.debug = Some(self.new_window(window, "Debug"));
             }
 
@@ -198,10 +196,8 @@ impl Widget for WidgetWindowManager {
 
 
         let debug_data = game_event_manager.get_mut_debug_data();
-        debug_data.clear_window_data();
-
-        let windows_open = format!("Windows Open: {}", self.windows.len());
-        debug_data.add_window_data(windows_open);
+        debug_data.clear("Window");
+        debug_data.record("Window", format!("Windows Open: {}", self.windows.len()));
 
         
 

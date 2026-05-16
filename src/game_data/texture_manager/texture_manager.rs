@@ -7,6 +7,8 @@ use crate::game_data::{
     texture_manager::{
         atlas::texture_atlas::TextureAtlas, rendering_managager::rendering_batch::RenderBatch, texture::Texture, texture_cashe::texture_cashe::{CashedTextureID, TextureCashe}, texture_renderer::TextureRenderingManager}, types::{BlockShader, BlockTexture, BlockTriangle, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
 use miniquad::*;
+use std::time::Instant;
+use crate::game_data::prof_record;
 
 // Expander tuning constants - adjust these to control gap prevention
 static EXPANDER_BASE_MULTIPLIER: f32 = 0.005;  // Base scaling with sprite size
@@ -469,23 +471,23 @@ impl TextureManager {
     //=====================================
 
     pub fn flush(&mut self, screen_data: &ScreenData, ctx : &mut GlContext) {
+        let t = Instant::now();
         let mut texture_cashe_batches = self.texture_cashe.get_cashing_batches(ctx);
-        
         for batch in &mut texture_cashe_batches {
             self.get_texture_renderer().flush_batch(ctx, screen_data, batch);
         }
+        prof_record("  gpu_flush_cache_baking", t.elapsed());
 
-        
-        // set the viewport using ctx before rendering to main screen
-        // screen_data.apply_port(ctx);
-
+        let t = Instant::now();
         let mut texture_draw_batches = self.texture_cashe.get_drawing_batches();
         for batch in &mut texture_draw_batches {
             self.get_texture_renderer().flush_batch(ctx, screen_data, batch);
         }
+        prof_record("  gpu_flush_cache_drawing", t.elapsed());
 
-
+        let t = Instant::now();
         self.get_texture_renderer().flush(ctx);
+        prof_record("  gpu_flush_main", t.elapsed());
     }
 
     //==========

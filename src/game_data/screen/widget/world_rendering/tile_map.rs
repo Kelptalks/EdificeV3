@@ -1,4 +1,5 @@
-use std::{cmp::max, collections::{HashMap, hash_map}};
+use std::{cmp::max, collections::{HashMap, hash_map}, time::Instant};
+use crate::game_data::prof_record;
 
 use crate::game_data::{TextureManager, World, game_event_manager::{event_manager::Event, render_event_manager::texture_manager_event::TextureManagerEvent}, locations::world_area::WorldArea, screen::{iso_cord_tool, widget::world_rendering::area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_tile::CastedTile, raycast_thread_pool::{RayCastingTaskId, RayCastingThreadPool}}}, texture_manager::{texture::Texture, texture_cashe::texture_cashe::CashedTextureID}};
 
@@ -166,7 +167,8 @@ impl TileMap {
 
                 if let Some(cashed_texture_id) = self.cashed_texture_id {
                     texture_manager.get_mut_texture_cashe().clear_cashed_texture(cashed_texture_id);
-                    
+
+                    let t = Instant::now();
                     for (key, tile) in self.map.iter() {
                         let offset_iso_cords = [
                             key[0] as f32 - iso_center_f[0],
@@ -175,6 +177,8 @@ impl TileMap {
                         let cords = iso_cord_tool::float_iso_to_ndc_cords(block_scale, offset_iso_cords);
                         tile.render_to_cashed_texture(texture_manager, cashed_texture_id, block_scale, cords);
                     }
+                    prof_record("    cache_bake", t.elapsed());
+
                     self.cashed_texture_dirty = false;
                 }
                 else {
@@ -223,7 +227,9 @@ impl TileMap {
                     center[1] + half,
                 ];
 
+                let t = Instant::now();
                 texture_manager.render_texture(texture, pos);
+                prof_record("    render_from_cache", t.elapsed());
             }
         }
         else {
@@ -298,9 +304,11 @@ impl TileMap {
     }
 
     pub fn render_tiles(&mut self, texture_manager: &mut TextureManager, draw_block_scale: f32, draw_offset: [f32; 2]) {
+        let t = Instant::now();
         for (key, tile) in self.map.iter_mut() {
             tile.render(texture_manager, draw_block_scale, draw_offset);
         }
+        prof_record("    render_tiles_direct", t.elapsed());
     }
 
     //=====================================

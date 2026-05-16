@@ -1,4 +1,5 @@
-use std::{cell::RefCell, collections::HashMap, ops::Index, rc::Rc, time::{Instant, SystemTime}};
+use std::{cell::RefCell, collections::HashMap, ops::Index, rc::Rc, time::{Duration, Instant, SystemTime}};
+use crate::game_data::prof_record;
 
 
 use crate::game_data::{
@@ -341,15 +342,20 @@ impl PlayWorldViewRender {
 
         
         self.tile_map_manager.update_rendering_data(self.ndc_block_scale, draw_cords);
-        self.tile_map_manager.clean(texture_manager, &world);
-        self.tile_map_manager.flatten();
 
+        let t = Instant::now();
+        self.tile_map_manager.clean(texture_manager, &world);
+        prof_record("  tile_map_clean", t.elapsed());
+
+        let t = Instant::now();
+        self.tile_map_manager.flatten();
+        prof_record("  tile_map_flatten", t.elapsed());
 
         texture_manager.update_expander_cache(self.ndc_block_scale);
-        
-        
-        
+
+        let t = Instant::now();
         world.render_world(player_data, texture_manager, &mut self.tile_map_manager);
+        prof_record("  world_render_world", t.elapsed());
         
 
         // Use personal tile map
@@ -363,14 +369,10 @@ impl PlayWorldViewRender {
         // Debug Data
         let chunk_debug_data = world.get_chunk_debug_data(cursor.get_cords());
         let debug = event_manager.get_mut_debug_data();
-        debug.clear_rendering_data();
-    
-        debug.add_world_data("###################".to_string());
-        debug.add_world_data("## CURSORS CHUNK ##".to_string());
-        debug.add_world_data("###################".to_string());
-
+        debug.clear("World");
+        debug.record("World", "## CURSORS CHUNK ##".to_string());
         for data in chunk_debug_data {
-            debug.add_world_data(data);
+            debug.record("World", data);
         }
         
         
@@ -564,20 +566,15 @@ impl Widget for PlayWorldViewRender {
 
 
         let debug = event_manager.get_mut_debug_data();
-        debug.clear_rendering_data();
+        debug.clear("Rendering");
 
         for data in mouse_data {
-            debug.add_rendering_data(data);
+            debug.record("Rendering", data);
         }
 
-        let frame_time = format!("Frame Time ({})ms", start.elapsed().as_secs_f32() * 1000.0);
-        debug.add_rendering_data(frame_time);
-
-        let total_free_textures = format!("Free Cashed Textures({})", texture_manager.get_mut_texture_cashe().total_free_textures());
-        debug.add_rendering_data(total_free_textures);
-
-        let entitys_drawn = format!("Entity's Drawn ({})", self.entitys_drawn);
-        debug.add_rendering_data(entitys_drawn);
+        debug.record("Rendering", format!("Frame Time ({})ms", start.elapsed().as_secs_f32() * 1000.0));
+        debug.record("Rendering", format!("Free Cashed Textures({})", texture_manager.get_mut_texture_cashe().total_free_textures()));
+        debug.record("Rendering", format!("Entity's Drawn ({})", self.entitys_drawn));
         self.entitys_drawn = 0;
 
 

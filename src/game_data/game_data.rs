@@ -8,7 +8,8 @@ use std::time::SystemTime;
 
 use crate::game_data::game_event_manager::game_event_manager::EventManager;
 use crate::game_data::player_data::player_data::PlayerData;
-use crate::game_data::{log_indent, log_init, log_unindent};
+use crate::game_data::{log_indent, log_init, log_unindent, prof_record, prof_end_frame, prof_init, frame_profiler};
+use std::time::Instant;
 use crate::game_data::screen::screen_task_manager::rendering_task_manager::RenderingTaskManager;
 use crate::game_data::screen::screen_mananager::ScreenManager;
 use crate::game_data::tik_manager::tik_manager::TikManager;
@@ -55,6 +56,8 @@ impl GameData {
         // set up tik managers
         let tik_manager = TikManager::new(world.clone());
 
+
+        prof_init();
 
         Self {
             // Other
@@ -163,63 +166,76 @@ impl GameData {
     pub fn render_camera(&mut self, ctx: &mut GlContext) {
         let frame_start_time = SystemTime::now();
 
-
+        let t = Instant::now();
         self.screen_manager.render_screen(
-            &mut self.texture_manager, 
-            self.world.clone(), 
-            &mut self.drone_rendering_task_manager, 
+            &mut self.texture_manager,
+            self.world.clone(),
+            &mut self.drone_rendering_task_manager,
             &self.tik_manager,
             &mut self.player_data,
             &mut self.event_manager,
             ctx,
         );
+        prof_record("render_screen", t.elapsed());
         
         // Tik managing
+        let t = Instant::now();
         self.tik_manager.new_update_tik_manager(&mut self.event_manager, &mut self.player_data);
-        //self.tik_manager.update_tik_manager(&mut self.world_task_manager, &mut self.drone_rendering_task_manager);
+        prof_record("tik_manager", t.elapsed());
 
         let screen_mananager = &mut self.screen_manager;
-        
-        // Test sprite sheet
-        // self.texture_manager.test_sprites(ctx);
-
 
         // Render frame time | Eventualy create a debug window under screen for this
         let system_time_end = SystemTime::now();
         let frame_duration = system_time_end.duration_since(frame_start_time).unwrap();
         let frame_duration_ms = frame_duration.as_millis();
-        
-
 
         // Update game events
+        let t = Instant::now();
         self.event_manager.execute_dispatch_events();
         self.event_manager.dispatch_input_events(screen_mananager);
         self.event_manager.execute_player_data_events(&mut self.player_data);
+        prof_record("events_dispatch", t.elapsed());
 
         //Get world gaurd
         let mut world_guard = match self.world.write() {
             Ok(guard) => guard,
             Err(poisoned) => {
-                // Lock was poisoned, but we can still access the data
                 eprintln!("Warning: World lock was poisoned, recovering...");
                 poisoned.into_inner()
             }
         };
+        let t = Instant::now();
         self.event_manager.execute_world_events(&mut world_guard);
-        
+        prof_record("events_world", t.elapsed());
+
         drop(world_guard);
 
+        let t = Instant::now();
         self.event_manager.execute_render_events(
             &mut self.texture_manager,
-            screen_mananager, 
+            screen_mananager,
             &self.player_data
         );
         self.event_manager.execute_widget_events();
+        prof_record("events_render", t.elapsed());
         
         
         let screen_data = self.screen_manager.get_screen_data();
 
+        let t = Instant::now();
         self.texture_manager.flush(screen_data, ctx);
+        prof_record("gpu_flush", t.elapsed());
+
+        prof_end_frame();
+
+        // Write latest profile averages into the debug menu
+        let profile_lines = frame_profiler::prof_get_display();
+        let debug = self.event_manager.get_mut_debug_data();
+        debug.clear("Profile");
+        for line in profile_lines {
+            debug.record("Profile", line);
+        }
 
         // Clear inputs for this frame
         self.screen_manager.get_mut_screen_data().clear_inputs();

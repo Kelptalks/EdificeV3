@@ -2,6 +2,9 @@
 mod game_data;
 pub use game_data::GameData;
 
+pub mod frame_profiler;
+pub use frame_profiler::{prof_record, prof_end_frame, ProfTimer, prof_get_display, prof_init};
+
 mod logging_tool;
 pub use logging_tool::*;
 

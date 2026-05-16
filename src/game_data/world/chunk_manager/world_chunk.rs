@@ -1,12 +1,14 @@
 use std::collections::{HashMap, HashSet, hash_map};
+use std::time::Instant;
+use crate::game_data::prof_record;
 
 use crate::game_data::{TextureManager, World, chunk_manager::chunk_manager::WorldChunkType, game_event_manager::{event_manager::Event, game_event_manager::GameEventManager}, locations::world_area::WorldArea, player_data::{game_entity::{dynamic_entity_manager::dynamic_entity_manager::DynamicEntityId, game_entity_manager::{GameEntity, GameEntityId}}, player_data::PlayerData}, screen::{iso_cord_tool, widget::world_rendering::{tile_map::TileMapId, tile_map_manager::{TileMapEvent, TileMapManager}}}, world::world::WorldEvent};
 
-const CHUNK_SIZE: usize = 16;
+const CHUNK_SIZE: usize = 64;
 const CHUNK_AREA: usize = CHUNK_SIZE * CHUNK_SIZE;
 pub const CHUNK_VOLUME: usize = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE;
 
-pub const CHUNK_SIZE_I32: i32 = 16;
+pub const CHUNK_SIZE_I32: i32 = 64;
 
 pub struct LoadedWorldChunk {
     pub time_till_unload: u64,
@@ -210,14 +212,12 @@ impl LoadedWorldChunk {
             
             
             if let Some(tile_map) = tile_map_manager.get_mut_tile_map(id) {
-                tile_map.render(
-                    texture_manager, 
-                    block_scale, 
-                    draw_offset
-                );
+                let t = Instant::now();
+                tile_map.render(texture_manager, block_scale, draw_offset);
+                prof_record("    chunk_tile_render", t.elapsed());
 
-                
                 // Render dynamic entities
+                let t = Instant::now();
                 for entity_id in &self.dynamic_entities {
                     if let Some(game_entity) = player_data.game_entity_manager.clone_game_entity(entity_id.wrap_into_game_entity_id()) {
                         if let GameEntity::DynamicEntity(dynamic_entity) = game_entity {
@@ -227,6 +227,7 @@ impl LoadedWorldChunk {
                         }
                     }
                 }
+                prof_record("    chunk_entity_render", t.elapsed());
             }
 
 

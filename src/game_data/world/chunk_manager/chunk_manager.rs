@@ -203,14 +203,11 @@ impl WorldChunkManager {
     pub fn tik(&mut self, game_tik: &GameTime, player_data: &PlayerData, event_manager: &mut EventManager) {   
         
         let debug_data = event_manager.get_mut_debug_data();
-        debug_data.clear_world_data();
-        
-        
-        debug_data.add_world_data(format!("total chunks: ({})", self.chunks.len()));
-
-        debug_data.add_world_data(format!("loaded_chunks: ({})", self.loaded_chunks.len()));
-        debug_data.add_world_data(format!("lazy_chunks: ({})", self.lazy_chunks.len()));
-        debug_data.add_world_data(format!("unloaded_chunks: ({})", self.unloaded_chunks.len()));
+        debug_data.clear("World");
+        debug_data.record("World", format!("total chunks: ({})", self.chunks.len()));
+        debug_data.record("World", format!("loaded_chunks: ({})", self.loaded_chunks.len()));
+        debug_data.record("World", format!("lazy_chunks: ({})", self.lazy_chunks.len()));
+        debug_data.record("World", format!("unloaded_chunks: ({})", self.unloaded_chunks.len()));
 
 
 
