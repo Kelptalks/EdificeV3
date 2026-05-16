@@ -130,7 +130,7 @@ impl CastedTriangle {
         return self.solid_block_cords_struck;
     }
 
-    pub fn get_struck_depth(&self) -> i32 {
+    pub fn get_solid_struck_depth(&self) -> i32 {
         iso_cord_tool::get_depth_from_world_cords(
             self.get_solid_block_struck_cords()
         )

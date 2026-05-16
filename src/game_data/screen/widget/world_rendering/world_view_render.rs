@@ -359,11 +359,11 @@ impl PlayWorldViewRender {
         
 
         // Use personal tile map
-        /*
+        
         if ((cursor.get_zoom() as usize) * 2) < 32 {
             self.tile_map_manager.render_area(texture_manager, cursor.get_cords(), 10);
         }
-         */
+         
         
 
         // Debug Data

@@ -103,7 +103,7 @@ impl Cursor {
         }
 
         // Load a 3 by 3 block area around
-        let view_distance = [15, 15, 2];
+        let view_distance: [i16; 3] = [2, 2, 2];
         let chunk_cords = World::world_cords_to_chunk_cords(self.get_cords());
         
 

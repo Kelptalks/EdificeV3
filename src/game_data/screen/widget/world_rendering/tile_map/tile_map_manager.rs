@@ -1,6 +1,20 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, World, game_event_manager::{self, event_manager::{self, Event, EventManager}, game_event_manager::GameEvent, render_event_manager::render_event_manager::RenderEvent}, player_data::player_data::PlayerData, screen::{iso_cord_tool, widget::world_rendering::{area_rendering_manager::{ray_caster::casted_tile::CastedTile, raycast_thread_pool::RayCastingThreadPool}, tile_map::{self, TileMap, TileMapId}}}, texture_manager::{self, texture::Texture}};
+use crate::game_data::{
+    TextureManager, World,
+    game_event_manager::{
+        event_manager::Event,
+        game_event_manager::GameEvent,
+        render_event_manager::render_event_manager::RenderEvent,
+    },
+    player_data::player_data::PlayerData,
+    screen::{iso_cord_tool, widget::world_rendering::{
+        area_rendering_manager::{ray_caster::casted_tile::CastedTile, raycast_thread_pool::RayCastingThreadPool},
+        tile_map::tile_map::{TileMap, TileMapId},
+    }},
+    texture_manager::texture::Texture,
+};
+
 
 
 pub struct TileMapManager {
@@ -107,7 +121,7 @@ impl TileMapManager {
                                 if !current_left_triangle.has_struck_solid {
                                     current_tile.set_left_triangle(lair_left_triangle.clone());
                                 }
-                                else if current_left_triangle.get_struck_depth() < lair_left_triangle.get_struck_depth() {                                
+                                else if current_left_triangle.get_solid_struck_depth() < lair_left_triangle.get_solid_struck_depth() {                                
                                     current_tile.set_left_triangle(lair_left_triangle.clone());
                                 }
                             }
@@ -116,7 +130,7 @@ impl TileMapManager {
                                 if !current_right_triangle.has_struck_solid {
                                     current_tile.set_right_triangle(lair_right_triangle.clone());
                                 }
-                                else if current_right_triangle.get_struck_depth() < lair_right_triangle.get_struck_depth() {
+                                else if current_right_triangle.get_solid_struck_depth() < lair_right_triangle.get_solid_struck_depth() {
                                     current_tile.set_right_triangle(lair_right_triangle.clone());
                                 }
                             }

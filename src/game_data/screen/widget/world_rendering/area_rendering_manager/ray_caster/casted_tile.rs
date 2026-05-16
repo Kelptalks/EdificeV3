@@ -82,8 +82,8 @@ impl CastedTile {
     }
 
     pub fn get_triangles_depths(&self) -> [i32; 2] {
-        let left_max = self.left_triangle.get_struck_depth();
-        let right_max = self.right_triangle.get_struck_depth();
+        let left_max = self.left_triangle.get_solid_struck_depth();
+        let right_max = self.right_triangle.get_solid_struck_depth();
 
         [left_max, right_max]
 
