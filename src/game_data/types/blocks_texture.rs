@@ -1,7 +1,5 @@
 use crate::game_data::{texture_manager::texture::Texture, player_data::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
 
-pub static TOTAL_BLOCKS: u32 = 400;
-
 #[repr(u16)]
 #[derive(Copy, Clone, PartialEq)]  // Add these
 pub enum BlockTexture {
@@ -65,24 +63,24 @@ pub enum BlockTexture {
     Battery2 = 57,
     Battery3 = 58,
     Battery4 = 59,
-    yellow_flowers = 60,
-    white_flowers = 61,
-    mushroom = 62,
+    YellowFlowers = 60,
+    WhiteFlowers = 61,
+    Mushroom = 62,
     Flungle = 63,
-    blulbo = 64,
-    rock = 65,
-    log = 66,
-    factory1 = 67, 
-    factory2 = 68,
-    factory3 = 69,
-    conveyor1 = 70,
-    conveyor2 = 71,
-    conveyor3 = 72,
-    conveyor4 = 73,
-    conveyor5 = 74,
+    Blulbo = 64,
+    Rock = 65,
+    Log = 66,
+    Factory1 = 67,
+    Factory2 = 68,
+    Factory3 = 69,
+    Conveyor1 = 70,
+    Conveyor2 = 71,
+    Conveyor3 = 72,
+    Conveyor4 = 73,
+    Conveyor5 = 74,
     Selector = 75,
-    translucent_green = 76,
-    translucent_red = 77,
+    TranslucentGreen = 76,
+    TranslucentRed = 77,
 
     SelectorBarLeft = 78,
     SelectorBarRight = 79,

@@ -1,15 +1,13 @@
-use std::collections::HashMap;
-use std::fmt::format;
+#![allow(dead_code)]
 
-use mlua::Chunk;
 
 use crate::game_data::chunk_manager::chunk_manager::{WorldChunkManager, WorldChunkType};
 use crate::game_data::chunk_manager::world_chunk::{LoadedWorldChunk, WorldChunkEvent};
 use crate::game_data::locations::world_area::WorldArea;
-use crate::game_data::game_event_manager::event_manager::{self, Event, EventManager};
+use crate::game_data::game_event_manager::event_manager::{Event, EventManager};
 use crate::game_data::game_event_manager::game_event_manager::{GameEvent, GameEventManager};
 use crate::game_data::game_event_manager::render_event_manager::render_event_manager::RenderEvent;
-use crate::game_data::player_data::game_entity::{dynamic_entity_manager::dynamic_entity_manager::DynamicEntityId, game_entity_manager::{GameEntity, GameEntityId}};
+use crate::game_data::player_data::game_entity::{dynamic_entity_manager::dynamic_entity_manager::DynamicEntityId, game_entity_manager::GameEntityId};
 use crate::game_data::player_data::player_data::PlayerData;
 use crate::game_data::tik_manager::game_time::GameTime;
 use crate::game_data::types::BlockTexture;
@@ -114,7 +112,7 @@ impl World {
                     let internal_chunk_cords = Self::world_cords_to_internal_chunk_cords(world_cords);
                     loaded_world_chunk.set_chunk_value(value, internal_chunk_cords);
                 },
-                WorldChunkType::Lazy(lazy_world_chunk) => {
+                WorldChunkType::Lazy(_lazy_world_chunk) => {
                     todo!("How does a lazy chunk exist");
                 },
                 WorldChunkType::Unloaded(unloaded_world_chunk) => {
@@ -312,7 +310,7 @@ impl WorldEvent {
             WorldEvent::LoadChunk(cords) => {
                 world.world_chunk_manager.set_chunk_load_time(&cords, 1);
             },
-            WorldEvent::SetChunkLoadTime(cords, time) => {
+            WorldEvent::SetChunkLoadTime(_cords, _time) => {
                 
             }
             WorldEvent::ModBlock(cords, block_type) => {

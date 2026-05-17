@@ -1,4 +1,3 @@
-use core::hash;
 use std::{cell::RefCell, collections::HashMap, rc::Rc, sync::{Arc, RwLock}};
 
 
@@ -81,7 +80,7 @@ impl DroneManager {
     //=====================================
 
     pub fn add_all_drones_to_selection_manager(&mut self) {
-        for (key, drone) in self.drone_map.iter() {
+        for (_key, _drone) in self.drone_map.iter() {
             // let widget = VarSource::new(Var::Game(GameVar::Dynamic(DynamicVar::Drone(Some(drone.clone())))));
             // self.selection_panel_update_manager.borrow_mut().add_widget(WidgetType::VarSource(widget));
         }
@@ -130,7 +129,7 @@ impl DroneManager {
     //=====================================
 
     pub fn kill_all_drones(&mut self) {
-        for (key, drone) in &mut self.drone_map {
+        for (_key, drone) in &mut self.drone_map {
             drone.borrow_mut().set_health(0);
         }
     }

@@ -6,7 +6,7 @@ pub enum DroneUITexture {
 }
 
 impl DroneUITexture {
-    pub fn get_total_UI_elements() -> u32 {
+    pub fn get_total_ui_elements() -> u32 {
         DroneUITexture::DroneSpectateWindow.get_id() + 1 // DroneSpectateWindow is the last element at index 1, so total is 2
     }
     
@@ -80,7 +80,7 @@ pub enum DroneItemTexture {
 
 impl DroneItemTexture {
 
-    pub fn get_total_UI_elements() -> u32 {
+    pub fn get_total_ui_elements() -> u32 {
         return DroneItemTexture::AirDrone.get_id() + 1;
     }
     

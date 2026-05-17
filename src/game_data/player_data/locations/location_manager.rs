@@ -89,7 +89,7 @@ impl LocationManager {
     //=====================================
 
     pub fn add_all_location_to_selection_manager(&mut self) {
-        for (key, location) in self.player_location_map.iter() {
+        for (_key, _location) in self.player_location_map.iter() {
             // let widget = VarSource::new(Var::Game(GameVar::Dynamic(DynamicVar::Location(Some(location.clone())))));
             // self.selection_panel_update_manager.borrow_mut().add_widget(WidgetType::VarSource(widget));
         }

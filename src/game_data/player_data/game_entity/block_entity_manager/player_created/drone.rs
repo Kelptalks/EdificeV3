@@ -1,5 +1,5 @@
 
-use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId}, components::{block_component::BlockComponent, entity_components::{EntityComponent, EntityComponentEvent}, powered_component::{self, PoweredComponent}}, game_entity_manager::GameEntity}, tik_manager::game_time::GameTime, tools::id_gen::IdGen, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId}, components::{block_component::BlockComponent, entity_components::{EntityComponent, EntityComponentEvent}, powered_component::PoweredComponent}, game_entity_manager::GameEntity}, tik_manager::game_time::GameTime, tools::id_gen::IdGen, types::BlockTexture};
 
 
 static ID_GEN: IdGen = IdGen::new();
@@ -47,7 +47,7 @@ impl BlockEntityDrone {
     }
 
 
-    pub fn tik(&mut self, game_time: &GameTime, world: &World, event_manager: &mut EventManager) {
+    pub fn tik(&mut self, _game_time: &GameTime, _world: &World, _event_manager: &mut EventManager) {
         
     }
 

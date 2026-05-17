@@ -30,8 +30,8 @@ pub fn ndi_screen_cords_to_iso_cords(scale : f32, ndi_cords : [f32 ; 2]) -> [f32
     let screen_x = ndi_cords[0];
     let screen_y = ndi_cords[1];
 
-    let mut iso_x = (screen_x + (screen_y * 2.0)) / (2.0 * scale);
-    let mut iso_y = ((screen_y * 2.0) - screen_x) / (2.0 * scale);
+    let iso_x = (screen_x + (screen_y * 2.0)) / (2.0 * scale);
+    let iso_y = ((screen_y * 2.0) - screen_x) / (2.0 * scale);
 
 
     // Return unrounded values so caller can determine tile side before flooring

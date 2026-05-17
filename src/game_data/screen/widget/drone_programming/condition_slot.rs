@@ -1,12 +1,12 @@
-use crate::game_data::{player_data::{drone_script::control_flow::condition::Condition, player_data::PlayerData}, screen::{self, ScreenData, screen_data, widget::{drone_programming::scripting_widget_type::ScriptingElementWidget, panel::panel::Panel, prelude::PanelColor, widget::Widget}}};
+use crate::game_data::{player_data::{drone_script::control_flow::condition::Condition, player_data::PlayerData}, screen::{ScreenData, widget::{drone_programming::scripting_widget_type::ScriptingElementWidget, panel::panel::Panel, prelude::PanelColor, widget::Widget}}};
 
 pub struct ConditionSlot {
     panel: Panel
 }
 
 impl ConditionSlot {
-    pub fn new(condition: &Condition) -> ConditionSlot {
-        let mut panel = Panel::new_blank();
+    pub fn new(_condition: &Condition) -> ConditionSlot {
+        let panel = Panel::new_blank();
      
         
 
@@ -51,7 +51,7 @@ impl ScriptingElementWidget for ConditionSlot {
         self.panel.set_color(PanelColor::Custom(color[0], color[1], color[2]));
     }
     
-    fn get_line_incert_index(&self, screen_data: &ScreenData) -> usize {
+    fn get_line_incert_index(&self, _screen_data: &ScreenData) -> usize {
         todo!()
     }
 }

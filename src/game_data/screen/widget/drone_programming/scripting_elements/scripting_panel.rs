@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::{drone_script::{function::{self, function::Function}, script_element::{self, ScriptElement}, var::{programming_vars::programming_var::{self, ProgrammingVar}, var::Var, var_type::VarType}}, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::{drone_invintory_actions::DroneInventoryAction, drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}, player_data::PlayerData}, screen::{ScreenData, screen_data, widget::{self, button::button::Button, drone_programming::function_slot::FunctionSlot, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, scroll_panel::{self, scroll_panel::ScrollPanel}, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations::{self, buffer_pos}, widget_properties::WidgetProperties}}};
+use crate::game_data::{player_data::{drone_script::function::function::Function, player_data::PlayerData}, screen::widget::{drone_programming::function_slot::FunctionSlot, panel::panel::{Panel, PanelAlignment, PanelOrientation}, scroll_panel::scroll_panel::ScrollPanel, widget::{Widget, WidgetType}, widget_properties::WidgetProperties}};
 
 pub struct ScriptingPanel {
     widget_properties: WidgetProperties,
@@ -19,7 +19,7 @@ impl ScriptingPanel {
 
         let function_slot = FunctionSlot::new_with_function(function);
 
-        let mut scroll_panel = ScrollPanel::new();
+        let scroll_panel = ScrollPanel::new();
         panel.add_widget(function_slot.wrap_into_widget());
 
 

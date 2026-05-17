@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::event_manager::{Event, EventManager}, player_data::game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId}, components::{block_component::BlockComponent, entity_components::EntityComponent}, game_entity_manager::{GameEntity, GameEntityId}}, tik_manager::game_time::GameTime, tools::id_gen::IdGen, types::BlockTexture, world::world::WorldEvent};
+use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityId}, components::{block_component::BlockComponent, entity_components::EntityComponent}, game_entity_manager::GameEntity}, tik_manager::game_time::GameTime, tools::id_gen::IdGen, types::BlockTexture, world::world::WorldEvent};
 
 
 static ID_GEN: IdGen = IdGen::new();
@@ -51,7 +51,7 @@ impl BlockEntityFlungle {
                             let block_above = world.get_world_value_as_block(cords);
                             if block_above == BlockTexture::Air {
                                 event_manager.add_event(
-                                    WorldEvent::ModBlock(cords, BlockTexture::yellow_flowers)
+                                    WorldEvent::ModBlock(cords, BlockTexture::YellowFlowers)
                                     .wrap_into_event()
                                 );
                                 return;

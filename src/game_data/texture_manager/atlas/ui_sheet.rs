@@ -77,7 +77,7 @@ impl UITextureManager {
         let mut pre_calculated_uvs: Vec<[f32; 4]> = Vec::new();
 
         // Loop through each UI texture
-        for current_ui_texture in 0..DroneUITexture::get_total_UI_elements() {
+        for current_ui_texture in 0..DroneUITexture::get_total_ui_elements() {
             // Calculate UVs
             let texture_src_rect = DroneUITexture::from_id(current_ui_texture).unwrap().ui_texture_to_sprite_sheet_src_rect();
             let texture_uv = self.create_uv_from_src_rect(atlas_dimensions, texture_src_rect);
@@ -92,7 +92,7 @@ impl UITextureManager {
         let mut pre_calculated_uvs: Vec<[f32; 4]> = Vec::new();
 
         // Loop through each UI texture
-        for current_ui_texture in 0..DroneItemTexture::get_total_UI_elements() {
+        for current_ui_texture in 0..DroneItemTexture::get_total_ui_elements() {
             // Calculate UVs
             let texture_src_rect = DroneItemTexture::from_id(current_ui_texture).ui_texture_to_sprite_sheet_src_rect();
             let texture_uv = self.create_uv_from_src_rect(atlas_dimensions, texture_src_rect);

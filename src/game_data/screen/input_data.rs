@@ -75,7 +75,7 @@ impl MouseInputData {
     // Value updating
     //=====================================
 
-    pub fn update_scrolling_values(&mut self, x: f32, y: f32) {
+    pub fn update_scrolling_values(&mut self, _x: f32, y: f32) {
         if y < 0.0 {
             self.scrolled_down = true;
         }

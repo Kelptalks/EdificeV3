@@ -1,4 +1,4 @@
-use crate::game_data::{player_data::{drone_script::{script_element::{self, ScriptElement}, var::{game_vars::game_var_type::GameVarType, var_type::VarType}}, drones::drone_actions::drone_actions::{DroneAction, DroneActionError}}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::{drone_script::var::{game_vars::game_var_type::GameVarType, var_type::VarType}, drones::drone_actions::drone_actions::{DroneAction, DroneActionError}}, texture_manager::texture::Texture};
 
 
 #[derive(Clone)]
@@ -35,8 +35,8 @@ impl ActionVarType {
     
     pub fn get_texture(&self) -> Texture {
         match self {
-            ActionVarType::Status(error_code) => todo!(),
-            ActionVarType::Action(drone_action) => todo!(),
+            ActionVarType::Status(_error_code) => todo!(),
+            ActionVarType::Action(_drone_action) => todo!(),
         }
     }
     

@@ -1,4 +1,5 @@
-use crate::game_data::screen::widget::{button::button::Button, panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::{Widget, WidgetType}, widget_properties::{self, WidgetId, WidgetProperties}, window_manager::{widget_window_manager::WidgetWindowId, windows::window_type::WindowType}};
+#![allow(dead_code)]
+use crate::game_data::screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::Widget, widget_properties::{WidgetId, WidgetProperties}, window_manager::windows::window_type::WindowType};
 
 
 

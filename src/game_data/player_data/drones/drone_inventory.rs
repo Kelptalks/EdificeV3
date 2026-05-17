@@ -44,7 +44,6 @@ impl InventorySlot {
 pub struct DroneInventory {
     slots: Vec<InventorySlot>,
     total_slots: u32,
-    total_items: u32,
 }
 
 impl DroneInventory {
@@ -52,11 +51,10 @@ impl DroneInventory {
         let mut drone_inventory = DroneInventory {
             slots: Vec::new(),
             total_slots: 9,
-            total_items: 0,
         };
 
         // init inventory slots
-        for i in 0..drone_inventory.total_slots {
+        for _i in 0..drone_inventory.total_slots {
             drone_inventory.slots.push(InventorySlot::new());
         }
 

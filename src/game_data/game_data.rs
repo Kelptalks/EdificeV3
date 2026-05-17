@@ -1,8 +1,6 @@
 
 
 use miniquad::{GlContext, KeyCode, KeyMods, MouseButton};
-use std::cell::RefCell;
-use std::rc::Rc;
 use std::sync::{Arc, RwLock};
 use std::time::SystemTime;
 
@@ -188,7 +186,7 @@ impl GameData {
         // Render frame time | Eventualy create a debug window under screen for this
         let system_time_end = SystemTime::now();
         let frame_duration = system_time_end.duration_since(frame_start_time).unwrap();
-        let frame_duration_ms = frame_duration.as_millis();
+        let _frame_duration_ms = frame_duration.as_millis();
 
         // Update game events
         let t = Instant::now();

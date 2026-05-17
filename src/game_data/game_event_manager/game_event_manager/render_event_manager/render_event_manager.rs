@@ -1,7 +1,6 @@
 
-use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}, render_event_manager::{texture_manager_event::TextureManagerEvent, window_manager_event::WindowManagerEvent}}, player_data::player_data::PlayerData, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::{widget::WidgetType, world_rendering::tile_map_manager::{self, TileMapEvent}}}, texture_manager};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}, render_event_manager::{texture_manager_event::TextureManagerEvent, window_manager_event::WindowManagerEvent}}, player_data::player_data::PlayerData, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::{widget::WidgetType, world_rendering::tile_map_manager::TileMapEvent}}};
 
 /*
 ##################
@@ -49,7 +48,7 @@ impl RenderEvent {
     pub fn construct_menu(
         current_menu: CurrentMenu, 
         screen_mananager: &mut ScreenManager, 
-        event_tools: &mut GameEventManager, 
+        _event_tools: &mut GameEventManager, 
         player_data: &PlayerData,
     ) -> WidgetType 
     {

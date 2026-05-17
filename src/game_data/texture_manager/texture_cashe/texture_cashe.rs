@@ -1,11 +1,11 @@
+#![allow(dead_code)]
 use std::sync::atomic::{AtomicU32, Ordering};
 
 use miniquad::{FilterMode, GlContext, MipmapFilterMode, RenderingBackend, TextureId};
-use rodio::cpal::InputStreamTimestamp;
 
 const ATLAS_SIZE: u32 = 8192;
 
-use crate::game_data::{TextureManager, screen::widget::widget_calculations, texture_manager::rendering_managager::rendering_batch::RenderBatch};
+use crate::game_data::texture_manager::rendering_managager::rendering_batch::RenderBatch;
 
 static NEXT_ID: AtomicU32 = AtomicU32::new(0);
 

@@ -32,12 +32,12 @@ impl ScreenManager {
 
     pub fn render_screen(&mut self,
         texture_manager: &mut TextureManager,
-        world: Arc<RwLock<World>>,
+        _world: Arc<RwLock<World>>,
         world_rendering_task_manager: &mut RenderingTaskManager,
-        tik_manager: &TikManager,
+        _tik_manager: &TikManager,
         player_data: &mut PlayerData,
         game_event_manager: &mut EventManager,
-        ctx: &mut GlContext
+        _ctx: &mut GlContext
     ) {
         if self.screen_data.should_quit() {
             window::order_quit();

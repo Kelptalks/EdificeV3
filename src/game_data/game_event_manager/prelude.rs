@@ -13,11 +13,7 @@ pub use super::widget_event_manager::{
     },
 };
 
-pub use super::player_data_event_manager::{
-    player_event_manager::PlayerDataEvent,
-    location_event::LocationEvent,
-};
+pub use super::player_data_event_manager::player_event_manager::PlayerDataEvent;
 
-// Input / Dispatch Events
+// Input Events
 pub use super::input_event_manager::input_event_manager::InputEvent;
-pub use super::dispatch_event_manager::dispatch_event_manager::DispatchEvent;

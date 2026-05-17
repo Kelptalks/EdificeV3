@@ -61,7 +61,7 @@ impl ShaderTextureManager {
                 for x in 0..BLOCK_PIXLE_REZ {
                     // Get masking textures pixle color
                     let source_pixel = block_masks_image.get_pixel(x, y);
-                    let [r, g, b, a] = source_pixel.0;  // Gets [u8; 4] array
+                    let [r, g, b, _a] = source_pixel.0;  // Gets [u8; 4] array
 
                     let x_draw_cor = x + x_dest_cor + self.start_cords[0] as u32;
                     let y_draw_cor = self.start_cords[1] as u32;
@@ -105,7 +105,7 @@ impl ShaderTextureManager {
                 for x in 0..BLOCK_PIXLE_REZ {
                     // Get masking textures pixle color
                     let source_pixel = block_masks_image.get_pixel(x + 64, y);
-                    let [r, g, b, a] = source_pixel.0;  // Gets [u8; 4] array
+                    let [r, g, b, _a] = source_pixel.0;  // Gets [u8; 4] array
 
                     let x_draw_cor = x + x_dest_cor + self.start_cords[0] as u32;
                     let y_draw_cor = self.start_cords[1] as u32;

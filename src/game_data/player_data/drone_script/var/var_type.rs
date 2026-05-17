@@ -1,6 +1,6 @@
 
 
-use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::{GameVarType, GameVarKind}, prim_vars::prim_var_type::{PrimitiveVarKind, PrimitiveVarType}, programming_vars::programming_var::{self, ProgrammingVar, ProgrammingVarKind}, var::Var, var_properties::{VarPropModRequest, VarProperty}}, screen::widget::widget::WidgetType, texture_manager::texture::Texture, types::BlockTexture};
+use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::{GameVarType, GameVarKind}, prim_vars::prim_var_type::{PrimitiveVarKind, PrimitiveVarType}, programming_vars::programming_var::{ProgrammingVar, ProgrammingVarKind}, var::Var, var_properties::{VarPropModRequest, VarProperty}}, screen::widget::widget::WidgetType, texture_manager::texture::Texture, types::BlockTexture};
 
 
 

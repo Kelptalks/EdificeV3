@@ -1,10 +1,11 @@
-use std::{cell::RefCell, collections::HashMap, ops::Index, rc::Rc, time::{Duration, Instant, SystemTime}};
+#![allow(dead_code)]
+use std::time::Instant;
 use crate::game_data::prof_record;
 
 
 use crate::game_data::{
     TextureManager, player_data::{cursor::cursor::Cursor, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction}, player_data::PlayerData}, screen::{
-        ScreenData, iso_cord_tool, widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_triangle::CastedTriangle}, tile_map::TileMapId, tile_map_manager::{self, TileMapEvent, TileMapManager}, view_mode::ViewMode}}
+        ScreenData, iso_cord_tool, widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_triangle::CastedTriangle}, tile_map::TileMapId, tile_map_manager::{TileMapEvent, TileMapManager}, view_mode::ViewMode}}
     }, texture_manager::texture::Texture, types::BlockTexture, world::world::WorldEvent
 };
 
@@ -169,7 +170,7 @@ impl PlayWorldViewRender {
         
 
 
-        let cursor = player_data.get_cursor();
+        let _cursor = player_data.get_cursor();
 
         let mut cursor_scheduler = player_data.get_cursor_event_scheduler();
 
@@ -206,9 +207,9 @@ impl PlayWorldViewRender {
             self.camera_ndc_offset[1] += scrolling_offset[1];
         }
 
-        let mut cords_offset = [0; 3];
+        let cords_offset = [0; 3];
 
-        let iso_offset =
+        let _iso_offset =
             iso_cord_tool::ndi_screen_cords_to_iso_cords(
                 self.ndc_tile_scale, 
                 self.camera_ndc_offset
@@ -222,8 +223,8 @@ impl PlayWorldViewRender {
     fn get_mouse_triangle(
         &mut self, 
         screen_data: &ScreenData, 
-        event_manager: &mut EventManager, 
-        player_data: &PlayerData
+        _event_manager: &mut EventManager, 
+        _player_data: &PlayerData
     ) -> Option<CastedTriangle> {
 
         let mut mouse_cords = screen_data.get_mouse_ndc();
@@ -312,7 +313,7 @@ impl PlayWorldViewRender {
     fn render_full_view(
         &mut self,
         texture_manager: &mut TextureManager,
-        screen_data: &ScreenData,
+        _screen_data: &ScreenData,
         event_manager: &mut EventManager,
         player_data: &PlayerData,
     ) {
@@ -451,13 +452,10 @@ impl Widget for PlayWorldViewRender {
                         let object_cords = mouse_triangle.get_first_block_cords_struck();
 
                         let world_ref = player_data.current_world.try_read();
-                        let mut object = None;
-                        match world_ref {
-                            Ok(world) => {
-                                object = world.get_block_entity(object_cords);
-                            },
+                        let object = match world_ref {
+                            Ok(world) => world.get_block_entity(object_cords),
                             Err(_) => todo!(),
-                        }
+                        };
 
                         if let Some(object) = object {
                             if screen_data.was_left_released() {
@@ -556,7 +554,7 @@ impl Widget for PlayWorldViewRender {
             ));
             mouse_data.push("Triangle Textures".to_string());
             for texture in triangle.get_textures() {
-                if let Texture::BlockTriangle(block, triangle) = texture {
+                if let Texture::BlockTriangle(block, _triangle) = texture {
                     mouse_data.push(format!(" - {}", block.get_name()));
                 }
             }

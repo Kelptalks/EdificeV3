@@ -1,4 +1,4 @@
-use crate::game_data::{player_data::{drone_script::var::{game_vars::primitive_game_var::PrimitiveGameVarTypeKind, prim_vars::prim_var_type::{PrimitiveVarKind, PrimitiveVarType}, var::Var, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::drone_actions::{DroneAction, DroneActionError}}}, texture_manager::texture::Texture, types::UITextures};
+use crate::game_data::{player_data::{drone_script::var::{game_vars::primitive_game_var::PrimitiveGameVarTypeKind, prim_vars::prim_var_type::PrimitiveVarKind, var::Var}, drones::{drone::Drone, drone_actions::drone_actions::{DroneAction, DroneActionError}}}, texture_manager::texture::Texture, types::UITextures};
 
 #[derive(Clone)]
 pub enum DroneGetterAction {
@@ -15,7 +15,7 @@ impl DroneGetterAction {
         DroneAction::GetterAction(self)
     }
     
-    pub fn execute(&self, drone: &mut Drone) -> Var {
+    pub fn execute(&self, _drone: &mut Drone) -> Var {
         match self {
             DroneGetterAction::IsBusy => DroneActionError::Ok.wrap_into_var_type().create_var(),
             DroneGetterAction::GetFuel => DroneActionError::Ok.wrap_into_var_type().create_var(),

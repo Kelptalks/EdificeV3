@@ -1,4 +1,4 @@
-use crate::game_data::{player_data::{drone_script::var::{var::Var, var_type::{VarKind, VarType}}, drones::drone_actions::drone_actions::DroneAction}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::{drone_script::var::{var::Var, var_type::VarKind}, drones::drone_actions::drone_actions::DroneAction}, texture_manager::texture::Texture};
 
 
 #[derive(Clone)]

@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 
-use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, PlayerDataEvent}, locations::world_area_side::WorldAreaSide, player_data::{drone_script::{function::function::Function, var::{self, game_vars::{dynamic_var::{self, DynamicVarType}, game_var_type::GameVarType}, var_properties::VarPropModRequest, var_type::VarType}}, drones::{drone::Drone, drone_actions::{drone_actions::DroneAction, prim_actions::{drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}, locations::location::{self, WorldLocation}}};
+use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, PlayerDataEvent}, locations::world_area_side::WorldAreaSide, player_data::{drone_script::{function::function::Function, var::{game_vars::{dynamic_var::DynamicVarType, game_var_type::GameVarType}, var_properties::VarPropModRequest, var_type::VarType}}, drones::drone::Drone, locations::location::WorldLocation}};
 
 
 //=====================================
@@ -136,9 +136,9 @@ pub enum DroneVarEvent {
 }
 
 impl DroneVarEvent {
-    pub fn execute(&self, drone: &Rc<RefCell<Drone>>) { 
+    pub fn execute(&self, _drone: &Rc<RefCell<Drone>>) { 
         match self {
-            DroneVarEvent::ExecuteActionEvent(function_ref) => {
+            DroneVarEvent::ExecuteActionEvent(_function_ref) => {
                 // let constructed_action = function_ref.borrow_mut().call();
                 // println!("Adding Action ({}) To Drone ({})", constructed_action.get_name(), drone.borrow().get_name());
                 eprintln!("Event No longer used");

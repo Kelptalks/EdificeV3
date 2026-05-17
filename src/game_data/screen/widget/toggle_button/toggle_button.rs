@@ -119,7 +119,7 @@ impl Widget for ToggleButton {
         game_event_manager: &mut EventManager,
         player_data: &PlayerData,
     ) {
-        for event in &self.links.pop() {
+        if let Some(event) = &self.links.pop() {
             game_event_manager.add_game_event(event.clone());
         }
 

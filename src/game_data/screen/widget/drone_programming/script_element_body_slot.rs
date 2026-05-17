@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use crate::game_data::{player_data::{self, drone_script::element_body::ScriptElementBody, player_data::PlayerData}, screen::{ScreenData, screen_data, widget::{self, panel::panel::Panel, widget::{Widget, WidgetType}, widget_calculations, widget_properties::{self, WidgetProperties}}}};
+use crate::game_data::{player_data::{drone_script::element_body::ScriptElementBody, player_data::PlayerData}, screen::{ScreenData, widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}}};
 
 pub struct ScriptElementBodySlot {
     widget_props: WidgetProperties,

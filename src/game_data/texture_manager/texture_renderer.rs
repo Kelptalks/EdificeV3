@@ -1,7 +1,8 @@
+#![allow(dead_code)]
 
 use miniquad::*;
 
-use crate::game_data::{screen::{ScreenData, screen_data}, texture_manager::rendering_managager::rendering_batch::RenderBatch};
+use crate::game_data::{screen::ScreenData, texture_manager::rendering_managager::rendering_batch::RenderBatch};
 
 
 // Static vars

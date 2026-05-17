@@ -1,7 +1,7 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::{GameVarKind, GameVarType}, prim_vars::prim_var_type::PrimitiveVarType, var::Var, var_properties::{PropKey, VarProperty}, var_type::{VarKind, VarType}}, screen::widget::prelude::VarSlot, texture_manager::texture::Texture, types::{BlockTexture, UITextures, drone_item::DroneItem}};
+use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::{GameVarKind, GameVarType}, prim_vars::prim_var_type::PrimitiveVarType, var::Var, var_properties::{PropKey, VarProperty}, var_type::{VarKind, VarType}}, texture_manager::texture::Texture, types::{BlockTexture, UITextures, drone_item::DroneItem}};
 use crate::game_data::player_data::drones::drone_inventory::InventorySlot;
 
 
@@ -33,7 +33,7 @@ impl PrimitiveGameVarType {
             PrimitiveGameVarType::Cords(_cords) => {
                 return UITextures::CordsIcon.wrap_into_texture();
             },
-            PrimitiveGameVarType::Inventory(inventory_slots) => {
+            PrimitiveGameVarType::Inventory(_inventory_slots) => {
                 return UITextures::ScallingIconMidCenter.wrap_into_texture()
             },
         }

@@ -2,13 +2,9 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::game_data::{
     game_event_manager::prelude::{
-        Event, EventManager, LocationEvent, PlayerDataEvent
+        Event, EventManager
     }, 
-    locations::{world_area::WorldArea, world_area_side::WorldAreaSide, world_point::WorldPoint}, 
-    player_data::{
-        drone_script::var::{game_vars::{dynamic_var::{DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}, 
-        locations::location::WorldLocation, player_data::PlayerData
-    }
+    player_data::drone_script::var::{game_vars::{dynamic_var::{DynamicVarType}, game_var_type::GameVarType}, var_type::VarType}
 };
 
 #[derive(Clone)]
@@ -56,15 +52,15 @@ impl CursorConfig {
     }
 
 
-    pub fn get_move_cursor_event_with_shift_mod(&self, shift: [i32; 3]) -> Vec<Event> {
-        let mut events = Vec::new();
+    pub fn get_move_cursor_event_with_shift_mod(&self, _shift: [i32; 3]) -> Vec<Event> {
+        let events = Vec::new();
 
         let cursor_mode = self.cursor_mode.clone();
         match cursor_mode {
             CursorMode::Free() => {
                 
             },
-            CursorMode::LockedToVar(location_ref) => {
+            CursorMode::LockedToVar(_location_ref) => {
                
                
                

@@ -1,9 +1,7 @@
+#![allow(dead_code)]
 
 use crate::game_data::{
-    screen::{ScreenData, screen_data, widget::world_rendering::{
-        tile_map::TileMapId, 
-        tile_map_manager::{self, TileMapManager}
-    }}, 
+    screen::ScreenData, 
     texture_manager::{
         atlas::texture_atlas::TextureAtlas, rendering_managager::rendering_batch::RenderBatch, texture::Texture, texture_cashe::texture_cashe::{CashedTextureID, TextureCashe}, texture_renderer::TextureRenderingManager}, types::{BlockShader, BlockTexture, BlockTriangle, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
 use miniquad::*;
@@ -160,7 +158,7 @@ impl TextureManager {
             Texture::BlockTriangle(block_texture, block_triangle) => {
                 return texture_atlas.get_precalculated_block_triangle_uv(block_triangle, block_texture)
             },
-            Texture::BlockShader(block_shader) => {
+            Texture::BlockShader(_block_shader) => {
                 todo!("Texture Enum rendering for block shader not implemented");
             },
             Texture::DroneItemTexture(drone_item_texture) => {
@@ -172,7 +170,7 @@ impl TextureManager {
             Texture::TintedUITexture(uitextures, _) => {
                 return texture_atlas.get_precalculated_ui_uv(uitextures)
             },
-            Texture::CashedTexture(cashed_texture_id) => [0.0; 4],
+            Texture::CashedTexture(_cashed_texture_id) => [0.0; 4],
             Texture::Atlas(_) => [0.0, 0.0, 1.0, 1.0],
         }
     }
@@ -181,7 +179,7 @@ impl TextureManager {
         let uv = self.get_texture_uv(texture);
 
         match texture {
-            Texture::TintedUITexture(uitextures, tint) => {
+            Texture::TintedUITexture(_uitextures, tint) => {
                 self.get_texture_renderer().add_quad_tinted(pos, uv, tint);   
             },
             Texture::CashedTexture(cashed_texture_id) => {
@@ -255,7 +253,7 @@ impl TextureManager {
         if let Some((cropped_uv, pos)) = Self::get_copped_pos_and_uv(uv, draw_pos, bounds_pos) {
             match texture {
                 
-                Texture::TintedUITexture(uitextures, tint) => self.get_texture_renderer().add_quad_tinted(pos, cropped_uv, tint),
+                Texture::TintedUITexture(_uitextures, tint) => self.get_texture_renderer().add_quad_tinted(pos, cropped_uv, tint),
                 _ => {
                     self.get_texture_renderer().add_quad(pos, cropped_uv);
                 }
@@ -494,14 +492,14 @@ impl TextureManager {
     // Testing
     //==========
 
-    pub fn test_sprites(&mut self, ctx : &mut GlContext) {
+    pub fn test_sprites(&mut self, _ctx : &mut GlContext) {
         if !self.textures_initialized {
             println!("Textures not initialized yet!");
             return;
         }
         
         if let Some(texture_renderer) = self.texture_renderer.as_mut() {
-            if let Some(texture_atlas) = self.texture_atlas.as_mut() {
+            if let Some(_texture_atlas) = self.texture_atlas.as_mut() {
                 //texture_renderer.set_texture(texture_atlas.texture_id);
                 
                 
@@ -512,7 +510,7 @@ impl TextureManager {
                 );
 
                 self.render_ui_element(UITextures::ButtonCheck, [0.0, 0.0], 0.1);
-                self.render_ui_element(UITextures::ButtonCheck_Down, [0.2, 0.0], 0.1);
+                self.render_ui_element(UITextures::ButtonCheckDown, [0.2, 0.0], 0.1);
                 //self.render_ui_element(UITextures::ButtonLeftArrow, [0.2, 0.0], 0.1);
 
                 }

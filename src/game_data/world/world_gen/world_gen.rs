@@ -1,6 +1,5 @@
+#![allow(dead_code)]
 use crate::game_data::{locations::world_area::WorldArea, types::BlockTexture, world::world::WorldEvent, world_gen::terrain_gen::{grass_gen::GrassGenManager, perlin_noise::TerrainNoise}};
-
-const CHUNK_SIZE: i32 = 16;
 
 struct LayerRule {
     main_block_type: BlockTexture,

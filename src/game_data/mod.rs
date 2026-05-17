@@ -8,7 +8,7 @@ pub use frame_profiler::{prof_record, prof_end_frame, ProfTimer, prof_get_displa
 mod logging_tool;
 pub use logging_tool::*;
 
-mod world;
+pub mod world;
 pub use world::*;
 
 mod texture_manager;

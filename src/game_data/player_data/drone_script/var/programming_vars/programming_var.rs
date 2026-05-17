@@ -2,7 +2,7 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::{control_flow::condition::Condition, function::{function::Function, function_call::FunctionCall}, script_element::{self, ScriptElement}, var::{prim_vars::prim_var_type::PrimitiveVarType, var::Var, var_properties::{PropKey, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}}, screen::widget::{drone_programming::function_slot::FunctionSlot, widget::WidgetType}, texture_manager::texture::Texture, types::UITextures};
+use crate::game_data::{player_data::drone_script::{control_flow::condition::Condition, function::function::Function, script_element::ScriptElement, var::{prim_vars::prim_var_type::PrimitiveVarType, var::Var, var_properties::{PropKey, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}}, screen::widget::{drone_programming::function_slot::FunctionSlot, widget::WidgetType}, texture_manager::texture::Texture, types::UITextures};
 
 #[derive(Clone, PartialEq)]
 pub enum ProgrammingVar {
@@ -38,7 +38,7 @@ impl ProgrammingVar {
                 // return Texture::BlockTexture(crate::game_data::types::BlockTexture::Air)
                 condition.get_texture()
             }
-            ProgrammingVar::Script(ref_cell) => {
+            ProgrammingVar::Script(_ref_cell) => {
                 UITextures::ScallingIconMidLeft.wrap_into_texture()
             },
         }
@@ -46,10 +46,10 @@ impl ProgrammingVar {
 
     pub fn into_widget(&self) -> Option<WidgetType> {
         match self {
-            ProgrammingVar::ScriptingElement(script_element) => {
+            ProgrammingVar::ScriptingElement(_script_element) => {
                 None
             },
-            ProgrammingVar::Condition(condition) => {
+            ProgrammingVar::Condition(_condition) => {
                 None
             },
             ProgrammingVar::Script(function_ref) => {
@@ -66,7 +66,7 @@ impl ProgrammingVar {
         match self {
             ProgrammingVar::ScriptingElement(_) =>  ProgrammingVarKind::Function(),
             ProgrammingVar::Condition(_) => ProgrammingVarKind::Condition(),
-            ProgrammingVar::Script(ref_cell) => ProgrammingVarKind::Script(),
+            ProgrammingVar::Script(_ref_cell) => ProgrammingVarKind::Script(),
         }
     }
 
@@ -87,13 +87,13 @@ impl ProgrammingVar {
         let mut props = Vec::new();
 
         match self {
-            ProgrammingVar::ScriptingElement(function) => {
+            ProgrammingVar::ScriptingElement(_function) => {
                 props.push(VarProperty { key: PropKey::Name, value: PrimitiveVarType::String(self.get_name()).create_var(), mutible: false });
             },
-            ProgrammingVar::Condition(condition) => {
+            ProgrammingVar::Condition(_condition) => {
                 todo!("");
             },
-            ProgrammingVar::Script(ref_cell) => {
+            ProgrammingVar::Script(_ref_cell) => {
                 todo!("")
             },
         }
@@ -101,15 +101,15 @@ impl ProgrammingVar {
     }
 
 
-    pub fn request_prop(&mut self, request: VarPropModRequest) { 
+    pub fn request_prop(&mut self, _request: VarPropModRequest) { 
         match self {
-            ProgrammingVar::ScriptingElement(function) => {
+            ProgrammingVar::ScriptingElement(_function) => {
                 eprintln!("No props requests for Var Function Exist");
             },
-            ProgrammingVar::Condition(condition) => {
+            ProgrammingVar::Condition(_condition) => {
                 eprintln!("No props requests for Var Condition Exist");
             },
-            ProgrammingVar::Script(ref_cell) => {
+            ProgrammingVar::Script(_ref_cell) => {
                 eprintln!("No props requests for Var script Exist");
             },
         }
@@ -121,9 +121,9 @@ impl ProgrammingVar {
 
     pub fn clear(&mut self) {
         match self {
-            ProgrammingVar::ScriptingElement(function) => todo!(),
-            ProgrammingVar::Condition(condition) => todo!(),
-            ProgrammingVar::Script(ref_cell) => todo!(),
+            ProgrammingVar::ScriptingElement(_function) => todo!(),
+            ProgrammingVar::Condition(_condition) => todo!(),
+            ProgrammingVar::Script(_ref_cell) => todo!(),
         }
     }
 

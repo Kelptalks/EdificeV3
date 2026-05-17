@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use miniquad::KeyCode;
 
-use crate::game_data::{game_event_manager::prelude::{BoolEvent, Event, InputEvent, StringEvent, UsizeEvent}, player_data::player_data::PlayerData, screen::widget::{panel::panel_texture_manager::PanelTextureManager, text::{header::TextDisplay, text_input_event_constructor}, widget::{Widget, WidgetType}, widget_properties::WidgetProperties}, texture_manager::texture::Texture};
+use crate::game_data::{game_event_manager::prelude::{Event, StringEvent, UsizeEvent}, player_data::player_data::PlayerData, screen::widget::{panel::panel_texture_manager::PanelTextureManager, text::{header::TextDisplay, text_input_event_constructor}, widget::{Widget, WidgetType}, widget_properties::WidgetProperties}, texture_manager::texture::Texture};
 
 pub struct TextInput {
     widget_properties: WidgetProperties,

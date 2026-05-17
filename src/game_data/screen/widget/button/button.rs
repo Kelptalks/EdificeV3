@@ -189,7 +189,7 @@ impl Widget for Button {
         texture_manager: &mut TextureManager,
         screen_data: &ScreenData,
         game_event_manager: &mut EventManager,
-        player_data: &PlayerData,
+        _player_data: &PlayerData,
     ) {
         if self.needs_resizing {
             self.size();

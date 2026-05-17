@@ -1,10 +1,7 @@
-use std::{cell::RefCell, rc::Rc};
 
 use crate::game_data::{
-    player_data::{
-        drone_script::{action::action::Action, control_flow::control_flow::ControlFlow, element_body::ScriptElementBody, function::{function::Function, function_call::{self, FunctionCall}}, var::{programming_vars::programming_var::ProgrammingVar, var::{Var}, var_type::VarType}}, 
-        drones::drone_actions::drone_actions::DroneAction}, 
-    screen::widget::{drone_programming::{action_slot::ActionSlot, control_flow_slot::ControlFlowSlot, function_slot::FunctionSlot}, panel::panel::Panel, prelude::VarSlot, widget::WidgetType}, texture_manager::texture::Texture, types::UITextures};
+    player_data::drone_script::{action::action::Action, control_flow::control_flow::ControlFlow, element_body::ScriptElementBody, function::{function::Function, function_call::FunctionCall}, var::{programming_vars::programming_var::ProgrammingVar, var::{Var}, var_type::VarType}}, 
+    screen::widget::{drone_programming::{action_slot::ActionSlot, control_flow_slot::ControlFlowSlot}, panel::panel::Panel, prelude::VarSlot, widget::WidgetType}, texture_manager::texture::Texture, types::UITextures};
 
 #[derive(Clone)]
 pub enum ScriptElement {    
@@ -26,7 +23,7 @@ pub enum ScriptElement {
 }
 
 impl PartialEq for ScriptElement {
-    fn eq(&self, other: &Self) -> bool {
+    fn eq(&self, _other: &Self) -> bool {
         todo!()
     }
 }
@@ -64,10 +61,10 @@ impl ScriptElement {
             ScriptElement::Action(action) => {
                 return ActionSlot::new(action, line).wrap_into_widget()
             },
-            ScriptElement::FunctionCall(function_call) => {
+            ScriptElement::FunctionCall(_function_call) => {
                 
             },
-            ScriptElement::Function(function) => {
+            ScriptElement::Function(_function) => {
                 eprintln!("Cannot create function slot from script element because fuction slot uses a ref");
             },
         }
@@ -80,14 +77,14 @@ impl ScriptElement {
             ScriptElement::Var(var) => {
                 var.get_texture()
             },
-            ScriptElement::ControlFlow(control_flow) => {
+            ScriptElement::ControlFlow(_control_flow) => {
                 UITextures::ControlFlowIcon.wrap_into_texture()
             },
             ScriptElement::Action(action) => {
                 action.get_texture()
             },
-            ScriptElement::FunctionCall(function_call) => todo!(),
-            ScriptElement::Function(function) => todo!(),
+            ScriptElement::FunctionCall(_function_call) => todo!(),
+            ScriptElement::Function(_function) => todo!(),
         }
     }
 

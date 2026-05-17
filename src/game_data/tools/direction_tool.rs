@@ -1,4 +1,4 @@
-use rand::seq::{IndexedRandom, SliceRandom};
+#![allow(dead_code)]
 
 pub enum AxisDirection {
     Up,
@@ -50,7 +50,7 @@ impl AxisDirection {
         let [x, y, z] = impulse;
         let ax = x.abs();
         let ay = y.abs();
-        let az = z.abs();
+        let _az = z.abs();
 
 
         // Cardinal if one horizontal axis is more than 2x the other, otherwise diagonal

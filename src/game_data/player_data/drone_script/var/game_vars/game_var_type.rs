@@ -45,13 +45,13 @@ impl GameVarType {
 
     pub fn into_widget(&self) -> Option<WidgetType> {
         match self {
-            GameVarType::Primitive(primitive_game_var_type) => {
+            GameVarType::Primitive(_primitive_game_var_type) => {
                 None
             },
             GameVarType::Dynamic(dynamic_var_type) => {
                 dynamic_var_type.into_widget()
             },
-            GameVarType::Action(action_var_type) => {
+            GameVarType::Action(_action_var_type) => {
                 None
             },
         }
@@ -65,7 +65,7 @@ impl GameVarType {
         match self {
             GameVarType::Primitive(p) => GameVarKind::Primitive(p.to_kind()),
             GameVarType::Dynamic(d) => GameVarKind::Dynamic(d.to_kind()),
-            GameVarType::Action(d) => GameVarKind::Action
+            GameVarType::Action(_d) => GameVarKind::Action
         }
     }
     
@@ -85,19 +85,19 @@ impl GameVarType {
         match self {
             GameVarType::Primitive(primitive_var) => primitive_var.get_properties(),
             GameVarType::Dynamic(dynamic_var) => dynamic_var.get_properties(),
-            GameVarType::Action(d) => Vec::new(),
+            GameVarType::Action(_d) => Vec::new(),
         }
     }
 
     pub fn request_prop(&mut self, request: VarPropModRequest) {
         match self {
-            GameVarType::Primitive(primitive_var_type_kind) => {
+            GameVarType::Primitive(_primitive_var_type_kind) => {
                 eprintln!("NO IMPLEMENTATION IMPLEMENTED FOR MINIPULATING PRIM VARS");
             },
             GameVarType::Dynamic(dynamic_var_type_kind) => {
                 dynamic_var_type_kind.request_prop(request);
             },
-            GameVarType::Action(d) => {
+            GameVarType::Action(_d) => {
                 eprintln!("NO IMPLEMENTATION IMPLEMENTED FOR MINIPULATING PRIM VARS");
             },
         }
@@ -111,7 +111,7 @@ impl GameVarType {
         match self {
             GameVarType::Primitive(primitive_var) => primitive_var.clear(),
             GameVarType::Dynamic(dynamic_var) => dynamic_var.clear(),
-            GameVarType::Action(d) => todo!(),
+            GameVarType::Action(_d) => todo!(),
         }
     }
 }

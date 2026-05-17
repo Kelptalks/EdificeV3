@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::event_manager::{self, EventManager}, locations::world_area::WorldArea, types::BlockTexture, world::world::WorldEvent};
+use crate::game_data::{World, game_event_manager::event_manager::EventManager, locations::world_area::WorldArea, types::BlockTexture, world::world::WorldEvent};
 
 
 #[derive(Clone)]

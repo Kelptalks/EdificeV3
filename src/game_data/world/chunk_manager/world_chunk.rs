@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet, hash_map};
+use std::collections::{HashMap, HashSet};
 use std::time::Instant;
 use crate::game_data::prof_record;
 
@@ -245,7 +245,7 @@ impl LoadedWorldChunk {
     //=====================================
 
     // Remove game objects that are not contained within the chunk
-    pub fn update_game_entities(&mut self, player_data: &PlayerData) {
+    pub fn update_game_entities(&mut self, _player_data: &PlayerData) {
         for _game_entity in &mut self.block_entities {
 
         }
@@ -273,7 +273,7 @@ impl WorldChunkEvent {
         WorldEvent::LoadedChunkEvent(cords, self).wrap_into_event()
     }
 
-    pub fn execute_chunk_event(&self, loaded_chunk: &mut LoadedWorldChunk, event_data: &mut GameEventManager) {
+    pub fn execute_chunk_event(&self, _loaded_chunk: &mut LoadedWorldChunk, _event_data: &mut GameEventManager) {
 
 
 

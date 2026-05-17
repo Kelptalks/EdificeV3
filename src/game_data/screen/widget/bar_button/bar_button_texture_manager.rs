@@ -24,7 +24,7 @@ impl BarButtonTextureManager {
 
     pub fn render(&self, texture_manager: &mut TextureManager, is_hovered: bool) {
         let (left, center, right) = if is_hovered {
-            (UITextures::BarButtonLeft_Down, UITextures::BarButtonCenter_Down, UITextures::BarButtonRight_Down)
+            (UITextures::BarButtonLeftDown, UITextures::BarButtonCenterDown, UITextures::BarButtonRightDown)
         } else {
             (UITextures::BarButtonLeft, UITextures::BarButtonCenter, UITextures::BarButtonRight)
         };

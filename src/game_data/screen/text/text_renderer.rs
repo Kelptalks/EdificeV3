@@ -1,17 +1,4 @@
-use crate::game_data::{TextureManager, screen::ScreenData, types::{CharType, FontType}};
-
-pub fn render_string(screen_data: &ScreenData, texture_manager: &mut TextureManager, string : String, font : FontType, scale: f32, pixel_cords: [f32; 2]){
-    let mut ndi_cords = screen_data.pixel_cords_to_ndc_cords(pixel_cords);
-
-
-
-    let chars = string.chars().collect::<Vec<char>>();
-    for c in chars.iter() {
-        let char_type = CharType::from_char(*c);
-        texture_manager.render_char(font, char_type, ndi_cords, scale);
-        ndi_cords[0] += scale; // Advance position for next character
-    }
-}
+use crate::game_data::{TextureManager, types::{CharType, FontType}};
 
 pub fn render_string_at_ndc(texture_manager: &mut TextureManager, string: String, font: FontType, scale: f32, ndi_cords: [f32; 2]) {
     let mut current_ndi_cords = ndi_cords;

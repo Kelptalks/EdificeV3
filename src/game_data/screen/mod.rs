@@ -5,7 +5,6 @@ pub mod screen_task_manager;
 pub use super::tools::iso_cord_tool;
 
 pub mod text;
-pub use text::render_string;
 pub use text::render_centered_string_at_ndc;
 
 

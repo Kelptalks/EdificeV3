@@ -1,7 +1,7 @@
 
 
 
-use crate::game_data::{player_data::drone_script::{control_flow::comparison::{Comparison, ComparisonOperators}, var::var::Var}, screen::widget::{panel::panel::Panel, prelude::VarSlot, widget::WidgetType}, texture_manager::texture::Texture, types::UITextures};
+use crate::game_data::{player_data::drone_script::{control_flow::comparison::Comparison, var::var::Var}, screen::widget::{panel::panel::Panel, prelude::VarSlot, widget::WidgetType}, texture_manager::texture::Texture, types::UITextures};
 
 
 
@@ -14,7 +14,7 @@ pub enum Condition {
 }
 
 impl PartialEq for Condition {
-    fn eq(&self, other: &Self) -> bool {
+    fn eq(&self, _other: &Self) -> bool {
         todo!()
     }
 }

@@ -1,6 +1,6 @@
-use std::{cell::{Ref, RefCell}, rc::Rc, sync::{Arc, RwLock}};
+use std::{cell::RefCell, rc::Rc, sync::{Arc, RwLock}};
 
-use crate::game_data::{World, locations::world_area::WorldArea, player_data::{drone_script::var::{var::Var, var_type::VarType}, locations::location::WorldLocation, player_data::PlayerData}, screen::widget::world_rendering::rendering_config::cursor_config::CursorConfig, types::BlockTexture};
+use crate::game_data::{World, player_data::{drone_script::var::var::Var, player_data::PlayerData}, screen::widget::world_rendering::rendering_config::cursor_config::CursorConfig};
 
 #[derive(Clone)]
 pub enum RenderMode {

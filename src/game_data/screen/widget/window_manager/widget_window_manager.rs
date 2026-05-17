@@ -1,9 +1,8 @@
+#![allow(dead_code)]
 use std::collections::HashMap;
 
-use miniquad::window;
-use mlua::Debug;
 
-use crate::game_data::{player_data, screen::{ScreenData, menu_constructors::play_view_menu::new_play_view::PlayViewConstructionManager, screen_data, widget::{panel::panel::Panel, prelude::PlayWorldViewRender, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties, window_manager::{widget_window_manager, window::WidgetWindow, windows::{cheat_window::CheatWindow, debug_win::DebugWin, drone_spectate_win::DroneSpectateWindow, window_type::{Window, WindowType}}}, world_rendering::{tile_map_manager::TileMapManager, view_mode::ViewMode}}}, types::UITextures};
+use crate::game_data::screen::{ScreenData, widget::{prelude::PlayWorldViewRender, widget::Widget, widget_calculations, widget_properties::WidgetProperties, window_manager::{window::WidgetWindow, windows::{cheat_window::CheatWindow, debug_win::DebugWin, window_type::{Window, WindowType}}}, world_rendering::tile_map_manager::TileMapManager}};
 
 
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
@@ -104,7 +103,7 @@ impl Widget for WidgetWindowManager {
         let parent_pos = self.get_pos();
         let screen_scale = self.get_scale();
 
-        for (id, window) in &mut self.windows {
+        for (_id, window) in &mut self.windows {
             
             let prefered_scale = window.get_preffered_scale();
             

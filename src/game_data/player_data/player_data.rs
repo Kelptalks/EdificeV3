@@ -1,6 +1,7 @@
+#![allow(dead_code)]
 use std::sync::{Arc, RwLock};
 
-use crate::game_data::{World, game_event_manager::{self, event_manager::{self, EventManager}, game_event_manager::GameEventManager}, log_init, player_data::{cursor::{cursor::Cursor, cursor_event_scheduler::CursorEventScheduler}, drones::{drone_event_scheduler::DroneEventScheduler, drone_manager::{DroneId, DroneManager}}, game_entity::game_entity_manager::{GameEntity, GameEntityManager}, locations::location_manager::{LocationId, LocationManager}, progress_manager::progress_manager::ProgressManager, settings::settings_manager::SettingsManager}, screen::{menu_constructors::play_view_menu::new_play_view::PlayViewMode, widget::world_rendering::view_mode::ViewMode}, tik_manager::game_time::GameTime, types::BlockTexture, world_gen::WorldGenManager};
+use crate::game_data::{World, game_event_manager::event_manager::EventManager, log_init, player_data::{cursor::{cursor::Cursor, cursor_event_scheduler::CursorEventScheduler}, drones::{drone_event_scheduler::DroneEventScheduler, drone_manager::{DroneId, DroneManager}}, game_entity::game_entity_manager::{GameEntity, GameEntityManager}, locations::location_manager::LocationManager, progress_manager::progress_manager::ProgressManager, settings::settings_manager::SettingsManager}, screen::widget::world_rendering::view_mode::ViewMode, tik_manager::game_time::GameTime, types::BlockTexture, world_gen::WorldGenManager};
 
 
 /*
@@ -65,10 +66,10 @@ impl PlayerData {
                 ViewMode::God() => {
                     self.cursor.set_ghost_block(BlockTexture::DroneBotRight)
                 },
-                ViewMode::Drone(drone_id) => {
+                ViewMode::Drone(_drone_id) => {
                     self.cursor.set_ghost_block(BlockTexture::Air)
                 },
-                ViewMode::Location(location_id) => {
+                ViewMode::Location(_location_id) => {
                     self.cursor.set_ghost_block(BlockTexture::Air)
                 },
             }

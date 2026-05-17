@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use crate::game_data::{World, screen::{iso_cord_tool, widget::world_rendering::area_rendering_manager::ray_caster::ray_casting_config::RayCastingConfig}, texture_manager::texture::Texture, types::{BlockShader, BlockTexture, BlockTriangle, ShaderTriangle}};
 
 

@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use std::{cell::RefCell, rc::Rc};
 
 use crate::game_data::{game_event_manager::widget_event_manager::prim_events::i32_event::I32Event, player_data::{drone_script::var::{game_vars::primitive_game_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}, var::Var, var_properties::{PropKey, VarPropModRequest}, var_type::VarType}, player_data::PlayerData}, screen::widget::{drone_programming::var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, text::header::TextDisplay, widget::{Widget, WidgetType}}, types::drone_item::DroneItem};
@@ -61,7 +62,7 @@ impl InvintoryDisplayPropWidget {
 
 
     pub fn update_with_var(&mut self, var: &Var) -> Vec<VarPropModRequest> {
-        let mut prop_requests = Vec::new();
+        let prop_requests = Vec::new();
         
         // Create new panel
         self.panel = Panel::new_blank();
@@ -102,12 +103,12 @@ impl InvintoryDisplayPropWidget {
 
                 
                 let item_mod_sub_panel = self.panel.add_sub_panel();
-                let mut var_slot = VarSlot::new_with_kind(PrimitiveGameVarTypeKind::DroneItem.wrap_into_var_kind());
+                let var_slot = VarSlot::new_with_kind(PrimitiveGameVarTypeKind::DroneItem.wrap_into_var_kind());
                 item_mod_sub_panel.add_widget(var_slot.wrap_into_widget());
 
                 let mod_button = item_mod_sub_panel.add_button();
-                mod_button.add_left_click_event(I32Event::mod_i32(self.item_amount_to_mod.clone(), 1).wrap_into_event());
-                mod_button.add_right_click_event(I32Event::mod_i32(self.item_amount_to_mod.clone(), -1).wrap_into_event());
+                mod_button.add_left_click_event(I32Event::ModI32(self.item_amount_to_mod.clone(), 1).wrap_into_event());
+                mod_button.add_right_click_event(I32Event::ModI32(self.item_amount_to_mod.clone(), -1).wrap_into_event());
                 mod_button.set_icon(crate::game_data::types::UITextures::ModIcon);
 
                 

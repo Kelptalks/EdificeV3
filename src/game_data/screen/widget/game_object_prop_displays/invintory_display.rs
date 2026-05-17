@@ -1,8 +1,6 @@
-use std::fmt::format;
 
-use miniquad::StencilOp;
 
-use crate::game_data::{player_data::{drone_script::var::{game_vars::game_var_type::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}, var::Var, var_type::VarKind}, game_entity::game_entity_manager::GameEntityId}, screen::widget::{drone_programming::var_slot::var_slot::VarSlot, panel::panel::Panel, widget::Widget, widget_properties::WidgetProperties}};
+use crate::game_data::{player_data::{drone_script::var::{game_vars::game_var_type::PrimitiveGameVarType, var::Var}, game_entity::game_entity_manager::GameEntityId}, screen::widget::{drone_programming::var_slot::var_slot::VarSlot, panel::panel::Panel, widget::Widget, widget_properties::WidgetProperties}};
 
 pub struct InvintoryDisplayWidget {
     panel: Panel,
@@ -13,7 +11,7 @@ pub struct InvintoryDisplayWidget {
 
 impl InvintoryDisplayWidget {
     pub fn new(parents_props: &WidgetProperties, entity_id: GameEntityId) -> InvintoryDisplayWidget {
-        let mut panel = Panel::new_with_parent_props(parents_props);
+        let panel = Panel::new_with_parent_props(parents_props);
 
         InvintoryDisplayWidget {
             panel,

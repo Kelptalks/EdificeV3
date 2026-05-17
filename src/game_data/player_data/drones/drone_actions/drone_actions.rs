@@ -1,4 +1,3 @@
-use std::{cell::RefCell, rc::Rc};
 
 use crate::game_data::{World, game_event_manager::prelude::EventManager, player_data::{drone_script::{action::action_type::ActionType, var::{game_vars::action_var::{ActionVarType, ErrorCode}, var::Var, var_type::{VarKind, VarType}}}, drones::{drone::Drone, drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, getter_actions::getter_actions::DroneGetterAction, prim_actions::drone_prim_actions::DronePrimAction}}}, texture_manager::texture::Texture};
 
@@ -115,7 +114,7 @@ impl DroneAction {
             DroneAction::AdvancedAction(advanced_drone_action) => {
                 advanced_drone_action.get_param_var_kinds()
             },
-            DroneAction::GetterAction(drone_getter_action) => {
+            DroneAction::GetterAction(_drone_getter_action) => {
                 Vec::new()
             },
         }
@@ -134,14 +133,14 @@ impl DroneAction {
 
     pub fn set_params_from_vars(&mut self, params: &Vec<Var>) {
         match self {
-            DroneAction::PrimAction(drone_prim_action) => {
+            DroneAction::PrimAction(_drone_prim_action) => {
                 // drone_prim_action.set_params_from_vars(params);
             },
             DroneAction::AdvancedAction(advanced_drone_action) => {
                 
                 advanced_drone_action.set_params_from_vars(params);
             },
-            DroneAction::GetterAction(getter_action) => {
+            DroneAction::GetterAction(_getter_action) => {
 
             }
         }

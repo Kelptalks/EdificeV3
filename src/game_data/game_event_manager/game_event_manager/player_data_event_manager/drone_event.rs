@@ -13,7 +13,7 @@ impl DroneEvent {
         return Event::GameEvent(GameEvent::PlayerDataEvent(PlayerDataEvent::DroneEvent(drone_ref.clone(), self)));
     }
 
-    pub fn execute(&self, event_tools: &mut GameEventManager, drone_ref: &Rc<RefCell<Drone>>) {
+    pub fn execute(&self, _event_tools: &mut GameEventManager, _drone_ref: &Rc<RefCell<Drone>>) {
         match self {
             DroneEvent::Temp() => {
                 

@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, GameEventManager, WidgetEvent}, screen::widget::{prelude::play_world_view_config::{PlayViewRenderingConfig, RenderMode}, world_rendering::rendering_config::{self, cursor_config::CursorMode}}};
+use crate::game_data::{game_event_manager::prelude::{Event, GameEvent, GameEventManager, WidgetEvent}, screen::widget::{prelude::play_world_view_config::{PlayViewRenderingConfig, RenderMode}, world_rendering::rendering_config::cursor_config::CursorMode}};
 
 #[derive(Clone)]
 pub enum PlayViewEvent {
@@ -15,7 +15,7 @@ impl PlayViewEvent {
         return Event::GameEvent(GameEvent::WidgetEvent(WidgetEvent::PlayViewEvent(self)));
     }
 
-    pub fn execute_widget_event(&self, event_tools: &mut GameEventManager) -> Vec<Event> {
+    pub fn execute_widget_event(&self, _event_tools: &mut GameEventManager) -> Vec<Event> {
         let mut events = Vec::new();
         match self {
             PlayViewEvent::ShiftCursor(rendering_config, shift) =>{

@@ -1,6 +1,6 @@
-use std::{collections::{HashMap, HashSet}, hash::Hash};
+use std::collections::{HashMap, HashSet};
 
-use crate::game_data::{World, chunk_manager::{lazy_chunk::LazyWorldChunk, unloaded_chunk::{self, UnloadedWorldChunk}, world_chunk::{self, LoadedWorldChunk}}, game_event_manager::{event_manager::{Event, EventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, widget_event_manager::{play_view_events::PlayViewEvent, widget_event_manager::WidgetEvent}}, player_data::{game_entity::game_entity_manager, player_data::PlayerData}, tik_manager::game_time::GameTime, tools::id_gen::{self, IdGen}, world_gen};
+use crate::game_data::{World, chunk_manager::{lazy_chunk::LazyWorldChunk, unloaded_chunk::UnloadedWorldChunk, world_chunk::LoadedWorldChunk}, game_event_manager::event_manager::EventManager, player_data::player_data::PlayerData, tik_manager::game_time::GameTime};
 
 
 
@@ -213,7 +213,7 @@ impl WorldChunkManager {
 
         let mut chunks_to_replace: Vec<WorldChunkType> = Vec::new();
 
-        for (key, chunk_type) in self.chunks.iter_mut() {
+        for (_key, chunk_type) in self.chunks.iter_mut() {
             match chunk_type {
                 WorldChunkType::Loaded(loaded_world_chunk) => {
 
@@ -223,7 +223,7 @@ impl WorldChunkManager {
                             loaded_world_chunk.time_till_unload -= 1;
                         }
                         else {
-                            let key = World::chunk_cords_to_key(loaded_world_chunk.get_cords());
+                            let _key = World::chunk_cords_to_key(loaded_world_chunk.get_cords());
                             let cords = loaded_world_chunk.get_cords();
 
 
@@ -232,7 +232,7 @@ impl WorldChunkManager {
                     }
 
                 },
-                WorldChunkType::Lazy(lazy_world_chunk) => {
+                WorldChunkType::Lazy(_lazy_world_chunk) => {
                     
                 },
                 WorldChunkType::Unloaded(unloaded_world_chunk) => {

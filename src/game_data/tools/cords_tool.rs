@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 
 static STRAIT_AXIS: [[i32; 3]; 6] = [
     [1, 0, 0],

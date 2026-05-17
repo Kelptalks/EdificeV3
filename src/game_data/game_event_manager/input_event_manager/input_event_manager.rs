@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use miniquad::KeyCode;
 
 use crate::game_data::{game_event_manager::prelude::Event, screen::ScreenData};

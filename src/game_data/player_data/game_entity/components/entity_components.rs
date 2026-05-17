@@ -1,4 +1,4 @@
-use crate::game_data::{player_data::game_entity::{components::{block_component::{BlockComponent, BlockComponentEvent}, locomotion_component::{LocomotionComponent, LocomotionComponentEvent}, pos_component::{PosComponent, PosComponentEvent}, powered_component::{PoweredComponent, PoweredComponentEvent}, vision_component::VisionComponent}, game_entity_manager::GameEntityId}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType, widget_calculations::TextSize}};
+use crate::game_data::{player_data::game_entity::components::{block_component::{BlockComponent, BlockComponentEvent}, locomotion_component::{LocomotionComponent, LocomotionComponentEvent}, pos_component::{PosComponent, PosComponentEvent}, powered_component::{PoweredComponent, PoweredComponentEvent}, vision_component::VisionComponent}, screen::widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, widget::WidgetType, widget_calculations::TextSize}};
 
 pub enum EntityComponent {
     Vision(VisionComponent),

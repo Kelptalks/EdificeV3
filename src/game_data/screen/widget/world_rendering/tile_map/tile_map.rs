@@ -1,7 +1,7 @@
-use std::{cmp::max, collections::{HashMap, hash_map}, time::Instant};
+use std::{collections::HashMap, time::Instant};
 use crate::game_data::prof_record;
 
-use crate::game_data::{TextureManager, World, game_event_manager::{event_manager::Event, render_event_manager::texture_manager_event::TextureManagerEvent}, locations::world_area::WorldArea, screen::{iso_cord_tool, widget::world_rendering::area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_tile::CastedTile, raycast_thread_pool::{RayCastingTaskId, RayCastingThreadPool}}}, texture_manager::{texture::Texture, texture_cashe::texture_cashe::CashedTextureID}};
+use crate::game_data::{TextureManager, World, game_event_manager::{event_manager::Event, render_event_manager::texture_manager_event::TextureManagerEvent}, locations::world_area::WorldArea, screen::{iso_cord_tool, widget::world_rendering::area_rendering_manager::{block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_tile::CastedTile, raycast_thread_pool::{RayCastingTaskId, RayCastingThreadPool}}}, texture_manager::{texture::Texture, texture_cashe::texture_cashe::CashedTextureID}};
 
 
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -305,7 +305,7 @@ impl TileMap {
 
     pub fn render_tiles(&mut self, texture_manager: &mut TextureManager, draw_block_scale: f32, draw_offset: [f32; 2]) {
         let t = Instant::now();
-        for (key, tile) in self.map.iter_mut() {
+        for (_key, tile) in self.map.iter_mut() {
             tile.render(texture_manager, draw_block_scale, draw_offset);
         }
         prof_record("    render_tiles_direct", t.elapsed());

@@ -1,6 +1,6 @@
 
 use crate::game_data::{
-    TextureManager, World, screen::{iso_cord_tool, widget::world_rendering::area_rendering_manager::ray_caster::{casted_triangle::CastedTriangle, ray_casting_config::{Direction, RayCastingConfig}}}, texture_manager::{texture::Texture, texture_cashe::texture_cashe::CashedTextureID}, types::{
+    TextureManager, World, screen::{iso_cord_tool, widget::world_rendering::area_rendering_manager::ray_caster::{casted_triangle::CastedTriangle, ray_casting_config::{Direction, RayCastingConfig}}}, texture_manager::texture_cashe::texture_cashe::CashedTextureID, types::{
         BlockShader, BlockTexture, BlockTriangle, ShaderTriangle
     }
 };

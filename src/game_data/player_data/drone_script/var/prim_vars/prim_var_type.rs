@@ -1,5 +1,5 @@
 use crate::game_data::{
-    player_data::drone_script::var::{var::Var, var_properties::{PropKey, PropValue, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, screen::widget::{text::header::TextDisplay, widget::WidgetType}, texture_manager::texture::Texture, types::UITextures
+    player_data::drone_script::var::{var::Var, var_properties::{PropKey, VarPropModRequest, VarProperty}, var_type::{VarKind, VarType}}, screen::widget::{text::header::TextDisplay, widget::WidgetType}, texture_manager::texture::Texture, types::UITextures
 };
 
 #[derive(Clone, PartialEq)]
@@ -120,7 +120,7 @@ impl PrimitiveVarType {
                 }
             },
 
-            PrimitiveVarType::String(s) => {
+            PrimitiveVarType::String(_s) => {
                 todo!()
             }
         }

@@ -116,8 +116,8 @@ impl PlantType {
     fn generate_mushroom(rng: &mut ThreadRng, cords: [i32; 3]) -> Vec<WorldEvent> {
         let mut events = Vec::new();
 
-        let height = rng.gen_range(10..40);
-        let stem_radius = (height / (rng.gen_range(5..25))) + 3;
+        let height = rng.random_range(10..40);
+        let stem_radius = (height / (rng.random_range(5..25))) + 3;
 
         // Build the stem
         for z in 0..height {
@@ -135,13 +135,13 @@ impl PlantType {
         }
 
         // Choose block type (blue or pink mushroom)
-        let block_type = if rng.gen_range(0..2) == 0 {
+        let block_type = if rng.random_range(0..2) == 0 {
             BlockTexture::BlueMushroom
         } else {
             BlockTexture::PinkMushroomBlock
         };
 
-        let mut top_radius = stem_radius + 8 + rng.gen_range(0..5);
+        let mut top_radius = stem_radius + 8 + rng.random_range(0..5);
         let mut z_mod = 0;
 
         // Build the mushroom cap
@@ -158,7 +158,7 @@ impl PlantType {
                 }
             }
             z_mod += 1;
-            top_radius -= rng.gen_range(0..2);
+            top_radius -= rng.random_range(0..2);
         }
 
         events
@@ -167,7 +167,7 @@ impl PlantType {
     fn generate_dandelion(rng: &mut ThreadRng, cords: [i32; 3]) -> Vec<WorldEvent> {
         let mut events = Vec::new();
 
-        let height = rng.gen_range(12..37);
+        let height = rng.random_range(12..37);
         let stem_radius = height / 15;
 
         // Build the stem
@@ -201,7 +201,7 @@ impl PlantType {
                     let distance_sq = x * x + y * y + z * z;
                     if distance_sq <= puff_radius * puff_radius {
                         // 80% chance to place a block (creating a fluffy appearance)
-                        if rng.gen_range(0..5) != 0 {
+                        if rng.random_range(0..5) != 0 {
                             events.push(WorldEvent::ReplaceBlock(
                                 [cords[0] + x, cords[1] + y, cords[2] + z + puff_top],
                                 BlockTexture::PinkCloud,
@@ -244,12 +244,12 @@ impl GrassGenManager {
     pub fn new() -> Self {
         // Setup Ground item generation probabilitys
         let ground_items:Vec<GroundItem> = vec![
-            GroundItem {block_type: BlockTexture::white_flowers, weight: 20},
-            GroundItem {block_type: BlockTexture::yellow_flowers, weight: 20},
+            GroundItem {block_type: BlockTexture::WhiteFlowers, weight: 20},
+            GroundItem {block_type: BlockTexture::YellowFlowers, weight: 20},
             GroundItem {block_type: BlockTexture::Flungle, weight: 1},
-            GroundItem {block_type: BlockTexture::mushroom, weight: 3},
-            GroundItem {block_type: BlockTexture::log, weight: 2},
-            GroundItem {block_type: BlockTexture::rock, weight: 3},
+            GroundItem {block_type: BlockTexture::Mushroom, weight: 3},
+            GroundItem {block_type: BlockTexture::Log, weight: 2},
+            GroundItem {block_type: BlockTexture::Rock, weight: 3},
         ];
         // Setup Plant generation probabilitys
         let plants:Vec<Plant> = vec![
@@ -338,7 +338,7 @@ impl GrassGenManager {
     }
 
     fn spawn_plant(&mut self, cords: [i32; 3]) -> Vec<WorldEvent> {
-        let mut roll = self.rng.gen_range(0..self.plant_total_weight);
+        let mut roll = self.rng.random_range(0..self.plant_total_weight);
 
         for plant in &self.plants {
             if roll < plant.weight {

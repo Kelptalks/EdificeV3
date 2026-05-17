@@ -1,4 +1,5 @@
-use crate::game_data::screen::{ScreenData, screen_data};
+#![allow(dead_code)]
+use crate::game_data::screen::ScreenData;
 
 
 pub fn pos_to_scale(pos: [f32; 4]) -> [f32; 2]{

@@ -19,7 +19,7 @@ impl LocationEvent {
         return Event::GameEvent(GameEvent::PlayerDataEvent(PlayerDataEvent::LocationEvent(location_ref, self)));
     }
 
-    pub fn execute(&self, event_tools: &mut GameEventManager, location_ref: Rc<RefCell<WorldLocation>>) {
+    pub fn execute(&self, _event_tools: &mut GameEventManager, location_ref: Rc<RefCell<WorldLocation>>) {
         match self {
             LocationEvent::ShiftLocation(shift_cords) => {
                 let mut location = location_ref.borrow_mut();

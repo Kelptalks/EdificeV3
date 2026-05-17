@@ -1,4 +1,4 @@
-use std::{cell::RefCell, fmt::format, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
 use crate::game_data::{player_data::{drone_script::var::{game_vars::primitive_game_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}, var::Var, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, prim_actions::drone_prim_actions::DronePrimAction}}}, texture_manager::texture::Texture, types::{UITextures, drone_item::DroneItem}};
 
@@ -51,13 +51,13 @@ impl DroneInventoryAction {
 
     pub fn get_name(&self) -> String {
         match self {
-            DroneInventoryAction::CraftItem(drone_item) => {
+            DroneInventoryAction::CraftItem(_drone_item) => {
                 format!("CraftItem")
             },
-            DroneInventoryAction::UseItemForFuel(drone_item, amount) => {
+            DroneInventoryAction::UseItemForFuel(_drone_item, _amount) => {
                 format!("UseItemForFuel")
             },
-            DroneInventoryAction::EquipTool(drone_item) => {
+            DroneInventoryAction::EquipTool(_drone_item) => {
                 format!("EquipTool")
             },
         }

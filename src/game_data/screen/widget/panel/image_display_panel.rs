@@ -11,7 +11,6 @@ use crate::game_data::{
         },
     },
     texture_manager::texture::Texture,
-    types::UITextures,
 };
 
 pub struct ImageDisplayPanel {

@@ -1,4 +1,4 @@
-use crate::game_data::{player_data::{drone_script::{action::action_type::ActionType, script_element::ScriptElement, var::{prim_vars::prim_var_type::PrimitiveVarType, var::{Var}, var_type::VarType}}, drones::drone_actions::drone_actions::DroneAction}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::{drone_script::{action::action_type::ActionType, script_element::ScriptElement, var::var::{Var}}, drones::drone_actions::drone_actions::DroneAction}, texture_manager::texture::Texture};
 
 
 #[derive()]
@@ -33,7 +33,7 @@ impl Action {
         let var_kinds = action_type.get_param_var_kinds();
         let mut vars = Vec::new();
         for var_kind in var_kinds {
-            let var = Var::new_blank_with_kind(var_kind);
+            let _var = Var::new_blank_with_kind(var_kind);
             vars.push(Var::new_blank_with_kind(var_kind));
         }
 
@@ -50,17 +50,10 @@ impl Action {
     }
 
     pub fn as_drone_action(&mut self) -> Option<DroneAction> {
-        if let ActionType::DroneAction(drone_action) = &self.action_type{
-            let mut compiled_action = drone_action.clone();
-            compiled_action.set_params_from_vars(&self.params);
-            Some(compiled_action)
-        }
-        else {
-            None
-        }
-        
-        
-
+        let ActionType::DroneAction(drone_action) = &self.action_type;
+        let mut compiled_action = drone_action.clone();
+        compiled_action.set_params_from_vars(&self.params);
+        Some(compiled_action)
     }
     
     pub fn wrap_into_script_element(self) -> ScriptElement {

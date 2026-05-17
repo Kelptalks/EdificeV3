@@ -1,4 +1,3 @@
-use std::f32::consts::PI;
 
 use crate::game_data::{player_data::drone_script::var::{programming_vars::programming_var::ProgrammingVarKind, var::Var, var_type::VarKind}, screen::widget::{panel::panel::Panel, prelude::VarSlot, widget::WidgetType}};
 

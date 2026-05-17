@@ -1,6 +1,7 @@
+#![allow(dead_code)]
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::{game_vars::primitive_game_var::PrimitiveGameVarType, programming_vars::programming_var::ProgrammingVar, var::Var, var_properties::{PropKey, PropValue, VarPropModRequest}, var_type::VarType}, screen::widget::{drone_programming::var_slot::var_prop_widgets::var_prop_widgets::VarPropVal, panel::panel::Panel, prelude::VarSlot, text::text_input::TextInput, toggle_button::{self, toggle_button::ToggleButton}, widget::{Widget, WidgetType}}, types::drone_item::DroneItem};
+use crate::game_data::{player_data::drone_script::var::{game_vars::primitive_game_var::PrimitiveGameVarType, var::Var, var_properties::{PropKey, VarPropModRequest}}, screen::widget::{drone_programming::var_slot::var_prop_widgets::var_prop_widgets::VarPropVal, panel::panel::Panel, prelude::VarSlot, toggle_button::toggle_button::ToggleButton, widget::WidgetType}, types::drone_item::DroneItem};
 
 pub struct VarPropWidget {
     // Mutable
@@ -62,7 +63,7 @@ impl VarPropWidget {
 
 
     pub fn update_with_var(&mut self, var: &Var) -> Vec<VarPropModRequest> {
-        let mut prop_requests = Vec::new();
+        let prop_requests = Vec::new();
 
         if let Some(widget) =  var.get_var_type_ref().borrow().into_widget() {
             let mut panel = Panel::new_blank();

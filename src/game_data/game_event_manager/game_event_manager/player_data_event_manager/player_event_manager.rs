@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, player_data_event_manager::location_event::LocationEvent}, player_data_event_manager::{drone_event::DroneEvent, var_event_manager::var_events::VarEvents}, prelude::{Event, GameEvent}}, player_data::{cursor::cursor_event_scheduler::CursorEvent, drone_script::var::{game_vars::dynamic_var::DynamicVarType, var_type::VarType}, drones::{drone::Drone, drone_event_scheduler::NewDroneEvent, drone_manager::DroneId}, game_entity::game_entity_manager::{self, GameEntity, GameEntityEvent}, locations::{location::WorldLocation, location_config::WorldLocationConfig}, player_data::PlayerData}, screen::widget::world_rendering::view_mode::ViewMode};
+use crate::game_data::{game_event_manager::{game_event_manager::{game_event_manager::GameEventManager, player_data_event_manager::location_event::LocationEvent}, player_data_event_manager::{drone_event::DroneEvent, var_event_manager::var_events::VarEvents}, prelude::{Event, GameEvent}}, player_data::{cursor::cursor_event_scheduler::CursorEvent, drone_script::var::{game_vars::dynamic_var::DynamicVarType, var_type::VarType}, drones::{drone::Drone, drone_event_scheduler::NewDroneEvent, drone_manager::DroneId}, game_entity::game_entity_manager::{GameEntity, GameEntityEvent}, locations::{location::WorldLocation, location_config::WorldLocationConfig}, player_data::PlayerData}, screen::widget::world_rendering::view_mode::ViewMode};
 
 #[derive(Clone)]
 pub enum PlayerDataEvent {
@@ -82,8 +82,8 @@ impl PlayerDataEvent {
             PlayerDataEvent::VarEvent(var_event) => {
                 var_event.execute();
             },
-            PlayerDataEvent::CreateDroneInVar(var_ref, location_ref) => {
-                let drone = player_data.get_mut_drone_manager().create_drone_at_cords(location_ref.borrow().get_area().get_point_1_cords());
+            PlayerDataEvent::CreateDroneInVar(_var_ref, location_ref) => {
+                let _drone = player_data.get_mut_drone_manager().create_drone_at_cords(location_ref.borrow().get_area().get_point_1_cords());
 
             },
         }

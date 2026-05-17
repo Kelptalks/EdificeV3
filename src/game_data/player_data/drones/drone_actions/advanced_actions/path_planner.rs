@@ -1,17 +1,8 @@
-use std::{clone, collections::HashMap, u32::MAX};
+use std::collections::HashMap;
 
 use crate::game_data::{
     World, 
-    player_data::{drone_script::var::var::Var, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, drone_plan::DronePlan, prim_actions::{drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}}}}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod, types::BlockTexture};
-
-pub enum PathingErrorCode {
-    NullLocation,
-
-}
-
-impl PathingErrorCode {
-
-}
+    player_data::{drone_script::var::var::Var, drones::{drone::Drone, drone_actions::{drone_actions::DroneActionError, drone_plan::DronePlan, prim_actions::drone_world_actions::DroneWorldAction}}}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod, types::BlockTexture};
 
 
 const DIRECTIONS_ALLOWED: [[i32; 3]; 12] = [
@@ -131,7 +122,7 @@ impl NodeMap {
     }
 }
 
-pub fn get_path(drone: &mut Drone, world: &World, start_cords: [i32; 3], goal_cords: [i32; 3]) -> Vec<[i32; 3]> {
+pub fn get_path(_drone: &mut Drone, world: &World, start_cords: [i32; 3], goal_cords: [i32; 3]) -> Vec<[i32; 3]> {
     let max_checks = 10000;
     let mut checks = 0;
 

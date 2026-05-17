@@ -1,6 +1,6 @@
 use std::{cell::{RefCell}, rc::Rc};
 
-use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::GameEvent, prelude::EventManager, widget_event_manager::widget_event_manager::WidgetEvent}, player_data::{self, player_data::PlayerData}, screen::{ScreenData, widget::{self, bar_button::bar_button::BarButtonWidget, widget::{Widget, WidgetType}, widget_calculations, widget_properties::{WidgetId, WidgetProperties}}}, tik_manager::block_updates::plant_update};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::GameEvent, prelude::EventManager, widget_event_manager::widget_event_manager::WidgetEvent}, player_data::player_data::PlayerData, screen::{ScreenData, widget::{bar_button::bar_button::BarButtonWidget, widget::{Widget, WidgetType}, widget_calculations, widget_properties::{WidgetId, WidgetProperties}}}};
 
 pub struct ScrollPanel {
     widget_properties: WidgetProperties,
@@ -92,8 +92,8 @@ impl Widget for ScrollPanel {
     }
 
     fn size(&mut self) {
-        let pos_parent = self.widget_properties.parent_pos;
-        let ext_buffers = self.widget_properties.external_buffers;
+        let _pos_parent = self.widget_properties.parent_pos;
+        let _ext_buffers = self.widget_properties.external_buffers;
         let internal_buffers = self.widget_properties.internal_buffers;
 
         self.widget_properties.scale_based_off_parent();

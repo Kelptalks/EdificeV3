@@ -4,7 +4,7 @@ use crate::game_data::game_event_manager::prelude::{Event, PrimEvent, WidgetEven
 
 #[derive(Clone)]
 pub enum I32Event {
-    mod_i32(Rc<RefCell<i32>>, i32),
+    ModI32(Rc<RefCell<i32>>, i32),
 }
 
 
@@ -21,7 +21,7 @@ impl I32Event {
 
     pub fn execute(&self) {
         match self {
-            I32Event::mod_i32(ref_cell, amount) => {
+            I32Event::ModI32(ref_cell, amount) => {
                 *ref_cell.borrow_mut() += amount;
             },
         }

@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::game_data::{
-    World, game_event_manager::prelude::EventManager, player_data::{drone_script::var::{game_vars::primitive_game_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}, var::Var, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, prim_actions::{drone_invintory_actions::DroneInventoryAction, drone_prim_actions::DronePrimAction}}}}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod, texture_manager::texture::Texture, types::{BlockTexture, UITextures}, world::world::WorldEvent};
+    World, game_event_manager::prelude::EventManager, player_data::{drone_script::var::{game_vars::primitive_game_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}, var::Var, var_type::{VarKind, VarType}}, drones::{drone::Drone, drone_actions::{drone_actions::{DroneAction, DroneActionError}, prim_actions::drone_prim_actions::DronePrimAction}}}, texture_manager::texture::Texture, types::{BlockTexture, UITextures}, world::world::WorldEvent};
 
 #[derive(Clone)]
 pub enum DroneWorldAction {
@@ -52,13 +52,13 @@ impl DroneWorldAction {
 
     pub fn get_name(&self) -> String {
         match self {
-            DroneWorldAction::MoveDrone(cords) => {
+            DroneWorldAction::MoveDrone(_cords) => {
                 format!("MoveDrone")
             },
-            DroneWorldAction::MineBlock(cords) => {
+            DroneWorldAction::MineBlock(_cords) => {
                 format!("MineBlock")
             },
-            DroneWorldAction::PlaceBlock(cords, block_texture) => {
+            DroneWorldAction::PlaceBlock(_cords, _block_texture) => {
                 format!("PlaceBlock")
             },
         }
@@ -117,7 +117,7 @@ impl DroneWorldAction {
 // Error Codes
 // Tryed to move into solid block
 // 
-fn move_drone(drone: &mut Drone, world: &World, relative_cords: [i32; 3], event_manager: &mut EventManager) -> Var {
+fn move_drone(drone: &mut Drone, world: &World, relative_cords: [i32; 3], _event_manager: &mut EventManager) -> Var {
     if drone.is_busy() {
         return DroneActionError::Busy.wrap_into_var_type().create_var();
     }

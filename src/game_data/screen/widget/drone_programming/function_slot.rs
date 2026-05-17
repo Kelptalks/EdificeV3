@@ -1,14 +1,10 @@
-use std::{cell::RefCell, fmt::format, intrinsics::copy_nonoverlapping, rc::Rc, string};
+#![allow(dead_code)]
+use std::{cell::RefCell, rc::Rc};
 
 use crate::game_data::{
-    TextureManager, game_event_manager::{self, prelude::{EventManager, GameEventManager}}, player_data::{
-        drone_script::{
-            control_flow, 
-            function::{self, function::Function}, 
-            script_element::ScriptElement, 
-            var::{programming_vars::programming_var::ProgrammingVar, var_type::VarType}
-        }, drones::drone_actions::drone_actions::DroneAction, player_data::PlayerData}, screen::{self, ScreenData, screen_data, text::render_string_at_ndc, widget::{self, drone_programming::{
-                control_flow_slot, script_element_body_slot::ScriptElementBodySlot, scripting_control_manager, scripting_widget_type::{self, ScriptingElementWidget, ScriptingWidgetType}}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot}, widget::{Widget, WidgetType}, widget_calculations::TextSize, widget_properties::WidgetProperties}}, texture_manager};
+    TextureManager, player_data::{
+        drone_script::function::function::Function, player_data::PlayerData}, screen::{ScreenData, text::render_string_at_ndc, widget::{drone_programming::{
+                script_element_body_slot::ScriptElementBodySlot, scripting_control_manager, scripting_widget_type::ScriptingElementWidget}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot}, widget::{Widget, WidgetType}, widget_calculations::TextSize, widget_properties::WidgetProperties}}};
 
 
 
@@ -22,7 +18,7 @@ pub struct FunctionSlot {
 impl FunctionSlot {
 
     pub fn new_with_function(function_ref: &Rc<RefCell<Function>>) -> FunctionSlot {
-        let mut panel = Panel::new_blank();
+        let panel = Panel::new_blank();
 
 
 
@@ -156,7 +152,7 @@ impl Widget for FunctionSlot {
                         self.function_ref.borrow_mut().step_function();
                     }
                 }
-                else if let Some(WidgetType::ToggleButton(button)) = widget_mouse_on_option {
+                else if let Some(WidgetType::ToggleButton(_button)) = widget_mouse_on_option {
                     self.function_ref.borrow_mut().toggle_pause();
                 }
                 else if let Some(WidgetType::ScriptElementBodySlot(body_slot)) = widget_mouse_on_option {
@@ -205,7 +201,7 @@ impl ScriptingElementWidget for FunctionSlot {
         self.panel.set_color(PanelColor::Custom(color[0], color[1], color[2]));
     }
     
-    fn get_line_incert_index(&self, screen_data: &ScreenData) -> usize {
+    fn get_line_incert_index(&self, _screen_data: &ScreenData) -> usize {
         0
     }
 }

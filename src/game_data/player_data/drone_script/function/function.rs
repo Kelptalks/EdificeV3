@@ -1,16 +1,8 @@
-use std::{cell::{Ref, RefCell}, collections::{HashMap, VecDeque}, ops::Index, rc::Rc, usize};
+use std::{collections::VecDeque, usize};
 
-use crate::game_data::{
-    player_data::{
-        drone_script::{
-            element_body::ScriptElementBody, script_element::{self, ScriptElement}, var::{var::{Var}, var_properties::VarPropModRequest, var_type::VarType}
-        }, 
-        drones::drone_actions::{
-            drone_actions::DroneAction, 
-            prim_actions::{drone_prim_actions::DronePrimAction, drone_world_actions::DroneWorldAction}
-        }
-    }, 
-    screen::widget::prelude::VarSlot};
+use crate::game_data::player_data::drone_script::{
+            element_body::ScriptElementBody, script_element::ScriptElement, var::var::{Var}
+        };
 
 #[derive(Clone)]
 pub struct Function {
@@ -26,7 +18,7 @@ pub struct Function {
 }
 
 impl PartialEq for Function {
-    fn eq(&self, other: &Self) -> bool {
+    fn eq(&self, _other: &Self) -> bool {
         eprintln!("Part Equal not implemented for Function");
         todo!()
     }

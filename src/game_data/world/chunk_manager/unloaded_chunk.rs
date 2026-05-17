@@ -6,7 +6,7 @@ pub struct UnloadedWorldChunk {
     pub load: bool,
     cords: [i16; 3],
 
-    pub terrain_gen_events: Vec<(WorldEvent)>,
+    pub terrain_gen_events: Vec<WorldEvent >,
 }
 
 impl UnloadedWorldChunk {

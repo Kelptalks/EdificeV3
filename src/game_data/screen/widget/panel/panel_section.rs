@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 
 use crate::game_data::{TextureManager, screen::widget::{panel::panel::{PanelAlignment, PanelOrientation}, widget::{Widget, WidgetType}, widget_calculations}};
 

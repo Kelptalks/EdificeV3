@@ -1,6 +1,6 @@
-use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::game_data::{game_event_manager::{self, event_manager, player_data_event_manager::var_event_manager::var_events::VarEvents, prelude::{EventManager, PlayerDataEvent}}, player_data::{self, drone_script::var::{self, game_vars::{dynamic_var::DynamicVarType, game_var_type::GameVarType, primitive_game_var::PrimitiveGameVarType}, var::Var, var_properties::{self, PropKey, PropValue, VarProperty}, var_type::{self, VarKind, VarType}}, player_data::PlayerData}, screen::widget::{self, drone_programming::var_slot::var_slot, panel::{panel::Panel, panel_texture_manager::PanelTextureManager}, prelude::{TabPanel, VarSlot}, scroll_panel::scroll_panel::ScrollPanel, tab_panel, text::header::TextDisplay, widget::{Widget, WidgetType}, widget_calculations, widget_properties::WidgetProperties}, types::drone_item::DroneItem};
+use crate::game_data::{game_event_manager::{player_data_event_manager::var_event_manager::var_events::VarEvents, prelude::EventManager}, player_data::{drone_script::var::{var::Var, var_properties::PropKey}, player_data::PlayerData}, screen::widget::{panel::panel_texture_manager::PanelTextureManager, prelude::VarSlot, scroll_panel::scroll_panel::ScrollPanel, widget::{Widget, WidgetType}, widget_properties::WidgetProperties}};
 
 
 pub struct PropWidgetPool {
@@ -44,7 +44,7 @@ impl VarTabPanel {
     pub fn new() -> VarTabPanel {
 
         let var = Var::new_blank();
-        let mut var_slot = VarSlot::new_with_var(var.clone());
+        let var_slot = VarSlot::new_with_var(var.clone());
 
         let scroll_panel = ScrollPanel::new();
 
@@ -178,7 +178,7 @@ impl Widget for VarTabPanel {
 
         self.var_slot.render(texture_manager, screen_data, game_event_manager, player_data);
 
-        let widgets = self.get_widgets_for_var(game_event_manager);
+        let _widgets = self.get_widgets_for_var(game_event_manager);
 
         self.scroll_panel.get_mut_widget_properties().bounds = bounds;
         

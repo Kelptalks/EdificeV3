@@ -1,4 +1,4 @@
-use crate::game_data::screen::{ScreenData, screen_data, widget::drone_programming::{action_slot::ActionSlot, condition_slot::ConditionSlot, control_flow_slot::ControlFlowSlot, function_slot::FunctionSlot}};
+use crate::game_data::screen::{ScreenData, widget::drone_programming::{action_slot::ActionSlot, condition_slot::ConditionSlot, control_flow_slot::ControlFlowSlot}};
 
 
 pub enum ScriptingWidgetType<'a> {

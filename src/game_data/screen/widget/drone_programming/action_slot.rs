@@ -1,4 +1,4 @@
-use crate::game_data::{player_data::{drone_script::action::{self, action::Action}, player_data::PlayerData}, screen::{ScreenData, screen_data, widget::{drone_programming::scripting_widget_type::ScriptingElementWidget, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot}, widget::{Widget, WidgetType}, widget_calculations::{self, TextSize}, widget_properties::WidgetProperties}}, texture_manager::texture::Texture};
+use crate::game_data::{player_data::{drone_script::action::action::Action, player_data::PlayerData}, screen::{ScreenData, widget::{drone_programming::scripting_widget_type::ScriptingElementWidget, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::{PanelColor, VarSlot}, widget::{Widget, WidgetType}, widget_calculations::{self, TextSize}, widget_properties::WidgetProperties}}};
 
 pub struct ActionSlot {
     panel: Panel,

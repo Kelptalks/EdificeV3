@@ -88,7 +88,7 @@ impl TileMapManager {
         if let Some(lairs_at_cords) = &mut self.flattened_lair.get_mut(tile_key).cloned() {
             for lair_id in lairs_at_cords {
                 if let Some(tile_map) = self.get_tile_map(*lair_id) {
-                    if let Some(lair_tile) = tile_map.get_tile_with_tile_key(tile_key) {
+                    if let Some(_lair_tile) = tile_map.get_tile_with_tile_key(tile_key) {
                         
                     }
                 }

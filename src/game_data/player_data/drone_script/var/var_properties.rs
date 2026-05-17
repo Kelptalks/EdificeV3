@@ -1,8 +1,7 @@
-use std::{cell::RefCell, collections::{HashMap, btree_map::IterMut}, rc::Rc, thread::sleep};
+use std::{cell::RefCell, rc::Rc};
 
-use mlua::Value;
 
-use crate::game_data::{game_event_manager::prelude::Event, player_data::{drone_script::var::{var::Var, var_type::VarType}, locations::location::WorldLocation}, screen::widget::{self, drone_programming::var_slot::var_prop_widgets::{invintory_display_prop_widget::InvintoryDisplayPropWidget, num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget, var_prop_widget::VarPropWidget}, panel::panel::Panel, text::{header::TextDisplay, text_input::TextInput}, widget::{Widget, WidgetType}}, player_data::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
+use crate::game_data::{player_data::drone_script::var::{var::Var, var_type::VarType}, screen::widget::{drone_programming::var_slot::var_prop_widgets::{num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget, var_prop_widget::VarPropWidget}, widget::WidgetType}, player_data::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
 
 
 
@@ -228,8 +227,8 @@ pub enum VarPropModRequest {
 impl VarPropModRequest {
     pub fn get_name(&self) -> String {
         match self {
-            VarPropModRequest::Set(prop_key, prop_value) => "Set".to_string(),
-            VarPropModRequest::Add(prop_key, prop_value) => "Add".to_string(),
+            VarPropModRequest::Set(_prop_key, _prop_value) => "Set".to_string(),
+            VarPropModRequest::Add(_prop_key, _prop_value) => "Add".to_string(),
         }
     }
 }

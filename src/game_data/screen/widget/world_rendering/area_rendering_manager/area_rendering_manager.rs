@@ -9,12 +9,9 @@ of an area
 */
 
 use crate::game_data::{
-    World, locations::{world_area::WorldArea, world_area_side::WorldAreaSide}, player_data::player_data::PlayerData, screen::widget::{
-        prelude::play_world_view_config::PlayViewRenderingConfig, 
-        world_rendering::area_rendering_manager::{block_lair_manager::{lair_block::LairBlockMod, 
+    World, locations::{world_area::WorldArea, world_area_side::WorldAreaSide}, screen::widget::world_rendering::area_rendering_manager::{block_lair_manager::{lair_block::LairBlockMod, 
         lair_block_manager::LairBlockManager}, 
         ray_caster::{casted_tile::CastedTile, ray_casting_config::RayCastingConfig}}
-    }, types::BlockTexture
 };
 
 pub struct AreaRenderingManager {

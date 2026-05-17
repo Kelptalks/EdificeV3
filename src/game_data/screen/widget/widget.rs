@@ -8,7 +8,7 @@ use crate::game_data::{
                 function_slot::FunctionSlot,
                 script_element_body_slot::ScriptElementBodySlot,
                 scripting_elements::scripting_panel::ScriptingPanel,
-                scripting_widget_type::{ScriptingElementWidget, ScriptingWidgetType},
+                scripting_widget_type::ScriptingWidgetType,
                 var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot::VarSlot}}, game_object_prop_displays::invintory_display::InvintoryDisplayWidget, panel::{panel::Panel, image_display_panel::ImageDisplayPanel}, scroll_panel::scroll_panel::ScrollPanel, tab_panel::{tab_panel::TabPanel, var_tab_panel::VarTabPanel}, text::{header::TextDisplay, text_input::TextInput}, toggle_button::toggle_button::ToggleButton, widget_properties::{WidgetId, WidgetProperties}, window_manager::{widget_window_manager::WidgetWindowManager, windows::window_type::WindowType}, world_rendering::world_view_render::PlayWorldViewRender
         }
     }, };
@@ -96,7 +96,7 @@ impl WidgetType {
         }
     }
 
-    pub fn as_scripting_widget(&mut self) -> Option<ScriptingWidgetType> {
+    pub fn as_scripting_widget(&mut self) -> Option<ScriptingWidgetType<'_>> {
         match self {
             WidgetType::FunctionSlot(_) => Some(ScriptingWidgetType::FunctionSlot()),
             WidgetType::ActionSlot(action_slot) => Some(ScriptingWidgetType::ActionSlot(action_slot)),
