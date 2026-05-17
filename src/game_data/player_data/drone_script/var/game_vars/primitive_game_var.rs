@@ -1,7 +1,8 @@
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::{GameVarKind, GameVarType}, prim_vars::prim_var_type::PrimitiveVarType, var::Var, var_properties::{PropKey, VarProperty}, var_type::{VarKind, VarType}}, screen::widget::prelude::VarSlot, texture_manager::texture::Texture, tik_manager::drones::drone_inventory::InventorySlot, types::{BlockTexture, UITextures, drone_item::DroneItem}};
+use crate::game_data::{player_data::drone_script::var::{game_vars::game_var_type::{GameVarKind, GameVarType}, prim_vars::prim_var_type::PrimitiveVarType, var::Var, var_properties::{PropKey, VarProperty}, var_type::{VarKind, VarType}}, screen::widget::prelude::VarSlot, texture_manager::texture::Texture, types::{BlockTexture, UITextures, drone_item::DroneItem}};
+use crate::game_data::player_data::drones::drone_inventory::InventorySlot;
 
 
 #[derive(Clone, PartialEq)]

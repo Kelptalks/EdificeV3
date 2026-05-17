@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{player_data::{drone_script::var::{game_vars::{dynamic_var::DynamicVarType, game_var_type::{GameVarKind, GameVarType, PrimitiveGameVarType}}, prim_vars::prim_var_type::PrimitiveVarType, var_type::{VarKind, VarType}}, locations::location::WorldLocation}, texture_manager::texture::Texture, tik_manager::drones::drone_inventory::InventorySlot};
+use crate::game_data::{player_data::{drone_script::var::{game_vars::{dynamic_var::DynamicVarType, game_var_type::{GameVarKind, GameVarType, PrimitiveGameVarType}}, prim_vars::prim_var_type::PrimitiveVarType, var_type::{VarKind, VarType}}, locations::location::WorldLocation}, texture_manager::texture::Texture, player_data::drones::drone_inventory::InventorySlot};
 
 
 

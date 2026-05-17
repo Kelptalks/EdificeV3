@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::{HashMap, btree_map::IterMut}, rc::Rc, thr
 
 use mlua::Value;
 
-use crate::game_data::{game_event_manager::prelude::Event, player_data::{drone_script::var::{var::Var, var_type::VarType}, locations::location::WorldLocation}, screen::widget::{self, drone_programming::var_slot::var_prop_widgets::{invintory_display_prop_widget::InvintoryDisplayPropWidget, num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget, var_prop_widget::VarPropWidget}, panel::panel::Panel, text::{header::TextDisplay, text_input::TextInput}, widget::{Widget, WidgetType}}, tik_manager::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
+use crate::game_data::{game_event_manager::prelude::Event, player_data::{drone_script::var::{var::Var, var_type::VarType}, locations::location::WorldLocation}, screen::widget::{self, drone_programming::var_slot::var_prop_widgets::{invintory_display_prop_widget::InvintoryDisplayPropWidget, num_prop_widget::NumDisplayPropWidget, text_display_prop_widget::TextDisplayPropWidget, var_prop_widget::VarPropWidget}, panel::panel::Panel, text::{header::TextDisplay, text_input::TextInput}, widget::{Widget, WidgetType}}, player_data::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
 
 
 

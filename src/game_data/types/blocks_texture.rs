@@ -1,4 +1,4 @@
-use crate::game_data::{texture_manager::texture::Texture, tik_manager::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
+use crate::game_data::{texture_manager::texture::Texture, player_data::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
 
 pub static TOTAL_BLOCKS: u32 = 400;
 

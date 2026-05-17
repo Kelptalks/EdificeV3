@@ -1,6 +1,6 @@
-use std::{cell::RefCell, collections::HashMap, hash::Hash, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
-use crate::game_data::{game_event_manager::widget_event_manager::prim_events::i32_event::I32Event, player_data::{drone_script::var::{game_vars::{game_var_type::{GameVarKind, GameVarType}, primitive_game_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}}, var::Var, var_properties::{PropKey, PropValue, VarPropModRequest}, var_type::{VarKind, VarType}}, player_data::PlayerData}, screen::{widget::{drone_programming::var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, scroll_panel::scroll_panel::ScrollPanel, text::header::TextDisplay, widget::{Widget, WidgetType}}}, tik_manager::drones::drone_inventory::InventorySlot, types::drone_item::DroneItem};
+use crate::game_data::{game_event_manager::widget_event_manager::prim_events::i32_event::I32Event, player_data::{drone_script::var::{game_vars::primitive_game_var::{PrimitiveGameVarType, PrimitiveGameVarTypeKind}, var::Var, var_properties::{PropKey, VarPropModRequest}, var_type::VarType}, player_data::PlayerData}, screen::widget::{drone_programming::var_slot::{var_prop_widgets::var_prop_widgets::VarPropVal, var_slot}, panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::VarSlot, text::header::TextDisplay, widget::{Widget, WidgetType}}, types::drone_item::DroneItem};
 
 pub struct InvintoryDisplayPropWidget {
     mutable: bool,

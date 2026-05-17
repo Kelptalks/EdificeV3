@@ -1,8 +1,8 @@
 
 use std::{sync::{Arc, RwLock}, time::{Instant, SystemTime, UNIX_EPOCH}, u128};
-use crate::game_data::prof_record;
+use crate::game_data::{player_data::drones::drone_manager::DroneManager, prof_record};
 
-use crate::game_data::{self, World, game_event_manager::prelude::EventManager, player_data::player_data::PlayerData, screen::screen_task_manager::rendering_task_manager::RenderingTaskManager, tik_manager::{block_updates::block_update_manager::BlockUpdateManager, drones::{drone_manager::DroneManager, lua_manager::LuaManager}, game_time::GameTime}, world, world_task_manager::world_task_manager::WorldTaskManager};
+use crate::game_data::{self, World, game_event_manager::prelude::EventManager, player_data::player_data::PlayerData, screen::screen_task_manager::rendering_task_manager::RenderingTaskManager, tik_manager::{block_updates::block_update_manager::BlockUpdateManager, game_time::GameTime}, world, world_task_manager::world_task_manager::WorldTaskManager};
 
 /*
 #################
@@ -21,7 +21,6 @@ pub struct TikManager {
 
     // Drones
     drone_manager: DroneManager,
-    lua_manager: LuaManager,
 
     // Block Updates
     block_update_manager: BlockUpdateManager, 
@@ -37,9 +36,7 @@ pub struct TikManager {
 
 impl TikManager {
     pub fn new(world: Arc<RwLock<World>>) -> Self {
-        let mut lua_manager = LuaManager::new();
-        lua_manager.rebuild_drone_script();
-        
+
 
         Self {
             paused: false,
@@ -51,7 +48,6 @@ impl TikManager {
 
             // Drones
             drone_manager: DroneManager::new(),
-            lua_manager: lua_manager,
 
             // Block Updates
             block_update_manager: BlockUpdateManager::new(),
@@ -69,11 +65,6 @@ impl TikManager {
     // Getters / Setters
     //=====================================
     
-    // Lua
-    pub fn get_mut_lua_manager(&mut self) -> &mut LuaManager {
-        return &mut self.lua_manager;
-    }
-
     // Drone manager
     pub fn get_drone_manager(&self) -> &DroneManager {
         return &self.drone_manager;

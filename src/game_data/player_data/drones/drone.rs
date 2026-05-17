@@ -13,12 +13,12 @@ use crate::game_data::player_data::drone_script::var::var::Var;
 use crate::game_data::player_data::drone_script::var::var_type::VarType;
 use crate::game_data::player_data::drones::drone_actions::drone_actions::{DroneAction, DroneActionError};
 use crate::game_data::player_data::drones::drone_actions::drone_plan::DronePlan;
+use crate::game_data::player_data::drones::drone_inventory::DroneInventory;
 use crate::game_data::player_data::drones::drone_manager::DroneId;
 use crate::game_data::player_data::locations::location::WorldLocation;
 use crate::game_data::screen::widget::button::button::Button;
 use crate::game_data::screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod;
 use crate::game_data::texture_manager::texture::Texture;
-use crate::game_data::tik_manager::drones::drone_inventory::{DroneInventory};
 use crate::game_data::types::drone_item::DroneItem;
 use crate::game_data::{types::BlockTexture, World};
 

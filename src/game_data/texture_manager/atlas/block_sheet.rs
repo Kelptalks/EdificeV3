@@ -32,7 +32,7 @@ impl BlockTextureManager {
     pub fn splice_textures(&mut self, atlas_image: &mut RgbaImage) {
         
         // Load UI textures image
-        let block_image = image::open("Assets/blocks.png").unwrap().to_rgba8(); 
+        let block_image = image::open("Assets/Blocks.png").unwrap().to_rgba8();
         
         let block_spacing = self.buffer_space + BLOCK_PIXLE_REZ;
         // Splice every block with buffer space
