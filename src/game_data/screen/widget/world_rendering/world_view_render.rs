@@ -6,7 +6,7 @@ use crate::game_data::prof_record;
 use crate::game_data::{
     TextureManager, chunk_tile_map_manager::chunk_render_data::ChunkRenderData, player_data::{cursor::cursor::Cursor, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction}, player_data::PlayerData}, screen::{
         ScreenData, iso_cord_tool, widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_triangle::CastedTriangle}, tile_map::TileMapId, tile_map_manager::{TileMapEvent, TileMapManager}, view_mode::ViewMode}}
-    }, texture_manager::texture::Texture, types::BlockTexture, world::world::WorldEvent
+    }, texture_manager::texture::Texture, types::BlockTexture, world::world::{WorldEvent, SpriteRenderRequest}
 };
 
 use crate::game_data::game_event_manager::prelude::*;
@@ -221,68 +221,37 @@ impl PlayWorldViewRender {
     }
 
     fn get_mouse_triangle(
-        &mut self, 
-        screen_data: &ScreenData, 
-        _event_manager: &mut EventManager, 
-        _player_data: &PlayerData
+        &mut self,
+        screen_data: &ScreenData,
+        _event_manager: &mut EventManager,
+        player_data: &PlayerData
     ) -> Option<CastedTriangle> {
+        let mut mouse_ndc = screen_data.get_mouse_ndc();
 
-        let mut mouse_cords = screen_data.get_mouse_ndc();
+        mouse_ndc[0] -= self.ndc_draw_centering_offset[0];
+        mouse_ndc[1] -= self.ndc_draw_centering_offset[1];
+        mouse_ndc[0] += self.camera_ndc_offset[0];
+        mouse_ndc[1] += self.camera_ndc_offset[1];
 
-        
+        let iso = iso_cord_tool::ndi_screen_cords_to_iso_cords(self.ndc_block_scale, mouse_ndc);
 
-        mouse_cords[0] -= self.ndc_draw_centering_offset[0];
-        mouse_cords[1] -= self.ndc_draw_centering_offset[1];
+        let tile_key = [iso[0].floor() as i32, iso[1].floor() as i32];
+        let cz = player_data.get_cursor().get_cords()[2];
+        let world_cords = [tile_key[0] + cz, tile_key[1] + cz, cz];
 
-        mouse_cords[0] += self.camera_ndc_offset[0];
-        mouse_cords[1] += self.camera_ndc_offset[1];
+        let world_arc = player_data.get_world_ref();
+        let world = world_arc.read().unwrap();
+        let tiles = world.chunk_tile_set_manager.get_obscuring(world_cords, 3);
 
+        let tile = tiles.into_iter().filter(|t| t.struck()).last()?;
 
-
-        let iso_mouse_cords = 
-            iso_cord_tool::ndi_screen_cords_to_iso_cords(
-                self.ndc_block_scale, 
-                mouse_cords
-            );
-
-        
-
-        let tile_key = [
-            iso_mouse_cords[0].round() as i32 - 1, 
-            iso_mouse_cords[1].round() as i32
-        ];
-
-        let iso_offest = 
-            iso_cord_tool::casted_to_ndc_cords(
-                self.ndc_block_scale, 
-                tile_key
-            );
-
-        let tile_ndc_cords = [
-            mouse_cords[0] + iso_offest[0],
-            mouse_cords[1] + iso_offest[1],
-        ];
-
-        let mouses_tile = self.tile_map_manager.get_tile_with_flattened_cords(&tile_key);
-        
-        if let Some(mouse_tile) = mouses_tile {
-            
-            let triangle;
-            if tile_ndc_cords[0] > self.ndc_block_scale {
-                let triangle = mouse_tile.get_right_triangle().clone();
-                return Some(triangle);
-            } 
-            else {
-                triangle = mouse_tile.get_left_triangle().clone();
-                return Some(triangle);
-            }
+        let frac_x = iso[0] - iso[0].floor();
+        let frac_y = iso[1] - iso[1].floor();
+        if frac_x > frac_y {
+            Some(tile.get_right_triangle().clone())
+        } else {
+            Some(tile.get_left_triangle().clone())
         }
-        else {
-            return None
-        }
-
-
-        
     }
 
 
@@ -434,8 +403,25 @@ impl Widget for PlayWorldViewRender {
         let start = Instant::now();
 
         // Render View
-        self.render_full_view(texture_manager, screen_data, event_manager, &player_data);        
+        self.render_full_view(texture_manager, screen_data, event_manager, &player_data);
         self.lair_block_mods.clear();
+
+        // Selector overlay — only when mouse is over a block that has a game entity
+        if let Some(triangle) = self.get_mouse_triangle(screen_data, event_manager, player_data) {
+            if triangle.has_struck_solid {
+                let struck_cords = triangle.get_solid_block_struck_cords();
+                let has_entity = player_data.get_world_ref()
+                    .read().unwrap()
+                    .get_block_entity(struck_cords)
+                    .is_some();
+                if has_entity {
+                    event_manager.add_event(WorldEvent::RenderSprite(SpriteRenderRequest {
+                        world_pos: [struck_cords[0] as f32, struck_cords[1] as f32, struck_cords[2] as f32],
+                        texture: Texture::BlockTexture(BlockTexture::Selector),
+                    }).wrap_into_event());
+                }
+            }
+        }
 
         if let Some(view_mode) = player_data.get_view_mode() {
             match view_mode {

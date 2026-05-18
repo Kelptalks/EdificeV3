@@ -26,6 +26,12 @@ use crate::game_data::screen::widget::world_rendering::tile_map_manager::TileMap
 
 
 
+#[derive(Clone, Copy)]
+pub struct SpriteRenderRequest {
+    pub world_pos: [f32; 3],
+    pub texture: Texture,
+}
+
 pub struct World {
     pub world_chunk_manager: WorldChunkManager,
     pub chunk_tile_set_manager: ChunkTileSetManager,
@@ -33,17 +39,32 @@ pub struct World {
     total_chunks : u32,
 
     world_gen_manager: WorldGenManager,
+
+    sprite_render_queue: Vec<SpriteRenderRequest>,
 }
 
 impl World {
     pub fn new() -> Self
-    {   
-        Self { 
+    {
+        Self {
             world_chunk_manager: WorldChunkManager::new(),
             chunk_tile_set_manager: ChunkTileSetManager::new(),
 
             total_chunks: 0,
-            world_gen_manager: WorldGenManager::new()
+            world_gen_manager: WorldGenManager::new(),
+
+            sprite_render_queue: Vec::new(),
+        }
+    }
+
+    pub fn queue_sprite_render(&mut self, req: SpriteRenderRequest) {
+        self.sprite_render_queue.push(req);
+    }
+
+    fn drain_sprite_render_queue(&mut self, texture_manager: &mut TextureManager, render_data: &ChunkRenderData) {
+        let requests: Vec<SpriteRenderRequest> = self.sprite_render_queue.drain(..).collect();
+        for req in requests {
+            self.render_sprite_at_world_pos(texture_manager, render_data, req.world_pos, req.texture, 3, 2);
         }
     }
 
@@ -281,7 +302,6 @@ impl World {
 
         let cursor = player_data.get_cursor();
         let mut cursor_pos = cursor.get_pos();
-        cursor_pos[2] -= 0.25;
         self.render_sprite_at_world_pos(
             texture_manager,
             render_data,
@@ -314,6 +334,8 @@ impl World {
                 eprintln!("NON LOADED OR NULL CHUNKS SHOULD NOT EXIST HERE");
             }
         }
+
+        self.drain_sprite_render_queue(texture_manager, render_data);
     }
 
     pub fn get_chunk_debug_data(&self, world_cords: [i32; 3]) -> Vec<String> {
@@ -377,6 +399,8 @@ pub enum WorldEvent {
     /// Toggle Selector-block border overlay on all chunk tile sets.
     ToggleChunkBorders,
 
+    /// Queue a sprite to be rendered with correct occlusion this frame.
+    RenderSprite(SpriteRenderRequest),
 }
 
 impl WorldEvent {
@@ -461,6 +485,9 @@ impl WorldEvent {
             },
             WorldEvent::ToggleChunkBorders => {
                 world.chunk_tile_set_manager.toggle_borders();
+            },
+            WorldEvent::RenderSprite(req) => {
+                world.queue_sprite_render(req);
             },
         }
     }
