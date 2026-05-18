@@ -11,6 +11,8 @@ pub struct ChunkTileSet {
     ray_casting_task_id: Option<RayCastingTaskId>,
 
     mesh_id: Option<TextureMeshId>,
+
+    pub dirty: bool,
 }
 
 impl ChunkTileSet {
@@ -27,7 +29,18 @@ impl ChunkTileSet {
             ray_casting_task_id: None,
 
             mesh_id: None,
+
+            dirty: false,
         }
+    }
+
+    pub fn mark_dirty(&mut self, texture_manager: &mut TextureManager, thread_pool: &mut RayCastingThreadPool) {
+        if let Some(task_id) = self.ray_casting_task_id.take() {
+            thread_pool.cancel_task(task_id);
+        }
+        self.tile_map.clear();
+        self.free(texture_manager);
+        self.dirty = true;
     }
 
     pub fn ray_cast_set(&mut self, thread_pool: &mut RayCastingThreadPool, chunk: &LoadedWorldChunk) {

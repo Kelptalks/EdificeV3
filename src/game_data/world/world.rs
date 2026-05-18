@@ -405,12 +405,16 @@ impl WorldEvent {
                 
             }
             WorldEvent::ModBlock(cords, block_type) => {
-                world.set_world_value( block_type.id_as_u16(), cords);
+                world.set_world_value(block_type.id_as_u16(), cords);
+                let key = World::chunk_cords_to_key(World::world_cords_to_chunk_cords(cords));
+                world.chunk_tile_set_manager.queue_dirty_chunk(key);
                 event_manager.add_render_event(RenderEvent::ReRenderBlock(cords));
             }
             WorldEvent::ReplaceBlock(cords, block_type) => {
                 if world.get_world_value(cords) == 0 {
                     world.set_world_value(block_type.id_as_u16(), cords);
+                    let key = World::chunk_cords_to_key(World::world_cords_to_chunk_cords(cords));
+                    world.chunk_tile_set_manager.queue_dirty_chunk(key);
                     event_manager.add_render_event(RenderEvent::ReRenderBlock(cords));
                 }
             }

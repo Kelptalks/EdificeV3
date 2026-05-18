@@ -6,6 +6,7 @@ pub struct ChunkTileSetManager {
     chunk_tile_sets: HashMap<u64, ChunkTileSet>,
 
     tile_sets_to_cast: Vec<u64>,
+    dirty_sets: Vec<u64>,
 }
 
 impl ChunkTileSetManager {
@@ -13,10 +14,33 @@ impl ChunkTileSetManager {
         ChunkTileSetManager {
             chunk_tile_sets: HashMap::new(),
             tile_sets_to_cast: Vec::new(),
+            dirty_sets: Vec::new(),
+        }
+    }
+
+    pub fn queue_dirty_chunk(&mut self, key: u64) {
+        if let Some(set) = self.chunk_tile_sets.get_mut(&key) {
+            set.dirty = true;
+            self.dirty_sets.push(key);
         }
     }
 
     pub fn clean(&mut self, chunk_manager: &WorldChunkManager, texture_manager: &mut TextureManager, thread_pool: &mut RayCastingThreadPool) {
+        // Cancel in-flight tasks and clear state for dirty sets, then re-submit
+        self.dirty_sets.retain(|set_key| {
+            if let Some(set) = self.chunk_tile_sets.get_mut(set_key) {
+                if set.dirty {
+                    set.mark_dirty(texture_manager, thread_pool);
+                }
+                if let Some(chunk) = chunk_manager.get_loaded_chunk(set_key) {
+                    set.ray_cast_set(thread_pool, chunk);
+                    set.dirty = false;
+                    return false;
+                }
+            }
+            true
+        });
+
         // Submit new ray cast tasks for pending tile sets
         self.tile_sets_to_cast.retain(|set_key| {
             if let Some(set) = self.chunk_tile_sets.get_mut(set_key) {
