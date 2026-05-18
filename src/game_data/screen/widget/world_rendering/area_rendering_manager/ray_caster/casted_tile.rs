@@ -1,6 +1,6 @@
 
 use crate::game_data::{
-    TextureManager, World, screen::{iso_cord_tool, widget::world_rendering::area_rendering_manager::ray_caster::{casted_triangle::CastedTriangle, ray_casting_config::{Direction, RayCastingConfig}}}, texture_manager::texture_cashe::texture_cashe::CashedTextureID, types::{
+    TextureManager, World, screen::{iso_cord_tool, widget::world_rendering::area_rendering_manager::ray_caster::{casted_triangle::CastedTriangle, ray_casting_config::{Direction, RayCastingConfig}}}, texture_manager::{mesh_manager::texture_mesh::TextureMeshId, texture_cashe::texture_cashe::CashedTextureID}, types::{
         BlockShader, BlockTexture, BlockTriangle, ShaderTriangle
     }
 };
@@ -470,6 +470,57 @@ impl CastedTile {
             );
         }
     }
+
+    //=====================================
+    // Mesh
+    //=====================================
+
+    pub fn render_to_mesh(&self, texture_manager: &mut TextureManager, mesh_id: TextureMeshId) {
+        let flattened_cords = iso_cord_tool::flatten_world_cords(self.get_world_cords());
+        let local_cords = iso_cord_tool::casted_to_ndc_cords(1.0, flattened_cords);
+
+        let left_pos = [
+            local_cords[0],
+            local_cords[1],
+            local_cords[0] + 1.0,
+            local_cords[1] + 1.0,
+        ];
+        for texture in self.get_left_triangle().get_textures().clone() {
+            texture_manager.render_texture_to_mesh(mesh_id, texture, left_pos);
+        }
+        if self.left_triangle.has_shader() {
+            texture_manager.render_shader_triangle_to_mesh(
+                mesh_id,
+                self.left_triangle.get_shader_type(),
+                self.left_triangle.get_shader_triangle(),
+                [local_cords[0], local_cords[1]],
+                1.0,
+            );
+        }
+
+        let right_pos = [
+            local_cords[0] + 1.0,
+            local_cords[1],
+            local_cords[0] + 2.0,
+            local_cords[1] + 1.0,
+        ];
+        for texture in self.get_right_triangle().get_textures().clone() {
+            texture_manager.render_texture_to_mesh(mesh_id, texture, right_pos);
+        }
+        if self.right_triangle.has_shader() {
+            texture_manager.render_shader_triangle_to_mesh(
+                mesh_id,
+                self.right_triangle.get_shader_type(),
+                self.right_triangle.get_shader_triangle(),
+                [local_cords[0] + 1.0, local_cords[1]],
+                1.0,
+            );
+        }
+    }
+
+    //=====================================
+    // Cashed Texture
+    //=====================================
 
     pub fn render_to_cashed_texture(
         &self,

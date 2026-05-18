@@ -300,14 +300,10 @@ impl PlayWorldViewRender {
         self.ndc_tile_scale = self.ndc_block_scale / 2.0;
         self.ndc_tile_half_scale = self.ndc_tile_scale / 2.0;
 
-        self.center_ndc = [
-            -self.ndc_tile_half_scale,
-            -self.ndc_tile_half_scale / 2.0,
-        ];
+        self.center_ndc = [0.0, 0.0];
 
-
-        self.ndc_draw_centering_offset[0] = self.center_ndc[0] - self.ndc_block_scale;
-        self.ndc_draw_centering_offset[1] = self.center_ndc[1] - self.ndc_block_scale;
+        self.ndc_draw_centering_offset[0] = -self.ndc_block_scale;
+        self.ndc_draw_centering_offset[1] = -self.ndc_block_scale / 2.0;
     }
 
     fn render_full_view(
@@ -472,12 +468,14 @@ impl Widget for PlayWorldViewRender {
                     }
 
                     let cursor = player_data.get_cursor();
-                    self.tile_map_manager.render_enitity_at_world_pos(
+                    
+                    /* self.tile_map_manager.render_enitity_at_world_pos(
                         texture_manager, 
                         player_data, 
                         cursor.get_pos(),
                         Texture::BlockTexture(BlockTexture::Selector)
                     );
+                    */
 
                     panel.size();
 
@@ -503,7 +501,7 @@ impl Widget for PlayWorldViewRender {
                         let mut cursor_event_scheduler = player_data.get_cursor_event_scheduler();
                             
                         let drone = drone_event_scheduler.get_drone();
-                        self.tile_map_manager.render_enitity_at_world_pos(texture_manager, player_data, drone.get_world_pos(), drone.get_texture());
+                        // self.tile_map_manager.render_enitity_at_world_pos(texture_manager, player_data, drone.get_world_pos(), drone.get_texture());
 
                         cursor_event_scheduler.set_cords(drone.get_cords());
 

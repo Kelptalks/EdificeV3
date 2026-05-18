@@ -9,13 +9,13 @@ pub struct CastedTriangle {
     pub has_struck_solid: bool,
 
 
-    first_block_struck_cords: [i32; 3],
-    first_block_struck_type: BlockTexture,
-    first_block_triangle_struck: BlockTriangle,
+    pub first_block_struck_cords: [i32; 3],
+    pub first_block_struck_type: BlockTexture,
+    pub first_block_triangle_struck: BlockTriangle,
 
-    solid_block_cords_struck: [i32; 3],
-    solid_block_type_struck: BlockTexture,
-    solid_block_triangle_struck: BlockTriangle,
+    pub solid_block_cords_struck: [i32; 3],
+    pub solid_block_type_struck: BlockTexture,
+    pub solid_block_triangle_struck: BlockTriangle,
 
     shader_triangle: ShaderTriangle,
     shader_type: BlockShader,

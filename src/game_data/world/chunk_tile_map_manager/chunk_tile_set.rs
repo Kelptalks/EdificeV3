@@ -1,17 +1,16 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, World, chunk_manager::loaded_chunk::LoadedWorldChunk, chunk_tile_map_manager::chunk_render_data::ChunkRenderData, screen::{iso_cord_tool, widget::world_rendering::area_rendering_manager::{block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_tile::CastedTile, raycast_thread_pool::{RayCastingTaskId, RayCastingThreadPool}}}, texture_manager::{texture::Texture, texture_cashe::texture_cashe::CashedTextureID}, world::locations::world_area::WorldArea};
+use crate::game_data::{TextureManager, World, chunk_manager::loaded_chunk::LoadedWorldChunk, chunk_tile_map_manager::chunk_render_data::ChunkRenderData, screen::widget::world_rendering::area_rendering_manager::{block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_tile::CastedTile, raycast_thread_pool::{RayCastingTaskId, RayCastingThreadPool}}, texture_manager::mesh_manager::texture_mesh::TextureMeshId, types::BlockTexture, world::locations::world_area::WorldArea};
 
 pub struct ChunkTileSet {
     pub chunk_key: u64,
     area: WorldArea,
 
-    tile_map: HashMap<[i32; 2], CastedTile>,
+    pub tile_map: HashMap<[i32; 2], CastedTile>,
 
     ray_casting_task_id: Option<RayCastingTaskId>,
 
-    cashed_texture_dirty: bool,
-    cashed_texture_id: Option<CashedTextureID>,
+    mesh_id: Option<TextureMeshId>,
 }
 
 impl ChunkTileSet {
@@ -27,8 +26,7 @@ impl ChunkTileSet {
 
             ray_casting_task_id: None,
 
-            cashed_texture_dirty: false,
-            cashed_texture_id: None,
+            mesh_id: None,
         }
     }
 
@@ -48,42 +46,36 @@ impl ChunkTileSet {
     //=====================================
 
     pub fn clean(&mut self, texture_manager: &mut TextureManager, thread_pool: &mut RayCastingThreadPool) {
-        // Pick up completed ray cast
         if let Some(id) = self.ray_casting_task_id {
             if let Some(map) = thread_pool.get_task_map(id) {
                 self.tile_map = map;
                 self.ray_casting_task_id = None;
-                self.cashed_texture_dirty = true;
+                self.build_mesh(texture_manager);
             }
         }
+    }
 
-        // Bake tiles into cached texture
-        if self.cashed_texture_dirty {
-            let center_world = self.area.get_center_world_cords();
-            let iso_center = iso_cord_tool::flatten_world_cords(center_world);
-            let iso_center_f = [iso_center[0] as f32, iso_center[1] as f32];
-
-            let dims = self.area.get_dimensions();
-            let iso_extent = (dims[0] + dims[2]).max(dims[1] + dims[2]) as f32;
-            let block_scale = 1.0 / iso_extent;
-
-            if let Some(cashed_texture_id) = self.cashed_texture_id {
-                texture_manager.get_mut_texture_cashe().clear_cashed_texture(cashed_texture_id);
-
-                for (key, tile) in self.tile_map.iter() {
-                    let offset_iso_cords = [
-                        key[0] as f32 - iso_center_f[0],
-                        key[1] as f32 - iso_center_f[1],
-                    ];
-                    let cords = iso_cord_tool::float_iso_to_ndc_cords(block_scale, offset_iso_cords);
-                    tile.render_to_cashed_texture(texture_manager, cashed_texture_id, block_scale, cords);
+    fn build_mesh(&mut self, texture_manager: &mut TextureManager) {
+        let mesh_id = match self.mesh_id {
+            Some(id) => {
+                if let Some(mesh) = texture_manager.get_mut_mesh(id) {
+                    mesh.clear();
                 }
+                id
+            }
+            None => {
+                let id = texture_manager.new_mesh();
+                let cords = World::key_to_chunk_cords(self.chunk_key);
+                if let Some(mesh) = texture_manager.get_mut_mesh(id) {
+                    mesh.depth = cords[0] as i32 + cords[1] as i32 + cords[2] as i32;
+                }
+                self.mesh_id = Some(id);
+                id
+            }
+        };
 
-                self.cashed_texture_dirty = false;
-            }
-            else {
-                self.cashed_texture_id = texture_manager.get_free_cashed_texture();
-            }
+        for (_key, tile) in &self.tile_map {
+            tile.render_to_mesh(texture_manager, mesh_id);
         }
     }
 
@@ -91,39 +83,19 @@ impl ChunkTileSet {
     // Render
     //=====================================
 
-    pub fn render_tiles(&mut self, texture_manager: &mut TextureManager, render_data: &ChunkRenderData) {
-        for (_key, tile) in self.tile_map.iter_mut() {
-            tile.render(texture_manager, render_data.scale, render_data.offset);
+    pub fn render(&mut self, texture_manager: &mut TextureManager, render_data: &ChunkRenderData) {
+        if let Some(mesh_id) = self.mesh_id {
+            if let Some(mesh) = texture_manager.get_mut_mesh(mesh_id) {
+                mesh.offset = render_data.offset;
+                mesh.scale = render_data.scale;
+            }
+            texture_manager.render_mesh(mesh_id);
         }
     }
 
-    pub fn render(&mut self, texture_manager: &mut TextureManager, render_data: &ChunkRenderData, LOD: usize) {
-        if LOD > 0 {
-            if let Some(cashed_texture_id) = self.cashed_texture_id {
-                let center_world = self.area.get_center_world_cords();
-                let iso_center = iso_cord_tool::flatten_world_cords(center_world);
-                let iso_center_f = [iso_center[0] as f32, iso_center[1] as f32];
-
-                let dims = self.area.get_dimensions();
-                let iso_extent = (dims[0] + dims[2]).max(dims[1] + dims[2]) as f32;
-                let half = iso_extent * render_data.scale;
-
-                let mut center = iso_cord_tool::float_iso_to_ndc_cords(render_data.scale, iso_center_f);
-                center[0] += render_data.offset[0];
-                center[1] += render_data.offset[1];
-
-                let pos = [
-                    center[0] - half,
-                    center[1] - half,
-                    center[0] + half,
-                    center[1] + half,
-                ];
-
-                texture_manager.render_texture(Texture::CashedTexture(cashed_texture_id), pos);
-            }
-        }
-        else if !self.tile_map.is_empty() {
-            self.render_tiles(texture_manager, render_data);
+    pub fn free(&mut self, texture_manager: &mut TextureManager) {
+        if let Some(id) = self.mesh_id.take() {
+            texture_manager.remove_mesh(id);
         }
     }
 }

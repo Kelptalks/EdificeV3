@@ -1,6 +1,8 @@
 #![allow(dead_code)]
 
 
+use miniquad::native::linux_x11::libx11::CurrentTime;
+
 use crate::game_data::chunk_manager::chunk_manager::{WorldChunkManager, WorldChunkType};
 use crate::game_data::chunk_manager::loaded_chunk::{LoadedWorldChunk, WorldChunkEvent};
 use crate::game_data::chunk_tile_map_manager::chunk_render_data::ChunkRenderData;
@@ -13,7 +15,9 @@ use crate::game_data::game_event_manager::render_event_manager::render_event_man
 use crate::game_data::player_data::game_entity::{dynamic_entity_manager::dynamic_entity_manager::DynamicEntityId, game_entity_manager::GameEntityId};
 use crate::game_data::player_data::player_data::PlayerData;
 use crate::game_data::screen::widget::world_rendering::area_rendering_manager::raycast_thread_pool::RayCastingThreadPool;
+use crate::game_data::texture_manager::texture::Texture;
 use crate::game_data::tik_manager::game_time::GameTime;
+use crate::game_data::tools::iso_cord_tool::{self, flatten_world_cords};
 use crate::game_data::types::BlockTexture;
 use crate::game_data::world_gen::WorldGenManager;
 use crate::game_data::{TextureManager};
@@ -220,6 +224,48 @@ impl World {
     // Rendering
     //=====================================
 
+    pub fn render_sprite_at_world_pos(
+        &self,
+        texture_manager: &mut TextureManager,
+        render_data: &ChunkRenderData,
+        world_pos: [f32; 3],
+        texture: Texture,
+        num_lairs: i16,
+        area_radius: i32,
+    ) {
+        let ndc = iso_cord_tool::world_pos_to_ndc_cords(render_data.scale, world_pos);
+        let draw_pos = [
+            ndc[0] + render_data.offset[0],
+            ndc[1] + render_data.offset[1],
+            ndc[0] + render_data.offset[0] + render_data.scale * 2.0,
+            ndc[1] + render_data.offset[1] + render_data.scale * 2.0,
+        ];
+        texture_manager.render_texture(texture, draw_pos);
+
+        let sprite_depth = world_pos[0] as i32 + world_pos[1] as i32 + world_pos[2] as i32;
+        let base_cords = [
+            world_pos[0].round() as i32,
+            world_pos[1].round() as i32,
+            world_pos[2].round() as i32,
+        ];
+
+        for dx in -area_radius..=area_radius {
+            for dy in -area_radius..=area_radius {
+                let world_cords = [base_cords[0] + dx, base_cords[1] + dy, base_cords[2]];
+                let tiles = self.chunk_tile_set_manager.get_obscuring(world_cords, num_lairs);
+                for tile in &tiles {
+                    let [left_depth, right_depth] = tile.get_triangles_depths();
+                    if left_depth > sprite_depth {
+                        tile.render_left_triangle(texture_manager, render_data.scale, render_data.offset);
+                    }
+                    if right_depth > sprite_depth {
+                        tile.render_right_triangle(texture_manager, render_data.scale, render_data.offset);
+                    }
+                }
+            }
+        }
+    }
+
     pub fn render_world(
         &mut self,
         player_data: &PlayerData,
@@ -231,6 +277,21 @@ impl World {
         
         self.chunk_tile_set_manager.clean(&self.world_chunk_manager, texture_manager, thread_pool);
         self.chunk_tile_set_manager.render(texture_manager, render_data);
+
+
+        let cursor = player_data.get_cursor();
+        let mut cursor_pos = cursor.get_pos();
+        cursor_pos[2] -= 0.25;
+        self.render_sprite_at_world_pos(
+            texture_manager,
+            render_data,
+            cursor_pos,
+            Texture::BlockTexture(BlockTexture::Selector),
+            3,
+            2,
+        );
+
+
 
         for key in loaded_chunks {
             if let Some(WorldChunkType::Loaded(chunk)) = self.world_chunk_manager.get_chunk(&key) {

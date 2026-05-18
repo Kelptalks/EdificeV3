@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
 use crate::game_data::{
-    screen::ScreenData, 
+    screen::ScreenData,
     texture_manager::{
-        atlas::texture_atlas::TextureAtlas, rendering_managager::rendering_batch::RenderBatch, texture::Texture, texture_cashe::texture_cashe::{CashedTextureID, TextureCashe}, texture_renderer::TextureRenderingManager}, types::{BlockShader, BlockTexture, BlockTriangle, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
+        atlas::texture_atlas::TextureAtlas, mesh_manager::{mesh_manager::MeshManager, texture_mesh::{TextureMesh, TextureMeshId}}, rendering_managager::rendering_batch::RenderBatch, texture::Texture, texture_cashe::texture_cashe::{CashedTextureID, TextureCashe}, texture_renderer::TextureRenderingManager}, types::{BlockShader, BlockTexture, BlockTriangle, CharType, DroneItemTexture, DroneUITexture, FontType, ShaderTriangle, UITextures}};
 use miniquad::*;
 use std::time::Instant;
 use crate::game_data::prof_record;
@@ -34,7 +34,7 @@ pub struct TextureManager {
     cached_expander: f32,
 
     texture_cashe: TextureCashe,
-
+    mesh_manager: Option<MeshManager>,
 
     render_batches: Vec<RenderBatch>,
 }
@@ -47,14 +47,15 @@ impl TextureManager {
 
     pub fn new() -> Self {
         Self {
-            textures_initialized : false,
-            texture_renderer : None,
-            texture_atlas : None,
+            textures_initialized: false,
+            texture_renderer: None,
+            texture_atlas: None,
 
             cached_scale: 0.0,
             cached_expander: 0.0,
 
             texture_cashe: TextureCashe::new(),
+            mesh_manager: None,
 
             render_batches: Vec::new(),
         }
@@ -75,8 +76,9 @@ impl TextureManager {
         }
         
         self.texture_atlas = Some(new_texture_atlas);
+        self.mesh_manager = Some(MeshManager::new(ctx));
 
-        // Set to initialized 
+        // Set to initialized
         self.textures_initialized = true;
 
     }
@@ -465,6 +467,76 @@ impl TextureManager {
 
 
     //=====================================
+    // Mesh Rendering
+    //=====================================
+
+    pub fn new_mesh(&mut self) -> TextureMeshId {
+        self.mesh_manager.as_mut().unwrap().new_mesh()
+    }
+
+    pub fn get_mut_mesh(&mut self, id: TextureMeshId) -> Option<&mut TextureMesh> {
+        self.mesh_manager.as_mut().unwrap().get_mut_mesh(id)
+    }
+
+    pub fn remove_mesh(&mut self, id: TextureMeshId) {
+        if let Some(m) = &mut self.mesh_manager {
+            m.remove_mesh(id);
+        }
+    }
+
+    pub fn render_texture_to_mesh(&mut self, mesh_id: TextureMeshId, texture: Texture, pos: [f32; 4]) {
+        let uv = self.get_texture_uv(texture);
+        let atlas_id = self.texture_atlas.as_ref().unwrap().get_atlas_texture_id();
+        if let Some(m) = &mut self.mesh_manager {
+            if let Some(mesh) = m.get_mut_mesh(mesh_id) {
+                mesh.src_texture.get_or_insert(atlas_id);
+                mesh.add_quad(pos, uv);
+            }
+        }
+    }
+
+    pub fn render_mesh(&mut self, id: TextureMeshId) {
+        if let Some(m) = &mut self.mesh_manager {
+            m.queue_draw(id);
+        }
+    }
+
+    pub fn render_shader_triangle_to_mesh(
+        &mut self,
+        mesh_id: TextureMeshId,
+        shader: BlockShader,
+        triangle: ShaderTriangle,
+        draw_location: [f32; 2],
+        scale: f32,
+    ) {
+        let uv = self.texture_atlas.as_ref().unwrap().get_precalculated_shader_triangle_uv(triangle, shader);
+        let atlas_id = self.texture_atlas.as_ref().unwrap().get_atlas_texture_id();
+        let pos = [
+            draw_location[0],
+            draw_location[1],
+            draw_location[0] + scale,
+            draw_location[1] + scale,
+        ];
+        if let Some(m) = &mut self.mesh_manager {
+            if let Some(mesh) = m.get_mut_mesh(mesh_id) {
+                mesh.src_texture.get_or_insert(atlas_id);
+                mesh.add_quad(pos, uv);
+            }
+        }
+    }
+
+    pub fn render_texture_to_mesh_tinted(&mut self, mesh_id: TextureMeshId, texture: Texture, pos: [f32; 4], tint: [f32; 3]) {
+        let uv = self.get_texture_uv(texture);
+        let atlas_id = self.texture_atlas.as_ref().unwrap().get_atlas_texture_id();
+        if let Some(m) = &mut self.mesh_manager {
+            if let Some(mesh) = m.get_mut_mesh(mesh_id) {
+                mesh.src_texture.get_or_insert(atlas_id);
+                mesh.add_quad_tinted(pos, uv, tint);
+            }
+        }
+    }
+
+    //=====================================
     // Sprite Cashing
     //=====================================
 
@@ -482,6 +554,12 @@ impl TextureManager {
             self.get_texture_renderer().flush_batch(ctx, screen_data, batch);
         }
         prof_record("  gpu_flush_cache_drawing", t.elapsed());
+
+        let t = Instant::now();
+        if let Some(m) = &mut self.mesh_manager {
+            m.flush(ctx, screen_data);
+        }
+        prof_record("  gpu_flush_meshes", t.elapsed());
 
         let t = Instant::now();
         self.get_texture_renderer().flush(ctx);
