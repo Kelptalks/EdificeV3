@@ -28,7 +28,7 @@ pub struct TileMapManager {
     
     flattened_lair: HashMap<[i32; 2], Vec<TileMapId>>,
 
-    ray_casting_thread_pool: RayCastingThreadPool,
+    pub ray_casting_thread_pool: RayCastingThreadPool,
 }
 
 impl TileMapManager {

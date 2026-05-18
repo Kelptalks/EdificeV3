@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::game_data::{World, chunk_manager::{lazy_chunk::LazyWorldChunk, unloaded_chunk::UnloadedWorldChunk, world_chunk::LoadedWorldChunk}, game_event_manager::event_manager::EventManager, player_data::player_data::PlayerData, tik_manager::game_time::GameTime};
+use crate::game_data::{World, chunk_manager::{lazy_chunk::LazyWorldChunk, unloaded_chunk::UnloadedWorldChunk, loaded_chunk::LoadedWorldChunk}, game_event_manager::event_manager::EventManager, player_data::player_data::PlayerData, tik_manager::game_time::GameTime};
 
 
 
@@ -89,8 +89,9 @@ impl WorldChunkManager {
         }
     }
 
-    pub fn get_loaded_chunk(&self, cords: [i16; 3]) -> Option<&LoadedWorldChunk> {
-        if let Some(WorldChunkType::Loaded(chunk)) = self.get_chunk(cords) {
+
+    pub fn get_loaded_chunk(&self, key: &u64) -> Option<&LoadedWorldChunk> {
+        if let Some(WorldChunkType::Loaded(chunk)) = self.get_chunk(key) {
             return Some(chunk)
         }
         else {
@@ -98,10 +99,25 @@ impl WorldChunkManager {
         }
     }
 
-    pub fn get_chunk(&self, cords: [i16; 3]) -> Option<&WorldChunkType> {
+    pub fn get_loaded_chunk_with_cords(&self, cords: [i16; 3]) -> Option<&LoadedWorldChunk> {
+        if let Some(WorldChunkType::Loaded(chunk)) = self.get_chunk_with_cords(cords) {
+            return Some(chunk)
+        }
+        else {
+            None
+        }
+    }
+
+
+    pub fn get_chunk(&self, key: &u64) -> Option<&WorldChunkType> {
+        self.chunks.get(&key)
+    }
+
+    pub fn get_chunk_with_cords(&self, cords: [i16; 3]) -> Option<&WorldChunkType> {
         let key = Self::chunk_cords_to_key(cords);
         self.chunks.get(&key)
     }
+
 
     
     //=====================================
@@ -155,7 +171,7 @@ impl WorldChunkManager {
 
     pub fn remove_chunk(&mut self, event_manager: &mut EventManager, cords: [i16; 3]) {
         // remove the old chunk from the type hashsets
-        if let Some(old_chunk) = self.get_chunk(cords) {
+        if let Some(old_chunk) = self.get_chunk_with_cords(cords) {
             match old_chunk {
                 WorldChunkType::Loaded(loaded_world_chunk) => {
                     self.loaded_chunks.remove(&loaded_world_chunk.get_key());

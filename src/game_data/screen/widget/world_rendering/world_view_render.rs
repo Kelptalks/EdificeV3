@@ -4,7 +4,7 @@ use crate::game_data::prof_record;
 
 
 use crate::game_data::{
-    TextureManager, player_data::{cursor::cursor::Cursor, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction}, player_data::PlayerData}, screen::{
+    TextureManager, chunk_tile_map_manager::chunk_render_data::ChunkRenderData, player_data::{cursor::cursor::Cursor, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction}, player_data::PlayerData}, screen::{
         ScreenData, iso_cord_tool, widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_triangle::CastedTriangle}, tile_map::TileMapId, tile_map_manager::{TileMapEvent, TileMapManager}, view_mode::ViewMode}}
     }, texture_manager::texture::Texture, types::BlockTexture, world::world::WorldEvent
 };
@@ -341,7 +341,8 @@ impl PlayWorldViewRender {
         draw_cords[0] -= self.camera_ndc_offset[0];
         draw_cords[1] -= self.camera_ndc_offset[1];
 
-        
+        let chunk_render_data = ChunkRenderData::new(self.ndc_block_scale, draw_cords, cursor.get_cords(), cursor.get_zoom());
+
         self.tile_map_manager.update_rendering_data(self.ndc_block_scale, draw_cords);
 
         let t = Instant::now();
@@ -355,7 +356,13 @@ impl PlayWorldViewRender {
         texture_manager.update_expander_cache(self.ndc_block_scale);
 
         let t = Instant::now();
-        world.render_world(player_data, texture_manager, &mut self.tile_map_manager);
+        world.render_world(
+            player_data,
+            texture_manager,
+            &mut self.tile_map_manager.ray_casting_thread_pool,
+            &chunk_render_data,
+        );
+        
         prof_record("  world_render_world", t.elapsed());
         
 

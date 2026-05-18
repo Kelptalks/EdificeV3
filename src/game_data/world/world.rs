@@ -2,13 +2,17 @@
 
 
 use crate::game_data::chunk_manager::chunk_manager::{WorldChunkManager, WorldChunkType};
-use crate::game_data::chunk_manager::world_chunk::{LoadedWorldChunk, WorldChunkEvent};
+use crate::game_data::chunk_manager::loaded_chunk::{LoadedWorldChunk, WorldChunkEvent};
+use crate::game_data::chunk_tile_map_manager::chunk_render_data::ChunkRenderData;
+use crate::game_data::chunk_tile_map_manager::chunk_tile_set_manager::ChunkTileSetManager;
+use crate::game_data::chunk_tile_map_manager::chunk_tile_set::{self, ChunkTileSet};
 use crate::game_data::locations::world_area::WorldArea;
 use crate::game_data::game_event_manager::event_manager::{Event, EventManager};
 use crate::game_data::game_event_manager::game_event_manager::{GameEvent, GameEventManager};
 use crate::game_data::game_event_manager::render_event_manager::render_event_manager::RenderEvent;
 use crate::game_data::player_data::game_entity::{dynamic_entity_manager::dynamic_entity_manager::DynamicEntityId, game_entity_manager::GameEntityId};
 use crate::game_data::player_data::player_data::PlayerData;
+use crate::game_data::screen::widget::world_rendering::area_rendering_manager::raycast_thread_pool::RayCastingThreadPool;
 use crate::game_data::tik_manager::game_time::GameTime;
 use crate::game_data::types::BlockTexture;
 use crate::game_data::world_gen::WorldGenManager;
@@ -19,8 +23,8 @@ use crate::game_data::screen::widget::world_rendering::tile_map_manager::TileMap
 
 
 pub struct World {
-    world_chunk_manager: WorldChunkManager,
-
+    pub world_chunk_manager: WorldChunkManager,
+    pub chunk_tile_set_manager: ChunkTileSetManager,
 
     total_chunks : u32,
 
@@ -32,6 +36,7 @@ impl World {
     {   
         Self { 
             world_chunk_manager: WorldChunkManager::new(),
+            chunk_tile_set_manager: ChunkTileSetManager::new(),
 
             total_chunks: 0,
             world_gen_manager: WorldGenManager::new()
@@ -74,7 +79,7 @@ impl World {
 
 
     //=====================================
-    // Chunk Getters
+    // Chunk Getters / Setters
     //=====================================
 
     
@@ -82,6 +87,17 @@ impl World {
         let cords = Self::key_to_chunk_cords(key);
         let world_chunk = LoadedWorldChunk::new(cords);
         self.world_chunk_manager.add_chunk(world_chunk.wrap_into_chunk_type());
+    }
+
+
+    pub fn set_chunk_block_data(&mut self, key: u64, block_data: Box<[u16; crate::game_data::chunk_manager::loaded_chunk::CHUNK_VOLUME]>) {
+        let cords = Self::key_to_chunk_cords(key);
+        if self.world_chunk_manager.get_mut_loaded_chunk(cords).is_none() {
+            self.create_chunk(key);
+        }
+        if let Some(chunk) = self.world_chunk_manager.get_mut_loaded_chunk(cords) {
+            chunk.set_block_data(block_data);
+        }
     }
 
     //=====================================
@@ -134,7 +150,7 @@ impl World {
     pub fn get_world_value (&self, cords : [i32 ; 3]) -> u16
     {   
         let chunk_cords = Self::world_cords_to_chunk_cords(cords);
-        if let Some(loaded_chunk) = self.world_chunk_manager.get_loaded_chunk(chunk_cords) {
+        if let Some(loaded_chunk) = self.world_chunk_manager.get_loaded_chunk_with_cords(chunk_cords) {
             let internal_chunk_cords = Self::world_cords_to_internal_chunk_cords(cords);
             return loaded_chunk.get_chunk_value(internal_chunk_cords)
         }
@@ -165,7 +181,7 @@ impl World {
 
     pub fn get_block_entity(&self, cords: [i32; 3]) -> Option<GameEntityId> {
         let chunk_cords = Self::world_cords_to_chunk_cords(cords);
-        if let Some(chunk) = self.world_chunk_manager.get_loaded_chunk(chunk_cords) {
+        if let Some(chunk) = self.world_chunk_manager.get_loaded_chunk_with_cords(chunk_cords) {
             chunk.block_entities.get(&cords).cloned()
         } else {
             None
@@ -205,22 +221,31 @@ impl World {
     //=====================================
 
     pub fn render_world(
-        &mut self, 
+        &mut self,
         player_data: &PlayerData,
-        texture_manager: &mut TextureManager, 
-        tile_map_manager: &mut TileMapManager, 
+        texture_manager: &mut TextureManager,
+        thread_pool: &mut RayCastingThreadPool,
+        render_data: &ChunkRenderData,
     ) {
-        let mut loaded_chunks: Vec<u64> = self.world_chunk_manager.loaded_chunks.iter().copied().collect();
+        let loaded_chunks: Vec<u64> = self.world_chunk_manager.loaded_chunks.iter().copied().collect();
+        
+        self.chunk_tile_set_manager.clean(&self.world_chunk_manager, texture_manager, thread_pool);
+        self.chunk_tile_set_manager.render(texture_manager, render_data);
 
-        loaded_chunks.sort_by_key(|key| {
-            self.world_chunk_manager.chunks.get(key)
-                .and_then(|c| if let WorldChunkType::Loaded(lc) = c { Some(lc.depth) } else { None })
-                .unwrap_or(0)
-        });
+        for key in loaded_chunks {
+            if let Some(WorldChunkType::Loaded(chunk)) = self.world_chunk_manager.get_chunk(&key) {
+                let tile_set_manager = &mut self.chunk_tile_set_manager;
 
-        for loaded_chunk_key in loaded_chunks {
-            if let Some(WorldChunkType::Loaded(loaded_chunk)) = self.world_chunk_manager.chunks.get_mut(&loaded_chunk_key) {
-                loaded_chunk.render(player_data, texture_manager, tile_map_manager);
+                if let Some(tile_set) = tile_set_manager.get_mut_set(&key) {
+                    // tile_set.render(thread_pool, texture_manager, scale, offset);
+                }
+                else {
+                    let chunk_tile_set = ChunkTileSet::new(chunk);
+                    tile_set_manager.add_chunk_tile_set(chunk_tile_set, &key);
+                }
+            }
+            else {
+                eprintln!("NON LOADED OR NULL CHUNKS SHOULD NOT EXIST HERE");
             }
         }
     }
@@ -228,7 +253,7 @@ impl World {
     pub fn get_chunk_debug_data(&self, world_cords: [i32; 3]) -> Vec<String> {
         let mut data = Vec::new();
         let chunk_cords = Self::world_cords_to_chunk_cords(world_cords);
-        if let Some(chunk) = self.world_chunk_manager.get_loaded_chunk(chunk_cords) {
+        if let Some(chunk) = self.world_chunk_manager.get_loaded_chunk_with_cords(chunk_cords) {
             data.push(format!("Chunk Cords: ({:?})", chunk.get_cords()));
             data.push(format!("Chunk Dirty: {}", chunk.dirty         ));
             data.push(format!("Block Entities: {}", chunk.block_entities.len()));

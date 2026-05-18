@@ -4,11 +4,11 @@ use crate::game_data::prof_record;
 
 use crate::game_data::{TextureManager, World, chunk_manager::chunk_manager::WorldChunkType, game_event_manager::{event_manager::Event, game_event_manager::GameEventManager}, locations::world_area::WorldArea, player_data::{game_entity::{dynamic_entity_manager::dynamic_entity_manager::DynamicEntityId, game_entity_manager::{GameEntity, GameEntityId}}, player_data::PlayerData}, screen::{iso_cord_tool, widget::world_rendering::{tile_map::TileMapId, tile_map_manager::{TileMapEvent, TileMapManager}}}, world::world::WorldEvent};
 
-const CHUNK_SIZE: usize = 64;
+const CHUNK_SIZE: usize = 16;
 const CHUNK_AREA: usize = CHUNK_SIZE * CHUNK_SIZE;
 pub const CHUNK_VOLUME: usize = CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE;
 
-pub const CHUNK_SIZE_I32: i32 = 64;
+pub const CHUNK_SIZE_I32: i32 = 16;
 
 pub struct LoadedWorldChunk {
     pub time_till_unload: u64,
