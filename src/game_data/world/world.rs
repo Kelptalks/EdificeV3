@@ -292,17 +292,22 @@ impl World {
         );
 
 
+        for (pos, texture) in player_data.game_entity_manager.iter_dynamic_world_pos_and_texture() {
+            self.render_sprite_at_world_pos(
+                texture_manager,
+                render_data,
+                pos,
+                texture,
+                3,
+                2,
+            );
+        }
 
         for key in loaded_chunks {
             if let Some(WorldChunkType::Loaded(chunk)) = self.world_chunk_manager.get_chunk(&key) {
-                let tile_set_manager = &mut self.chunk_tile_set_manager;
-
-                if let Some(tile_set) = tile_set_manager.get_mut_set(&key) {
-                    // tile_set.render(thread_pool, texture_manager, scale, offset);
-                }
-                else {
+                if self.chunk_tile_set_manager.get_set(&key).is_none() {
                     let chunk_tile_set = ChunkTileSet::new(chunk);
-                    tile_set_manager.add_chunk_tile_set(chunk_tile_set, &key);
+                    self.chunk_tile_set_manager.add_chunk_tile_set(chunk_tile_set, &key);
                 }
             }
             else {

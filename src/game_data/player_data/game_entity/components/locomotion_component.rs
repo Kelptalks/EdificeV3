@@ -20,6 +20,10 @@ impl LocomotionComponent {
         }
     }
 
+    pub fn is_moving(&self) -> bool {
+        self.velocity[0] == 0.0 && self.velocity[1] == 0.0 && self.velocity[2] == 0.0
+    }
+
     /// Advances physics and applies the resulting delta to `pos`.
     /// Cancels velocity if the destination is solid.
     pub fn tik(&mut self, _time: &GameTime, pos: &mut PosComponent, world: &World) {
