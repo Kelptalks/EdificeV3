@@ -1,12 +1,18 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, World, chunk_manager::{chunk_manager::WorldChunkManager, loaded_chunk::CHUNK_SIZE_I32}, chunk_tile_map_manager::{chunk_render_data::ChunkRenderData, chunk_tile_set::ChunkTileSet}, screen::widget::world_rendering::area_rendering_manager::{ray_caster::casted_tile::CastedTile, raycast_thread_pool::RayCastingThreadPool}, tools::iso_cord_tool};
+use crate::game_data::{TextureManager, World, chunk_manager::{chunk_manager::WorldChunkManager, loaded_chunk::CHUNK_SIZE_I32}, chunk_tile_map_manager::{chunk_render_data::ChunkRenderData, chunk_tile_set::ChunkTileSet}, screen::widget::world_rendering::area_rendering_manager::{ray_caster::casted_tile::CastedTile, raycast_thread_pool::RayCastingThreadPool}, tools::iso_cord_tool, types::BlockTexture};
 
 pub struct ChunkTileSetManager {
     chunk_tile_sets: HashMap<u64, ChunkTileSet>,
 
     tile_sets_to_cast: Vec<u64>,
     dirty_sets: Vec<u64>,
+    /// Keys of tile sets that should be fully removed and their GPU meshes freed.
+    sets_to_free: Vec<u64>,
+
+    /// When true, each chunk's tile set is re-cast with Selector overlay blocks
+    /// on all border faces so chunk boundaries are visible in-game.
+    show_borders: bool,
 }
 
 impl ChunkTileSetManager {
@@ -15,8 +21,14 @@ impl ChunkTileSetManager {
             chunk_tile_sets: HashMap::new(),
             tile_sets_to_cast: Vec::new(),
             dirty_sets: Vec::new(),
+            sets_to_free: Vec::new(),
+            show_borders: false,
         }
     }
+
+    //=====================================
+    // Dirty / free queuing
+    //=====================================
 
     pub fn queue_dirty_chunk(&mut self, key: u64) {
         if let Some(set) = self.chunk_tile_sets.get_mut(&key) {
@@ -25,12 +37,50 @@ impl ChunkTileSetManager {
         }
     }
 
+    /// Schedule a tile set to be freed (mesh released, entry removed) on the next clean().
+    pub fn queue_free_chunk(&mut self, key: u64) {
+        self.sets_to_free.push(key);
+    }
+
+    //=====================================
+    // Border debug overlay
+    //=====================================
+
+    /// Toggle Selector-block overlay on every chunk's border faces and force a full recast.
+    pub fn toggle_borders(&mut self) {
+        self.show_borders = !self.show_borders;
+        let keys: Vec<u64> = self.chunk_tile_sets.keys().copied().collect();
+        for key in keys {
+            self.queue_dirty_chunk(key);
+        }
+    }
+
+    //=====================================
+    // Clean
+    //=====================================
+
     pub fn clean(&mut self, chunk_manager: &WorldChunkManager, texture_manager: &mut TextureManager, thread_pool: &mut RayCastingThreadPool) {
-        // Cancel in-flight tasks and clear state for dirty sets, then re-submit
+        // Free any tile sets scheduled for removal
+        let to_free: Vec<u64> = self.sets_to_free.drain(..).collect();
+        for key in to_free {
+            if let Some(mut set) = self.chunk_tile_sets.remove(&key) {
+                set.free(texture_manager);
+            }
+            self.tile_sets_to_cast.retain(|k| *k != key);
+            self.dirty_sets.retain(|k| *k != key);
+        }
+
+        // Cancel in-flight tasks, assign border mods if enabled, then re-submit
         self.dirty_sets.retain(|set_key| {
             if let Some(set) = self.chunk_tile_sets.get_mut(set_key) {
                 if set.dirty {
                     set.mark_dirty(texture_manager, thread_pool);
+                    if self.show_borders {
+                        let mods = set.get_area().generate_border_mods(BlockTexture::Selector);
+                        set.set_lair_block_mods(mods);
+                    } else {
+                        set.set_lair_block_mods(Vec::new());
+                    }
                 }
                 if let Some(chunk) = chunk_manager.get_loaded_chunk(set_key) {
                     set.ray_cast_set(thread_pool, chunk);
@@ -45,6 +95,10 @@ impl ChunkTileSetManager {
         self.tile_sets_to_cast.retain(|set_key| {
             if let Some(set) = self.chunk_tile_sets.get_mut(set_key) {
                 if let Some(chunk) = chunk_manager.get_loaded_chunk(set_key) {
+                    if self.show_borders {
+                        let mods = set.get_area().generate_border_mods(BlockTexture::Selector);
+                        set.set_lair_block_mods(mods);
+                    }
                     set.ray_cast_set(thread_pool, chunk);
                     return false;
                 }
@@ -52,13 +106,15 @@ impl ChunkTileSetManager {
             true
         });
 
-        // Pick up completed ray casts and bake caches
+        // Pick up completed ray casts and bake meshes
         for tile_set in self.chunk_tile_sets.values_mut() {
             tile_set.clean(texture_manager, thread_pool);
         }
     }
 
-    
+    //=====================================
+    // Render
+    //=====================================
 
     pub fn render(&mut self, texture_manager: &mut TextureManager, render_data: &ChunkRenderData) {
         let center = render_data.center_chunk_cords;
@@ -80,6 +136,10 @@ impl ChunkTileSetManager {
         }
     }
 
+    //=====================================
+    // Accessors
+    //=====================================
+
     pub fn get_set(&self, key: &u64) -> Option<&ChunkTileSet> {
         self.chunk_tile_sets.get(key)
     }
@@ -92,6 +152,10 @@ impl ChunkTileSetManager {
         self.chunk_tile_sets.insert(*key, chunk_tile_set);
         self.tile_sets_to_cast.push(*key);
     }
+
+    //=====================================
+    // Occlusion query
+    //=====================================
 
     pub fn get_obscuring(&self, world_cords: [i32; 3], num_lairs: i16) -> Vec<&CastedTile> {
         let mut tiles = Vec::new();

@@ -424,13 +424,14 @@ in
 ## Week 20
 
 **Hours: **
-    5/17/26: 1
-    5/18/26:
+    5/17/26: 2
+    5/18/26: 5
 
 **Lines**
 
-    - Refactored / Replaced old tile_map system with chunk tile_set sytem
 
 **Notes:**
+    - Refactored / Replaced old tile_map system with chunk tile_set system
+
 
 

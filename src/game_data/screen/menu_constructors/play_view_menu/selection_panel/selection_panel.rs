@@ -11,7 +11,7 @@ use crate::game_data::{
     }, 
     types::{BlockTexture, UITextures, drone_item::DroneItem}};
 
-fn get_block_selection_panel() -> WidgetType {
+pub fn get_block_selection_panel() -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
@@ -22,9 +22,8 @@ fn get_block_selection_panel() -> WidgetType {
         text_display.set_text_scale(TextSize::Medium);
 
         let scroll_panel = panel.add_scroll_panel();
-        
+        scroll_panel.set_prefered_scale([1.0; 2]);
 
-        
         let blocks_per_row = 5;
         for collumn_block_id in (0..BlockTexture::get_total_blocks()).step_by(blocks_per_row) {
 
@@ -53,7 +52,7 @@ fn get_block_selection_panel() -> WidgetType {
     return panel;
 }
 
-fn get_item_selection_panel() -> WidgetType {
+pub fn get_item_selection_panel() -> WidgetType {
     let mut panel = WidgetType::new_panel([0.0; 4], [0.0; 4]);
     if let WidgetType::Panel(panel) = &mut panel {
         panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
@@ -64,7 +63,8 @@ fn get_item_selection_panel() -> WidgetType {
         text_display.set_text_scale(TextSize::Medium);
 
         let scroll_panel = panel.add_scroll_panel();
-        
+        scroll_panel.set_prefered_scale([1.0; 2]);
+
         let items_per_row = 5;
         for collumn_item_id in (0..DroneItem::get_total_items()).step_by(items_per_row) {
 

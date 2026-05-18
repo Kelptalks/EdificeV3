@@ -1,13 +1,15 @@
-use crate::game_data::screen::widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, window_manager::windows::{cheat_window::CheatWindow, debug_win::DebugWin, drone_spectate_win::DroneSpectateWindow, game_entity_win::GameEntityWindow}};
+use crate::game_data::screen::widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, window_manager::windows::{block_select_win::BlockSelectWindow, cheat_window::CheatWindow, debug_win::DebugWin, debug_world_win::DebugWorldWindow, drone_spectate_win::DroneSpectateWindow, game_entity_win::GameEntityWindow}};
 
 
 pub enum WindowType {
     Custom(Panel),
-    
+
     CheatWindow(CheatWindow),
     GameEntityWindow(GameEntityWindow),
     Debug(DebugWin),
     DroneSpectate(DroneSpectateWindow),
+    DebugWorld(DebugWorldWindow),
+    BlockSelect(BlockSelectWindow),
 }
 
 impl WindowType {
@@ -17,27 +19,27 @@ impl WindowType {
     
     fn get_panel(&self) -> &Panel {
         match self {
-            WindowType::Custom(panel) => {
-                panel
-            }
-            WindowType::Debug(debug_win) => debug_win.get_panel(),
-            WindowType::DroneSpectate(drone_spectate_window) => drone_spectate_window.get_panel(),
-            WindowType::GameEntityWindow(game_entity_window) => game_entity_window.get_panel(),
-            WindowType::CheatWindow(cheat_window) => cheat_window.get_panel(),
-        }  
-    } 
+            WindowType::Custom(panel) => panel,
+            WindowType::Debug(w) => w.get_panel(),
+            WindowType::DroneSpectate(w) => w.get_panel(),
+            WindowType::GameEntityWindow(w) => w.get_panel(),
+            WindowType::CheatWindow(w) => w.get_panel(),
+            WindowType::DebugWorld(w) => w.get_panel(),
+            WindowType::BlockSelect(w) => w.get_panel(),
+        }
+    }
 
     fn get_mut_panel(&mut self) -> &mut Panel {
         match self {
-            WindowType::Custom(panel) => {
-                panel
-            },
-            WindowType::Debug(debug_win) => debug_win.get_mut_panel(),
-            WindowType::DroneSpectate(drone_spectate_window) => drone_spectate_window.get_mut_panel(),
-            WindowType::GameEntityWindow(game_entity_window) => game_entity_window.get_mut_panel(),
-            WindowType::CheatWindow(cheat_window) => cheat_window.get_mut_panel(),
+            WindowType::Custom(panel) => panel,
+            WindowType::Debug(w) => w.get_mut_panel(),
+            WindowType::DroneSpectate(w) => w.get_mut_panel(),
+            WindowType::GameEntityWindow(w) => w.get_mut_panel(),
+            WindowType::CheatWindow(w) => w.get_mut_panel(),
+            WindowType::DebugWorld(w) => w.get_mut_panel(),
+            WindowType::BlockSelect(w) => w.get_mut_panel(),
         }
-    } 
+    }
 }
 
 impl Widget for WindowType {
@@ -78,6 +80,12 @@ impl Widget for WindowType {
             },
             WindowType::CheatWindow(cheat_window) => {
                 cheat_window.render(texture_manager, screen_data, game_event_manager, player_data);
+            },
+            WindowType::DebugWorld(w) => {
+                w.render(texture_manager, screen_data, game_event_manager, player_data);
+            },
+            WindowType::BlockSelect(w) => {
+                w.render(texture_manager, screen_data, game_event_manager, player_data);
             },
         }
     }

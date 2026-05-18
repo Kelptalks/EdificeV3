@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 
 
-use crate::game_data::screen::{ScreenData, widget::{prelude::PlayWorldViewRender, widget::Widget, widget_calculations, widget_properties::WidgetProperties, window_manager::{window::WidgetWindow, windows::{cheat_window::CheatWindow, debug_win::DebugWin, window_type::{Window, WindowType}}}, world_rendering::tile_map_manager::TileMapManager}};
+use crate::game_data::screen::{ScreenData, widget::{prelude::PlayWorldViewRender, widget::Widget, widget_calculations, widget_properties::WidgetProperties, window_manager::{window::WidgetWindow, windows::{block_select_win::BlockSelectWindow, cheat_window::CheatWindow, debug_win::DebugWin, debug_world_win::DebugWorldWindow, window_type::{Window, WindowType}}}, world_rendering::tile_map_manager::TileMapManager}};
 
 
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
@@ -30,6 +30,8 @@ pub struct WidgetWindowManager {
 
     windows: HashMap<WidgetWindowId, WidgetWindow>,
     debug: Option<WidgetWindowId>,
+    debug_world: Option<WidgetWindowId>,
+    block_select: Option<WidgetWindowId>,
 
 
     next_window_id: u32, 
@@ -59,6 +61,8 @@ impl WidgetWindowManager {
             
             windows: HashMap::new(),
             debug: None,
+            debug_world: None,
+            block_select: None,
 
             next_window_id: 0,
             play_view: play_view,
@@ -190,6 +194,32 @@ impl Widget for WidgetWindowManager {
         else if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::F2) {
             let window = CheatWindow::new().wrap_into_window_type();
             self.new_window(window, "Cheat Window");
+        }
+        else if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::F4) {
+            if let Some(id) = self.debug_world {
+                if let Some(window) = self.windows.get_mut(&id) {
+                    window.focus();
+                } else {
+                    let window = DebugWorldWindow::new().wrap_into_window_type();
+                    self.debug_world = Some(self.new_window(window, "Debug World"));
+                }
+            } else {
+                let window = DebugWorldWindow::new().wrap_into_window_type();
+                self.debug_world = Some(self.new_window(window, "Debug World"));
+            }
+        }
+        else if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::F5) {
+            if let Some(id) = self.block_select {
+                if let Some(window) = self.windows.get_mut(&id) {
+                    window.focus();
+                } else {
+                    let window = BlockSelectWindow::new().wrap_into_window_type();
+                    self.block_select = Some(self.new_window(window, "Block Select"));
+                }
+            } else {
+                let window = BlockSelectWindow::new().wrap_into_window_type();
+                self.block_select = Some(self.new_window(window, "Block Select"));
+            }
         }
 
 

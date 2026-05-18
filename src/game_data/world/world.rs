@@ -371,6 +371,12 @@ pub enum WorldEvent {
     AddDynamicEntity([i16; 3], DynamicEntityId),
     RemoveDynamicEntity([i16; 3], DynamicEntityId),
 
+    // Debug / tooling
+    /// Unload the chunk containing this world coord and free its tile set.
+    UnloadChunkAtCords([i32; 3]),
+    /// Toggle Selector-block border overlay on all chunk tile sets.
+    ToggleChunkBorders,
+
 }
 
 impl WorldEvent {
@@ -445,6 +451,16 @@ impl WorldEvent {
                 if let Some(chunk) = world.world_chunk_manager.get_mut_loaded_chunk(chunk_cords) {
                     chunk.dynamic_entities.remove(&entity_id);
                 }
+            },
+            WorldEvent::UnloadChunkAtCords(cords) => {
+                let chunk_cords = World::world_cords_to_chunk_cords(cords);
+                let key = World::chunk_cords_to_key(chunk_cords);
+                world.world_chunk_manager.chunks.remove(&key);
+                world.world_chunk_manager.loaded_chunks.remove(&key);
+                world.chunk_tile_set_manager.queue_free_chunk(key);
+            },
+            WorldEvent::ToggleChunkBorders => {
+                world.chunk_tile_set_manager.toggle_borders();
             },
         }
     }

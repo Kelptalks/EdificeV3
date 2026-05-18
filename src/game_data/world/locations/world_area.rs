@@ -1,5 +1,5 @@
 use crate::game_data::{
-    game_event_manager::game_event_manager::EventManager, locations::{world_area_side::WorldAreaSide, world_point::WorldPoint}, types::BlockTexture, world::world::WorldEvent
+    game_event_manager::game_event_manager::EventManager, locations::{world_area_side::WorldAreaSide, world_point::WorldPoint}, screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod, types::BlockTexture, world::world::WorldEvent
 };
 
 /*
@@ -310,6 +310,23 @@ impl WorldArea {
     //=====================================
     // Modification
     //=====================================
+
+    /// Returns LairBlockMod overlays for each of the 8 corners of this area —
+    /// useful for lightweight debug visualization of chunk boundaries.
+    pub fn generate_border_mods(&self, texture: BlockTexture) -> Vec<LairBlockMod> {
+        let min = self.get_min_point().cords;
+        let max = self.get_max_point().cords;
+        let mut mods = Vec::with_capacity(8);
+
+        for &x in &[min[0], max[0]] {
+            for &y in &[min[1], max[1]] {
+                for &z in &[min[2], max[2]] {
+                    mods.push(LairBlockMod::AddOverlayTexture(texture, [x, y, z]));
+                }
+            }
+        }
+        mods
+    }
 
     pub fn fill_area(&self, game_event_manager: &mut EventManager, block_texture: BlockTexture) {
         let mut min = [i32::MAX; 3];

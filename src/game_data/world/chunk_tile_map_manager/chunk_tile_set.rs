@@ -13,6 +13,10 @@ pub struct ChunkTileSet {
     mesh_id: Option<TextureMeshId>,
 
     pub dirty: bool,
+
+    /// Overlay/underlay mods baked into this chunk's ray cast (e.g. debug borders).
+    /// Set before dirty-resubmit; consumed by ray_cast_set.
+    lair_block_mods: Vec<LairBlockMod>,
 }
 
 impl ChunkTileSet {
@@ -31,7 +35,17 @@ impl ChunkTileSet {
             mesh_id: None,
 
             dirty: false,
+
+            lair_block_mods: Vec::new(),
         }
+    }
+
+    pub fn get_area(&self) -> WorldArea {
+        self.area
+    }
+
+    pub fn set_lair_block_mods(&mut self, mods: Vec<LairBlockMod>) {
+        self.lair_block_mods = mods;
     }
 
     pub fn mark_dirty(&mut self, texture_manager: &mut TextureManager, thread_pool: &mut RayCastingThreadPool) {
@@ -47,10 +61,11 @@ impl ChunkTileSet {
         let mut world_snapshot = World::new();
         world_snapshot.create_chunk(self.chunk_key);
         world_snapshot.set_chunk_block_data(self.chunk_key, chunk.clone_block_data());
-        let lair_block_mods: Vec<LairBlockMod> = Vec::new();
 
         if self.ray_casting_task_id.is_none() {
-            self.ray_casting_task_id = Some(thread_pool.submit(self.area, lair_block_mods, world_snapshot));
+            self.ray_casting_task_id = Some(
+                thread_pool.submit(self.area, self.lair_block_mods.clone(), world_snapshot)
+            );
         }
     }
 

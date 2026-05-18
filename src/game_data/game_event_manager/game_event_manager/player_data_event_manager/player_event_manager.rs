@@ -84,7 +84,6 @@ impl PlayerDataEvent {
             },
             PlayerDataEvent::CreateDroneInVar(_var_ref, location_ref) => {
                 let _drone = player_data.get_mut_drone_manager().create_drone_at_cords(location_ref.borrow().get_area().get_point_1_cords());
-
             },
         }
     }
