@@ -31,7 +31,10 @@
       "Bash(Select-String \"error\")",
       "Bash(Select-Object Name)",
       "Bash(Sort-Object FullName)",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }

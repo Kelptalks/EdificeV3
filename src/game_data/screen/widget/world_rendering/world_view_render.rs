@@ -4,8 +4,8 @@ use crate::game_data::prof_record;
 
 
 use crate::game_data::{
-    TextureManager, chunk_tile_map_manager::chunk_render_data::ChunkRenderData, player_data::{cursor::cursor::Cursor, drones::drone_actions::{advanced_actions::advanced_drone_actions::DroneAdvancedAction, drone_actions::DroneAction}, player_data::PlayerData}, screen::{
-        ScreenData, iso_cord_tool, widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_triangle::CastedTriangle}, tile_map::TileMapId, tile_map_manager::{TileMapEvent, TileMapManager}, view_mode::ViewMode}}
+    TextureManager, chunk_tile_map_manager::chunk_render_data::ChunkRenderData, player_data::{cursor::cursor::Cursor, player_data::PlayerData}, screen::{
+        ScreenData, iso_cord_tool, widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_triangle::CastedTriangle}, tile_map::TileMapId, tile_map_manager::{TileMapEvent, TileMapManager}, view_mode::ViewMode, world_view_data::WorldViewData}}
     }, texture_manager::texture::Texture, types::BlockTexture, world::world::{WorldEvent, SpriteRenderRequest}
 };
 
@@ -59,7 +59,7 @@ impl ViewDirection {
 
 pub struct PlayWorldViewRender {
     widget_properties: WidgetProperties,
-    overlay_panel: Panel,
+    overlay_panel: Box<WidgetType>,
 
     center_ndc: [f32; 2],
 
@@ -106,7 +106,7 @@ impl PlayWorldViewRender {
 
         PlayWorldViewRender {
             widget_properties: wp,
-            overlay_panel: Panel::new_blank(),
+            overlay_panel: Box::new(Panel::new_blank().wrap_into_widget()),
 
             center_ndc: [0.0; 2],
 
@@ -448,7 +448,10 @@ impl Widget for PlayWorldViewRender {
 
                         if let Some(object) = object {
                             if screen_data.was_left_released() {
-                                player_data.game_entity_manager.open_entity_window(event_manager, object)
+                                player_data.game_entity_manager.open_entity_window(event_manager, object);
+                                event_manager.add_event(
+                                    PlayerDataEvent::SetViewMode(Some(ViewMode::GameObjectSpectate(object))).wrap_into_event()
+                                );
                             }
                         }
                     }
@@ -465,55 +468,34 @@ impl Widget for PlayWorldViewRender {
 
                     panel.size();
 
-                    self.overlay_panel = panel;
+                    self.overlay_panel = Box::new(panel.wrap_into_widget());
                 }
-                ViewMode::Drone(drone_id) => {
-                    // Handle Visuals
-                    let mut panel = Panel::new_blank();
-                    panel.set_parent_pos(screen_data.get_viewport_uv());
-                    panel.set_color(PanelColor::Clear);
-                    panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
-                    
-
-                    panel.size();
-                    self.overlay_panel = panel;
-
+                ViewMode::GameObjectSpectate(id) => {
                     // Handle Controls
                     self.handle_camera_zooming(screen_data, event_manager, player_data);
-                    let drone_event_scheduler = player_data.get_drone_event_scheduler(drone_id);
-                    
 
-                    if let Some(mut drone_event_scheduler) = drone_event_scheduler {
-                        let mut cursor_event_scheduler = player_data.get_cursor_event_scheduler();
-                            
-                        let drone = drone_event_scheduler.get_drone();
-                        // self.tile_map_manager.render_enitity_at_world_pos(texture_manager, player_data, drone.get_world_pos(), drone.get_texture());
-
-                        cursor_event_scheduler.set_cords(drone.get_cords());
-
+                    // Escape exits spectate centrally, so a broken entity handler can't trap you here.
+                    if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::Escape) {
+                        event_manager.add_event(
+                            PlayerDataEvent::SetViewMode(Some(ViewMode::God())).wrap_into_event()
+                        );
+                        self.overlay_panel = Box::new(Panel::new_blank().wrap_into_widget());
+                    }
+                    else if let Some(entity) = player_data.game_entity_manager.clone_game_entity(id) {
                         let mouse_triangle = self.get_mouse_triangle(screen_data, event_manager, player_data);
-                        
-                        if let Some(mouse_triangle) = mouse_triangle {
-                            let mut cords = mouse_triangle.get_solid_block_struck_cords();
-                            cords[2] += 1;
+                        let world_view_data = WorldViewData::new(mouse_triangle);
 
-                            if screen_data.was_right_pressed() {
-                                drone_event_scheduler.give_action(
-                                    DroneAction::AdvancedAction(
-                                        DroneAdvancedAction::PathToCords(
-                                            cords
-                                        )
-                                    )
-                                );
-                            }
-                        }
+                        let world_arc = player_data.get_world_ref();
+                        let world = world_arc.read().unwrap();
 
-                        cursor_event_scheduler.schedul_events(event_manager);
-                        drone_event_scheduler.schedul_events(event_manager);
-
-                    }                  
-
-
+                        let mut overlay = entity.play_view(&world_view_data, screen_data, &world, event_manager);
+                        overlay.set_parent_pos(screen_data.get_viewport_uv());
+                        overlay.size();
+                        self.overlay_panel = Box::new(overlay);
+                    }
+                    else {
+                        self.overlay_panel = Box::new(Panel::new_blank().wrap_into_widget());
+                    }
                 },
                 ViewMode::Location(_location_id) => {
 
@@ -524,7 +506,7 @@ impl Widget for PlayWorldViewRender {
         else {
             self.handle_camera_panning(screen_data, event_manager, player_data);
             self.handle_camera_zooming(screen_data, event_manager, player_data);
-            self.overlay_panel = Panel::new_blank();
+            self.overlay_panel = Box::new(Panel::new_blank().wrap_into_widget());
         }
         
 

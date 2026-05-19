@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_entity::{components::entity_components::{EntityComponent, EntityComponentEvent}, game_entity_manager::GameEntityId}, tik_manager::game_time::GameTime, tools::cords_tool, types::BlockTexture, world::world::WorldEvent};
+use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_entity::{components::entity_components::{EntityComponent, EntityComponentEvent}, game_entity_manager::GameEntityId}, screen::widget::world_rendering::area_rendering_manager::ray_caster::ray_casting_config::Direction, tik_manager::game_time::GameTime, tools::cords_tool, types::BlockTexture, world::world::WorldEvent};
 
 #[derive(Clone)]
 pub struct BlockComponent {
@@ -9,6 +9,7 @@ pub struct BlockComponent {
     moved: Option<[i32; 3]>,
 
     animation_frame: usize,
+    
     animation: Option<Vec<BlockTexture>>,
 
     pub world_cords: [i32; 3],
@@ -39,7 +40,6 @@ impl BlockComponent {
     }
 
     pub fn tik(&mut self, time: &GameTime, world: &World, event_manager: &mut EventManager) {
-        
         // Handle movment
         if let Some(moved) = self.moved {
             // Remove old block
@@ -50,7 +50,7 @@ impl BlockComponent {
                 WorldEvent::RemoveGameEntity(self.world_cords)
             );
             
-            let new_cords = cords_tool::diff_cords(self.world_cords, moved);
+            let new_cords = cords_tool::add_cords(self.world_cords, moved);
             if world.get_world_value_as_block(new_cords) == BlockTexture::Air {
                 // add new block
                 self.world_cords = new_cords;

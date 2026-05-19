@@ -9,17 +9,21 @@ pub struct Cursor {
     ghost_block: BlockTexture,
 
     initialized: bool,
+
+    chunk_load_distance: [i16; 3],
 }
 
 impl Cursor {
     pub fn new() -> Cursor{
         Cursor {
-            world_cords: [0; 3],
+            world_cords: [0, 0, -25],
             zoom: 64.0,
 
             ghost_block: BlockTexture::DroneBotRight,
 
             initialized: false,
+
+            chunk_load_distance: [5, 5, 2],
         }
     }
 
@@ -45,7 +49,11 @@ impl Cursor {
 
     pub fn get_block_ghost(&self) -> BlockTexture {
         return self.ghost_block
-    } 
+    }
+
+    pub fn get_chunk_load_distance(&self) -> [i16; 3] {
+        self.chunk_load_distance
+    }
 
     pub fn get_rendering_area(&self) -> WorldArea {
         let mut world_area = WorldArea::new_blank();
@@ -81,6 +89,10 @@ impl Cursor {
         self.ghost_block = block;
     }
 
+    pub fn set_chunk_load_distance(&mut self, distance: [i16; 3]) {
+        self.chunk_load_distance = distance;
+    }
+
     //=====================================
     // Tiking
     //=====================================
@@ -102,8 +114,7 @@ impl Cursor {
             self.try_init_height(world);
         }
 
-        // Load a 3 by 3 block area around
-        let view_distance: [i16; 3] = [5, 5, 2];
+        let view_distance = self.chunk_load_distance;
         let chunk_cords = World::world_cords_to_chunk_cords(self.get_cords());
         
 

@@ -1,13 +1,9 @@
-use crate::game_data::player_data::{drones::drone_manager::DroneId, locations::location_manager::LocationId};
+use crate::game_data::player_data::{game_entity::game_entity_manager::GameEntityId, locations::location_manager::LocationId};
 
 
 #[derive(Clone, Copy)]
 pub enum ViewMode {
     God(),
-    Drone(DroneId),
+    GameObjectSpectate(GameEntityId),
     Location(LocationId),
 }
-
-
-
-

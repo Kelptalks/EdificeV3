@@ -1,2 +1,2 @@
 pub mod advanced_drone_actions;
-mod path_planner;
+pub mod path_planner;

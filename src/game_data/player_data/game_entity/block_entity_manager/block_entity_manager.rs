@@ -1,7 +1,7 @@
 use core::fmt;
 use std::collections::HashMap;
 
-use crate::game_data::{World, game_event_manager::event_manager::{Event, EventManager}, player_data::game_entity::{block_entity_manager::{natural::flungle::BlockEntityFlungle, player_created::{battery::{BatteryEvent, BlockEntityBattery}, drone::BlockEntityDrone, radar::{BlockEntityRadar, RadarEvent}}}, components::entity_components::{EntityComponent, EntityComponentEvent}, game_entity_manager::{GameEntity, GameEntityEvent, GameEntityId}}, screen::widget::widget::WidgetType, tik_manager::game_time::GameTime};
+use crate::game_data::{World, game_event_manager::event_manager::{Event, EventManager}, player_data::game_entity::{block_entity_manager::{natural::flungle::BlockEntityFlungle, player_created::{battery::{BatteryEvent, BlockEntityBattery}, drone::{BlockEntityDrone, DroneEvent}, radar::{BlockEntityRadar, RadarEvent}}}, components::entity_components::{EntityComponent, EntityComponentEvent}, game_entity_manager::{GameEntity, GameEntityEvent, GameEntityId}}, screen::{ScreenData, widget::{panel::panel::Panel, widget::WidgetType, world_rendering::world_view_data::WorldViewData}}, tik_manager::game_time::GameTime};
 
 /*
 #####################
@@ -96,6 +96,13 @@ impl BlockEntity {
             BlockEntity::Flour(flungle)   => flungle.tik(time, world, event_manager),
         }
     }
+
+    pub fn play_view(&self, world_view_data: &WorldViewData, screen_data: &ScreenData, world: &World, event_manager: &mut EventManager) -> WidgetType {
+        match self {
+            BlockEntity::Drone(drone) => drone.play_view(world_view_data, screen_data, world, event_manager),
+            _ => Panel::new_blank().wrap_into_widget(),
+        }
+    }
 }
 
 pub struct BlockEntityManager {
@@ -175,6 +182,7 @@ impl BlockEntityManager {
 pub enum BlockEntityEvent {
     RadarEvent(u64, RadarEvent),
     BatteryEvent(u64, BatteryEvent),
+    DroneEvent(u64, DroneEvent),
 }
 
 impl BlockEntityEvent {
@@ -196,6 +204,13 @@ impl BlockEntityEvent {
                     battery_event.execute(battery);
                 } else {
                     eprintln!("Error battery entity id({}) does not exist", id);
+                }
+            },
+            BlockEntityEvent::DroneEvent(id, drone_event) => {
+                if let Some(drone) = block_entity_manager.drones.get_mut(&id) {
+                    drone_event.execute(drone);
+                } else {
+                    eprintln!("Error drone entity id({}) does not exist", id);
                 }
             },
         }

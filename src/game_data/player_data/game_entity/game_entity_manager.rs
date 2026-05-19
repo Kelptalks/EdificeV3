@@ -1,6 +1,6 @@
 use core::fmt;
 
-use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::window_manager_event::WindowManagerEvent}, player_data::{drones::drone_manager::DroneId, game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId, BlockEntityManager}, components::entity_components::{EntityComponent, EntityComponentEvent}, dynamic_entity_manager::dynamic_entity_manager::{DynamicEntity, DynamicEntityId, DynamicEntityManager}}}, screen::widget::widget::WidgetType, tik_manager::game_time::GameTime};
+use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent, render_event_manager::window_manager_event::WindowManagerEvent}, player_data::{drones::drone_manager::DroneId, game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId, BlockEntityManager}, components::entity_components::{EntityComponent, EntityComponentEvent}, dynamic_entity_manager::dynamic_entity_manager::{DynamicEntity, DynamicEntityId, DynamicEntityManager}}}, screen::{ScreenData, widget::{widget::WidgetType, world_rendering::world_view_data::WorldViewData}}, tik_manager::game_time::GameTime};
 
 
 /*
@@ -66,6 +66,19 @@ impl GameEntity {
             },
             GameEntity::DynamicEntity(dynamic_entity) => {
                 dynamic_entity.get_window()
+            },
+        }
+    }
+
+    /// Runs this entity's spectate-view logic for the current frame and
+    /// returns the overlay widget to display while spectating it.
+    pub fn play_view(&self, world_view_data: &WorldViewData, screen_data: &ScreenData, world: &World, event_manager: &mut EventManager) -> WidgetType {
+        match self {
+            GameEntity::BlockEntity(block_entity) => {
+                block_entity.play_view(world_view_data, screen_data, world, event_manager)
+            },
+            GameEntity::DynamicEntity(dynamic_entity) => {
+                dynamic_entity.play_view(world_view_data, screen_data, world, event_manager)
             },
         }
     }

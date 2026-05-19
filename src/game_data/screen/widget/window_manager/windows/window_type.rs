@@ -1,4 +1,4 @@
-use crate::game_data::screen::widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, window_manager::windows::{block_select_win::BlockSelectWindow, cheat_window::CheatWindow, debug_win::DebugWin, debug_world_win::DebugWorldWindow, drone_spectate_win::DroneSpectateWindow, game_entity_win::GameEntityWindow}};
+use crate::game_data::screen::widget::{panel::panel::Panel, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, window_manager::windows::{block_select_win::BlockSelectWindow, cheat_window::CheatWindow, debug_win::DebugWin, debug_world_win::DebugWorldWindow, drone_spectate_win::DroneSpectateWindow, game_entity_win::GameEntityWindow, settings_menu_win::SettingsMenuWidget, settings_window::SettingsWindow}};
 
 
 pub enum WindowType {
@@ -10,6 +10,8 @@ pub enum WindowType {
     DroneSpectate(DroneSpectateWindow),
     DebugWorld(DebugWorldWindow),
     BlockSelect(BlockSelectWindow),
+    SettingsMenu(SettingsMenuWidget),
+    Settings(SettingsWindow),
 }
 
 impl WindowType {
@@ -26,6 +28,8 @@ impl WindowType {
             WindowType::CheatWindow(w) => w.get_panel(),
             WindowType::DebugWorld(w) => w.get_panel(),
             WindowType::BlockSelect(w) => w.get_panel(),
+            WindowType::SettingsMenu(w) => w.get_panel(),
+            WindowType::Settings(w) => w.get_panel(),
         }
     }
 
@@ -38,6 +42,8 @@ impl WindowType {
             WindowType::CheatWindow(w) => w.get_mut_panel(),
             WindowType::DebugWorld(w) => w.get_mut_panel(),
             WindowType::BlockSelect(w) => w.get_mut_panel(),
+            WindowType::SettingsMenu(w) => w.get_mut_panel(),
+            WindowType::Settings(w) => w.get_mut_panel(),
         }
     }
 }
@@ -85,6 +91,12 @@ impl Widget for WindowType {
                 w.render(texture_manager, screen_data, game_event_manager, player_data);
             },
             WindowType::BlockSelect(w) => {
+                w.render(texture_manager, screen_data, game_event_manager, player_data);
+            },
+            WindowType::SettingsMenu(w) => {
+                w.render(texture_manager, screen_data, game_event_manager, player_data);
+            },
+            WindowType::Settings(w) => {
                 w.render(texture_manager, screen_data, game_event_manager, player_data);
             },
         }

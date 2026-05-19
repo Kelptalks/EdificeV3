@@ -66,7 +66,7 @@ impl PlayerData {
                 ViewMode::God() => {
                     self.cursor.set_ghost_block(BlockTexture::DroneBotRight)
                 },
-                ViewMode::Drone(_drone_id) => {
+                ViewMode::GameObjectSpectate(_id) => {
                     self.cursor.set_ghost_block(BlockTexture::Air)
                 },
                 ViewMode::Location(_location_id) => {

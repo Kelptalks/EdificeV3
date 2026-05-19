@@ -6,3 +6,5 @@ pub mod game_entity_win;
 pub mod cheat_window;
 pub mod debug_world_win;
 pub mod block_select_win;
+pub mod settings_menu_win;
+pub mod settings_window;

@@ -5,6 +5,7 @@ pub enum CursorEvent {
     ModCords([i32; 3]),
     SetCords([i32; 3]),
     ModZoom(f32),
+    SetChunkLoadDistance([i16; 3]),
 }
 
 impl CursorEvent {
@@ -25,6 +26,10 @@ impl CursorEvent {
             CursorEvent::ModZoom(amount) => {
                 let cursor = player_data.get_mut_cursor();
                 cursor.mod_zoom(amount)
+            },
+            CursorEvent::SetChunkLoadDistance(distance) => {
+                let cursor = player_data.get_mut_cursor();
+                cursor.set_chunk_load_distance(*distance)
             },
 
         }

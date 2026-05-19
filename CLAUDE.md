@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Session Start
+
+At the start of every session, greet Spencer by name. Read `memory/MEMORY.md` and the memory files most relevant to current work. Then briefly summarize: what was last worked on, what the current priorities are, and ask what he wants to tackle today. Keep it short — one sentence per point.
+
 ## Commands
 
 ```bash

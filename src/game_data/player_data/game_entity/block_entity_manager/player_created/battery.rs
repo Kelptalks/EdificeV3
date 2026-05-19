@@ -1,4 +1,4 @@
-use crate::game_data::{World, game_event_manager::event_manager::{Event, EventManager}, player_data::game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId}, components::{block_component::BlockComponent, entity_components::{EntityComponent, EntityComponentEvent}, powered_component::PoweredComponent}, game_entity_manager::GameEntity}, tik_manager::game_time::GameTime, tools::id_gen::IdGen, types::BlockTexture};
+use crate::game_data::{World, game_event_manager::event_manager::{Event, EventManager}, player_data::game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId}, components::{block_components::block_component::BlockComponent, entity_components::{EntityComponent, EntityComponentEvent}, powered_component::PoweredComponent}, game_entity_manager::GameEntity}, tik_manager::game_time::GameTime, tools::id_gen::IdGen, types::BlockTexture};
 
 static ID_GEN: IdGen = IdGen::new();
 
@@ -75,6 +75,7 @@ impl BatteryEvent {
                         powered_component_event.execute(&mut battery.powered);        
                     },
                     EntityComponentEvent::Block(_) => {},
+                    EntityComponentEvent::MoveableBlock(_) => {},
                     EntityComponentEvent::Locomotion(_) => {},
                     EntityComponentEvent::Pos(_) => {},
                 }

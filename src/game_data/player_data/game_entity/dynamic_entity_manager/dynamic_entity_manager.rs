@@ -1,7 +1,7 @@
 use core::fmt;
 use std::collections::HashMap;
 
-use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_entity::{components::entity_components::EntityComponent, dynamic_entity_manager::{natural::puff::DynamicEntityPuff, player_created::cursor_entity::CursorEntity}, game_entity_manager::{GameEntity, GameEntityId}}, screen::widget::widget::WidgetType, texture_manager::texture::Texture, tik_manager::game_time::GameTime};
+use crate::game_data::{World, game_event_manager::event_manager::EventManager, player_data::game_entity::{components::entity_components::EntityComponent, dynamic_entity_manager::{natural::puff::DynamicEntityPuff, player_created::cursor_entity::CursorEntity}, game_entity_manager::{GameEntity, GameEntityId}}, screen::{ScreenData, widget::{panel::panel::Panel, widget::WidgetType, world_rendering::world_view_data::WorldViewData}}, texture_manager::texture::Texture, tik_manager::game_time::GameTime};
 
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq)]
@@ -63,6 +63,11 @@ impl DynamicEntity {
             DynamicEntity::Puff(puff) => puff.get_texture(),
             DynamicEntity::CursorEntity(e) => e.texture(),
         }
+    }
+
+    pub fn play_view(&self, _world_view_data: &WorldViewData, _screen_data: &ScreenData, _world: &World, _event_manager: &mut EventManager) -> WidgetType {
+        // No dynamic entity implements a spectate view yet.
+        Panel::new_blank().wrap_into_widget()
     }
 }
 

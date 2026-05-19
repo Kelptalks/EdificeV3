@@ -122,7 +122,7 @@ impl NodeMap {
     }
 }
 
-pub fn get_path(_drone: &mut Drone, world: &World, start_cords: [i32; 3], goal_cords: [i32; 3]) -> Vec<[i32; 3]> {
+pub fn get_path(world: &World, start_cords: [i32; 3], goal_cords: [i32; 3]) -> Vec<[i32; 3]> {
     let max_checks = 10000;
     let mut checks = 0;
 
@@ -189,7 +189,7 @@ pub fn plan_path_to_cords(drone: &mut Drone, world: &World, goal_cords: [i32; 3]
     drone.clear_lairblock_mods();
     let mut plan = DronePlan::new();
     
-    let mut path_directions = get_path(drone, world, drone.get_cords(), goal_cords);
+    let mut path_directions = get_path(world, drone.get_cords(), goal_cords);
 
     if path_directions.len() == 0 {
         return DroneActionError::FailedToPath.wrap_into_var_type().create_var()
