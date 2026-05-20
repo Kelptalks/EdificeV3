@@ -1,6 +1,7 @@
 
 
-use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}, render_event_manager::{texture_manager_event::TextureManagerEvent, window_manager_event::WindowManagerEvent}}, player_data::player_data::PlayerData, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::{widget::WidgetType, world_rendering::tile_map_manager::TileMapEvent}}};
+use crate::game_data::{TextureManager, game_event_manager::{game_event_manager::game_event_manager::GameEventManager, prelude::{Event, GameEvent}, render_event_manager::{window_manager_event::WindowManagerEvent}}, player_data::player_data::PlayerData, screen::{menu_constructors, screen_data::CurrentMenu, screen_mananager::ScreenManager, widget::{widget::WidgetType}}};
+use crate::game_data::game_event_manager::render_event_manager::texture_manager_event::TextureManagerEvent;
 
 /*
 ##################
@@ -13,7 +14,7 @@ Events relating to rendering of menus / game camera
 pub enum RenderEvent {
     WindowMangerEvent(WindowManagerEvent),
     
-    TileMapEvent(TileMapEvent),
+
     
     TextureManagerEvent(TextureManagerEvent),
 
@@ -102,12 +103,6 @@ impl RenderEvent {
                     window_manager_event.execute_event(window_manager);
                 }
             },
-            RenderEvent::TileMapEvent(tile_map_event) => {
-                if let Some(window_manager) = screen_mananager.get_mut_window_manager() {
-                    return tile_map_event.execute_event(window_manager.get_tile_map_manager())
-                    
-                }    
-            }
             RenderEvent::TextureManagerEvent(texture_manager_event) => {
                 texture_manager_event.execute_event(texture_manager);
             },

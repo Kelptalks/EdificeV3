@@ -14,14 +14,12 @@ use crate::game_data::game_event_manager::game_event_manager::{GameEvent, GameEv
 use crate::game_data::game_event_manager::render_event_manager::render_event_manager::RenderEvent;
 use crate::game_data::player_data::game_entity::{dynamic_entity_manager::dynamic_entity_manager::DynamicEntityId, game_entity_manager::GameEntityId};
 use crate::game_data::player_data::player_data::PlayerData;
-use crate::game_data::screen::widget::world_rendering::area_rendering_manager::raycast_thread_pool::RayCastingThreadPool;
 use crate::game_data::texture_manager::texture::Texture;
 use crate::game_data::tik_manager::game_time::GameTime;
 use crate::game_data::tools::iso_cord_tool::{self, flatten_world_cords};
 use crate::game_data::types::BlockTexture;
 use crate::game_data::world_gen::WorldGenManager;
 use crate::game_data::{TextureManager};
-use crate::game_data::screen::widget::world_rendering::tile_map_manager::TileMapManager;
 
 
 
@@ -291,17 +289,16 @@ impl World {
         &mut self,
         player_data: &PlayerData,
         texture_manager: &mut TextureManager,
-        thread_pool: &mut RayCastingThreadPool,
         render_data: &ChunkRenderData,
     ) {
         let loaded_chunks: Vec<u64> = self.world_chunk_manager.loaded_chunks.iter().copied().collect();
         
-        self.chunk_tile_set_manager.clean(&self.world_chunk_manager, texture_manager, thread_pool);
+        self.chunk_tile_set_manager.clean(&self.world_chunk_manager, texture_manager);
         self.chunk_tile_set_manager.render(texture_manager, render_data);
 
 
         let cursor = player_data.get_cursor();
-        let mut cursor_pos = cursor.get_pos();
+        let cursor_pos = cursor.get_pos();
         self.render_sprite_at_world_pos(
             texture_manager,
             render_data,

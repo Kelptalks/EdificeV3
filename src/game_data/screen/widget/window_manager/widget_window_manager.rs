@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 
 
-use crate::game_data::screen::{ScreenData, widget::{prelude::PlayWorldViewRender, widget::Widget, widget_calculations, widget_properties::WidgetProperties, window_manager::{window::WidgetWindow, windows::{block_select_win::BlockSelectWindow, cheat_window::CheatWindow, debug_win::DebugWin, debug_world_win::DebugWorldWindow, settings_window::SettingsWindow, window_type::{Window, WindowType}}}, world_rendering::tile_map_manager::TileMapManager}};
+use crate::game_data::screen::{ScreenData, widget::{prelude::PlayWorldViewRender, widget::Widget, widget_calculations, widget_properties::WidgetProperties, window_manager::{window::WidgetWindow, windows::{block_select_win::BlockSelectWindow, cheat_window::CheatWindow, debug_win::DebugWin, debug_world_win::DebugWorldWindow, settings_window::SettingsWindow, window_type::{Window, WindowType}}}}};
 
 
 #[derive(Hash, Clone, Copy, PartialEq, Eq)]
@@ -75,10 +75,6 @@ impl WidgetWindowManager {
         let new_id = WidgetWindowId::new(self.next_window_id);
         self.next_window_id+=1;
         new_id
-    }
-
-    pub fn get_tile_map_manager(&mut self) -> &mut TileMapManager {
-        self.play_view.get_tile_map_manager()
     }
 
     pub fn new_window(&mut self, mut window: WindowType, name: &str) -> WidgetWindowId {

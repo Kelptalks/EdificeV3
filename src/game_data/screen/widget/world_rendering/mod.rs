@@ -7,4 +7,3 @@ pub mod view_mode;
 pub mod world_view_data;
 
 pub mod tile_map;
-pub use tile_map::tile_map_manager;

@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::time::Instant;
 use crate::game_data::prof_record;
 
-use crate::game_data::{TextureManager, World, chunk_manager::chunk_manager::WorldChunkType, game_event_manager::{event_manager::Event, game_event_manager::GameEventManager}, locations::world_area::WorldArea, player_data::{game_entity::{dynamic_entity_manager::dynamic_entity_manager::DynamicEntityId, game_entity_manager::{GameEntity, GameEntityId}}, player_data::PlayerData}, screen::{iso_cord_tool, widget::world_rendering::{tile_map::TileMapId, tile_map_manager::{TileMapEvent, TileMapManager}}}, world::world::WorldEvent};
+use crate::game_data::{TextureManager, World, chunk_manager::chunk_manager::WorldChunkType, game_event_manager::{event_manager::Event, game_event_manager::GameEventManager}, locations::world_area::WorldArea, player_data::{game_entity::{dynamic_entity_manager::dynamic_entity_manager::DynamicEntityId, game_entity_manager::{GameEntity, GameEntityId}}, player_data::PlayerData}, screen::{iso_cord_tool}, world::world::WorldEvent};
 
 const CHUNK_SIZE: usize = 16;
 const CHUNK_AREA: usize = CHUNK_SIZE * CHUNK_SIZE;
@@ -22,7 +22,6 @@ pub struct LoadedWorldChunk {
     pub terrain_generated: bool,
     
     pub dirty: bool,
-    pub tile_map_id: Option<TileMapId>,
 
     // Game objects
     pub block_entities: HashMap<[i32; 3], GameEntityId>,
@@ -45,7 +44,6 @@ impl LoadedWorldChunk {
 
             terrain_generated: false,
             dirty: true,
-            tile_map_id: None,
             depth,
 
             block_entities: HashMap::new(),
@@ -175,71 +173,6 @@ impl LoadedWorldChunk {
         self.dirty = true;
     }
 
-
-    //=====================================
-    // Rendering
-    //=====================================
-
-    pub fn clean(&mut self, tile_map_manager: &mut TileMapManager) {
-        if let Some(id) = self.tile_map_id {
-            if let Some(tile_map) = tile_map_manager.get_mut_tile_map(id) {
-                let world_area = self.get_world_area();
-                tile_map.set_world_area(world_area);
-            }
-            tile_map_manager.dirty_id(&id);
-            self.dirty = false;
-        }
-        else {
-            self.tile_map_id = Some(tile_map_manager.new_tile_map());
-        }
-        
-    }    
-
-    pub fn render(
-        &mut self, 
-        player_data: &PlayerData,
-        texture_manager: &mut TextureManager, 
-        tile_map_manager: &mut TileMapManager
-    ) {
-
-        // Render cashed texture
-        let block_scale = tile_map_manager.get_block_scale();
-        let draw_offset = tile_map_manager.get_draw_offset();
-        if self.dirty && self.terrain_generated {
-            self.clean(tile_map_manager);
-        }
-        else if let Some(id) = self.tile_map_id {
-            
-            
-            if let Some(tile_map) = tile_map_manager.get_mut_tile_map(id) {
-                let t = Instant::now();
-                tile_map.render(texture_manager, block_scale, draw_offset);
-                prof_record("    chunk_tile_render", t.elapsed());
-
-                // Render dynamic entities
-                let t = Instant::now();
-                for entity_id in &self.dynamic_entities {
-                    if let Some(game_entity) = player_data.game_entity_manager.clone_game_entity(entity_id.wrap_into_game_entity_id()) {
-                        if let GameEntity::DynamicEntity(dynamic_entity) = game_entity {
-                            let texture = dynamic_entity.texture();
-                            let pos = dynamic_entity.world_pos();
-                            tile_map.render_enitity_at_world_pos(texture_manager, pos, texture, block_scale, draw_offset);
-                        }
-                    }
-                }
-                prof_record("    chunk_entity_render", t.elapsed());
-            }
-
-
-        }
-        else {
-            self.tile_map_id = Some(tile_map_manager.new_tile_map());
-        }
-        
-
-        
-    }
-
     //=====================================
     // Game Object Manamgnet
     //=====================================
@@ -252,12 +185,7 @@ impl LoadedWorldChunk {
     }
 
     pub fn free(self) -> Vec<Event> {
-        if let Some(id) = self.tile_map_id {
-            vec![TileMapEvent::FreeTileMap(id).wrap_into_event()]
-        }
-        else {
-            Vec::new()
-        }
+        Vec::new()
     }
 }
 

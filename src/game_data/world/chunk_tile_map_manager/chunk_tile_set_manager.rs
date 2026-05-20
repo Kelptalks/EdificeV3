@@ -3,6 +3,8 @@ use std::collections::HashMap;
 use crate::game_data::{TextureManager, World, chunk_manager::{chunk_manager::WorldChunkManager, loaded_chunk::CHUNK_SIZE_I32}, chunk_tile_map_manager::{chunk_render_data::ChunkRenderData, chunk_tile_set::ChunkTileSet}, screen::widget::world_rendering::area_rendering_manager::{ray_caster::casted_tile::CastedTile, raycast_thread_pool::RayCastingThreadPool}, tools::iso_cord_tool, types::BlockTexture};
 
 pub struct ChunkTileSetManager {
+    thread_pool: RayCastingThreadPool,
+
     chunk_tile_sets: HashMap<u64, ChunkTileSet>,
 
     tile_sets_to_cast: Vec<u64>,
@@ -18,6 +20,8 @@ pub struct ChunkTileSetManager {
 impl ChunkTileSetManager {
     pub fn new() -> ChunkTileSetManager {
         ChunkTileSetManager {
+            thread_pool: RayCastingThreadPool::new(),
+
             chunk_tile_sets: HashMap::new(),
             tile_sets_to_cast: Vec::new(),
             dirty_sets: Vec::new(),
@@ -59,7 +63,7 @@ impl ChunkTileSetManager {
     // Clean
     //=====================================
 
-    pub fn clean(&mut self, chunk_manager: &WorldChunkManager, texture_manager: &mut TextureManager, thread_pool: &mut RayCastingThreadPool) {
+    pub fn clean(&mut self, chunk_manager: &WorldChunkManager, texture_manager: &mut TextureManager) {
         // Free any tile sets scheduled for removal
         let to_free: Vec<u64> = self.sets_to_free.drain(..).collect();
         for key in to_free {
@@ -74,7 +78,7 @@ impl ChunkTileSetManager {
         self.dirty_sets.retain(|set_key| {
             if let Some(set) = self.chunk_tile_sets.get_mut(set_key) {
                 if set.dirty {
-                    set.mark_dirty(texture_manager, thread_pool);
+                    set.mark_dirty(texture_manager, &mut self.thread_pool);
                     if self.show_borders {
                         let mods = set.get_area().generate_border_mods(BlockTexture::Selector);
                         set.set_lair_block_mods(mods);
@@ -83,7 +87,7 @@ impl ChunkTileSetManager {
                     }
                 }
                 if let Some(chunk) = chunk_manager.get_loaded_chunk(set_key) {
-                    set.ray_cast_set(thread_pool, chunk);
+                    set.ray_cast_set(&mut self.thread_pool, chunk);
                     set.dirty = false;
                     return false;
                 }
@@ -99,7 +103,7 @@ impl ChunkTileSetManager {
                         let mods = set.get_area().generate_border_mods(BlockTexture::Selector);
                         set.set_lair_block_mods(mods);
                     }
-                    set.ray_cast_set(thread_pool, chunk);
+                    set.ray_cast_set(&mut self.thread_pool, chunk);
                     return false;
                 }
             }
@@ -108,7 +112,7 @@ impl ChunkTileSetManager {
 
         // Pick up completed ray casts and bake meshes
         for tile_set in self.chunk_tile_sets.values_mut() {
-            tile_set.clean(texture_manager, thread_pool);
+            tile_set.clean(texture_manager, &mut self.thread_pool);
         }
     }
 
