@@ -32,7 +32,7 @@ impl AreaRenderingManager {
         self.area_to_render = world_area;
     }
 
-    pub fn get_casted_tile_rays(&mut self, world: World, lair_block_mods: &Vec<LairBlockMod>) -> Vec<CastedTile> {
+    pub fn get_casted_tile_rays(&mut self, world: &World, lair_block_mods: &Vec<LairBlockMod>) -> Vec<CastedTile> {
   
                   
         // Create an expanded world area for calculating ray start cords

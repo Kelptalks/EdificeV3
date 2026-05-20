@@ -54,4 +54,15 @@ impl BlockTriangle {
             return BlockTriangle::TopLeft;
         }
     }
+
+    pub fn get_name(&self) -> String {
+        match self {
+            BlockTriangle::TopLeft => "TopLeft".to_string(),
+            BlockTriangle::TopRight => "TopRight".to_string(),
+            BlockTriangle::LeftTop => "LeftTop".to_string(),
+            BlockTriangle::LeftBot => "LeftBot".to_string(),
+            BlockTriangle::RightTop => "RightTop".to_string(),
+            BlockTriangle::RightBot => "RightBot".to_string(),
+        }
+    }
 }

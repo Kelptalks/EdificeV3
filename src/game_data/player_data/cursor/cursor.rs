@@ -55,13 +55,13 @@ impl Cursor {
         self.chunk_load_distance
     }
 
-    pub fn get_rendering_area(&self) -> WorldArea {
+    pub fn get_rendering_area(&self, size: i32) -> WorldArea {
         let mut world_area = WorldArea::new_blank();
 
-        let point_1 = self.world_cords.map(|f| f - self.zoom as i32);
+        let point_1 = self.world_cords.map(|f| f - size);
         world_area.set_point_1_cords(point_1);
 
-        let point_2 = self.world_cords.map(|f| f + self.zoom as i32);
+        let point_2 = self.world_cords.map(|f| f + size);
         world_area.set_point_2_cords(point_2);
 
         world_area

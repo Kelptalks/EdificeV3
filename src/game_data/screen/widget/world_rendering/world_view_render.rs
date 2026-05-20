@@ -3,59 +3,15 @@ use std::time::Instant;
 use crate::game_data::prof_record;
 
 
+
+use crate::game_data::screen::widget::world_rendering::area_rendering_manager;
 use crate::game_data::{
     TextureManager, chunk_tile_map_manager::chunk_render_data::ChunkRenderData, player_data::{cursor::cursor::Cursor, player_data::PlayerData}, screen::{
-        ScreenData, iso_cord_tool, widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_triangle::CastedTriangle}, tile_map::TileMapId, view_mode::ViewMode, world_view_data::WorldViewData}}
+        ScreenData, iso_cord_tool, widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_triangle::CastedTriangle}, view_mode::ViewMode, world_view_data::WorldViewData}}
     }, texture_manager::texture::Texture, types::BlockTexture, world::world::{WorldEvent, SpriteRenderRequest}
 };
 
 use crate::game_data::game_event_manager::prelude::*;
-
-/*
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[repr(u8)]
-enum ViewDirection {
-    North = 0,
-    South = 1,
-    East = 2,
-    West = 3,
-}
-
-impl ViewDirection {
-    pub fn rotation_matrix(&self) -> [[i32; 2]; 2] {
-        match self {
-            ViewDirection::North => [[ 1,  0], [ 0,  1]],
-            ViewDirection::East  => [[ 0,  1], [-1,  0]],
-            ViewDirection::South => [[-1,  0], [ 0, -1]],
-            ViewDirection::West  => [[ 0, -1], [ 1,  0]],
-        }
-    }
-
-    pub fn from_id(id: u8) -> Self {
-        match id {
-            0 => ViewDirection::North,
-            1 => ViewDirection::South,
-            2 => ViewDirection::East,
-            3 => ViewDirection::West,
-            _ => ViewDirection::North,
-        }
-    }
-
-    pub fn id(&self) -> u8 {
-        *self as u8
-    }
-
-    pub fn to_string(&self) -> String {
-        match self {
-            ViewDirection::North => "North".to_string(),
-            ViewDirection::South => "South".to_string(),
-            ViewDirection::East => "East".to_string(),
-            ViewDirection::West => "West".to_string(),
-        }
-    }
-}
-
- */
 
 pub struct PlayWorldViewRender {
     widget_properties: WidgetProperties,
@@ -68,8 +24,6 @@ pub struct PlayWorldViewRender {
 
     area_rendering_manager: AreaRenderingManager,
     lair_block_mods: Vec<LairBlockMod>,
-    
-
 
     // Camera Motion
     camera_ndc_offset: [f32; 2],
@@ -91,9 +45,6 @@ impl PlayWorldViewRender {
         let mut wp = WidgetProperties::new_with_parent_props(parent_props);
         wp.prefered_scale = [1.0; 2];
         wp.internal_buffers = [0.012; 4];
-
-
-        
 
         PlayWorldViewRender {
             widget_properties: wp,
@@ -215,16 +166,18 @@ impl PlayWorldViewRender {
         _event_manager: &mut EventManager,
         player_data: &PlayerData
     ) -> Option<CastedTriangle> {
+        
         let mut mouse_ndc = screen_data.get_mouse_ndc();
 
-        mouse_ndc[0] -= self.ndc_draw_centering_offset[0];
-        mouse_ndc[1] -= self.ndc_draw_centering_offset[1];
         mouse_ndc[0] += self.camera_ndc_offset[0];
         mouse_ndc[1] += self.camera_ndc_offset[1];
 
-        let iso = iso_cord_tool::ndi_screen_cords_to_iso_cords(self.ndc_block_scale, mouse_ndc);
+        let mut iso = iso_cord_tool::ndi_screen_cords_to_iso_cords(self.ndc_block_scale, mouse_ndc);
+
+        iso[1] += self.ndc_tile_half_scale;
 
         let tile_key = [iso[0].floor() as i32, iso[1].floor() as i32];
+        
         let cz = player_data.get_cursor().get_cords()[2];
         let world_cords = [tile_key[0] + cz, tile_key[1] + cz, cz];
 
@@ -236,7 +189,7 @@ impl PlayWorldViewRender {
 
         let frac_x = iso[0] - iso[0].floor();
         let frac_y = iso[1] - iso[1].floor();
-        if frac_x > frac_y {
+        if frac_x > self.ndc_tile_half_scale {
             Some(tile.get_right_triangle().clone())
         } else {
             Some(tile.get_left_triangle().clone())
@@ -280,12 +233,10 @@ impl PlayWorldViewRender {
     
 
         let cursor = player_data.get_cursor();
-
         self.camera_ndc_offset = iso_cord_tool::world_pos_to_ndc_cords(
             self.ndc_block_scale, 
             iso_cord_tool::world_cords_to_world_pos(cursor.get_cords())
         );
-        
 
 
         let mut draw_cords = [0.0; 2];
@@ -300,19 +251,30 @@ impl PlayWorldViewRender {
 
         texture_manager.update_expander_cache(self.ndc_block_scale);
         let t = Instant::now();
-        world.render_world(
-            player_data,
-            texture_manager,
-            &chunk_render_data,
-        );
-        
-        prof_record("  world_render_world", t.elapsed());
         
 
-        // Use personal tile map
-        
-        if ((cursor.get_zoom() as usize) * 2) < 32 {
-            
+        // Use cutout when zoomed in and add cursor lines
+        if self.ndc_block_scale > 0.05 {
+            let mut area_rendering_manager = AreaRenderingManager::new();
+
+            let mut lair_block_mods = Vec::new();
+            lair_block_mods.push(LairBlockMod::Cursor(cursor.get_cords(), BlockTexture::Selector, 10));
+
+            area_rendering_manager.set_world_area(cursor.get_rendering_area(10));
+
+            let casted_tiles = area_rendering_manager.get_casted_tile_rays(&world, &lair_block_mods);
+
+            for tile in casted_tiles {
+                tile.render(texture_manager, self.ndc_block_scale, draw_cords);
+            }
+        }
+        // Use world render for large scales
+        else {
+            world.render_world(
+                player_data,
+                texture_manager,
+                &chunk_render_data,
+            );
         }
          
         
@@ -424,15 +386,7 @@ impl Widget for PlayWorldViewRender {
                         }
                     }
 
-                    let cursor = player_data.get_cursor();
-                    
-                    /* self.tile_map_manager.render_enitity_at_world_pos(
-                        texture_manager, 
-                        player_data, 
-                        cursor.get_pos(),
-                        Texture::BlockTexture(BlockTexture::Selector)
-                    );
-                    */
+
 
                     panel.size();
 
@@ -495,8 +449,8 @@ impl Widget for PlayWorldViewRender {
             ));
             mouse_data.push("Triangle Textures".to_string());
             for texture in triangle.get_textures() {
-                if let Texture::BlockTriangle(block, _triangle) = texture {
-                    mouse_data.push(format!(" - {}", block.get_name()));
+                if let Texture::BlockTriangle(block, triangle) = texture {
+                    mouse_data.push(format!(" - {} | {}", block.get_name(), triangle.get_name()));
                 }
             }
             mouse_data.push(format!("Block Depth({})", triangle.get_solid_block_depth()));

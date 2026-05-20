@@ -64,7 +64,7 @@ impl RayCastingThreadPool {
                     Ok(job) => {
                         let mut mgr = AreaRenderingManager::new();
                         mgr.set_world_area(job.world_area);
-                        let tiles = mgr.get_casted_tile_rays(job.world_snapshot, &job.lair_block_mods);
+                        let tiles = mgr.get_casted_tile_rays(&job.world_snapshot, &job.lair_block_mods);
 
                         let mut map = HashMap::new();
                         for tile in tiles {
