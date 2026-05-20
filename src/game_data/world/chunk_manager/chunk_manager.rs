@@ -227,13 +227,14 @@ impl WorldChunkManager {
 
 
 
+        const MAX_CHUNKS_PER_TIK: usize = 6;
+
         let mut chunks_to_replace: Vec<WorldChunkType> = Vec::new();
+        let mut chunks_generated: usize = 0;
 
         for (_key, chunk_type) in self.chunks.iter_mut() {
             match chunk_type {
                 WorldChunkType::Loaded(loaded_world_chunk) => {
-
-                    
                     if game_tik.is_second {
                         if loaded_world_chunk.time_till_unload > 0 {
                             loaded_world_chunk.time_till_unload -= 1;
@@ -249,12 +250,12 @@ impl WorldChunkManager {
 
                 },
                 WorldChunkType::Lazy(_lazy_world_chunk) => {
-                    
+
                 },
                 WorldChunkType::Unloaded(unloaded_world_chunk) => {
-                    if unloaded_world_chunk.load {
+                    if unloaded_world_chunk.load && chunks_generated < MAX_CHUNKS_PER_TIK {
                         let mut world_chunk = LoadedWorldChunk::new(unloaded_world_chunk.get_cords());
-                        
+
                         // Get block mods from naboring chunks generation
                         let mut world_gen_events = Vec::new();
                         world_gen_events.append(&mut unloaded_world_chunk.terrain_gen_events);
@@ -268,6 +269,7 @@ impl WorldChunkManager {
                         world_chunk.terrain_generated = true;
 
                         chunks_to_replace.push(world_chunk.wrap_into_chunk_type());
+                        chunks_generated += 1;
                     }
                 },
             }

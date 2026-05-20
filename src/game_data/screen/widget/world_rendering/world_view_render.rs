@@ -4,6 +4,7 @@ use crate::game_data::prof_record;
 
 
 
+use crate::game_data::screen::input_data;
 use crate::game_data::screen::widget::world_rendering::area_rendering_manager;
 use crate::game_data::{
     TextureManager, chunk_tile_map_manager::chunk_render_data::ChunkRenderData, player_data::{cursor::cursor::Cursor, player_data::PlayerData}, screen::{
@@ -178,22 +179,35 @@ impl PlayWorldViewRender {
 
         let tile_key = [iso[0].floor() as i32, iso[1].floor() as i32];
         
-        let cz = player_data.get_cursor().get_cords()[2];
+        // Offset with Z to get all blocks that could exist there
+        let cz = (player_data.get_cursor().get_cords()[2]) * 2;
         let world_cords = [tile_key[0] + cz, tile_key[1] + cz, cz];
 
+        
         let world_arc = player_data.get_world_ref();
         let world = world_arc.read().unwrap();
-        let tiles = world.chunk_tile_set_manager.get_obscuring(world_cords, 3);
+        let tiles = world.chunk_tile_set_manager.get_obscuring(world_cords, 6);
 
-        let tile = tiles.into_iter().filter(|t| t.struck()).last()?;
 
         let frac_x = iso[0] - iso[0].floor();
         let frac_y = iso[1] - iso[1].floor();
         if frac_x > self.ndc_tile_half_scale {
-            Some(tile.get_right_triangle().clone())
+            for tile in tiles.iter().rev() {
+                let triangle = tile.get_right_triangle();
+                if triangle.has_struck_solid {
+                    return Some(triangle.clone());
+                }
+            }
         } else {
-            Some(tile.get_left_triangle().clone())
+            for tile in tiles.iter().rev() {
+                let triangle = tile.get_left_triangle();
+                if triangle.has_struck_solid {
+                    return Some(triangle.clone());
+                }
+            }
         }
+        None
+
     }
 
 
@@ -240,21 +254,22 @@ impl PlayWorldViewRender {
 
 
         let mut draw_cords = [0.0; 2];
+
         draw_cords[0] += self.ndc_draw_centering_offset[0];
         draw_cords[1] += self.ndc_draw_centering_offset[1];
-
         draw_cords[0] -= self.camera_ndc_offset[0];
         draw_cords[1] -= self.camera_ndc_offset[1];
 
-        let chunk_render_data = ChunkRenderData::new(self.ndc_block_scale, draw_cords, cursor.get_cords(), cursor.get_zoom());
-
-
-        texture_manager.update_expander_cache(self.ndc_block_scale);
-        let t = Instant::now();
+        let chunk_render_data = ChunkRenderData::new(
+            self.ndc_block_scale, 
+            draw_cords, 
+            cursor.get_cords(), 
+            100.0);
         
 
         // Use cutout when zoomed in and add cursor lines
         if self.ndc_block_scale > 0.05 {
+            texture_manager.update_expander_cache(self.ndc_block_scale);
             let mut area_rendering_manager = AreaRenderingManager::new();
 
             let mut lair_block_mods = Vec::new();
@@ -356,17 +371,19 @@ impl Widget for PlayWorldViewRender {
         if let Some(view_mode) = player_data.get_view_mode() {
             match view_mode {
                 ViewMode::God() => {
+                    let cursor = player_data.get_cursor();
+                    
                     // Handle Visuals
                     let mut panel = Panel::new_blank();
                     panel.set_parent_pos(screen_data.get_viewport_uv());
                     panel.set_color(PanelColor::Clear);
                     panel.set_orientation(PanelOrientation::Vertical, PanelAlignment::Center);
 
-
                     // Handle Controls
                     self.handle_camera_panning(screen_data, event_manager, player_data);
                     self.handle_camera_zooming(screen_data, event_manager, player_data);
             
+                    // Handle Clicking on game objects
                     if let Some(mouse_triangle) = self.get_mouse_triangle(screen_data, event_manager, player_data) {
                         let object_cords = mouse_triangle.get_first_block_cords_struck();
 
@@ -386,10 +403,19 @@ impl Widget for PlayWorldViewRender {
                         }
                     }
 
+                    // Handle block placing
+                    if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::Q) {
+                        let event = WorldEvent::ModBlock(cursor.get_cords(), BlockTexture::Air).wrap_into_event();
+                        event_manager.add_event(event);
+                    }
 
+                    // Handle block placing
+                    if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::E) {
+                        let event = WorldEvent::ModBlock(cursor.get_cords(), BlockTexture::Stone).wrap_into_event();
+                        event_manager.add_event(event);
+                    }
 
                     panel.size();
-
                     self.overlay_panel = Box::new(panel.wrap_into_widget());
                 }
                 ViewMode::GameObjectSpectate(id) => {
@@ -465,9 +491,11 @@ impl Widget for PlayWorldViewRender {
             debug.record("Rendering", data);
         }
 
+        
         debug.record("Rendering", format!("Frame Time ({})ms", start.elapsed().as_secs_f32() * 1000.0));
         debug.record("Rendering", format!("Free Cashed Textures({})", texture_manager.get_mut_texture_cashe().total_free_textures()));
         debug.record("Rendering", format!("Entity's Drawn ({})", self.entitys_drawn));
+        debug.record("Rendering", format!("Cursor_cords ({:?})", player_data.get_cursor().get_cords()));
         self.entitys_drawn = 0;        
         
     }

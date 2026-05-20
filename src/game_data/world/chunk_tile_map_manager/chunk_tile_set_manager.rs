@@ -36,8 +36,10 @@ impl ChunkTileSetManager {
 
     pub fn queue_dirty_chunk(&mut self, key: u64) {
         if let Some(set) = self.chunk_tile_sets.get_mut(&key) {
-            set.dirty = true;
-            self.dirty_sets.push(key);
+            if !set.dirty {
+                set.dirty = true;
+                self.dirty_sets.push(key);
+            }
         }
     }
 
@@ -95,8 +97,13 @@ impl ChunkTileSetManager {
             true
         });
 
-        // Submit new ray cast tasks for pending tile sets
+        // Submit new ray cast tasks for pending tile sets, throttled to avoid frame spikes
+        const MAX_CASTS_PER_FRAME: usize = 8;
+        let mut casts_submitted: usize = 0;
         self.tile_sets_to_cast.retain(|set_key| {
+            if casts_submitted >= MAX_CASTS_PER_FRAME {
+                return true;
+            }
             if let Some(set) = self.chunk_tile_sets.get_mut(set_key) {
                 if let Some(chunk) = chunk_manager.get_loaded_chunk(set_key) {
                     if self.show_borders {
@@ -104,6 +111,7 @@ impl ChunkTileSetManager {
                         set.set_lair_block_mods(mods);
                     }
                     set.ray_cast_set(&mut self.thread_pool, chunk);
+                    casts_submitted += 1;
                     return false;
                 }
             }

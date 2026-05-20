@@ -221,22 +221,6 @@ impl World {
 
         self.world_chunk_manager.tik(game_time, player_data, event_manager);
 
-        /* 
-        // Generate Terrain
-        let mut terrain_gen_per_tik = 1;
-        while let Some(key) = self.chunks_to_generate.pop() {
-            if let Some(chunk) = &mut self.full_loaded_chunks.get_mut(&key) {
-                let area_to_gen = chunk.get_world_area();
-                chunk.terrain_generated = true;
-                player_data.world_gen.generate_area(self, area_to_gen);
-                
-                terrain_gen_per_tik-=1;
-                if terrain_gen_per_tik <= 0{
-                    break;
-                }
-            }
-        }
-        */
     }
 
     //=====================================
@@ -395,6 +379,8 @@ pub enum WorldEvent {
     UnloadChunkAtCords([i32; 3]),
     /// Toggle Selector-block border overlay on all chunk tile sets.
     ToggleChunkBorders,
+    /// Free the tile set for a chunk that has been unloaded (keyed by chunk key).
+    FreeChunkTileSet(u64),
 
     /// Queue a sprite to be rendered with correct occlusion this frame.
     RenderSprite(SpriteRenderRequest),
@@ -482,6 +468,9 @@ impl WorldEvent {
             },
             WorldEvent::ToggleChunkBorders => {
                 world.chunk_tile_set_manager.toggle_borders();
+            },
+            WorldEvent::FreeChunkTileSet(key) => {
+                world.chunk_tile_set_manager.queue_free_chunk(key);
             },
             WorldEvent::RenderSprite(req) => {
                 world.queue_sprite_render(req);

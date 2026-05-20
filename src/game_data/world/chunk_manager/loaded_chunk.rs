@@ -185,7 +185,7 @@ impl LoadedWorldChunk {
     }
 
     pub fn free(self) -> Vec<Event> {
-        Vec::new()
+        vec![WorldEvent::FreeChunkTileSet(self.get_key()).wrap_into_event()]
     }
 }
 
