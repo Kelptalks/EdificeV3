@@ -51,16 +51,16 @@ impl BlockComponent {
             );
             
             let new_cords = cords_tool::add_cords(self.world_cords, moved);
-            if world.get_world_value_as_block(new_cords) == BlockTexture::Air {
-                // add new block
-                self.world_cords = new_cords;
-                event_manager.add_world_event(
-                    WorldEvent::ModBlock(self.world_cords, self.block_type)
-                );
-                event_manager.add_world_event(
-                    WorldEvent::AddGameEntity(self.world_cords, self.id)
-                );
-            }
+
+            // add new block
+            self.world_cords = new_cords;
+            event_manager.add_world_event(
+                WorldEvent::ModBlock(self.world_cords, self.block_type)
+            );
+            event_manager.add_world_event(
+                WorldEvent::AddGameEntity(self.world_cords, self.id)
+            );
+            
 
             self.moved = None;
         }

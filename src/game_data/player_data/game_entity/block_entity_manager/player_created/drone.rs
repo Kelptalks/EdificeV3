@@ -32,13 +32,13 @@ impl BlockEntityDrone {
         // direction scheme yet — best-effort mapping.
         let textures = DirectionTextures::new(
             BlockTexture::DroneUpRight,  // north
-            BlockTexture::DroneUpRight,  // north_east
-            BlockTexture::DroneBotRight, // east
-            BlockTexture::DroneBotRight, // south_east
+            BlockTexture::Debug,  // north_east
+            BlockTexture::DroneUpLeft, // east
+            BlockTexture::Debug, // south_east
             BlockTexture::DroneBotLeft,  // south
-            BlockTexture::DroneBotLeft,  // south_west
-            BlockTexture::DroneUpLeft,   // west
-            BlockTexture::DroneUpLeft,   // north_west
+            BlockTexture::Debug,  // south_west
+            BlockTexture::DroneBotRight,   // west
+            BlockTexture::Debug,   // north_west
         );
         let mut moveable_block_component = MoveableBlockComponent::new(cords, game_entity_id, textures);
         moveable_block_component.init(game_entity_id, event_manager);

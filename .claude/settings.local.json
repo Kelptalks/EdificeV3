@@ -34,7 +34,10 @@
       "Bash(python3 -c ' *)",
       "Bash(git checkout *)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(grep \"\\\\.rs$\")",
+      "Bash(cp -r /home/kelp/EdificeV3/Assets /home/kelp/EdificeV3/releases/)",
+      "Bash(cp -r /home/kelp/EdificeV3/Lua_scripts /home/kelp/EdificeV3/releases/)"
     ]
   }
 }

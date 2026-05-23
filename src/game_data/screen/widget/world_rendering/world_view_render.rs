@@ -6,11 +6,13 @@ use crate::game_data::prof_record;
 
 use crate::game_data::screen::input_data;
 use crate::game_data::screen::widget::world_rendering::area_rendering_manager;
+use crate::game_data::tools::cords_tool;
 use crate::game_data::{
     TextureManager, chunk_tile_map_manager::chunk_render_data::ChunkRenderData, player_data::{cursor::cursor::Cursor, player_data::PlayerData}, screen::{
-        ScreenData, iso_cord_tool, widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_triangle::CastedTriangle}, view_mode::ViewMode, world_view_data::WorldViewData}}
+        ScreenData, iso_cord_tool, screen_data::CurrentMenu, widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::{Widget, WidgetType}, widget_properties::WidgetProperties, world_rendering::{area_rendering_manager::{area_rendering_manager::AreaRenderingManager, block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_triangle::CastedTriangle}, view_mode::ViewMode, world_view_data::WorldViewData}}
     }, texture_manager::texture::Texture, types::BlockTexture, world::world::{WorldEvent, SpriteRenderRequest}
 };
+use crate::game_data::game_event_manager::render_event_manager::render_event_manager::RenderEvent;
 
 use crate::game_data::game_event_manager::prelude::*;
 
@@ -273,7 +275,52 @@ impl PlayWorldViewRender {
             let mut area_rendering_manager = AreaRenderingManager::new();
 
             let mut lair_block_mods = Vec::new();
-            lair_block_mods.push(LairBlockMod::Cursor(cursor.get_cords(), BlockTexture::Selector, 10));
+
+            // Render the cursor
+            let cursor_cords = cursor.get_cords();
+            let strait_axis = cords_tool::get_strait_directions();
+            let length = 10;
+            lair_block_mods.push(LairBlockMod::AddOverlayTexture(BlockTexture::Selector, cursor_cords));
+            for axis in strait_axis {
+
+                
+                for i in 1..length as i32 {
+                    let cords = [
+                        cursor_cords[0] + (axis[0] * i),
+                        cursor_cords[1] + (axis[1] * i),
+                        cursor_cords[2] + (axis[2] * i),
+                    ];
+                    
+                    let texture;
+                    if world.get_world_value_as_block(cords) == BlockTexture::Air {
+                        if axis[0] != 0{
+                            texture = BlockTexture::SelectorBarLeft;
+                        }
+                        else if axis[1] != 0 {
+                            texture = BlockTexture::SelectorBarRight;
+                        }
+                        else {
+                            texture = BlockTexture::SelectorVertical;
+                        }
+                    }
+                    else {
+                        if axis[0] != 0{
+                            texture = BlockTexture::SelectorBarLeftRed;
+                        }
+                        else if axis[1] != 0 {
+                            texture = BlockTexture::SelectorBarRightRed;
+                        }
+                        else {
+                            texture = BlockTexture::SelectorVerticalRed;
+                        }
+                    }
+
+                    
+                    
+                    lair_block_mods.push(LairBlockMod::AddUnderlayTexture(texture, cords));
+                }
+            }    
+
 
             area_rendering_manager.set_world_area(cursor.get_rendering_area(10));
 
@@ -401,6 +448,13 @@ impl Widget for PlayWorldViewRender {
                                 );
                             }
                         }
+                    }
+
+                    // Open settings menu
+                    if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::Escape) {
+                        event_manager.add_event(
+                            RenderEvent::ChangeMenu(CurrentMenu::SettingsMenu).wrap_into_event()
+                        );
                     }
 
                     // Handle block placing

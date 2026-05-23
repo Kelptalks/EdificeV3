@@ -1,5 +1,6 @@
 use crate::game_data::{World, game_event_manager::event_manager::EventManager, locations::world_area::WorldArea, types::BlockTexture, world::world::WorldEvent};
 
+pub const CURSOR_VIEW_DISTANCE: [i16; 3] = [5, 5, 2];
 
 #[derive(Clone)]
 pub struct Cursor {
@@ -17,13 +18,13 @@ impl Cursor {
     pub fn new() -> Cursor{
         Cursor {
             world_cords: [0, 0, -25],
-            zoom: 64.0,
+            zoom: 32.0,
 
             ghost_block: BlockTexture::DroneBotRight,
 
             initialized: false,
 
-            chunk_load_distance: [5, 5, 2],
+            chunk_load_distance: CURSOR_VIEW_DISTANCE,
         }
     }
 
