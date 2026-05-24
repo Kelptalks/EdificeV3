@@ -32,8 +32,9 @@ impl BlockEntityId {
             BlockEntityId::Battery(id) => {
                 Some(BatteryEvent::ComponentEvent(component_event).wrap_into_event(*id))
             },
-            BlockEntityId::Drone(_id) => None,
-            BlockEntityId::Flungle(_id) => None,
+            _ => {
+                None
+            }
         }
     }
 }

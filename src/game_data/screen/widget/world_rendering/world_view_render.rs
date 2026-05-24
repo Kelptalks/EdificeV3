@@ -1,6 +1,11 @@
 #![allow(dead_code)]
+use std::collections::HashMap;
 use std::time::Instant;
-use crate::game_data::prof_record;
+use crate::game_data::chunk_tile_map_manager::chunk_render_data;
+use crate::game_data::player_data::game_entity::game_entity_manager::GameEntity;
+use crate::game_data::player_data::game_entity::lair_block_entity_manager::lair_block_entity_manager::LairBlockEntity;
+use crate::game_data::player_data::game_entity::lair_block_entity_manager::lair_block_entitys::blueprint::blueprint::LairEntityBlueprint;
+use crate::game_data::{World, prof_record};
 
 
 
@@ -110,9 +115,6 @@ impl PlayWorldViewRender {
         event_manager: &mut EventManager, 
         player_data: &PlayerData
     ) {
-        
-
-
         let _cursor = player_data.get_cursor();
 
         let mut cursor_scheduler = player_data.get_cursor_event_scheduler();
@@ -214,6 +216,10 @@ impl PlayWorldViewRender {
 
 
 
+    //=====================================
+    // Scalling
+    //=====================================
+
     pub fn size_play_view(&mut self, cursor: &Cursor) {
         self.widget_properties.scale_based_off_parent();
 
@@ -233,45 +239,18 @@ impl PlayWorldViewRender {
         self.ndc_draw_centering_offset[1] = -self.ndc_block_scale / 2.0;
     }
 
-    fn render_full_view(
-        &mut self,
-        texture_manager: &mut TextureManager,
-        _screen_data: &ScreenData,
-        event_manager: &mut EventManager,
-        player_data: &PlayerData,
+    //=====================================
+    // World Rendering
+    //=====================================
+
+    fn render_close_view(
+        &self, 
+        world: &World, 
+        texture_manager: &mut TextureManager, 
+        cursor: &Cursor, 
+        chunk_render_data: &ChunkRenderData
     ) {
-
-        
-        self.size_play_view(player_data.get_cursor());
-
-        let world_arc = player_data.get_world_ref();
-        let mut world = world_arc.write().unwrap();
-    
-
-        let cursor = player_data.get_cursor();
-        self.camera_ndc_offset = iso_cord_tool::world_pos_to_ndc_cords(
-            self.ndc_block_scale, 
-            iso_cord_tool::world_cords_to_world_pos(cursor.get_cords())
-        );
-
-
-        let mut draw_cords = [0.0; 2];
-
-        draw_cords[0] += self.ndc_draw_centering_offset[0];
-        draw_cords[1] += self.ndc_draw_centering_offset[1];
-        draw_cords[0] -= self.camera_ndc_offset[0];
-        draw_cords[1] -= self.camera_ndc_offset[1];
-
-        let chunk_render_data = ChunkRenderData::new(
-            self.ndc_block_scale, 
-            draw_cords, 
-            cursor.get_cords(), 
-            100.0);
-        
-
-        // Use cutout when zoomed in and add cursor lines
-        if self.ndc_block_scale > 0.05 {
-            texture_manager.update_expander_cache(self.ndc_block_scale);
+        texture_manager.update_expander_cache(self.ndc_block_scale);
             let mut area_rendering_manager = AreaRenderingManager::new();
 
             let mut lair_block_mods = Vec::new();
@@ -314,8 +293,6 @@ impl PlayWorldViewRender {
                             texture = BlockTexture::SelectorVerticalRed;
                         }
                     }
-
-                    
                     
                     lair_block_mods.push(LairBlockMod::AddUnderlayTexture(texture, cords));
                 }
@@ -327,8 +304,49 @@ impl PlayWorldViewRender {
             let casted_tiles = area_rendering_manager.get_casted_tile_rays(&world, &lair_block_mods);
 
             for tile in casted_tiles {
-                tile.render(texture_manager, self.ndc_block_scale, draw_cords);
-            }
+                tile.render(texture_manager, chunk_render_data.scale, chunk_render_data.offset);
+            }    
+    }
+
+    fn render_full_view(
+        &mut self,
+        texture_manager: &mut TextureManager,
+        _screen_data: &ScreenData,
+        event_manager: &mut EventManager,
+        player_data: &PlayerData,
+    ) {
+
+        
+        self.size_play_view(player_data.get_cursor());
+
+        let world_arc = player_data.get_world_ref();
+        let mut world = world_arc.write().unwrap();
+    
+
+        let cursor = player_data.get_cursor();
+        self.camera_ndc_offset = iso_cord_tool::world_pos_to_ndc_cords(
+            self.ndc_block_scale, 
+            iso_cord_tool::world_cords_to_world_pos(cursor.get_cords())
+        );
+
+
+        let mut draw_cords = [0.0; 2];
+
+        draw_cords[0] += self.ndc_draw_centering_offset[0];
+        draw_cords[1] += self.ndc_draw_centering_offset[1];
+        draw_cords[0] -= self.camera_ndc_offset[0];
+        draw_cords[1] -= self.camera_ndc_offset[1];
+
+        let chunk_render_data = ChunkRenderData::new(
+            self.ndc_block_scale, 
+            draw_cords, 
+            cursor.get_cords(), 
+            100.0);
+        
+
+        // Use cutout when zoomed in and add cursor lines
+        if self.ndc_block_scale > 0.05 {
+            self.render_close_view(&world, texture_manager, cursor, &chunk_render_data);
         }
         // Use world render for large scales
         else {
@@ -465,9 +483,17 @@ impl Widget for PlayWorldViewRender {
 
                     // Handle block placing
                     if screen_data.get_input_manager().was_key_code_pressed(miniquad::KeyCode::E) {
-                        let event = WorldEvent::ModBlock(cursor.get_cords(), BlockTexture::Stone).wrap_into_event();
-                        event_manager.add_event(event);
+
+                        let mut blocks = HashMap::new();
+
+                        blocks.insert(cursor.get_cords(), BlockTexture::Stone);
+
+                        let blue_print = LairEntityBlueprint::new(blocks, event_manager);
+                        let event = PlayerDataEvent::NewGameEntity(GameEntity::LairBlockEntity(LairBlockEntity::BluePrint(blue_print)));
+                        event_manager.add_event(event.wrap_into_event());
                     }
+
+                    
 
                     panel.size();
                     self.overlay_panel = Box::new(panel.wrap_into_widget());

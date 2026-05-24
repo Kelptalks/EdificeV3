@@ -50,8 +50,19 @@ impl CastedTriangle {
         }
     }
 
+    pub fn check_lair_block(
+        &mut self, 
+        block_cords: [i32; 3], 
+        block_to_check: BlockTexture, 
+        triangle: BlockTriangle
+    ) {
+        if block_to_check.is_visible() {
+            self.textures.insert(0, Texture::TranslucentBlockTriangle(block_to_check, triangle));
+        }
+    }
+
     #[inline]
-    pub fn check_block(
+    pub fn check_world_block(
         &mut self, 
         block_cords: [i32; 3], 
         block_to_check: BlockTexture, 
@@ -101,19 +112,19 @@ impl CastedTriangle {
         let lair_block_to_check = ray_casting_config.lair_manager.get_lair_block_at_cords(current_cords);
         if let Some(lair_block) = lair_block_to_check {
             for texture in lair_block.get_overlay_textures() {
-                self.check_block(current_cords, *texture, triangle);
+                self.check_lair_block(current_cords, *texture, triangle);
             }
         }
 
         // World Block
         let block_to_check = BlockTexture::from_id(world.get_world_value(current_cords));
-        self.check_block(current_cords, block_to_check, triangle);
+        self.check_world_block(current_cords, block_to_check, triangle);
 
         // Underlay Lair
         let lair_block_to_check = ray_casting_config.lair_manager.get_lair_block_at_cords(current_cords);
         if let Some(lair_block) = lair_block_to_check {
             for texture in lair_block.get_underlay_textures() {
-                self.check_block(current_cords, *texture, triangle);
+                self.check_lair_block(current_cords, *texture, triangle);
             }
         }
     }

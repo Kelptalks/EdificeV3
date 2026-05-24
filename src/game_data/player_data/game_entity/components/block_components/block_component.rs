@@ -47,7 +47,7 @@ impl BlockComponent {
                 WorldEvent::ModBlock(self.world_cords, BlockTexture::Air)
             );
             event_manager.add_world_event(
-                WorldEvent::RemoveGameEntity(self.world_cords)
+                WorldEvent::RemoveGameEntity(self.world_cords, self.id)
             );
             
             let new_cords = cords_tool::add_cords(self.world_cords, moved);

@@ -117,8 +117,10 @@ impl MeshManager {
             attribute vec2 position;
             attribute vec2 texcoord;
             attribute vec3 a_tint;
+            attribute float a_alpha;
             varying lowp vec2 uv;
             varying lowp vec3 tint;
+            varying lowp float v_alpha;
             uniform vec2 u_offset;
             uniform float u_scale;
 
@@ -127,6 +129,7 @@ impl MeshManager {
                 gl_Position = vec4(transformed.x, -transformed.y, 0.0, 1.0);
                 uv = texcoord;
                 tint = a_tint;
+                v_alpha = a_alpha;
             }
         "#;
 
@@ -135,12 +138,13 @@ impl MeshManager {
             precision mediump float;
             varying lowp vec2 uv;
             varying lowp vec3 tint;
+            varying lowp float v_alpha;
             uniform sampler2D tex;
             uniform lowp float u_alpha;
 
             void main() {
                 vec4 color = texture2D(tex, uv);
-                color.a *= u_alpha;
+                color.a *= v_alpha * u_alpha;
                 color.rgb *= tint;
                 gl_FragColor = color;
             }
@@ -168,6 +172,7 @@ impl MeshManager {
                 VertexAttribute::new("position", VertexFormat::Float2),
                 VertexAttribute::new("texcoord", VertexFormat::Float2),
                 VertexAttribute::new("a_tint", VertexFormat::Float3),
+                VertexAttribute::new("a_alpha", VertexFormat::Float1),
             ],
             shader,
             PipelineParams {

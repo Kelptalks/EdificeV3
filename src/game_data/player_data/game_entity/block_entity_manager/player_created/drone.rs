@@ -1,5 +1,7 @@
 
-use crate::game_data::{World, game_event_manager::event_manager::{Event, EventManager}, player_data::{cursor::cursor_event_scheduler::CursorEvent, game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId}, components::{entity_components::{EntityComponent, EntityComponentEvent}, inventory_component::InventoryComponent, block_components::moveable_block_component::{DirectionTextures, MoveableBlockComponent, MoveableBlockComponentEvent}, powered_component::PoweredComponent, tool_manager_component::ToolManagerComponent}, game_entity_manager::GameEntity}}, screen::{ScreenData, widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::WidgetType, widget_calculations::TextSize, world_rendering::world_view_data::WorldViewData}}, tik_manager::game_time::GameTime, tools::id_gen::IdGen, types::BlockTexture, world::world::{SpriteRenderRequest, WorldEvent}};
+use std::collections::HashMap;
+
+use crate::game_data::{World, game_event_manager::{event_manager::{Event, EventManager}, player_data_event_manager::player_event_manager::PlayerDataEvent}, player_data::{cursor::cursor_event_scheduler::CursorEvent, game_entity::{block_entity_manager::block_entity_manager::{BlockEntity, BlockEntityEvent, BlockEntityId}, components::{block_components::moveable_block_component::{DirectionTextures, MoveableBlockComponent, MoveableBlockComponentEvent}, entity_components::{EntityComponent, EntityComponentEvent}, inventory_component::InventoryComponent, powered_component::PoweredComponent, tool_manager_component::ToolManagerComponent}, game_entity_manager::GameEntity, lair_block_entity_manager::{lair_block_entity_manager::LairBlockEntity, lair_block_entitys::blueprint::blueprint::{BluePrintEvent, LairEntityBlueprint}}}}, screen::{ScreenData, widget::{panel::panel::{Panel, PanelAlignment, PanelOrientation}, prelude::PanelColor, widget::WidgetType, widget_calculations::TextSize, world_rendering::world_view_data::WorldViewData}}, tik_manager::game_time::GameTime, tools::id_gen::IdGen, types::BlockTexture, world::world::{SpriteRenderRequest, WorldEvent}};
 
 
 static ID_GEN: IdGen = IdGen::new();
@@ -81,13 +83,17 @@ impl BlockEntityDrone {
         if let Some(triangle) = &world_view_data.mouse_triangle {
             if triangle.has_struck_solid {
                 let solid = triangle.get_solid_block_struck_cords();
-                let target = [solid[0], solid[1], solid[2] + 1];
-
+                
+                
+                
+                let mut target = [solid[0], solid[1], solid[2]];
+                target[2] += 1;
                 if !world.get_world_value_as_block(target).is_solid() {
                     event_manager.add_world_event(WorldEvent::RenderSprite(SpriteRenderRequest {
                         world_pos: [target[0] as f32, target[1] as f32, target[2] as f32],
                         texture: BlockTexture::Selector.wrap_into_texture(),
                     }));
+
 
                     if screen_data.was_right_pressed() {
                         let path_event = MoveableBlockComponentEvent::PathTo(target).wrap_into_component_event();

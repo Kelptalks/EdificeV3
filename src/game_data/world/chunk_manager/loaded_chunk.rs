@@ -1,8 +1,9 @@
 use std::collections::{HashMap, HashSet};
-use std::time::Instant;
-use crate::game_data::prof_record;
+use crate::game_data::player_data;
+use crate::game_data::player_data::game_entity::lair_block_entity_manager::lair_block_entity_manager::LairBlockEntityId;
 
-use crate::game_data::{TextureManager, World, chunk_manager::chunk_manager::WorldChunkType, game_event_manager::{event_manager::Event, game_event_manager::GameEventManager}, locations::world_area::WorldArea, player_data::{game_entity::{dynamic_entity_manager::dynamic_entity_manager::DynamicEntityId, game_entity_manager::{GameEntity, GameEntityId}}, player_data::PlayerData}, screen::{iso_cord_tool}, world::world::WorldEvent};
+use crate::game_data::screen::widget::world_rendering::area_rendering_manager::block_lair_manager::lair_block::LairBlockMod;
+use crate::game_data::{World, chunk_manager::chunk_manager::WorldChunkType, game_event_manager::{event_manager::Event, game_event_manager::GameEventManager}, locations::world_area::WorldArea, player_data::{game_entity::{dynamic_entity_manager::dynamic_entity_manager::DynamicEntityId, game_entity_manager::GameEntityId}, player_data::PlayerData}, screen::{iso_cord_tool}, world::world::WorldEvent};
 
 const CHUNK_SIZE: usize = 16;
 const CHUNK_AREA: usize = CHUNK_SIZE * CHUNK_SIZE;
@@ -23,7 +24,8 @@ pub struct LoadedWorldChunk {
     
     pub dirty: bool,
 
-    // Game objects
+    // Game Object
+    pub lair_block_entities: HashMap<[i32; 3], LairBlockEntityId>,
     pub block_entities: HashMap<[i32; 3], GameEntityId>,
     pub dynamic_entities: HashSet<DynamicEntityId>,
 }
@@ -46,6 +48,8 @@ impl LoadedWorldChunk {
             dirty: true,
             depth,
 
+
+            lair_block_entities: HashMap::new(),            
             block_entities: HashMap::new(),
             dynamic_entities: HashSet::new(),
         }
@@ -174,8 +178,48 @@ impl LoadedWorldChunk {
     }
 
     //=====================================
-    // Game Object Manamgnet
+    // Game entity Manamgnet
     //=====================================
+
+    pub fn add_game_entity(&mut self, cords: [i32; 3], game_entity_id: GameEntityId) {
+        match game_entity_id {
+            GameEntityId::BlockEntity(block_entity_id) => {
+                self.block_entities.insert(cords, game_entity_id);
+            },
+            GameEntityId::LairBlockEntity(lair_block_entity_id) => {
+                self.lair_block_entities.insert(cords, lair_block_entity_id);
+            },
+
+            _ => {
+                
+            }
+        }
+    }
+
+    pub fn remove_game_entity(&mut self, cords: &[i32; 3], game_entity_id: GameEntityId) {
+        match game_entity_id {
+            GameEntityId::BlockEntity(block_entity_id) => {
+                self.block_entities.remove(cords);
+            },
+            GameEntityId::LairBlockEntity(lair_block_entity_id) => {
+                self.lair_block_entities.remove(cords);
+            },
+
+            _ => {
+                
+            }
+        }
+    }
+
+    pub fn collect_lair_block_mods(&self, player_data: &PlayerData) -> Vec<LairBlockMod> {
+        let mut lair_block_mods = Vec::new();
+        for (cords, entity_id) in &self.lair_block_entities {
+            if let Some(lair_mod) = player_data.game_entity_manager.get_lair_block_mod(cords, *entity_id) {
+                lair_block_mods.push(lair_mod);
+            } 
+        }
+        lair_block_mods
+    }
 
     // Remove game objects that are not contained within the chunk
     pub fn update_game_entities(&mut self, _player_data: &PlayerData) {

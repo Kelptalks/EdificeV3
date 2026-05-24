@@ -20,6 +20,7 @@ pub struct MeshVertex {
     pub pos: [f32; 2],
     pub uv: [f32; 2],
     pub tint: [f32; 3],
+    pub alpha: f32,
 }
 
 pub struct TextureMesh {
@@ -56,16 +57,24 @@ impl TextureMesh {
     }
 
     pub fn add_quad(&mut self, pos: [f32; 4], uv: [f32; 4]) {
-        self.add_quad_tinted(pos, uv, [1.0, 1.0, 1.0]);
+        self.add_quad_tinted_translucent(pos, uv, [1.0, 1.0, 1.0], 1.0);
     }
 
     pub fn add_quad_tinted(&mut self, pos: [f32; 4], uv: [f32; 4], tint: [f32; 3]) {
+        self.add_quad_tinted_translucent(pos, uv, tint, 1.0);
+    }
+
+    pub fn add_quad_translucent(&mut self, pos: [f32; 4], uv: [f32; 4], alpha: f32) {
+        self.add_quad_tinted_translucent(pos, uv, [1.0, 1.0, 1.0], alpha);
+    }
+
+    pub fn add_quad_tinted_translucent(&mut self, pos: [f32; 4], uv: [f32; 4], tint: [f32; 3], alpha: f32) {
         let base = self.vertices.len() as u32;
         self.vertices.extend([
-            MeshVertex { pos: [pos[0], pos[1]], uv: [uv[0], uv[1]], tint },
-            MeshVertex { pos: [pos[2], pos[1]], uv: [uv[2], uv[1]], tint },
-            MeshVertex { pos: [pos[2], pos[3]], uv: [uv[2], uv[3]], tint },
-            MeshVertex { pos: [pos[0], pos[3]], uv: [uv[0], uv[3]], tint },
+            MeshVertex { pos: [pos[0], pos[1]], uv: [uv[0], uv[1]], tint, alpha },
+            MeshVertex { pos: [pos[2], pos[1]], uv: [uv[2], uv[1]], tint, alpha },
+            MeshVertex { pos: [pos[2], pos[3]], uv: [uv[2], uv[3]], tint, alpha },
+            MeshVertex { pos: [pos[0], pos[3]], uv: [uv[0], uv[3]], tint, alpha },
         ]);
         self.indices.extend([base, base + 1, base + 2, base, base + 2, base + 3]);
     }

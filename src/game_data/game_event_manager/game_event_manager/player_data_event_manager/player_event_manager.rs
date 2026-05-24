@@ -44,8 +44,7 @@ impl PlayerDataEvent {
                 player_data.new_game_entity(entity);
             }
             PlayerDataEvent::GameEntityEvent(game_entity_event) => {
-                let game_entity_manager = &mut player_data.game_entity_manager;
-                game_entity_event.execute(game_entity_manager);
+                game_entity_event.execute(&mut player_data.game_entity_manager, event_tools);
             },
 
             PlayerDataEvent::SetViewMode(mode) => {

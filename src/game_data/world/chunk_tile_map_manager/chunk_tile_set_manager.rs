@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, World, chunk_manager::{chunk_manager::WorldChunkManager, loaded_chunk::CHUNK_SIZE_I32}, chunk_tile_map_manager::{chunk_render_data::ChunkRenderData, chunk_tile_set::ChunkTileSet}, screen::widget::world_rendering::area_rendering_manager::{ray_caster::casted_tile::CastedTile, raycast_thread_pool::RayCastingThreadPool}, tools::iso_cord_tool, types::BlockTexture};
+use crate::game_data::{TextureManager, World, chunk_manager::{chunk_manager::WorldChunkManager, loaded_chunk::CHUNK_SIZE_I32}, chunk_tile_map_manager::{chunk_render_data::ChunkRenderData, chunk_tile_set::ChunkTileSet}, player_data::{self, player_data::PlayerData}, screen::widget::world_rendering::area_rendering_manager::{ray_caster::casted_tile::CastedTile, raycast_thread_pool::RayCastingThreadPool}, tools::iso_cord_tool, types::BlockTexture};
 
 pub struct ChunkTileSetManager {
     thread_pool: RayCastingThreadPool,
@@ -65,7 +65,7 @@ impl ChunkTileSetManager {
     // Clean
     //=====================================
 
-    pub fn clean(&mut self, chunk_manager: &WorldChunkManager, texture_manager: &mut TextureManager) {
+    pub fn clean(&mut self, chunk_manager: &WorldChunkManager, player_data: &PlayerData, texture_manager: &mut TextureManager) {
         // Free any tile sets scheduled for removal
         let to_free: Vec<u64> = self.sets_to_free.drain(..).collect();
         for key in to_free {
@@ -81,12 +81,12 @@ impl ChunkTileSetManager {
             if let Some(set) = self.chunk_tile_sets.get_mut(set_key) {
                 if set.dirty {
                     set.mark_dirty(texture_manager, &mut self.thread_pool);
-                    if self.show_borders {
-                        let mods = set.get_area().generate_border_mods(BlockTexture::Selector);
-                        set.set_lair_block_mods(mods);
-                    } else {
-                        set.set_lair_block_mods(Vec::new());
+                    
+                    if let Some(chunk) = chunk_manager.get_loaded_chunk(set_key) {
+                        set.set_lair_block_mods(chunk.collect_lair_block_mods(player_data));
                     }
+                    
+
                 }
                 if let Some(chunk) = chunk_manager.get_loaded_chunk(set_key) {
                     set.ray_cast_set(&mut self.thread_pool, chunk);

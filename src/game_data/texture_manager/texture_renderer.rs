@@ -15,6 +15,7 @@ struct Vertex {
     pos: [f32; 2],
     uv: [f32; 2],
     tint: [f32; 3],
+    alpha: f32,
 }
 
 #[repr(C)]
@@ -42,6 +43,9 @@ pub struct TextureRenderingManager {
 
     // Uniforms
     alpha: f32,
+
+    // Pipeline selection
+    has_transparent_quads: bool,
 
 }
 
@@ -89,6 +93,9 @@ impl TextureRenderingManager {
 
             // Uniforms
             alpha: alpha,
+
+            // Pipeline selection
+            has_transparent_quads: false,
         }
     }
 
@@ -114,13 +121,16 @@ impl TextureRenderingManager {
             attribute vec2 position;
             attribute vec2 texcoord;
             attribute vec3 a_tint;
+            attribute float a_alpha;
             varying lowp vec2 uv;
             varying lowp vec3 tint;
+            varying lowp float v_alpha;
 
             void main() {
                 gl_Position = vec4(position, 0, 1);
                 uv = texcoord;
                 tint = a_tint;
+                v_alpha = a_alpha;
             }
         "#;
 
@@ -129,11 +139,13 @@ impl TextureRenderingManager {
             precision mediump float;
             varying lowp vec2 uv;
             varying lowp vec3 tint;
+            varying lowp float v_alpha;
             uniform sampler2D tex;
 
             void main() {
                 vec4 color = texture2D(tex, uv);
                 color.rgb *= tint;
+                color.a *= v_alpha;
                 gl_FragColor = color;
             }
         "#;
@@ -159,13 +171,16 @@ impl TextureRenderingManager {
             attribute vec2 position;
             attribute vec2 texcoord;
             attribute vec3 a_tint;
+            attribute float a_alpha;
             varying lowp vec2 uv;
             varying lowp vec3 tint;
+            varying lowp float v_alpha;
 
             void main() {
                 gl_Position = vec4(position, 0, 1);
                 uv = texcoord;
                 tint = a_tint;
+                v_alpha = a_alpha;
             }
         "#;
 
@@ -174,12 +189,13 @@ impl TextureRenderingManager {
             precision mediump float;
             varying lowp vec2 uv;
             varying lowp vec3 tint;
+            varying lowp float v_alpha;
             uniform sampler2D tex;
             uniform lowp float u_alpha;
 
             void main() {
                 vec4 color = texture2D(tex, uv);
-                color.a *= u_alpha;
+                color.a *= v_alpha * u_alpha;
                 color.rgb *= tint;
                 gl_FragColor = color;
             }
@@ -212,6 +228,7 @@ impl TextureRenderingManager {
                 VertexAttribute::new("position", VertexFormat::Float2),
                 VertexAttribute::new("texcoord", VertexFormat::Float2),
                 VertexAttribute::new("a_tint", VertexFormat::Float3),
+                VertexAttribute::new("a_alpha", VertexFormat::Float1),
             ],
             shader,
             PipelineParams {
@@ -232,17 +249,29 @@ impl TextureRenderingManager {
     }
 
     pub fn add_quad(&mut self, pos: [f32; 4], uv: [f32; 4]) {
-        self.add_quad_tinted(pos, uv, [1.0, 1.0, 1.0]);
+        self.add_quad_tinted_translucent(pos, uv, [1.0, 1.0, 1.0], 1.0);
     }
 
     pub fn add_quad_tinted(&mut self, pos: [f32; 4], uv: [f32; 4], tint: [f32; 3]) {
+        self.add_quad_tinted_translucent(pos, uv, tint, 1.0);
+    }
+
+    pub fn add_quad_translucent(&mut self, pos: [f32; 4], uv: [f32; 4], alpha: f32) {
+        self.add_quad_tinted_translucent(pos, uv, [1.0, 1.0, 1.0], alpha);
+    }
+
+    pub fn add_quad_tinted_translucent(&mut self, pos: [f32; 4], uv: [f32; 4], tint: [f32; 3], alpha: f32) {
+        if alpha < 1.0 {
+            self.has_transparent_quads = true;
+        }
+
         let base_index = self.vertices.len() as u32;
 
         let new_vertices = vec![
-            Vertex { pos: [pos[0], -pos[1]], uv: [uv[0], uv[1]], tint },
-            Vertex { pos: [pos[2], -pos[1]], uv: [uv[2], uv[1]], tint },
-            Vertex { pos: [pos[2], -pos[3]], uv: [uv[2], uv[3]], tint },
-            Vertex { pos: [pos[0], -pos[3]], uv: [uv[0], uv[3]], tint },
+            Vertex { pos: [pos[0], -pos[1]], uv: [uv[0], uv[1]], tint, alpha },
+            Vertex { pos: [pos[2], -pos[1]], uv: [uv[2], uv[1]], tint, alpha },
+            Vertex { pos: [pos[2], -pos[3]], uv: [uv[2], uv[3]], tint, alpha },
+            Vertex { pos: [pos[0], -pos[3]], uv: [uv[0], uv[3]], tint, alpha },
         ];
 
         let new_indices = vec![
@@ -273,7 +302,7 @@ impl TextureRenderingManager {
         };
 
         // Give gpu rendering config
-        if self.alpha == 1.0 {
+        if self.alpha == 1.0 && !self.has_transparent_quads {
             ctx.apply_pipeline(&self.opaque_pipeline);
             ctx.apply_bindings(&bindings);
         }
@@ -289,6 +318,7 @@ impl TextureRenderingManager {
         // Clear for next frame
         self.vertices.clear();
         self.indices.clear();
+        self.has_transparent_quads = false;
     }
 
     pub fn flush_batch(&mut self, ctx: &mut GlContext, screen_data: &ScreenData, batch: &mut RenderBatch) {
@@ -320,8 +350,8 @@ impl TextureRenderingManager {
             images: vec![src_texture],
         };
 
-        // Select pipeline based on batch's alpha
-        if batch.alpha == 1.0 {
+        // Select pipeline based on batch's alpha and per-quad transparency
+        if batch.alpha == 1.0 && !batch.has_transparent_quads {
             ctx.apply_pipeline(&self.opaque_pipeline);
             ctx.apply_bindings(&bindings);
         } else {

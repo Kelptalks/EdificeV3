@@ -7,6 +7,8 @@ pub enum Texture {
     BlockTriangle(BlockTexture, BlockTriangle),
     BlockShader(BlockShader),
 
+    TranslucentBlockTriangle(BlockTexture, BlockTriangle),
+
     DroneItemTexture(DroneItemTexture),
     UITexture(UITextures),
 

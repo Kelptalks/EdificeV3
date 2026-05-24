@@ -160,6 +160,9 @@ impl TextureManager {
             Texture::BlockTriangle(block_texture, block_triangle) => {
                 return texture_atlas.get_precalculated_block_triangle_uv(block_triangle, block_texture)
             },
+            Texture::TranslucentBlockTriangle(block_texture, block_triangle) => {
+                return texture_atlas.get_precalculated_block_triangle_uv(block_triangle, block_texture)
+            },
             Texture::BlockShader(_block_shader) => {
                 todo!("Texture Enum rendering for block shader not implemented");
             },
@@ -186,6 +189,9 @@ impl TextureManager {
             },
             Texture::CashedTexture(cashed_texture_id) => {
                 self.texture_cashe.render_cashed_texture(cashed_texture_id, pos);
+            }
+            Texture::TranslucentBlockTriangle(_, _) => {
+                self.get_texture_renderer().add_quad_translucent(pos, uv, 0.1);
             }
             _ => {
                 self.get_texture_renderer().add_quad(pos, uv);                
@@ -490,7 +496,16 @@ impl TextureManager {
         if let Some(m) = &mut self.mesh_manager {
             if let Some(mesh) = m.get_mut_mesh(mesh_id) {
                 mesh.src_texture.get_or_insert(atlas_id);
-                mesh.add_quad(pos, uv);
+                
+                match texture {
+                    Texture::TranslucentBlockTriangle(_, _) => {
+                        mesh.add_quad_tinted_translucent(pos, uv, [1.0, 1.0, 2.0], 0.5);
+                    }
+                    _ => {
+                        mesh.add_quad(pos, uv);
+                    }
+                }
+                
             }
         }
     }

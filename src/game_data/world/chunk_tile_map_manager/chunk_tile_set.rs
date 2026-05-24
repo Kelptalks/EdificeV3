@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::game_data::{TextureManager, World, chunk_manager::loaded_chunk::LoadedWorldChunk, chunk_tile_map_manager::chunk_render_data::ChunkRenderData, screen::widget::world_rendering::area_rendering_manager::{block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_tile::CastedTile, raycast_thread_pool::{RayCastingTaskId, RayCastingThreadPool}}, texture_manager::mesh_manager::texture_mesh::TextureMeshId, types::BlockTexture, world::locations::world_area::WorldArea};
+use crate::game_data::{TextureManager, World, chunk_manager::loaded_chunk::LoadedWorldChunk, chunk_tile_map_manager::chunk_render_data::ChunkRenderData, screen::widget::world_rendering::area_rendering_manager::{block_lair_manager::lair_block::LairBlockMod, ray_caster::casted_tile::CastedTile, raycast_thread_pool::{RayCastingTaskId, RayCastingThreadPool}}, texture_manager::mesh_manager::texture_mesh::TextureMeshId, world::locations::world_area::WorldArea};
 
 pub struct ChunkTileSet {
     pub chunk_key: u64,
@@ -29,7 +29,6 @@ impl ChunkTileSet {
             area: chunk.get_world_area(),
 
             tile_map: HashMap::new(),
-
             ray_casting_task_id: None,
 
             mesh_id: None,
@@ -62,9 +61,13 @@ impl ChunkTileSet {
         world_snapshot.create_chunk(self.chunk_key);
         world_snapshot.set_chunk_block_data(self.chunk_key, chunk.clone_block_data());
 
+        // Merge persistent lair mods (set by set_lair_block_mods) with any
+        // per-block mods stored in the chunk's lair_block_data array.
+        let mut mods = self.lair_block_mods.clone();
+
         if self.ray_casting_task_id.is_none() {
             self.ray_casting_task_id = Some(
-                thread_pool.submit(self.area, self.lair_block_mods.clone(), world_snapshot)
+                thread_pool.submit(self.area, mods, world_snapshot)
             );
         }
     }

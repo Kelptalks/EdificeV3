@@ -15,9 +15,6 @@ pub struct LairBlockManager {
     // block_hashmap
     lair_block_map: HashMap<u64, LairBlock>,
 
-
-
-
 }
 
 

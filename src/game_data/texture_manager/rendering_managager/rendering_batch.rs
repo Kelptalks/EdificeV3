@@ -17,6 +17,7 @@ pub struct Vertex {
     pos: [f32; 2],
     uv: [f32; 2],
     tint: [f32; 3],
+    alpha: f32,
 }
 
 
@@ -27,10 +28,11 @@ pub struct RenderBatch {
     pub target_texture: Option<TextureId>, // If non to viewport
 
     // Quads
-    pub vertices: Vec<Vertex>, 
+    pub vertices: Vec<Vertex>,
     pub indices: Vec<u32>,
 
     pub alpha: f32,
+    pub has_transparent_quads: bool,
 }
 
 impl RenderBatch {
@@ -42,14 +44,15 @@ impl RenderBatch {
             vertices: Vec::new(),
             indices: Vec::new(),
 
-            alpha: 1.0
+            alpha: 1.0,
+            has_transparent_quads: false,
         }
     }
 
     pub fn clear(&mut self) {
         self.vertices.clear();
         self.indices.clear();
-
+        self.has_transparent_quads = false;
     }
 
     //=====================================
@@ -69,17 +72,29 @@ impl RenderBatch {
     //=====================================
     
     pub fn add_quad(&mut self, pos: [f32; 4], uv: [f32; 4]) {
-        self.add_quad_tinted(pos, uv, [1.0, 1.0, 1.0]);
+        self.add_quad_tinted_translucent(pos, uv, [1.0, 1.0, 1.0], 1.0);
     }
 
     pub fn add_quad_tinted(&mut self, pos: [f32; 4], uv: [f32; 4], tint: [f32; 3]) {
+        self.add_quad_tinted_translucent(pos, uv, tint, 1.0);
+    }
+
+    pub fn add_quad_translucent(&mut self, pos: [f32; 4], uv: [f32; 4], alpha: f32) {
+        self.add_quad_tinted_translucent(pos, uv, [1.0, 1.0, 1.0], alpha);
+    }
+
+    pub fn add_quad_tinted_translucent(&mut self, pos: [f32; 4], uv: [f32; 4], tint: [f32; 3], alpha: f32) {
+        if alpha < 1.0 {
+            self.has_transparent_quads = true;
+        }
+
         let base_index = self.vertices.len() as u32;
 
         let new_vertices = vec![
-            Vertex { pos: [pos[0], -pos[1]], uv: [uv[0], uv[1]], tint },
-            Vertex { pos: [pos[2], -pos[1]], uv: [uv[2], uv[1]], tint },
-            Vertex { pos: [pos[2], -pos[3]], uv: [uv[2], uv[3]], tint },
-            Vertex { pos: [pos[0], -pos[3]], uv: [uv[0], uv[3]], tint },
+            Vertex { pos: [pos[0], -pos[1]], uv: [uv[0], uv[1]], tint, alpha },
+            Vertex { pos: [pos[2], -pos[1]], uv: [uv[2], uv[1]], tint, alpha },
+            Vertex { pos: [pos[2], -pos[3]], uv: [uv[2], uv[3]], tint, alpha },
+            Vertex { pos: [pos[0], -pos[3]], uv: [uv[0], uv[3]], tint, alpha },
         ];
 
         let new_indices = vec![
